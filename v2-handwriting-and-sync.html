@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ThinkBoard Lite v2 — handwriting & sync</title>
+<style>
+  :root{
+    --paper:#FAFAF8; --card:#FFFFFF; --ink:#17212B; --muted:#6B7785; --rule:#DDE2E8;
+    --amber:#FFD84D; --mint:#6FD6C4; --pink:#FF9AC1;
+    --accent:#2F3A8F; --ok:#1E6E4E; --warn:#B4531E;
+    --serif: ui-serif, Georgia, "Times New Roman", serif;
+    --sans: ui-sans-serif, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
+  .wrap{max-width:1080px;margin:0 auto;padding:52px 26px 110px}
+  h1,h2,h3,h4{font-family:var(--serif);font-weight:600;letter-spacing:-.01em;margin:0}
+  h1{font-size:40px;line-height:1.1} h2{font-size:26px} h3{font-size:17px} h4{font-size:14.5px}
+  p{margin:.6em 0;max-width:70ch}
+  .lede{font-size:18px;color:var(--muted);max-width:62ch;margin-top:14px}
+  .sub{color:var(--muted);font-size:13.5px}
+  code,.t{font-family:var(--mono);font-size:12.5px;background:#EEF1F4;padding:1px 5px;color:#2B3A47;border-radius:2px}
+  pre{font-family:var(--mono);font-size:12px;line-height:1.65;color:#2B3A47;background:#F3F5F7;
+      border:1px solid var(--rule);padding:14px 16px;overflow-x:auto;margin:14px 0 0}
+  .mark{position:relative;display:inline;padding:0 .1em}
+  .mark::before{content:"";position:absolute;left:0;right:0;bottom:.04em;height:.72em;background:var(--amber);
+    z-index:-1;transform-origin:left center;transform:scaleX(0);animation:sw .5s cubic-bezier(.2,.7,.3,1) forwards}
+  @keyframes sw{to{transform:scaleX(1)}}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+  section{margin-top:68px;padding-top:32px;border-top:1px solid var(--rule)}
+  .sechead{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap}
+  .num{font-family:var(--mono);font-size:13px;color:var(--muted);padding-top:6px}
+  .sechead .sub{margin-left:auto}
+  button{font:inherit;cursor:pointer}
+  table{width:100%;border-collapse:collapse;margin-top:22px;font-size:13.5px}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--rule);vertical-align:top}
+  th{font-weight:600;font-size:12px;color:var(--muted);border-bottom:1.5px solid var(--ink)}
+  .callout{margin-top:24px;border-left:4px solid var(--accent);background:#fff;padding:16px 20px}
+  .callout.warn{border-left-color:var(--warn)}
+  .callout.ok{border-left-color:var(--ok)}
+  .callout p{margin:.25em 0;font-size:14px;max-width:82ch}
+  .btn{font-size:12.5px;padding:6px 12px;border:1px solid var(--ink);background:#fff;color:var(--ink)}
+  .btn:hover:not(:disabled){background:var(--ink);color:#fff}
+  .btn:disabled{opacity:.35;cursor:not-allowed}
+  .btn.go{background:var(--ok);border-color:var(--ok);color:#fff}
+  .pill{font-size:13px;padding:6px 13px;border:1px solid var(--rule);background:#fff;color:var(--ink);border-radius:999px}
+  .pill[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+  /* ── live writing test ── */
+  .lab{margin-top:26px;border:1px solid var(--ink);background:var(--card)}
+  .labbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 16px;
+          border-bottom:1px solid var(--rule);background:#F3F5F7}
+  .tabs{display:flex;gap:0;border:1px solid var(--rule);background:#fff}
+  .tabs button{padding:7px 16px;border:0;background:#fff;font-size:13.5px;color:var(--muted);border-right:1px solid var(--rule)}
+  .tabs button:last-child{border-right:0}
+  .tabs button[aria-pressed="true"]{background:var(--ink);color:#fff}
+  .labbar .badge{margin-left:auto;font-family:var(--mono);font-size:11.5px;padding:5px 10px;border:1px solid var(--rule);background:#fff;color:var(--muted)}
+  .labbar .badge.hot{border-color:var(--ok);color:var(--ok);background:#F1F7F4}
+  .labbody{padding:22px 24px}
+  .padwrap{padding:16px}                     /* the 16px clear zone — constraint #3, live */
+  .writepad{
+    display:block; width:100%; min-height:190px; resize:vertical;
+    border:1px solid var(--rule); border-radius:2px; background:#fff;
+    background-image:repeating-linear-gradient(transparent 0 35px, #E8ECF0 35px 36px);
+    background-position:0 10px;
+    padding:14px 18px; font-family:var(--serif); font-size:19px; line-height:36px; color:var(--ink);
+    outline:none;
+  }
+  .writepad:focus{border-color:var(--ink)}
+  .hint{font-size:13px;color:var(--muted);margin-top:10px}
+  .readout{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:18px;border:1px solid var(--rule)}
+  .readout > div{padding:12px 14px;border-right:1px solid var(--rule)}
+  .readout > div:last-child{border-right:0}
+  .readout .k{font-family:var(--mono);font-size:10.5px;color:var(--muted);display:block;margin-bottom:5px}
+  .readout .v{font-family:var(--mono);font-size:14px;color:var(--ink)}
+  .readout .v.yes{color:var(--ok)} .readout .v.no{color:var(--muted)}
+  @media (max-width:760px){.readout{grid-template-columns:1fr 1fr}.readout>div{border-bottom:1px solid var(--rule)}}
+  .verdict{margin-top:18px;padding:14px 18px;border-left:4px solid var(--rule);background:#F8F9FB;font-size:14px}
+  .verdict.pass{border-left-color:var(--ok);background:#F1F7F4}
+  .verdict.wait{border-left-color:var(--amber);background:#FFFDF4}
+  .log{font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-top:14px;max-height:110px;overflow-y:auto;
+       border:1px solid var(--rule);padding:10px 12px;background:#FCFCFB}
+  .log div{padding:1px 0}
+
+  /* tiers */
+  .tiers{display:grid;grid-template-columns:repeat(3,1fr);margin-top:26px;border:1px solid var(--ink)}
+  .tiers > div{padding:18px 20px;border-right:1px solid var(--rule)}
+  .tiers > div:last-child{border-right:0}
+  .tiers .cap{font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:.04em}
+  .tiers h3{margin:4px 0 8px}
+  .tiers p{font-size:13.5px;color:#2B3A47;margin:.3em 0}
+  .tiers .facts{margin-top:12px;font-family:var(--mono);font-size:11.5px;color:var(--muted);line-height:1.8}
+  .swatch{height:5px;margin:-18px -20px 16px}
+  .s1{background:var(--ok)} .s2{background:var(--amber)} .s3{background:var(--pink)}
+  @media (max-width:820px){.tiers{grid-template-columns:1fr}.tiers>div{border-right:0;border-bottom:1px solid var(--rule)}}
+
+  /* dexie situations */
+  .sits{display:grid;grid-template-columns:repeat(4,1fr);margin-top:26px;border:1px solid var(--ink)}
+  .sits > button{text-align:left;padding:15px 16px;border:0;border-right:1px solid var(--rule);background:#fff;transition:background .15s}
+  .sits > button:last-child{border-right:0}
+  .sits > button:hover{background:#F8F9FB}
+  .sits > button[aria-pressed="true"]{background:var(--ink);color:#fff}
+  .sits .id{font-family:var(--mono);font-size:10.5px;opacity:.65;display:block;margin-bottom:5px}
+  .sits .nm{font-family:var(--serif);font-size:15px;line-height:1.3}
+  .sitbody{border:1px solid var(--ink);border-top:0;padding:18px 20px;background:#fff}
+  @media (max-width:820px){.sits{grid-template-columns:1fr 1fr}}
+
+  /* channel stepper */
+  .stage{background:var(--card);border:1px solid var(--ink);margin-top:26px}
+  .stagebar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--rule);background:#F3F5F7}
+  .stagebar .count{margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .track{padding:20px}
+  .lane{display:grid;grid-template-columns:180px 1fr;gap:14px;align-items:start;padding:12px 14px;
+        border:1px solid var(--rule);margin-bottom:8px;background:#fff;opacity:.32;
+        transition:opacity .3s,border-color .3s,background .3s}
+  .lane:last-child{margin-bottom:0}
+  .lane.on{opacity:1;border-color:var(--ink)}
+  .lane.now{opacity:1;border-color:var(--accent);border-width:1.5px;background:#F7F8FC}
+  .lane .where{font-family:var(--mono);font-size:11px;color:var(--muted);line-height:1.45}
+  .lane .what{font-size:13.5px}
+  .lane .what b{font-family:var(--serif);font-weight:600;display:block;font-size:14.5px;margin-bottom:3px}
+  .why{padding:0 20px 20px}
+  .why .box{border-left:3px solid var(--amber);padding:10px 14px;background:#FFFDF4;font-size:13.5px}
+  footer{margin-top:76px;padding-top:30px;border-top:1px solid var(--rule)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>The tablet already does<br>the <span class="mark">hard part</span>. For free. Offline.</h1>
+  <p class="lede">ThinkBoard Lite v2. Handwriting is an input method, not a storage format — and the
+  Dexie⇄Supabase connection is four channels, not a sync engine.</p>
+</header>
+
+<!-- ══════ 01 LIVE TEST ══════ -->
+<section id="s1">
+  <div class="sechead"><span class="num">01</span><h2>Try it right now</h2>
+    <span class="sub">open this page on the tablet · pen required</span></div>
+  <p>This is the whole feature. Below is a plain <code>&lt;textarea&gt;</code> styled to look like ruled
+  paper — no canvas, no recognizer, no model, no network. On an iPad with Apple Pencil, or an Android 14+
+  tablet with a stylus, <strong>write in it with the pen</strong> and the operating system types for you.</p>
+
+  <div class="lab">
+    <div class="labbar">
+      <div class="tabs">
+        <button id="tabKey" aria-pressed="false">Keyboard</button>
+        <button id="tabPen" aria-pressed="true">Handwriting</button>
+      </div>
+      <button class="btn" id="clearPad">Clear</button>
+      <span class="badge" id="penBadge">no pen seen yet</span>
+    </div>
+    <div class="labbody">
+      <div class="padwrap">
+        <textarea class="writepad" id="pad" placeholder="Write here with your pen…"></textarea>
+      </div>
+      <p class="hint" id="padHint">Write with your pen. Text appears as you go — the conversion happens on
+      the device, so nothing is sent anywhere.</p>
+
+      <div class="readout">
+        <div><span class="k">POINTER SEEN</span><span class="v no" id="rPointer">—</span></div>
+        <div><span class="k">PRESSURE</span><span class="v no" id="rPressure">—</span></div>
+        <div><span class="k">CHARACTERS</span><span class="v" id="rChars">0</span></div>
+        <div><span class="k">TEXT WITHOUT KEYPRESS</span><span class="v no" id="rInjected">no</span></div>
+      </div>
+
+      <div class="verdict" id="verdict">Waiting for input. Use a pen if you have one; a finger or mouse will
+      show up here too, so you can see what the page can and cannot detect.</div>
+      <div class="log" id="log"><div>ready.</div></div>
+    </div>
+  </div>
+
+  <div class="callout ok">
+    <p><strong>What “text without keypress” means.</strong> When the OS recogniser commits handwriting, it
+    writes into the field through the platform's input connection — an <code>input</code> event fires with
+    no preceding <code>keydown</code>. That is the signal this page watches, and it is the same signal
+    ThinkBoard uses to know Tier A is working on a device, so it can stop nagging about the pen.</p>
+  </div>
+
+  <div class="callout warn">
+    <p><strong>If nothing happens:</strong> on iPad check Settings → Apple Pencil → Scribble is on, and that
+    you are using a Pencil rather than a finger — Scribble is Pencil-only. On Android you need 14 or higher,
+    a compatible stylus, and a keyboard that supports the stylus handwriting APIs. On desktop with a mouse,
+    nothing will happen, and that is correct.</p>
+  </div>
+</section>
+
+<!-- ══════ 02 TIERS ══════ -->
+<section id="s2">
+  <div class="sechead"><span class="num">02</span><h2>Three tiers, reordered</h2>
+    <span class="sub">v1 had the LLM tier as the default — that was wrong</span></div>
+  <p>The v1 plan treated handwriting as a recognition problem to solve in-app, with a vision model as the
+  default transcriber. That made the feature depend on the network, on a free-tier quota, and on sending a
+  person's handwriting to a third party. All three are avoidable.</p>
+
+  <div class="tiers">
+    <div>
+      <div class="swatch s1"></div>
+      <div class="cap">TIER A · DEFAULT</div>
+      <h3>OS stylus → text</h3>
+      <p>Pen writes into a real text field. iPadOS Scribble, Android 14 platform stylus writing, Samsung
+      DirectWriting. ThinkBoard receives an ordinary change event with real text.</p>
+      <div class="facts">offline ✓<br>LLM never<br>output: real text<br>cost: zero<br>code: a textarea</div>
+    </div>
+    <div>
+      <div class="swatch s2"></div>
+      <div class="cap">TIER B · FALLBACK</div>
+      <h3>Vector ink, transcribe later</h3>
+      <p>No stylus support, or an unsupported language. Strokes are captured as
+      <code>{x,y,t,pressure}</code> — roughly 2 kB a sentence, scalable, re-renderable. Transcription is
+      queued in the outbox and runs on reconnect.</p>
+      <div class="facts">capture offline ✓<br>transcribe online<br>output: strokes now, text later<br>opened deliberately</div>
+    </div>
+    <div>
+      <div class="swatch s3"></div>
+      <div class="cap">TIER C · ON PURPOSE</div>
+      <h3>Ink stays ink</h3>
+      <p>A sketch, a diagram, a signature. Rendered as SVG, exported as SVG. Not text, and not pretending
+      to be.</p>
+      <div class="facts">offline ✓<br>LLM never<br>output: a drawing</div>
+    </div>
+  </div>
+
+  <div class="callout">
+    <p><strong>No tier stores an image.</strong> Tier A stores text. Tiers B and C store vector strokes —
+    which scale to any zoom, re-render crisply, and can still be transcribed months later. A PNG can do none
+    of those. Your “if possible, not as image or canvas” goal is met in every path, and in the default path
+    nothing is ever captured as ink at all.</p>
+  </div>
+</section>
+
+<!-- ══════ 03 CONSTRAINTS ══════ -->
+<section id="s3">
+  <div class="sechead"><span class="num">03</span><h2>Four ways to silently break Tier A</h2>
+    <span class="sub">each one looks fine in review and fails on the device</span></div>
+  <table>
+    <thead><tr><th>Do not</th><th>Because</th><th>Instead</th></tr></thead>
+    <tbody>
+      <tr><td>Use <code>contenteditable</code> or a rich-text editor — Tiptap, Slate, ProseMirror, Lexical</td>
+          <td>The platform recognisers target standard text input fields. A custom editor is not one, and on the web there is no hook to declare yourself as one.</td>
+          <td>A plain <code>&lt;textarea&gt;</code>. A note is 2,000 characters; it did not need ProseMirror anyway.</td></tr>
+      <tr><td>Let the Konva Stage sit under or over the note field</td>
+          <td>Android's own guidance names “text entry fields overlaying a drawing surface” as needing custom work. The Stage swallows the pen event and the OS never sees a writing gesture.</td>
+          <td>Own stacking context, opaque background, and <code>pointer-events:none</code> on the Stage while the sheet is open.</td></tr>
+      <tr><td>Put buttons hard against the field's edge</td>
+          <td>Handwriting initiation reserves roughly 40 dp above and below the field and 10 dp either side. A control inside that band steals the first stroke.</td>
+          <td>~16 px of clear, non-interactive padding all round. The test pad above has exactly that.</td></tr>
+      <tr><td>Mount the textarea lazily on tap</td>
+          <td>The pen has to land on a field that already exists and can take focus.</td>
+          <td>Render it. Let the pen initiate.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <p><strong>Three of these were already right in v1 for weaker reasons.</strong> The textarea was chosen
+    over Tiptap on prompt-budget grounds. Now it is an invariant with a real failure mode behind it —
+    which is the difference between a preference the next agent quietly overrides and a rule in the verify
+    script.</p>
+  </div>
+</section>
+
+<!-- ══════ 04 LANGUAGE ══════ -->
+<section id="s4">
+  <div class="sechead"><span class="num">04</span><h2>The honest problem</h2>
+    <span class="sub">the one thing that could sink Tier A</span></div>
+  <p>Scribble recognises English, Cantonese, Chinese, French, German, Italian, Japanese, Spanish and
+  Portuguese. <strong>Bahasa Indonesia is not on that list.</strong></p>
+  <p>Indonesian is Latin script, so an English recogniser gets the letters mostly right but biases toward
+  English vocabulary — and the errors will cluster on exactly the domain words that matter. Reported
+  accuracy on supported languages is around 90–95%; Bahasa will sit below that.</p>
+  <p>Android is the better platform here: Gboard's handwriting supports far more languages than Scribble,
+  so a Samsung or other Android 14 tablet with a stylus may handle Bahasa where an iPad will not.</p>
+
+  <div class="callout warn">
+    <p><strong>The 45-minute test that decides this feature.</strong> Open this page on three real tablets
+    from the actual fleet and have three real users write three real Indonesian sentences in the pad in §01.
+    Count the words that come back wrong.</p>
+    <p style="margin-top:9px">Under ~10% wrong → Tier A ships as the default and handwriting costs nothing.
+    Over ~30% → Tier B becomes the default for Bahasa and the vision-model transcription returns, but
+    reached by a minority of notes rather than all of them, which changes the free-tier arithmetic entirely.
+    In between → a per-note language toggle: <code>id</code> routes to Tier B, <code>en</code> to Tier A.
+    Two lines of UI that turn an unpredictable failure into a stated trade.</p>
+  </div>
+</section>
+
+<!-- ══════ 05 WHY DEXIE ══════ -->
+<section id="s5">
+  <div class="sechead"><span class="num">05</span><h2>Why Dexie, in four situations</h2>
+    <span class="sub">if none of these were true, the entity adapter would be correct</span></div>
+  <p>Choosing Dexie is really choosing IndexedDB as the read model. That earns its place against four
+  concrete situations, not against a preference.</p>
+  <div class="sits" id="sits">
+    <button data-sit="s1" aria-pressed="true"><span class="id">S1</span><span class="nm">Opens offline, a day later</span></button>
+    <button data-sit="s2" aria-pressed="false"><span class="id">S2</span><span class="nm">180 highlights, 240 notes, ink</span></button>
+    <button data-sit="s3" aria-pressed="false"><span class="id">S3</span><span class="nm">Filtering page 7 of 30, while panning</span></button>
+    <button data-sit="s4" aria-pressed="false"><span class="id">S4</span><span class="nm">Row and outbox, or neither</span></button>
+  </div>
+  <div class="sitbody" id="sitbody"></div>
+
+  <div class="callout">
+    <p><strong>What Dexie is not solving.</strong> It is a local database, not a sync engine, not a conflict
+    resolver. Everything in §06 is code you write. That is the right trade here only because ThinkBoard has
+    no concurrent editing — the group layer is leader-write, the individual layer is author-write, and
+    highlight geometry is immutable. Nothing merges, so sync collapses from a distributed-systems problem
+    into “send these rows in order, then diff a manifest”.</p>
+    <p style="margin-top:9px">Lose that property — by making notes co-editable, say — and PowerSync becomes
+    the plan rather than the escape hatch.</p>
+  </div>
+</section>
+
+<!-- ══════ 06 CHANNELS ══════ -->
+<section id="s6">
+  <div class="sechead"><span class="num">06</span><h2>Dexie ⇄ Supabase: four channels</h2>
+    <span class="sub">plus one for the PDF · each has one owner file and one direction</span></div>
+  <div class="stage">
+    <div class="stagebar">
+      <button class="pill" data-ch="boot"  aria-pressed="true">① Bootstrap</button>
+      <button class="pill" data-ch="push"  aria-pressed="false">② Push</button>
+      <button class="pill" data-ch="pull"  aria-pressed="false">③ Pull</button>
+      <button class="pill" data-ch="recon" aria-pressed="false">④ Reconcile</button>
+      <button class="btn go" id="chStep" style="margin-left:8px">Step →</button>
+      <button class="btn" id="chReset">Reset</button>
+      <span class="count" id="chCount"></span>
+    </div>
+    <div class="track" id="chTrack"></div>
+    <div class="why"><div class="box" id="chWhy"></div></div>
+  </div>
+
+  <pre>push → pull → resubscribe        ← the reconnect order, and it is not negotiable
+
+pull before push  →  reconcile overwrites rows you have not sent yet
+subscribe first   →  events land mid-manifest, so the diff runs against a moving target</pre>
+
+  <table>
+    <thead><tr><th>Failure</th><th>Detected by</th><th>Behaviour</th></tr></thead>
+    <tbody>
+      <tr><td>Offline</td><td>fetch rejects</td><td>queue in the outbox; the pill reads “12 changes to sync”</td></tr>
+      <tr><td>401 token expired</td><td>status 401</td><td>refresh once and retry; on a second failure, park and prompt</td></tr>
+      <tr><td>403 RLS denied</td><td>status 403</td><td>park as <code>failed</code> and surface it — never retry</td></tr>
+      <tr><td>409 stale note version</td><td>status 409</td><td>keep the local text as a <strong>second note</strong>; never discard typing</td></tr>
+      <tr><td>Socket drop</td><td><code>CHANNEL_ERROR</code></td><td>reconnect with jitter, then run ④ before ③</td></tr>
+      <tr><td>OPFS evicted</td><td>file missing</td><td>re-fetch the PDF from Storage, one-line notice</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <p><strong>Why not PowerSync or ElectricSQL.</strong> Electric is a read-path sync engine — you would
+    still write every line of ② yourself — and its vendor announced in August 2026 that it is joining
+    Databricks with the cloud winding down. PowerSync is genuinely good and is the named escape hatch, but
+    it replaces Dexie with SQLite-wasm, needs Postgres logical replication (whose known WAL-growth issue on
+    idle Supabase instances describes a pilot project exactly), and its hardest-won feature is partial
+    replication with causal consistency across many writers — a problem this design already removed.</p>
+  </div>
+</section>
+
+<footer>
+  <h3>The one question to answer first</h3>
+  <p>Does Scribble produce usable Bahasa Indonesia on the fleet's actual iPads? Everything in §02–§04 hangs
+  on it, the test costs 45 minutes, and the answer is the difference between a handwriting feature that
+  costs nothing and one that costs a model call per note.</p>
+</footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ───────── 01 live writing test ───────── */
+  var pad = document.getElementById('pad'),
+      log = document.getElementById('log'),
+      badge = document.getElementById('penBadge'),
+      verdict = document.getElementById('verdict'),
+      hint = document.getElementById('padHint');
+
+  var seen = { pen:false, touch:false, mouse:false },
+      maxPressure = 0, injected = false, lastKey = 0, lastLen = 0;
+
+  function line(t){
+    var d = document.createElement('div');
+    d.textContent = new Date().toLocaleTimeString() + '  ' + t;
+    log.insertBefore(d, log.firstChild);
+    while (log.children.length > 40) log.removeChild(log.lastChild);
+  }
+  function set(id, val, good){
+    var el = document.getElementById(id);
+    el.textContent = val;
+    el.className = 'v ' + (good ? 'yes' : 'no');
+  }
+  function refresh(){
+    var kinds = Object.keys(seen).filter(function(k){ return seen[k]; });
+    set('rPointer', kinds.length ? kinds.join(' + ') : '—', seen.pen);
+    set('rPressure', maxPressure ? maxPressure.toFixed(2) : '—', maxPressure > 0 && maxPressure < 1);
+    set('rChars', String(pad.value.length), pad.value.length > 0);
+    set('rInjected', injected ? 'YES' : 'no', injected);
+
+    badge.textContent = seen.pen ? '✎ pen detected' : (kinds.length ? kinds.join(' + ') + ' only' : 'no pen seen yet');
+    badge.className = 'badge' + (seen.pen ? ' hot' : '');
+
+    if (injected && seen.pen){
+      verdict.className = 'verdict pass';
+      verdict.innerHTML = '<strong>Tier A is working on this device.</strong> Text arrived in a plain '
+        + 'textarea with no keypress, from a pen. That is the operating system recognising handwriting '
+        + 'on-device — no canvas, no model, no network. Now write three sentences in Bahasa and count '
+        + 'the words it gets wrong; that is the §04 test.';
+    } else if (seen.pen){
+      verdict.className = 'verdict wait';
+      verdict.innerHTML = '<strong>Pen detected, but no text has arrived yet.</strong> Keep writing — '
+        + 'recognition commits after a short pause. If nothing lands after a few words, Scribble may be '
+        + 'off in Settings → Apple Pencil, or this Android build lacks stylus handwriting support. '
+        + 'That device would fall to Tier B.';
+    } else if (seen.touch || seen.mouse){
+      verdict.className = 'verdict';
+      verdict.innerHTML = '<strong>No pen yet.</strong> Finger and mouse input do not trigger OS '
+        + 'handwriting — Scribble is Apple Pencil only, and Android needs a compatible stylus. This is the '
+        + 'expected result on a desktop, and the reason Tier B exists.';
+    }
+  }
+
+  ['pointerdown','pointermove'].forEach(function(evt){
+    pad.addEventListener(evt, function(e){
+      var t = e.pointerType || 'unknown';
+      if (seen[t] === false){ seen[t] = true; line('pointer ' + t + ' first seen'); }
+      if (typeof e.pressure === 'number' && e.pressure > maxPressure && e.pressure < 1) maxPressure = e.pressure;
+      refresh();
+    }, { passive:true });
+  });
+
+  pad.addEventListener('keydown', function(){ lastKey = Date.now(); });
+
+  pad.addEventListener('input', function(){
+    var grew = pad.value.length - lastLen;
+    var sinceKey = Date.now() - lastKey;
+    if (grew !== 0 && sinceKey > 120){
+      if (!injected){ injected = true; line('text arrived with no keypress — OS recogniser committed'); }
+    }
+    lastLen = pad.value.length;
+    refresh();
+  });
+
+  document.getElementById('clearPad').addEventListener('click', function(){
+    pad.value = ''; lastLen = 0; refresh(); pad.focus();
+  });
+
+  var tabKey = document.getElementById('tabKey'), tabPen = document.getElementById('tabPen');
+  function setTab(pen){
+    tabPen.setAttribute('aria-pressed', String(pen));
+    tabKey.setAttribute('aria-pressed', String(!pen));
+    pad.style.fontFamily = pen ? 'var(--serif)' : 'var(--sans)';
+    pad.style.fontSize   = pen ? '19px' : '15px';
+    pad.style.lineHeight = pen ? '36px' : '36px';
+    pad.style.backgroundImage = pen
+      ? 'repeating-linear-gradient(transparent 0 35px, #E8ECF0 35px 36px)' : 'none';
+    pad.placeholder = pen ? 'Write here with your pen…' : 'Type here…';
+    hint.textContent = pen
+      ? 'Write with your pen. Text appears as you go — the conversion happens on the device, so nothing is sent anywhere.'
+      : 'Same field, same content, different styling. That both tabs write to one text column is the clearest sign this is the right design.';
+    pad.focus();
+  }
+  tabKey.addEventListener('click', function(){ setTab(false); });
+  tabPen.addEventListener('click', function(){ setTab(true); });
+  refresh();
+
+  /* ───────── 05 dexie situations ───────── */
+  var SITS = {
+    s1: { h:"A forester opens the workspace on a tablet with no signal, having opened it yesterday",
+      b:"<code>createEntityAdapter</code> lives in memory, so without persistence the app opens <strong>empty</strong>. With <code>redux-persist</code> it opens — until situation S2 arrives.",
+      v:"Workaround exists, and it is the one the reference project already regretted: persisting <code>entities</code> was its deviation #5, wiped by migration v2." },
+    s2: { h:"A 30-page document accumulates 180 highlights, 240 notes, and ink for 60 of them",
+      b:"localStorage is roughly 5 MB per origin, stored as UTF-16 strings. Ink strokes alone exceed it. <code>redux-persist</code> fails by throwing <code>QuotaExceededError</code> on write — silently, inside a rehydration path nobody is watching.",
+      v:"No workaround. IndexedDB's quota is measured in percent-of-disk, not megabytes." },
+    s3: { h:"The note sheet renders highlights for page 7 of 30, sixty times a second while the user pans",
+      b:"<code>selectAll().filter(h =&gt; h.page === 7)</code> is O(n) on every render. <code>db.highlights.where('[artifactId+page]').equals([a, 7])</code> is an index seek.",
+      v:"At 180 rows the difference is not felt. Across a workspace list of a few thousand it is, and it will be blamed on React." },
+    s4: { h:"A highlight is created offline; the row and its outbox entry must both exist, or neither",
+      b:"Two <code>dispatch()</code> calls are two separate state updates with no atomicity. A crash between them leaves a row that will never sync — the worst possible failure, because everything looks fine. <code>db.transaction('rw', …)</code> gives real atomicity.",
+      v:"<strong>This is the one that decides it.</strong> Offline-first <em>is</em> the guarantee that a write lands durably with its sync intent attached, and Redux has no transaction primitive." }
+  };
+  var sitbody = document.getElementById('sitbody');
+  function paintSit(k){
+    var s = SITS[k];
+    sitbody.innerHTML = '<h3>' + s.h + '</h3><p>' + s.b + '</p>'
+      + '<p class="sub" style="margin-top:12px">' + s.v + '</p>';
+  }
+  document.querySelectorAll('[data-sit]').forEach(function(b){
+    b.addEventListener('click', function(){
+      document.querySelectorAll('[data-sit]').forEach(function(x){ x.setAttribute('aria-pressed', String(x === b)); });
+      paintSit(b.getAttribute('data-sit'));
+    });
+  });
+  paintSit('s1');
+
+  /* ───────── 06 channels ───────── */
+  var CH = {
+    boot: { why:"Runs once per workspace per device, then never again unless local data is cleared. The <code>meta</code> flag is the guard — bootstrapping on every mount is how a pilot burns its egress budget in a week.",
+      steps:[
+        { w:"features/sync/bootstrap/<br>bootstrap-workspace.ts", t:"<b>Check the meta flag</b><code>meta.get('bootstrapped:'+sessionId)</code>. Present? Stop here." },
+        { w:"supabase → PostgREST", t:"<b>Paginate, never fetch-all</b>500 rows a page via <code>range()</code>. A workspace can hold thousands and the response is capped anyway." },
+        { w:"features/entities/db", t:"<b>bulkPut, not put in a loop</b>One transaction instead of n. On a 2,000-row workspace that is the difference between 200 ms and a frozen tab." },
+        { w:"features/entities/db", t:"<b>Set the flag</b>And because every write is a <code>bulkPut</code> keyed by id, an interrupted bootstrap simply resumes." }
+      ]},
+    push: { why:"The only path from local to server. Everything else on this page is a read. The user's JWT rides along, so a write that RLS forbids fails with a 403 and parks — being offline first cannot smuggle it through. That is what makes direct client writes safe.",
+      steps:[
+        { w:"features/sync/outbox/push.ts", t:"<b>Take the lowest seq</b><code>db.outbox.orderBy('seq').first()</code>. Strictly one at a time — a note insert landing before its highlight is a foreign-key error you only meet on bad network." },
+        { w:"@supabase/supabase-js", t:"<b>upsert onConflict: 'id'</b>The id was generated client-side as a UUIDv7, so replaying after a crash mid-drain is a no-op rather than a duplicate." },
+        { w:"features/entities/db", t:"<b>Delete the op and clear _dirty — one transaction</b>The <code>_dirty</code> flag is what the pending dot in the UI reads, and clearing it here rather than in the pull is what stops a row being clobbered by its own echo." },
+        { w:"features/sync/outbox/<br>backoff.ts", t:"<b>Split the failures</b>Network and 5xx back off and retry. A 4xx parks the op as <code>failed</code> and surfaces it. A permission error retried forever is a spinner that never resolves and nobody can explain." }
+      ]},
+    pull: { why:"Realtime only delivers while you are connected, which is exactly why channel ④ exists. Note also that the topic decides privacy: group and promoted rows go to the workspace topic, private rows go to the author's own device topic.",
+      steps:[
+        { w:"features/sync/realtime/<br>channel.ts", t:"<b>setAuth() first — always</b>Private channels will not authorise without it, and it must be called again after every token refresh. Miss the second call and delivery stops silently about an hour in." },
+        { w:"features/sync/realtime/<br>channel.ts", t:"<b>Subscribe to two topics</b><code>ws:{sessionId}</code> and <code>user:{profileId}</code>, on one socket. A single-topic trigger would broadcast private rows to the whole workspace while the table stayed correctly locked." },
+        { w:"features/entities/repository/<br>apply-remote.ts", t:"<b>Write WITHOUT an outbox entry</b>The only writer that skips it. A remote change echoed back to the server is an infinite loop." },
+        { w:"features/entities/repository/<br>apply-remote.ts", t:"<b>Do not overwrite a _dirty row</b>A local edit that has not been pushed yet wins. Channel ② is what clears the flag." }
+      ]},
+    recon: { why:"The channel most people skip, and then wonder why deletions never propagate. A timestamp query cannot see a row that was deleted — it returns nothing for it, which is indistinguishable from unchanged.",
+      steps:[
+        { w:"supabase → PostgREST", t:"<b>Fetch a manifest, not rows</b><code>select id, updated_at</code>. A few KB for a few hundred highlights." },
+        { w:"features/sync/reconcile/<br>manifest-diff.ts", t:"<b>Three sets</b>stale (server newer), missing (server has, we do not), gone (we have, server does not, and not <code>_dirty</code>)." },
+        { w:"features/entities/db", t:"<b>Fetch stale + missing, bulkDelete gone</b>This is the step that catches deletes. The alternative is tombstone rows, which is a schema change plus a cleanup job." },
+        { w:"0004_lite.sql", t:"<b>Needs highlights.updated_at</b>The base schema only had <code>created_at</code>. Without the added column and its touch trigger, there is nothing to compare and this channel cannot exist." }
+      ]}
+  };
+  var ch = 'boot', cstep = 0;
+  var chTrack = document.getElementById('chTrack'),
+      chWhy = document.getElementById('chWhy'),
+      chCount = document.getElementById('chCount'),
+      chStepBtn = document.getElementById('chStep');
+
+  function paintCh(){
+    var c = CH[ch];
+    chTrack.innerHTML = c.steps.map(function(s, i){
+      var cls = i < cstep ? 'lane on' : (i === cstep ? 'lane now' : 'lane');
+      return '<div class="' + cls + '"><div class="where">' + s.w + '</div><div class="what">' + s.t + '</div></div>';
+    }).join('');
+    chWhy.innerHTML = c.why;
+    chCount.textContent = Math.min(cstep + 1, c.steps.length) + ' / ' + c.steps.length;
+    chStepBtn.disabled = cstep >= c.steps.length - 1;
+  }
+  document.querySelectorAll('[data-ch]').forEach(function(b){
+    b.addEventListener('click', function(){
+      document.querySelectorAll('[data-ch]').forEach(function(x){ x.setAttribute('aria-pressed', String(x === b)); });
+      ch = b.getAttribute('data-ch'); cstep = 0; paintCh();
+    });
+  });
+  chStepBtn.addEventListener('click', function(){ cstep++; paintCh(); });
+  document.getElementById('chReset').addEventListener('click', function(){ cstep = 0; paintCh(); });
+  paintCh();
+})();
+</script>
+</body>
+</html>

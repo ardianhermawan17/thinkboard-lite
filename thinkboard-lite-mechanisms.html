@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ThinkBoard Lite — three mechanisms, up close</title>
+<style>
+  :root{
+    --paper:#FAFAF8; --card:#FFFFFF; --ink:#17212B; --muted:#6B7785; --rule:#DDE2E8;
+    --amber:#FFD84D; --mint:#6FD6C4; --pink:#FF9AC1;
+    --group:#2F3A8F; --ok:#1E6E4E; --warn:#B4531E;
+    --serif: ui-serif, Georgia, "Times New Roman", serif;
+    --sans: ui-sans-serif, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
+  .wrap{max-width:1120px;margin:0 auto;padding:52px 26px 110px}
+  h1,h2,h3,h4{font-family:var(--serif);font-weight:600;letter-spacing:-.01em;margin:0}
+  h1{font-size:40px;line-height:1.1}
+  h2{font-size:26px}
+  h3{font-size:17px}
+  h4{font-size:14.5px}
+  p{margin:.6em 0;max-width:70ch}
+  .lede{font-size:18px;color:var(--muted);max-width:60ch;margin-top:14px}
+  .sub{color:var(--muted);font-size:13.5px}
+  code,.t{font-family:var(--mono);font-size:12.5px;background:#EEF1F4;padding:1px 5px;color:#2B3A47;border-radius:2px}
+  pre{font-family:var(--mono);font-size:12px;line-height:1.65;color:#2B3A47;background:#F3F5F7;
+      border:1px solid var(--rule);padding:14px 16px;overflow-x:auto;margin:0}
+  .mark{position:relative;display:inline;padding:0 .1em}
+  .mark::before{content:"";position:absolute;left:0;right:0;bottom:.04em;height:.72em;background:var(--amber);
+    z-index:-1;transform-origin:left center;transform:scaleX(0);animation:swipe .5s cubic-bezier(.2,.7,.3,1) forwards}
+  @keyframes swipe{to{transform:scaleX(1)}}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+  section{margin-top:70px;padding-top:32px;border-top:1px solid var(--rule)}
+  .sechead{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap}
+  .num{font-family:var(--mono);font-size:13px;color:var(--muted);padding-top:6px}
+  .sechead .sub{margin-left:auto}
+
+  .board{background:var(--card);border:1px solid var(--ink);margin-top:26px}
+  .boardbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+            padding:12px 16px;border-bottom:1px solid var(--rule);background:#F3F5F7}
+  .boardbar .label{font-size:12.5px;color:var(--muted);margin-right:2px}
+  button{font:inherit;cursor:pointer}
+  .pill{font-size:13px;padding:6px 13px;border:1px solid var(--rule);background:#fff;color:var(--ink);
+        border-radius:999px;transition:all .15s}
+  .pill:hover{border-color:var(--muted)}
+  .pill[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .pill.leader[aria-pressed="true"]{background:var(--group);border-color:var(--group)}
+
+  .boardbody{display:grid;grid-template-columns:1.25fr 1fr}
+  .boardbody > div{padding:18px 20px}
+  .boardbody > div:first-child{border-right:1px solid var(--rule)}
+
+  .doc{background:linear-gradient(transparent 0 calc(100% - 1px), #EDF0F3 0);background-size:100% 22px;
+       border:1px solid var(--rule);padding:14px 16px;min-height:120px}
+  .row{display:block;width:100%;text-align:left;background:none;border:0;padding:9px 0;border-bottom:1px solid var(--rule)}
+  .row:last-child{border-bottom:0}
+  .rowtop{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .hl{padding:1px 4px;font-size:13.5px}
+  .hl.a{background:var(--amber)} .hl.r{background:var(--mint)} .hl.g{background:rgba(47,58,143,.22)}
+  .tag{font-size:10.5px;font-family:var(--mono);color:var(--muted);border:1px solid var(--rule);padding:1px 5px}
+  .tag.grp{color:var(--group);border-color:#C3C9EA}
+  .tag.shr{color:var(--ok);border-color:#BBD8C9}
+  .rownote{font-size:12.5px;color:var(--muted);margin:5px 0 0 2px}
+  .rowslug{font-family:var(--mono);font-size:10.5px;color:#9AA5B1;margin-top:3px}
+  .hidden-row{padding:11px 12px;border-bottom:1px solid var(--rule);
+    background:repeating-linear-gradient(135deg,#F4F6F8 0 7px,#EDF0F3 7px 14px);
+    font-size:12.5px;color:#93A0AC;font-family:var(--mono)}
+  .hidden-row:last-child{border-bottom:0}
+
+  .shareline{margin-top:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+  .btn{font-size:12.5px;padding:6px 12px;border:1px solid var(--ink);background:#fff;color:var(--ink)}
+  .btn:hover{background:var(--ink);color:#fff}
+  .btn:disabled{opacity:.35;cursor:not-allowed;background:#fff;color:var(--ink)}
+  .btn.on{background:var(--ok);border-color:var(--ok);color:#fff}
+
+  .verdict{font-size:13px;margin-top:4px}
+  .verdict b{font-family:var(--mono);font-size:12px;font-weight:600}
+  .yes{color:var(--ok)} .no{color:var(--warn)}
+  .policy{margin-top:14px}
+  .policy pre{font-size:11.5px}
+  .pl{display:block;padding:1px 4px;margin:0 -4px}
+  .pl.hit{background:#FFF4CC}
+
+  .callout{margin-top:26px;border-left:4px solid var(--group);background:#fff;padding:16px 20px}
+  .callout.warn{border-left-color:var(--warn)}
+  .callout p{margin:.25em 0;font-size:14px;max-width:80ch}
+
+  table{width:100%;border-collapse:collapse;margin-top:24px;font-size:13.5px}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--rule);vertical-align:top}
+  th{font-weight:600;font-size:12px;color:var(--muted);border-bottom:1.5px solid var(--ink)}
+
+  /* stepper */
+  .stage{background:var(--card);border:1px solid var(--ink);margin-top:26px}
+  .stagebar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 16px;
+            border-bottom:1px solid var(--rule);background:#F3F5F7}
+  .stagebar .count{margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .stagefig{padding:10px 14px 4px}
+  .stagenote{padding:4px 20px 20px;display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  @media (max-width:820px){.stagenote{grid-template-columns:1fr}}
+  .stagenote h4{margin-bottom:6px}
+  .stagenote p{font-size:13.5px;margin:.3em 0}
+  svg{display:block;width:100%;height:auto}
+  .node rect{fill:#fff;stroke:#C8D0D8;transition:all .3s}
+  .node text{fill:#93A0AC;transition:fill .3s}
+  .node.lit rect{stroke:var(--ink);stroke-width:1.6}
+  .node.lit text{fill:var(--ink)}
+  .node.ok rect{stroke:var(--ok);stroke-width:1.6;fill:#F1F7F4}
+  .node.ok text{fill:var(--ok)}
+  .node.grp rect{stroke:var(--group);stroke-width:1.6;fill:#F2F3FA}
+  .node.grp text{fill:var(--group)}
+  .node.dead rect{stroke:#E3E7EB;fill:#FAFBFC;stroke-dasharray:3 3}
+  .node.dead text{fill:#C3CAD1}
+  .edge{stroke:#C8D0D8;fill:none;transition:stroke .3s}
+  .edge.lit{stroke:var(--ink)}
+  .edge.grp{stroke:var(--group)}
+  .edge.dead{stroke:#E3E7EB;stroke-dasharray:3 3}
+
+  /* offline */
+  .tiers{display:grid;grid-template-columns:repeat(3,1fr);margin-top:26px;border:1px solid var(--ink)}
+  .tiers > div{padding:18px 20px;border-right:1px solid var(--rule)}
+  .tiers > div:last-child{border-right:0}
+  .tiers .cap{font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:8px}
+  .tiers ul{margin:10px 0 0;padding-left:17px;font-size:13px;color:#2B3A47}
+  .tiers li{margin:4px 0}
+  @media (max-width:820px){.tiers{grid-template-columns:1fr}.tiers>div{border-right:0;border-bottom:1px solid var(--rule)}}
+
+  .sim{background:var(--card);border:1px solid var(--ink);margin-top:26px}
+  .simbody{display:grid;grid-template-columns:1fr 1.1fr}
+  .simbody > div{padding:18px 20px}
+  .simbody > div:first-child{border-right:1px solid var(--rule)}
+  @media (max-width:820px){.simbody{grid-template-columns:1fr}.simbody>div:first-child{border-right:0;border-bottom:1px solid var(--rule)}}
+  .actions{display:flex;flex-direction:column;gap:9px;margin-top:14px;align-items:flex-start}
+  .queue{list-style:none;margin:12px 0 0;padding:0;font-family:var(--mono);font-size:12px}
+  .queue li{display:flex;gap:10px;align-items:baseline;padding:8px 10px;border:1px solid var(--rule);
+            margin-bottom:6px;background:#fff;animation:pop .25s ease-out}
+  @keyframes pop{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+  .queue li.sending{border-color:var(--group);background:#F2F3FA}
+  .queue li.done{opacity:.35;text-decoration:line-through}
+  .queue .seq{color:var(--muted);min-width:22px}
+  .queue .op{color:var(--ink)}
+  .queue .why{color:var(--ok);font-family:var(--sans);font-size:11.5px;margin-left:auto}
+  .empty{font-size:13px;color:var(--muted);font-style:italic;margin-top:14px}
+  .statusline{display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-size:13px;margin-top:2px}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--warn);display:inline-block}
+  .dot.on{background:var(--ok)}
+
+  footer{margin-top:76px;padding-top:30px;border-top:1px solid var(--rule)}
+  footer ol{font-size:14px;padding-left:20px;max-width:75ch}
+  footer li{margin:9px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Three mechanisms,<br>close enough to <span class="mark">poke at</span>.</h1>
+  <p class="lede">ThinkBoard Lite, revision 2. Change the viewer, step the pipeline, queue writes offline —
+  the panels below are live, so you can check the design against what you expected it to do.</p>
+</header>
+
+<!-- ══════════════ 1 ══════════════ -->
+<section id="s1">
+  <div class="sechead">
+    <span class="num">01</span>
+    <h2>Private by default, explicit share</h2>
+    <span class="sub">three states, one timestamp</span>
+  </div>
+  <p>Privacy here is not a filter in application code. Row-level security means a teammate's
+  <code>select * from highlights</code> <em>cannot return</em> your private row — there is no query they can
+  write that reaches it. Switch viewer below and watch rows disappear from the result set entirely, not
+  grey out.</p>
+
+  <div class="board">
+    <div class="boardbar">
+      <span class="label">Signed in as</span>
+      <button class="pill" data-viewer="andi" aria-pressed="true">Andi · member (you)</button>
+      <button class="pill" data-viewer="rina" aria-pressed="false">Rina · member</button>
+      <button class="pill leader" data-viewer="budi" aria-pressed="false">Budi · leader</button>
+    </div>
+    <div class="boardbody">
+      <div>
+        <h3>What the database returns</h3>
+        <p class="sub" style="margin:4px 0 12px">Page 3–4 of the workspace document</p>
+        <div class="doc" id="doc"></div>
+        <div class="shareline" id="shareline"></div>
+      </div>
+      <div>
+        <h3>Why</h3>
+        <div id="verdicts"></div>
+        <div class="policy">
+          <h4 style="margin-bottom:6px">The policy that decided it</h4>
+          <pre id="policy"></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <table>
+    <thead><tr><th><code>layer</code></th><th><code>shared_at</code></th><th>Who can select it</th><th>Who can write it</th></tr></thead>
+    <tbody>
+      <tr><td>individual</td><td>null</td><td>the author, nobody else</td><td>the author</td></tr>
+      <tr><td>individual</td><td>set</td><td>everyone in the workspace</td><td>still the author</td></tr>
+      <tr><td>group</td><td>—</td><td>everyone in the workspace</td><td>the leader only</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <p><strong>Sharing is one atomic act, not two.</strong> A highlight without its note is an empty
+    rectangle, so promoting flips both — in one RPC, or the network drops between two calls and you get
+    half-shared rows.</p>
+  </div>
+
+<pre style="margin-top:16px">create or replace function promote_highlight(p_highlight uuid, p_note uuid default null)
+returns highlights
+language plpgsql <b>security invoker</b> as $$          -- invoker: RLS still guards it
+declare h highlights;
+begin
+  update highlights set shared_at = now()
+   where id = p_highlight
+     and profile_id = current_profile_id()          -- enforced here…
+     and layer = 'individual'
+   returning * into h;
+  if not found then raise exception 'not yours to share'; end if;
+
+  update highlight_notes
+     set visibility = 'group', updated_at = now(), version = version + 1
+   where highlight_id = p_highlight
+     and profile_id = current_profile_id()          -- …and again by the policy
+     and (p_note is null or id = p_note);
+  return h;
+end $$;</pre>
+
+  <p style="margin-top:22px"><strong>The leader copies nothing.</strong> The Group Result reads
+  <code>layer = 'group' OR shared_at is not null</code>. “Pulling a note across” is the leader optionally
+  re-marking it for emphasis — no copy table, no link column, no two versions of the same thought drifting
+  apart.</p>
+
+  <div class="callout warn">
+    <p><strong>The hole this opens in the broadcast trigger.</strong> As first written, the trigger fanned
+    every highlight row out to <code>ws:{sessionId}</code>, and the topic policy only asks “is this person in
+    the workspace” — it never re-checks whether that specific row is visible to them. The table's security
+    stayed intact; the broadcast went around it.</p>
+    <p style="margin-top:8px">Fix: pick the topic inside the trigger. Group and promoted rows go to the
+    workspace topic; private rows go to <code>user:{profileId}</code>, which only reaches the author's own
+    other devices. Same socket, two subscriptions.</p>
+    <p style="margin-top:8px"><strong>The rule worth keeping:</strong> a broadcast payload is only as private
+    as its topic. Never put row data on a topic whose membership is coarser than the row's own policy.</p>
+  </div>
+</section>
+
+<!-- ══════════════ 2 ══════════════ -->
+<section id="s2">
+  <div class="sechead">
+    <span class="num">02</span>
+    <h2>What “Broadcast from Database” means</h2>
+    <span class="sub">a broadcast whose sender is Postgres, not a client</span>
+  </div>
+  <p>Realtime has three primitives. <strong>Presence</strong> tracks who is connected.
+  <strong>Broadcast</strong> puts a message on a topic — normally sent by a client.
+  <strong>Postgres Changes</strong> tails the write-ahead log and pushes row changes. “Broadcast from
+  Database” is the second one with the sender swapped: a trigger calls
+  <code>realtime.broadcast_changes()</code>, which writes into <code>realtime.messages</code>, and Realtime
+  tails <em>that</em> table.</p>
+
+  <div class="stage">
+    <div class="stagebar">
+      <button class="btn" id="stepBack">← Back</button>
+      <button class="btn on" id="stepFwd">Step →</button>
+      <button class="btn" id="stepReset">Reset</button>
+      <button class="pill" id="rollbackToggle" aria-pressed="false" style="margin-left:8px">Make the transaction fail</button>
+      <span class="count" id="stepCount">0 / 7</span>
+    </div>
+    <div class="stagefig">
+      <svg viewBox="0 0 1060 300" role="img" aria-label="Pipeline from client insert through PostgREST, Postgres commit, trigger, realtime.messages and WAL tail to topic fan-out">
+        <g class="node" id="n1"><rect x="8" y="104" width="132" height="70"/>
+          <text x="24" y="132" font-family="ui-serif,Georgia,serif" font-size="14">Client A</text>
+          <text x="24" y="152" font-family="ui-monospace,monospace" font-size="10.5">insert highlight</text></g>
+        <path class="edge" id="e1" d="M144 139 L196 139" marker-end="url(#tip)"/>
+
+        <g class="node" id="n2"><rect x="200" y="104" width="136" height="70"/>
+          <text x="216" y="132" font-family="ui-serif,Georgia,serif" font-size="14">PostgREST</text>
+          <text x="216" y="152" font-family="ui-monospace,monospace" font-size="10.5">RLS with check</text></g>
+        <path class="edge" id="e2" d="M340 139 L392 139" marker-end="url(#tip)"/>
+
+        <g class="node" id="n3"><rect x="396" y="88" width="150" height="102"/>
+          <text x="412" y="116" font-family="ui-serif,Georgia,serif" font-size="14">Postgres</text>
+          <text x="412" y="138" font-family="ui-monospace,monospace" font-size="10.5">begin</text>
+          <text x="412" y="156" font-family="ui-monospace,monospace" font-size="10.5">insert row</text>
+          <text x="412" y="174" font-family="ui-monospace,monospace" font-size="10.5">commit</text></g>
+        <path class="edge" id="e3" d="M550 139 L602 139" marker-end="url(#tip)"/>
+
+        <g class="node" id="n4"><rect x="606" y="88" width="160" height="102"/>
+          <text x="622" y="116" font-family="ui-serif,Georgia,serif" font-size="14">after trigger</text>
+          <text x="622" y="138" font-family="ui-monospace,monospace" font-size="10.5">pick the topic:</text>
+          <text x="622" y="156" font-family="ui-monospace,monospace" font-size="10.5">ws:{session} or</text>
+          <text x="622" y="174" font-family="ui-monospace,monospace" font-size="10.5">user:{profile}</text></g>
+        <path class="edge" id="e4" d="M770 139 L822 139" marker-end="url(#tip)"/>
+
+        <g class="node" id="n5"><rect x="826" y="88" width="152" height="102"/>
+          <text x="842" y="116" font-family="ui-serif,Georgia,serif" font-size="14">Realtime</text>
+          <text x="842" y="138" font-family="ui-monospace,monospace" font-size="10.5">realtime.messages</text>
+          <text x="842" y="156" font-family="ui-monospace,monospace" font-size="10.5">WAL tail</text>
+          <text x="842" y="174" font-family="ui-monospace,monospace" font-size="10.5">topic policy</text></g>
+
+        <path class="edge" id="e5" d="M902 194 L902 236" marker-end="url(#tip)"/>
+        <g class="node" id="n6"><rect x="700" y="240" width="278" height="52"/>
+          <text x="716" y="262" font-family="ui-serif,Georgia,serif" font-size="14">Clients B and C</text>
+          <text x="716" y="280" font-family="ui-monospace,monospace" font-size="10.5">subscribed to that topic — one socket</text></g>
+
+        <g class="node" id="n7"><rect x="8" y="16" width="332" height="52"/>
+          <text x="24" y="38" font-family="ui-serif,Georgia,serif" font-size="14">The socket is not in the write path</text>
+          <text x="24" y="56" font-family="ui-monospace,monospace" font-size="10.5">writes: HTTPS · reads: WebSocket · never the reverse</text></g>
+
+        <defs><marker id="tip" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M0 0 L10 5 L0 10 z" fill="#8C97A2"/></marker></defs>
+      </svg>
+    </div>
+    <div class="stagenote">
+      <div><h4 id="stepTitle">Idle</h4><p id="stepBody">Press <em>Step</em> to send one highlight through the pipeline.</p></div>
+      <div><h4 id="stepWhyTitle">Why it is built this way</h4><p id="stepWhy" class="sub">Each step has one reason. They show up here as you go.</p></div>
+    </div>
+  </div>
+
+  <table>
+    <thead><tr><th>Property</th><th>What it buys you</th></tr></thead>
+    <tbody>
+      <tr><td>The event fires <em>after</em> the row commits</td><td>You can never paint a highlight on someone's screen that isn't in the database — which is exactly what happens if the client broadcasts before its insert returns.</td></tr>
+      <tr><td>Authorization is evaluated once, at channel join</td><td>Postgres Changes instead checks per event per subscriber: one insert with 100 watchers is 100 checks, on a single ordering thread that a bigger compute does not speed up.</td></tr>
+      <tr><td>Messages live in <code>realtime.messages</code> for three days</td><td>It is a notification channel, not a log. Durable state is your <code>highlights</code> table; the broadcast only says “look again”.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <p><strong>The client-side detail that silently breaks an hour in.</strong> Private channels need
+    <code>supabase.realtime.setAuth()</code> before subscribing — and again after <em>every</em> token
+    refresh. Miss the second one and the channel stops delivering without erroring.</p>
+  </div>
+</section>
+
+<!-- ══════════════ 3 ══════════════ -->
+<section id="s3">
+  <div class="sechead">
+    <span class="num">03</span>
+    <h2>Offline: what lives where, and how state flows</h2>
+    <span class="sub">one rule — the network is never on the read path</span>
+  </div>
+
+  <div class="tiers">
+    <div>
+      <div class="cap">localStorage</div>
+      <h3>Four keys</h3>
+      <ul>
+        <li>the Supabase session</li>
+        <li>theme</li>
+        <li>last workspace id</li>
+        <li><code>mode</code> — offline or collaboration</li>
+      </ul>
+      <p class="sub" style="margin-top:10px">Synchronous, ~5 MB, strings only. Right for four keys, wrong for anything else.</p>
+    </div>
+    <div>
+      <div class="cap">IndexedDB · Dexie</div>
+      <h3>Every row</h3>
+      <ul>
+        <li>highlights, notes, mini-conclusions</li>
+        <li>artifact metadata</li>
+        <li>the outbox</li>
+        <li>meta: goal, persona, <code>lastSyncedAt</code></li>
+      </ul>
+      <p class="sub" style="margin-top:10px">Async, indexed, large quota, structured values.</p>
+    </div>
+    <div>
+      <div class="cap">OPFS</div>
+      <h3>The PDF bytes</h3>
+      <ul><li>one file per artifact</li></ul>
+      <p class="sub" style="margin-top:10px">A 40 MB document wants streaming file reads, not a blob row.
+      Call <code>navigator.storage.persist()</code> on first offline open, or the browser can evict it under
+      pressure and the user finds out on the plane.</p>
+    </div>
+  </div>
+
+  <div class="callout warn">
+    <p><strong>Never stored locally:</strong> other people's private rows (RLS never handed them over, so this
+    is automatic), LLM keys, and — by default — the group document's bytes. That last one is a policy call:
+    a Perhutani document cached unencrypted on a personal tablet is a different risk from someone's own notes.</p>
+  </div>
+
+  <h3 style="margin-top:44px">The flow</h3>
+  <p>Because reads come from Dexie, optimistic updates stop being a concept you implement. You are not
+  guessing what the server will say and rolling back — you wrote to the local database and the UI renders
+  the local database. And an incoming realtime event takes the <em>same</em> path as your own pen: into
+  Dexie, invalidate, re-render.</p>
+
+  <figure style="margin-top:20px">
+    <svg viewBox="0 0 1060 330" role="img" aria-label="State flow: components through TanStack Query and a repository to Dexie, with a separate sync engine talking to Supabase">
+      <rect x="14" y="16" width="470" height="52" fill="#fff" stroke="#17212B"/>
+      <text x="32" y="40" font-family="ui-serif,Georgia,serif" font-size="15">Components</text>
+      <text x="32" y="58" font-family="ui-sans-serif,system-ui" font-size="11.5" fill="#6B7785">render whatever is in the local database, nothing else</text>
+
+      <path d="M249 70 L249 96" stroke="#17212B" fill="none" marker-end="url(#t2)"/>
+      <rect x="14" y="100" width="470" height="52" fill="#fff" stroke="#17212B"/>
+      <text x="32" y="124" font-family="ui-serif,Georgia,serif" font-size="15">TanStack Query</text>
+      <text x="32" y="142" font-family="ui-monospace,monospace" font-size="11" fill="#6B7785">queryFn reads Dexie — never fetch() in here</text>
+
+      <path d="M249 154 L249 180" stroke="#17212B" fill="none" marker-end="url(#t2)"/>
+      <rect x="14" y="184" width="470" height="62" fill="#fff" stroke="#17212B"/>
+      <text x="32" y="208" font-family="ui-serif,Georgia,serif" font-size="15">Repository</text>
+      <text x="32" y="226" font-family="ui-sans-serif,system-ui" font-size="11.5" fill="#6B7785">the only module that touches Dexie</text>
+      <text x="32" y="242" font-family="ui-monospace,monospace" font-size="11" fill="#1E6E4E">write = row + outbox entry, in ONE transaction</text>
+
+      <path d="M249 248 L249 272" stroke="#17212B" fill="none" marker-end="url(#t2)"/>
+      <rect x="14" y="276" width="470" height="44" fill="#F3F5F7" stroke="#17212B"/>
+      <text x="32" y="304" font-family="ui-monospace,monospace" font-size="12" fill="#2B3A47">Dexie · IndexedDB + OPFS</text>
+
+      <line x1="520" y1="16" x2="520" y2="320" stroke="#DDE2E8"/>
+
+      <rect x="556" y="100" width="290" height="146" fill="#fff" stroke="#2F3A8F" stroke-width="1.5"/>
+      <rect x="556" y="100" width="290" height="5" fill="#2F3A8F"/>
+      <text x="574" y="130" font-family="ui-serif,Georgia,serif" font-size="15">Sync engine</text>
+      <text x="574" y="152" font-family="ui-sans-serif,system-ui" font-size="11.5" fill="#6B7785">the only module that touches Supabase</text>
+      <text x="574" y="176" font-family="ui-monospace,monospace" font-size="11" fill="#2B3A47">push · drain the outbox in seq order</text>
+      <text x="574" y="196" font-family="ui-monospace,monospace" font-size="11" fill="#2B3A47">pull · realtime events + reconcile</text>
+      <text x="574" y="222" font-family="ui-sans-serif,system-ui" font-size="11.5" fill="#6B7785">writes results back into Dexie — same path</text>
+
+      <path d="M556 173 C 520 173, 520 210, 488 212" stroke="#2F3A8F" fill="none" marker-end="url(#t3)"/>
+      <path d="M862 173 L906 173" stroke="#2F3A8F" fill="none" marker-end="url(#t3)"/>
+      <rect x="910" y="140" width="136" height="66" fill="#fff" stroke="#17212B"/>
+      <text x="926" y="168" font-family="ui-serif,Georgia,serif" font-size="14">Supabase</text>
+      <text x="926" y="188" font-family="ui-monospace,monospace" font-size="10.5" fill="#6B7785">HTTPS + socket</text>
+
+      <text x="574" y="284" font-family="ui-sans-serif,system-ui" font-size="11.5" fill="#B4531E">Cursors never come through here.</text>
+      <text x="574" y="302" font-family="ui-sans-serif,system-ui" font-size="11.5" fill="#6B7785">Five peers at 20 Hz is 100 React updates a second.</text>
+      <text x="574" y="318" font-family="ui-sans-serif,system-ui" font-size="11.5" fill="#6B7785">Keep them in a ref, draw on a Konva layer, batchDraw on rAF.</text>
+
+      <defs>
+        <marker id="t2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M0 0 L10 5 L0 10 z" fill="#17212B"/></marker>
+        <marker id="t3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M0 0 L10 5 L0 10 z" fill="#2F3A8F"/></marker>
+      </defs>
+    </svg>
+  </figure>
+
+  <table>
+    <thead><tr><th>State</th><th>Home</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td>Durable data</td><td>Dexie via TanStack Query</td><td>highlights, notes, mini-conclusions</td></tr>
+      <tr><td>Sync status</td><td>Zustand</td><td><code>mode</code>, <code>pendingCount</code>, <code>lastSyncedAt</code>, <code>syncError</code></td></tr>
+      <tr><td>Ephemeral UI</td><td>Zustand</td><td>selected highlight, open sheet, active tool, zoom</td></tr>
+      <tr><td>Shareable view</td><td>the URL</td><td><code>?h=h-p03-07-k4m2xq&amp;sheet=result</code></td></tr>
+      <tr><td>Cursors and presence</td><td>a <code>useRef</code> map, drawn imperatively</td><td>never React state — see the note in the diagram</td></tr>
+    </tbody>
+  </table>
+
+  <h3 style="margin-top:44px">The outbox, running</h3>
+  <p>Queue some work with the network off, then reconnect. Watch the coalescing: typing into the same note
+  twice does not queue two operations.</p>
+
+  <div class="sim">
+    <div class="stagebar">
+      <span class="statusline"><span class="dot" id="netDot"></span><span id="netLabel">Offline</span></span>
+      <button class="btn" id="netToggle" style="margin-left:10px">Go online</button>
+      <span class="count" id="simCount">0 queued</span>
+    </div>
+    <div class="simbody">
+      <div>
+        <h4>Do something</h4>
+        <div class="actions">
+          <button class="btn" data-act="hl">Draw a highlight</button>
+          <button class="btn" data-act="note">Type in that note</button>
+          <button class="btn" data-act="note2">Type in a different note</button>
+          <button class="btn" data-act="del">Delete a highlight</button>
+        </div>
+        <p class="sub" style="margin-top:16px">Every one of these writes the row <em>and</em> its outbox entry
+        in a single Dexie transaction. The UI updates from the row; the entry is what the sync engine will
+        replay.</p>
+      </div>
+      <div>
+        <h4>Outbox</h4>
+        <ul class="queue" id="queue"></ul>
+        <p class="empty" id="queueEmpty">Nothing queued. The local database and the server agree.</p>
+      </div>
+    </div>
+  </div>
+
+  <table>
+    <thead><tr><th>Rule</th><th>What it prevents</th></tr></thead>
+    <tbody>
+      <tr><td>Drain strictly in <code>seq</code> order</td><td>A note insert landing before its highlight — a foreign-key violation you would otherwise hit only under bad network.</td></tr>
+      <tr><td>Coalesce updates: debounce 800 ms and <em>replace</em> the pending op for that row</td><td>Typing a paragraph queuing two hundred operations instead of one.</td></tr>
+      <tr><td>Inserts are upserts — <code>onConflict: 'id', ignoreDuplicates: true</code></td><td>Duplicates after a crash mid-drain. The id came from the client, so a replay is a no-op.</td></tr>
+      <tr><td>Split failures: 5xx and network → backoff; 4xx → park as <code>failed</code> and surface it</td><td>A permission error retried forever — a spinner that never stops and no one can explain.</td></tr>
+    </tbody>
+  </table>
+
+  <h3 style="margin-top:44px">Reconnecting, in this order</h3>
+  <p><strong>Push, then pull, then resubscribe.</strong> Any other order pulls a stale view over changes you
+  have not sent yet.</p>
+  <p>For the pull, skip tombstones and diff a manifest instead:
+  <code>select id, updated_at from highlights where artifact_id = $1</code>. Ids newer on the server → fetch
+  those rows. Ids in Dexie the server did not return, and not <code>_dirty</code> → delete locally. A few KB
+  for a few hundred highlights, and it catches deletes — which an <code>updated_at &gt; lastSynced</code>
+  query never will.</p>
+
+  <div class="callout">
+    <p><strong>This needs a column the schema does not have.</strong> <code>highlights</code> only carries
+    <code>created_at</code>. Add <code>updated_at</code> plus a touch trigger in
+    <code>0004_lite.sql</code>, or the manifest diff has nothing to compare.</p>
+  </div>
+
+  <div class="callout warn">
+    <p><strong>Two things not to get wrong.</strong> Opening the app offline must not require a token refresh
+    — gate local reads on “a stored session exists for this profile”, not on a live check, or you lock people
+    out of their own notes exactly when they need them.</p>
+    <p style="margin-top:8px">And on conflict, keep the local text as a second note rather than discarding it.
+    Two versions to merge is annoying; a lost paragraph is unforgivable.</p>
+  </div>
+</section>
+
+<footer>
+  <h3>Three things here are corrections to the plan document</h3>
+  <ol>
+    <li>The broadcast trigger must choose between <code>ws:{sessionId}</code> and <code>user:{profileId}</code>. As first written it leaked private rows over the socket while the table stayed correctly locked.</li>
+    <li><code>highlights.updated_at</code> and its touch trigger belong in <code>0004_lite.sql</code>; reconnect reconciliation has nothing to diff without them.</li>
+    <li><code>promote_highlight()</code> should exist as a <code>security invoker</code> RPC, so sharing a highlight and its note can never half-succeed.</li>
+  </ol>
+</footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ───────── 1. RLS visibility ───────── */
+  var PEOPLE = { andi:'Andi', rina:'Rina', budi:'Budi' };
+  var HLS = [
+    { id:'h-p03-07-k4m2xq', page:3, owner:'andi', layer:'individual', shared:false, ink:'a',
+      text:'Cost basis is stated in 2023 prices', note:'Kalau pakai angka 2023, selisihnya bisa 12%.' },
+    { id:'h-p03-11-q8v1zz', page:3, owner:'rina', layer:'individual', shared:true, ink:'r',
+      text:'Permit window closes 30 November', note:'Ini yang mengikat, bukan biayanya.' },
+    { id:'h-p04-02-m3d7ka', page:4, owner:'budi', layer:'group', shared:false, ink:'g',
+      text:'Tariff revision effective Q4', note:'Notulen: dipakai sebagai dasar perhitungan.' },
+    { id:'h-p04-09-w2r5nn', page:4, owner:'andi', layer:'individual', shared:false, ink:'a',
+      text:'Annex B holds the 2024 audit figure', note:'Belum dicek ke lampirannya.' }
+  ];
+  var viewer = 'andi';
+
+  function visible(h){
+    if (h.layer === 'group') return { ok:true, rule:'group' };
+    if (h.shared) return { ok:true, rule:'promoted' };
+    if (h.owner === viewer) return { ok:true, rule:'private-own' };
+    return { ok:false, rule:'private-other' };
+  }
+  function writable(h){
+    if (h.layer === 'group') return viewer === 'budi';
+    return h.owner === viewer;
+  }
+
+  var doc = document.getElementById('doc');
+  var verdicts = document.getElementById('verdicts');
+  var policyEl = document.getElementById('policy');
+  var shareline = document.getElementById('shareline');
+
+  var POLICY_LINES = [
+    { k:'private-own',   t:'create policy "private highlights" on highlights for all' },
+    { k:'private-own',   t:'  using (layer = \'individual\' and profile_id = current_profile_id());' },
+    { k:'',              t:'' },
+    { k:'promoted',      t:'create policy "promoted highlights read" on highlights for select' },
+    { k:'promoted',      t:'  using (layer = \'individual\' and shared_at is not null' },
+    { k:'promoted',      t:'         and can_access_session(...));' },
+    { k:'',              t:'' },
+    { k:'group',         t:'create policy "group highlights read" on highlights for select' },
+    { k:'group',         t:'  using (layer = \'group\' and can_access_session(...));' },
+    { k:'',              t:'' },
+    { k:'group-write',   t:'create policy "leader writes group highlights" on highlights for all' },
+    { k:'group-write',   t:'  using (layer = \'group\' and can_lead_session(...));' }
+  ];
+
+  function renderPolicy(activeKeys){
+    policyEl.innerHTML = POLICY_LINES.map(function(l){
+      var hit = l.k && activeKeys.indexOf(l.k) !== -1;
+      return '<span class="pl' + (hit ? ' hit' : '') + '">' + (l.t || '&nbsp;') + '</span>';
+    }).join('');
+  }
+
+  function render(){
+    var rows = '', vd = '', active = [], hiddenCount = 0;
+
+    HLS.forEach(function(h){
+      var v = visible(h);
+      if (!v.ok){ hiddenCount++; return; }
+      if (active.indexOf(v.rule) === -1) active.push(v.rule);
+      if (h.layer === 'group' && viewer === 'budi') active.push('group-write');
+
+      var tags = '<span class="tag">p.' + h.page + '</span>';
+      if (h.layer === 'group') tags += '<span class="tag grp">group</span>';
+      else if (h.shared) tags += '<span class="tag shr">shared</span>';
+      else tags += '<span class="tag">private</span>';
+      tags += '<span class="tag">' + PEOPLE[h.owner] + '</span>';
+      if (writable(h)) tags += '<span class="tag shr">you can edit</span>';
+
+      rows += '<div class="row"><div class="rowtop"><span class="hl ' + h.ink + '">' + h.text + '</span>'
+            + tags + '</div><div class="rownote">' + h.note + '</div>'
+            + '<div class="rowslug">' + h.id + '</div></div>';
+    });
+
+    for (var i = 0; i < hiddenCount; i++){
+      rows += '<div class="hidden-row">— row not returned by the database —</div>';
+    }
+    doc.innerHTML = rows;
+
+    var shown = HLS.length - hiddenCount;
+    vd = '<p class="verdict"><b>' + shown + ' of ' + HLS.length + '</b> rows come back for '
+       + PEOPLE[viewer] + '.</p>';
+
+    HLS.forEach(function(h){
+      var v = visible(h);
+      var why = v.rule === 'group' ? 'group layer — everyone reads it'
+              : v.rule === 'promoted' ? 'promoted by ' + PEOPLE[h.owner]
+              : v.rule === 'private-own' ? 'your own private row'
+              : 'private to ' + PEOPLE[h.owner] + ' — no query reaches it';
+      vd += '<p class="verdict ' + (v.ok ? 'yes' : 'no') + '">'
+          + (v.ok ? '✓ ' : '✕ ') + '<b>' + h.id.slice(0, 11) + '…</b> — ' + why + '</p>';
+    });
+    verdicts.innerHTML = vd;
+    renderPolicy(active);
+
+    var mine = HLS.filter(function(h){ return h.owner === viewer && h.layer === 'individual'; });
+    if (!mine.length){
+      shareline.innerHTML = '<span>' + PEOPLE[viewer] + ' has no private rows to share here.</span>';
+      return;
+    }
+    shareline.innerHTML = '<span>Your rows — sharing is your decision, never the leader\'s:</span>'
+      + mine.map(function(h){
+          return '<button class="btn' + (h.shared ? ' on' : '') + '" data-share="' + h.id + '">'
+               + (h.shared ? '✓ shared · unshare' : 'Share to group') + '</button>';
+        }).join('');
+  }
+
+  document.querySelectorAll('[data-viewer]').forEach(function(b){
+    b.addEventListener('click', function(){
+      viewer = b.getAttribute('data-viewer');
+      document.querySelectorAll('[data-viewer]').forEach(function(x){
+        x.setAttribute('aria-pressed', String(x === b));
+      });
+      render();
+    });
+  });
+
+  shareline.addEventListener('click', function(e){
+    var id = e.target && e.target.getAttribute && e.target.getAttribute('data-share');
+    if (!id) return;
+    HLS.forEach(function(h){ if (h.id === id) h.shared = !h.shared; });
+    render();
+  });
+
+  render();
+
+  /* ───────── 2. broadcast stepper ───────── */
+  var STEPS = [
+    { title:'Idle',
+      body:'Press <em>Step</em> to send one highlight through the pipeline.',
+      why:'Each step has one reason. They show up here as you go.',
+      lit:[], ok:[], grp:[], edges:[] },
+
+    { title:'1 · The client inserts over HTTPS',
+      body:'<code>supabase.from(\'highlights\').insert(row)</code>. This goes to PostgREST as an ordinary request — <strong>not</strong> over the WebSocket.',
+      why:'Broadcast is unvalidated by design. If clients published state directly you would have a second write path that row-level security does not cover.',
+      lit:['n1','n7'], ok:[], grp:[], edges:['e1'] },
+
+    { title:'2 · PostgREST checks the policy',
+      body:'The <code>with check</code> clause runs under the caller\'s JWT. A member trying to write <code>layer=\'group\'</code> is rejected here, before any row exists.',
+      why:'One write path means one place the rules live. There is no service-role key in Lite, so nothing bypasses this.',
+      lit:['n1'], ok:['n2'], grp:[], edges:['e1','e2'] },
+
+    { title:'3 · The row commits',
+      body:'Insert and commit inside one transaction.',
+      why:'Everything after this point is downstream of a committed row. That single fact is what makes the next step safe.',
+      lit:['n1','n2'], ok:['n3'], grp:[], edges:['e1','e2','e3'] },
+
+    { title:'4 · The after-trigger picks a topic',
+      body:'Group and promoted rows go to <code>ws:{sessionId}</code>. Private rows go to <code>user:{profileId}</code> — the author\'s own other devices and nobody else.',
+      why:'The topic policy only asks “are you in this workspace”. It never re-checks the individual row, so the trigger has to make that decision. This is the fix from §01.',
+      lit:['n1','n2','n3'], ok:[], grp:['n4'], edges:['e1','e2','e3','e4'] },
+
+    { title:'5 · broadcast_changes writes into realtime.messages',
+      body:'The trigger inserts a message row. Realtime tails <em>that</em> table\'s write-ahead log.',
+      why:'This is the whole trick: a Broadcast whose sender is Postgres rather than a client. Messages are deleted after three days — a notification channel, not a log.',
+      lit:['n1','n2','n3'], ok:[], grp:['n4','n5'], edges:['e1','e2','e3','e4'] },
+
+    { title:'6 · Realtime checks the topic policy — once',
+      body:'The <code>select</code> policy on <code>realtime.messages</code> is evaluated for the first message on a channel and then cached.',
+      why:'Postgres Changes instead checks per event per subscriber: one insert with 100 watchers is 100 checks, on a single ordering thread a bigger compute will not speed up.',
+      lit:['n1','n2','n3','n4'], ok:[], grp:['n5'], edges:['e1','e2','e3','e4','e5'] },
+
+    { title:'7 · Fan-out on the one socket',
+      body:'Subscribers on that topic receive the payload. It lands in their local database, the query invalidates, the UI re-renders — the same path a local pen stroke takes.',
+      why:'One write path into the UI whether the change came from your hand or a teammate\'s, so there is only ever one rendering path to debug.',
+      lit:['n1','n2','n3','n4','n5'], ok:[], grp:['n6'], edges:['e1','e2','e3','e4','e5'] }
+  ];
+
+  var ROLLBACK = {
+    title:'3 · The transaction rolls back',
+    body:'A constraint fails, or the client disconnects mid-statement. The row never exists.',
+    why:'Because the trigger is <em>inside</em> the transaction, no message is ever written. Nobody\'s screen can show a highlight that is not in the database — which is precisely the failure you get if the client broadcasts before its insert returns.',
+    lit:['n1','n2'], ok:[], grp:[], dead:['n3','n4','n5','n6'], edges:['e1','e2'], deadEdges:['e3','e4','e5'] };
+
+  var step = 0, rollback = false;
+  var elTitle = document.getElementById('stepTitle');
+  var elBody  = document.getElementById('stepBody');
+  var elWhy   = document.getElementById('stepWhy');
+  var elCount = document.getElementById('stepCount');
+
+  function paint(){
+    var s = (rollback && step >= 3) ? ROLLBACK : STEPS[step];
+    ['n1','n2','n3','n4','n5','n6','n7'].forEach(function(id){
+      var n = document.getElementById(id);
+      if (!n) return;
+      n.setAttribute('class', 'node'
+        + ((s.lit  || []).indexOf(id) !== -1 ? ' lit'  : '')
+        + ((s.ok   || []).indexOf(id) !== -1 ? ' ok'   : '')
+        + ((s.grp  || []).indexOf(id) !== -1 ? ' grp'  : '')
+        + ((s.dead || []).indexOf(id) !== -1 ? ' dead' : ''));
+    });
+    ['e1','e2','e3','e4','e5'].forEach(function(id){
+      var e = document.getElementById(id);
+      if (!e) return;
+      e.setAttribute('class', 'edge'
+        + ((s.edges     || []).indexOf(id) !== -1 ? ' lit'  : '')
+        + ((s.deadEdges || []).indexOf(id) !== -1 ? ' dead' : ''));
+    });
+    elTitle.innerHTML = s.title;
+    elBody.innerHTML  = s.body;
+    elWhy.innerHTML   = s.why;
+    elCount.textContent = (rollback && step >= 3 ? 'aborted' : step + ' / 7');
+    document.getElementById('stepFwd').disabled = (step >= STEPS.length - 1) || (rollback && step >= 3);
+    document.getElementById('stepBack').disabled = step === 0;
+  }
+  document.getElementById('stepFwd').addEventListener('click', function(){
+    if (step < STEPS.length - 1) step++; paint();
+  });
+  document.getElementById('stepBack').addEventListener('click', function(){
+    if (step > 0) step--; paint();
+  });
+  document.getElementById('stepReset').addEventListener('click', function(){ step = 0; paint(); });
+  document.getElementById('rollbackToggle').addEventListener('click', function(){
+    rollback = !rollback;
+    this.setAttribute('aria-pressed', String(rollback));
+    this.textContent = rollback ? 'Transaction fails ✓' : 'Make the transaction fail';
+    paint();
+  });
+  paint();
+
+  /* ───────── 3. outbox simulator ───────── */
+  var online = false, seq = 0, queue = [], draining = false;
+  var qEl = document.getElementById('queue');
+  var qEmpty = document.getElementById('queueEmpty');
+  var qCount = document.getElementById('simCount');
+  var netDot = document.getElementById('netDot');
+  var netLabel = document.getElementById('netLabel');
+  var netBtn = document.getElementById('netToggle');
+
+  var ACTS = {
+    hl:    { table:'highlights', op:'insert', row:'h-p05-01-…', label:'insert highlight h-p05-01-…' },
+    note:  { table:'notes',      op:'update', row:'n-4419',      label:'update note n-4419' },
+    note2: { table:'notes',      op:'update', row:'n-7731',      label:'update note n-7731' },
+    del:   { table:'highlights', op:'delete', row:'h-p03-07-…',  label:'delete highlight h-p03-07-…' }
+  };
+
+  function renderQueue(){
+    qEmpty.style.display = queue.length ? 'none' : 'block';
+    qCount.textContent = queue.length + ' queued';
+    qEl.innerHTML = queue.map(function(o){
+      return '<li class="' + (o.state || '') + '"><span class="seq">' + o.seq + '</span>'
+           + '<span class="op">' + o.label + '</span>'
+           + (o.why ? '<span class="why">' + o.why + '</span>' : '') + '</li>';
+    }).join('');
+  }
+
+  document.querySelectorAll('[data-act]').forEach(function(b){
+    b.addEventListener('click', function(){
+      if (draining) return;
+      var a = ACTS[b.getAttribute('data-act')];
+      var existing = null;
+      queue.forEach(function(o){
+        if (o.op === 'update' && o.row === a.row && o.state !== 'done') existing = o;
+      });
+      if (existing){
+        existing.why = 'coalesced — still one op';
+        renderQueue();
+        var li = qEl.children[queue.indexOf(existing)];
+        if (li){ li.style.background = '#FFF4CC'; setTimeout(function(){ li.style.background = ''; }, 420); }
+        if (online) drain();
+        return;
+      }
+      seq++;
+      queue.push({ seq:seq, table:a.table, op:a.op, row:a.row, label:a.label, state:'' });
+      renderQueue();
+      if (online) drain();
+    });
+  });
+
+  function drain(){
+    if (draining) return;
+    var next = null;
+    queue.forEach(function(o){ if (!next && o.state !== 'done') next = o; });
+    if (!next){ draining = false; return; }
+    draining = true;
+    next.state = 'sending';
+    next.why = 'sending in seq order';
+    renderQueue();
+    setTimeout(function(){
+      next.state = 'done';
+      next.why = 'server confirmed';
+      renderQueue();
+      setTimeout(function(){
+        queue = queue.filter(function(o){ return o.state !== 'done'; });
+        renderQueue();
+        draining = false;
+        if (online) drain();
+      }, 420);
+    }, 620);
+  }
+
+  netBtn.addEventListener('click', function(){
+    online = !online;
+    netDot.className = 'dot' + (online ? ' on' : '');
+    netLabel.textContent = online ? 'Online · push, then pull, then resubscribe' : 'Offline';
+    netBtn.textContent = online ? 'Go offline' : 'Go online';
+    if (online) drain();
+  });
+
+  renderQueue();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ThinkBoard Lite — whole-app task plan</title>
+<style>
+  :root{
+    --paper:#FAFAF8; --card:#FFFFFF; --ink:#17212B; --muted:#6B7785; --rule:#DDE2E8;
+    --amber:#FFD84D; --mint:#6FD6C4; --pink:#FF9AC1;
+    --fe:#2F3A8F; --be:#B4531E; --db:#1E6E4E;
+    --serif: ui-serif, Georgia, "Times New Roman", serif;
+    --sans: ui-sans-serif, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
+  .wrap{max-width:1140px;margin:0 auto;padding:52px 26px 110px}
+  h1,h2,h3,h4{font-family:var(--serif);font-weight:600;letter-spacing:-.01em;margin:0}
+  h1{font-size:40px;line-height:1.1} h2{font-size:25px} h3{font-size:17px} h4{font-size:14.5px}
+  p{margin:.6em 0;max-width:70ch}
+  .lede{font-size:18px;color:var(--muted);max-width:62ch;margin-top:14px}
+  .sub{color:var(--muted);font-size:13.5px}
+  code,.t{font-family:var(--mono);font-size:12.5px;background:#EEF1F4;padding:1px 5px;color:#2B3A47;border-radius:2px}
+  pre{font-family:var(--mono);font-size:12px;line-height:1.6;color:#2B3A47;background:#F3F5F7;
+      border:1px solid var(--rule);padding:14px 16px;overflow-x:auto;margin:16px 0 0}
+  .mark{position:relative;display:inline;padding:0 .1em}
+  .mark::before{content:"";position:absolute;left:0;right:0;bottom:.04em;height:.72em;background:var(--amber);
+    z-index:-1;transform-origin:left center;transform:scaleX(0);animation:sw .5s cubic-bezier(.2,.7,.3,1) forwards}
+  @keyframes sw{to{transform:scaleX(1)}}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+  section{margin-top:64px;padding-top:30px;border-top:1px solid var(--rule)}
+  .sechead{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap}
+  .num{font-family:var(--mono);font-size:13px;color:var(--muted);padding-top:6px}
+  .sechead .sub{margin-left:auto}
+  button{font:inherit;cursor:pointer}
+  .callout{margin-top:22px;border-left:4px solid var(--fe);background:#fff;padding:16px 20px}
+  .callout.warn{border-left-color:var(--be)}
+  .callout p{margin:.25em 0;font-size:14px;max-width:84ch}
+  table{width:100%;border-collapse:collapse;margin-top:20px;font-size:13.5px}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--rule);vertical-align:top}
+  th{font-weight:600;font-size:12px;color:var(--muted);border-bottom:1.5px solid var(--ink)}
+
+  /* toolbar */
+  .bar{position:sticky;top:0;z-index:5;background:var(--paper);
+       display:flex;gap:8px;flex-wrap:wrap;align-items:center;
+       padding:14px 0 12px;border-bottom:1px solid var(--rule);margin-top:26px}
+  .pill{font-size:12.5px;padding:6px 12px;border:1px solid var(--rule);background:#fff;color:var(--ink);border-radius:999px}
+  .pill[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .pill.fe[aria-pressed="true"]{background:var(--fe);border-color:var(--fe)}
+  .pill.be[aria-pressed="true"]{background:var(--be);border-color:var(--be)}
+  .pill.db[aria-pressed="true"]{background:var(--db);border-color:var(--db)}
+  .bar .prog{margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .meter{width:120px;height:6px;background:#E7EBEF;position:relative}
+  .meter i{position:absolute;inset:0 auto 0 0;background:var(--db);width:0;transition:width .3s}
+
+  /* phases + tasks */
+  .phase{margin-top:34px}
+  .phasehead{display:flex;align-items:baseline;gap:12px;padding-bottom:8px;border-bottom:1.5px solid var(--ink)}
+  .phasehead .k{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+  .phasehead .note{margin-left:auto;font-size:12.5px;color:var(--muted)}
+  .task{border:1px solid var(--rule);background:var(--card);margin-top:10px}
+  .task.done{opacity:.55}
+  .taskhead{display:grid;grid-template-columns:26px 92px 1fr auto;gap:12px;align-items:start;
+            padding:14px 16px;width:100%;text-align:left;background:none;border:0}
+  .taskhead:hover{background:#F8F9FB}
+  .chk{width:19px;height:19px;border:1.5px solid var(--rule);margin-top:2px;background:#fff;
+       display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff}
+  .chk.on{background:var(--db);border-color:var(--db)}
+  .tid{font-family:var(--mono);font-size:11.5px;color:var(--muted);padding-top:3px}
+  .tmain{font-family:var(--serif);font-size:15.5px}
+  .tgoal{font-size:13px;color:var(--muted);margin-top:3px}
+  .tags{display:flex;gap:6px;align-items:center;padding-top:2px}
+  .tag{font-family:var(--mono);font-size:10px;padding:3px 7px;border:1px solid var(--rule);color:var(--muted)}
+  .tag.fe{color:var(--fe);border-color:#C3C9EA} .tag.be{color:var(--be);border-color:#E8CCB8}
+  .tag.db{color:var(--db);border-color:#BBD8C9}
+  .tag.crit{background:var(--amber);border-color:#D9B733;color:#5C4600}
+  .tbody{padding:0 16px 16px 66px;border-top:1px solid var(--rule);display:none}
+  .task.open .tbody{display:block}
+  .tbody h4{margin:14px 0 6px}
+  ul.mini{list-style:none;margin:0;padding:0}
+  ul.mini li{display:flex;gap:10px;padding:6px 0;font-size:13.5px;border-bottom:1px solid #F0F2F5}
+  ul.mini li:last-child{border-bottom:0}
+  ul.mini .g{font-family:var(--mono);font-size:11px;color:var(--muted);min-width:20px;padding-top:2px}
+  .gate{margin-top:12px;border-left:3px solid var(--db);background:#F4F9F6;padding:9px 13px;font-size:13px}
+  .gate b{font-family:var(--sans);font-weight:600}
+  .blocks{margin-top:8px;font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+  .cond{border-left-color:var(--be);background:#FDF6F1}
+
+  .empty{padding:30px;text-align:center;color:var(--muted);font-style:italic}
+  footer{margin-top:70px;padding-top:28px;border-top:1px solid var(--rule)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Schema first. Then the whole<br>frontend. <span class="mark">Backend is four endpoints.</span></h1>
+  <p class="lede">ThinkBoard Lite, 25 tasks in six phases. Each has one main-goal — the capability you can
+  see working — and the mini-goals an agent actually implements.</p>
+</header>
+
+<section id="why">
+  <div class="sechead"><span class="num">00</span><h2>Why the data contract comes before the frontend</h2></div>
+  <p>The brief says frontend first, and phases C–D are three quarters of the work. But the schema
+  <em>is</em> the frontend's data contract: three days of Supabase removes every mock, every fake API
+  layer, and every refactor when the real shapes arrive. From task 008 onward the UI runs against real
+  rows through row-level security — no stubs except the one deliberate stub in task 014.</p>
+
+  <table>
+    <thead><tr><th>Phase</th><th>What lands</th><th>Effort</th><th>Blocked by a backend?</th></tr></thead>
+    <tbody>
+      <tr><td><strong>A</strong> Architecture</td><td>blueprint, AGENTS.md, verify script</td><td>3%</td><td>no</td></tr>
+      <tr><td><strong>B</strong> Data contract</td><td>schema, RLS proof, generated types, seed</td><td>10%</td><td>it <em>is</em> the contract</td></tr>
+      <tr><td><strong>C</strong> Foundation</td><td>scaffold, design system, Dexie kernel, sync kernel</td><td>22%</td><td>no</td></tr>
+      <tr><td><strong>D</strong> Features</td><td>workspace, PDF, highlights, notes, sheets, results, offline</td><td>42%</td><td>no — task 014 stubs the server on purpose</td></tr>
+      <tr><td><strong>E</strong> Backend</td><td>4 endpoints, LLM adapter, result engine</td><td>18%</td><td>—</td></tr>
+      <tr><td><strong>F</strong> Hardening</td><td>responsive, dark, pilot</td><td>5%</td><td>no</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <p><strong>The demoable slice is eight tasks.</strong> 000 → 001 → 004 → 006 → 008 → 009 → 010 → 012.
+    A user opens a workspace, highlights a PDF, writes a note with a stylus, and it persists and syncs —
+    with zero backend and zero model calls.</p>
+  </div>
+</section>
+
+<section id="board">
+  <div class="sechead"><span class="num">01</span><h2>The tasks</h2>
+    <span class="sub">click a task to open its mini-goals</span></div>
+
+  <div class="bar">
+    <button class="pill" data-f="all" aria-pressed="true">All</button>
+    <button class="pill fe" data-f="frontend" aria-pressed="false">Frontend</button>
+    <button class="pill be" data-f="backend" aria-pressed="false">Backend</button>
+    <button class="pill db" data-f="supabase" aria-pressed="false">Supabase</button>
+    <button class="pill" data-f="crit" aria-pressed="false">Critical path</button>
+    <span class="prog"><span class="meter"><i id="meterFill"></i></span> <span id="progText">0 / 25</span></span>
+  </div>
+
+  <div id="phases"></div>
+</section>
+
+<section id="llm">
+  <div class="sechead"><span class="num">02</span><h2>LLM routing — the decision behind task 018</h2>
+    <span class="sub">OmniRoute is a good tool aimed at a different problem</span></div>
+
+  <p>OmniRoute is a self-hosted gateway for <em>coding agents</em>. It runs at
+  <code>localhost:20128</code> with an Electron app and a React dashboard, and routes IDE tools — Claude
+  Code, Cursor, Cline, Copilot — through a subscription → API-key → cheap → free fallback chain. That is a
+  genuinely useful thing, and it is not what ThinkBoard needs.</p>
+
+  <table>
+    <thead><tr><th>Objection</th><th>Detail</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Wrong shape</strong></td><td>It is a localhost proxy for one developer's machine. ThinkBoard needs a server-side adapter in a route handler, serving many users, routing per <code>profile_identities.kind</code>, writing an <code>llm_requests</code> row per call, and queueing a run as <code>status='pending'</code> when quota runs out. No generic router knows about any of that.</td></tr>
+      <tr><td><strong>Compliance</strong></td><td>Its provider list includes “web cookie” providers that ride a user's browser session, and its own free-tier docs note that some providers explicitly prohibit programmatic or third-party-harness use. For a state-owned enterprise that is real exposure — and it is the same unanswered question as D-12.</td></tr>
+      <tr><td><strong>Operational weight</strong></td><td>Your own point. An Electron app plus a dashboard is a service to run, monitor and secure, for a product whose premise is a free Supabase tier and a pilot team.</td></tr>
+    </tbody>
+  </table>
+
+  <h3 style="margin-top:28px">What to do instead</h3>
+  <table>
+    <thead><tr><th>Layer</th><th>Choice</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td>Interface</td><td><code>src/server/llm/service.ts</code> — <code>complete()</code> / <code>stream()</code>, takes a <code>profileId</code>, never a key</td><td>already in the architecture; one seam, swappable</td></tr>
+      <tr><td>Provider #1</td><td><strong>OpenRouter</strong> — one hosted endpoint, one key, OpenAI-compatible, many free models, its own model-fallback array</td><td>replaces the gateway you would otherwise run, with zero infrastructure</td></tr>
+      <tr><td>Provider #2</td><td><strong>Groq</strong></td><td>a separate quota pool. Rotation only helps when the pools are independent</td></tr>
+      <tr><td>Provider #3</td><td>the user's own key via Vault, when present</td><td><code>key_source='user'</code></td></tr>
+      <tr><td>Failover</td><td>≈40 lines in <code>ratelimit.ts</code></td><td>it must know about <code>llm_requests</code> and queued runs — a generic router does not</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <p><strong>Where OmniRoute <em>is</em> worth using: the development loop.</strong> Point Claude Code or
+    Cursor at it while building ThinkBoard — that is exactly what it was made for. Just keep it out of the
+    product.</p>
+  </div>
+  <div class="callout warn">
+    <p><strong>Still unanswered, and it gates task 018.</strong> Most no-card free tiers fund themselves
+    with your prompts. Answer that before picking providers, because it may force a small paid tier — which
+    is a budget decision, not an architecture one, since the adapter already covers it.</p>
+  </div>
+</section>
+
+<section id="risk">
+  <div class="sechead"><span class="num">03</span><h2>Where this plan will hurt</h2></div>
+  <table>
+    <thead><tr><th>Task</th><th>Risk</th><th>Mitigation</th></tr></thead>
+    <tbody>
+      <tr><td><code>010</code> text highlight</td><td>Coordinates across zoom, rotation and re-render. The hardest engineering problem in the project, and it fails weeks later on someone else's tablet.</td><td>normalize page-relative at capture; never store viewport pixels; the gate is highlight → zoom → rotate → reload</td></tr>
+      <tr><td><code>007</code> sync kernel</td><td>Ordering, coalescing and delete detection are each individually easy and collectively subtle.</td><td>six unit tests named in the mini-goals; two-browser gate</td></tr>
+      <tr><td><code>002</code> RLS proof</td><td>Two of the six checks never surface in manual testing: the mini-conclusion leak, and a private highlight arriving on a shared broadcast topic.</td><td>written as tests in phase B, before any feature depends on them</td></tr>
+      <tr><td><code>012</code> handwriting</td><td>Bahasa Indonesia is not on Apple's Scribble language list. Android coverage is better.</td><td><code>g6</code> is a real device test with real users. It decides whether task 024 exists at all</td></tr>
+      <tr><td><code>018</code> LLM</td><td>Free-tier quota and training terms.</td><td>rotation across independent pools; cache mini-conclusions; batch the result call; answer D-12 first</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<footer>
+  <h3>Standing rules, every task</h3>
+  <p><code>analyze.json</code> before code · one <code>validate.json.goal_checks</code> entry per mini-goal ·
+  anything touching stage transitions or RLS cannot reach validate with zero tests · open decisions get
+  raised, never silently resolved · <strong>no git write without explicit confirmation, every time</strong>,
+  and work lands on the shadow branch, never on <code>master</code>.</p>
+  <p class="sub" style="margin-top:14px">Progress ticks here are in-memory only — they reset on reload.
+  The real record lives in <code>agent-history/</code>.</p>
+</footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var PHASES = [
+    { k:"A", name:"Architecture", note:"no product code" },
+    { k:"B", name:"Data contract", note:"Supabase — unblocks everything" },
+    { k:"C", name:"Frontend foundation", note:"scaffold and the two kernels" },
+    { k:"D", name:"Frontend features", note:"the product, on real rows" },
+    { k:"E", name:"Backend", note:"four endpoints and the model" },
+    { k:"F", name:"Hardening", note:"pilot-ready" }
+  ];
+
+  var T = [
+    { id:"000", p:"A", a:"frontend", crit:true, t:"Architecture contract",
+      m:"Produce the machine-readable contract an agent generates from, so no file is ever created by inference.",
+      g:["architecture.blueprint.json — tables, contexts, the 4 commands, canvas leaves, listeners, localFirst",
+         "AGENTS.md — dependency direction, leaf convention, the 4-point store edit, ask-don't-invent",
+         "Extend verify-architecture.mjs with I11–I29",
+         "ESLint: shared↛features; painters import no store; canvas/** imports no motion",
+         "openQuestions[] for every unanswered D-/Q- item"],
+      gate:"verify:arch green on an empty tree; every blueprint table maps to a row in the ERD.", b:"everything" },
+
+    { id:"001", p:"B", a:"supabase", crit:true, t:"Supabase Lite migration",
+      m:"The Lite schema exists on a fresh project, so the frontend has real tables to build against.",
+      g:["Apply 0001–0003 clean on a fresh local stack",
+         "0004_lite.sql — 3 enums, highlight_notes, 6 columns, can_lead_session(), promote_highlight(), touch triggers",
+         "Two broadcast triggers with PER-ROW topic selection: ws:{sessionId} vs user:{profileId}",
+         "Two realtime.messages policies",
+         "DROP and recreate \"artifact highlights\" and \"highlight conclusions\" — the only non-additive change",
+         "supabase db reset runs clean, twice"],
+      gate:"Reset from scratch with no manual fixes; 0004 is idempotent on re-run.", b:"002, 003" },
+
+    { id:"002", p:"B", a:"supabase", crit:false, t:"RLS access proof",
+      m:"Prove the access model in code, because with no service-role key RLS is the authorization layer, not a safety net.",
+      g:["Seed two members and one leader in one workspace",
+         "B cannot select A's private highlight → 0 rows",
+         "B cannot select the mini_conclusion of A's private highlight → 0 rows",
+         "B cannot insert layer='group'; the leader can",
+         "B receives A's promoted highlight on ws:{sessionId}, and A's private highlight on NO topic",
+         "promote_highlight() flips highlight + note together, and refuses someone else's row"],
+      gate:"All six green against a real local Supabase. Goals 3 and 5 never surface in manual testing.", b:"008" },
+
+    { id:"003", p:"B", a:"supabase", crit:false, t:"Generated types and seed",
+      m:"The frontend can import generated types and log into a populated workspace.",
+      g:["supabase gen types typescript → shared/types/domain/*, branded ids preserved",
+         "Seed one team, one leader, two members, one board/column/session, one PDF artifact",
+         "Seed llm_providers / llm_models for the settings dropdown",
+         "Storage bucket + policy; upload the seed document",
+         "db:seed script resets to this state in one command"],
+      gate:"A fresh checkout reaches a logged-in workspace with a real PDF in under five minutes.", b:"008, 009" },
+
+    { id:"004", p:"C", a:"frontend", crit:true, t:"Frontend scaffold",
+      m:"An empty app that already obeys the folder law, so no later task has to retrofit it.",
+      g:["create-next-app, four aliases in BOTH tsconfig.json and vitest.config.mts",
+         "src/{app,features,shared}; components.json bound to the three component tiers",
+         "Vitest (jsdom + fake-indexeddb) and Storybook + Playwright wired",
+         "verify:arch, lint, typecheck, test as scripts — all green on the empty tree",
+         "Serwist configured; note it is disabled in dev under Turbopack"],
+      gate:"npm run verify green.", b:"005, 006" },
+
+    { id:"005", p:"C", a:"frontend", crit:false, t:"Design system and providers",
+      m:"Atoms, theme and the provider tree exist, so every later component composes rather than invents.",
+      g:["shadcn add: button, input, textarea, sheet, dialog, tabs, card, skeleton, sonner, tooltip, switch",
+         "globals.css tokens; highlight colours as tokens for light AND dark",
+         "LibraryProvider in fixed order: Redux → PersistGate → Shadcn → Theme → Tooltip; Toaster once",
+         "useBreakpoint() — the ONLY source of device branching",
+         "stripUi transform + persistConfig + listenerMiddleware (the 4-point edit)"],
+      gate:"Boots light and dark; no hex colour under shared/components.", b:"008" },
+
+    { id:"006", p:"C", a:"frontend", crit:true, t:"Entities kernel (Dexie)",
+      m:"A local database that is the app's only read surface, so every later feature is offline-capable by construction.",
+      g:["Dexie schema namespaced per profile (thinkboard:{profileId}); deleted on sign-out",
+         "repository/ write surface — row + outbox entry in ONE transaction",
+         "queries/ read surface — named live-query hooks; useLiveQuery appears nowhere else",
+         "mappers.ts — toWire/toRow; local-only fields never cross",
+         "apply-remote.ts — writes without an outbox entry",
+         "Tests under fake-indexeddb: atomicity, and mapper key set vs the column list"],
+      gate:"Tests green; dexie imported only in these three modules.", b:"007, 008" },
+
+    { id:"007", p:"C", a:"frontend", crit:false, t:"Sync kernel",
+      m:"Local writes reach Supabase and remote changes reach Dexie, so the app is correct online and offline before any feature depends on it.",
+      g:["outbox/push.ts — strict seq order, upsert on id, delete the op only on confirmation",
+         "coalesce.ts — ≤1 pending update per row; backoff.ts — 5xx retry, 4xx park as failed",
+         "realtime/channel.ts — setAuth() before subscribe and on every refresh; both topics",
+         "reconcile/manifest-diff.ts — push → pull → resubscribe; detect deletes",
+         "sync-slice + status selectors; listener registered in store.ts",
+         "Tests: seq order, coalescing, 4xx parking, reconnect order, delete detection"],
+      gate:"Two browsers: a row in one appears in the other. Kill the network, write three rows, restore — all three land once.", b:"015, 016" },
+
+    { id:"008", p:"D", a:"frontend", crit:true, t:"Auth and workspace shell",
+      m:"A user signs in and opens a workspace with a leader, a persona and a goal.",
+      g:["Supabase auth; session cached locally so OFFLINE OPEN NEEDS NO TOKEN REFRESH",
+         "Workspace create: team + board + column + session in one transaction; the creator picks the leader",
+         "Members list; leadership transfer",
+         "Workspace persona (leader) and personal persona (self) editors",
+         "WorkspaceShell — document area, right rail, header with sync pill, mode switch, theme switch",
+         "Client component, ssr:false, no SSR data dependency"],
+      gate:"Sign in → create a workspace → land on the shell, against real RLS.", b:"009" },
+
+    { id:"009", p:"D", a:"frontend", crit:true, t:"PDF canvas",
+      m:"The workspace PDF renders, pans and zooms smoothly on a tablet.",
+      g:["shared/lib/pdf.ts seam; download from Storage once, cache bytes in OPFS; storage.persist()",
+         "Page windowing: render ±1 page, unmount Konva Stages outside the window",
+         "page-stage leaf — z0 canvas, z1 text layer, z2 Konva Stage, z3 DOM overlay",
+         "Viewport slice: zoom, page cursor, rotation; pinch-zoom and two-finger pan",
+         "shared/utils/geometry.ts — normalize/denormalize page-relative rects, with tests"],
+      gate:"A 30-page PDF scrolls at 60 fps on the pilot tablet; memory flat while scrolling.", b:"010, 011" },
+
+    { id:"010", p:"D", a:"frontend", crit:true, t:"Text-layer highlight",
+      m:"Selecting text on the PDF creates a persisted, exact-text focus point.",
+      g:["Selection/Range capture over the PDF.js text layer → client rects → normalized rects",
+         "Slug h-pNN-NN-xxxxxx, deterministic from text + quantized rect",
+         "repository.createHighlight() — extraction='text_layer', confidence=1.0, layer='individual'",
+         "highlight-layer leaf draws stored highlights from the live query",
+         "Zoom-then-reload test: marks land in the same place"],
+      gate:"Highlight, zoom, rotate, reload — still correct. The hardest problem in the project.", b:"012, 013" },
+
+    { id:"011", p:"D", a:"frontend", crit:false, t:"Region highlight and OCR",
+      m:"Pages with no text layer can still be marked, with confidence-gated OCR text.",
+      g:["marquee + ink leaves with a *.painter.ts — the ONLY imperative Konva files",
+         "Pointer Events; pointerType==='pen' palm rejection; touch-action:none only while drawing",
+         "shared/lib/ocr.ts — Tesseract in a Worker, lazy, on the CROPPED rect only",
+         "Confidence gate at 0.70 → needs-correction, excluded from Results until accepted",
+         "Stories including ManyStrokes (≥200 points) and DarkTheme"],
+      gate:"A scanned page yields a usable highlight; ink holds 60 fps at 200 points.", b:"021" },
+
+    { id:"012", p:"D", a:"frontend", crit:true, t:"Notes and handwriting",
+      m:"A focus point can carry a note, typed or handwritten — and handwriting produces text with no model and no network.",
+      g:["note-editor with two tabs — Ketik and Tulis tangan — both writing to the same content field",
+         "The handwriting tab is a PLAIN <textarea> styled as ruled paper: ≥20px, line-height ≈2.4, spellCheck off, ~16px clear padding, no contenteditable",
+         "Layout constraint: own stacking context, opaque background, Konva Stage pointer-events:none while open — or the OS never sees the pen",
+         "writing-check — one-time practice box per device; result in meta.handwriting; per-platform enable steps",
+         "Autosave debounced 800ms into ONE coalesced outbox op; input_mode records the tab",
+         "RUN THE DEVICE TEST in Indonesian on the pilot's real tablets; record it in validate.json"],
+      gate:"Three users write real Indonesian notes with a stylus on their own tablets and the text is usable. Goal 6 decides whether task 024 exists.", b:"013, 024" },
+
+    { id:"013", p:"D", a:"frontend", crit:false, t:"Sheets and promotion",
+      m:"The three sheets work, and a member can put their own thinking forward to the group.",
+      g:["individual_notes sheet — my highlights and notes for this page, with Share to group",
+         "group_notes sheet — group highlights, promoted notes, the leader's notulen",
+         "result sheet shell with Individual / Group tabs",
+         "promote_highlight() wired through the repository; leader-only affordances hidden for members",
+         "One sheet at a time below 1280px; docked right rail above it"],
+      gate:"Private note invisible to a teammate; promote; now visible. Task 002's tests, from the UI.", b:"014" },
+
+    { id:"014", p:"D", a:"frontend", crit:false, t:"Result UI against a stub",
+      m:"The result experience is complete and reviewable before any model call exists.",
+      g:["Command hooks pointed at a STUBBED route that writes canned rows",
+         "Result reads come from Dexie, never the mutation response — the mutation returns an id or status only",
+         "Descriptive markdown rendering; mermaid-figure template for visualize",
+         "Temperature chips with the rule-based formula and a one-line tooltip",
+         "States: empty, running, queued (quota), failed, done"],
+      gate:"The full result flow is demoable with the server stubbed. Proves phases C–D do not depend on E.", b:"020" },
+
+    { id:"015", p:"D", a:"frontend", crit:false, t:"Realtime and presence",
+      m:"A workspace feels shared: you see who is there and marks appear as they are made.",
+      g:["Presence: who is here, which page",
+         "peer-cursors leaf — refs and imperative paint ONLY, never React state; ~20Hz, on real movement",
+         "Broadcast-from-database applied via applyRemote — same render path as a local write",
+         "'Leader is drawing' ephemeral indicator",
+         "Two-browser test: ~100–300ms; a private highlight arrives on NO shared topic"],
+      gate:"Five simulated peers at 20Hz with no dropped frames on the pilot tablet.", b:"023" },
+
+    { id:"016", p:"D", a:"frontend", crit:false, t:"Offline mode and export",
+      m:"The private sheet works with the network off, and a workspace can leave as a portable bundle.",
+      g:["Mode switch — manual Work offline is authoritative; auto-detect may only degrade",
+         "Offline UI: group sheet read-only with lastSyncedAt; disabled affordances labelled, not hidden",
+         "'Back online · N changes to sync' with an explicit button",
+         "Export: document.pdf with /Highlight annotations (/NM = slug), notes.md with <!-- tb --> anchors, thinkboard.json, zipped",
+         "Re-import: the comment is the only identity anchor; anchorless → new note; orphans reported, never guessed",
+         "Clear local data on sign out; group document not cached offline by default"],
+      gate:"Airplane mode: open, highlight, note, export. Reconnect: everything lands once. Export → edit prose → re-import → no duplicates.", b:"023" },
+
+    { id:"017", p:"E", a:"backend", crit:false, t:"Command endpoints",
+      m:"The four server endpoints exist with real auth and no business logic in the route layer.",
+      g:["POST /workspaces, POST /highlights/:id/mini-conclusion, POST /workspaces/:id/results, GET /runs/:id/stream",
+         "Handlers bind, call one service method, map the error. No if on domain state",
+         "src/server/ mirrors the future Go package names",
+         "Every request runs under the USER'S JWT. No service-role key anywhere",
+         "Group-result requests 403 unless can_lead_session()"],
+      gate:"Every endpoint traces to a blueprint.commands[] entry. There is no fifth.", b:"018" },
+
+    { id:"018", p:"E", a:"backend", crit:false, t:"LLM adapter and routing",
+      m:"One model interface with provider rotation and honest accounting, so quota is a config problem rather than a code problem.",
+      g:["llm/service.ts — complete()/stream(), takes a profileId, NEVER a key",
+         "llm/providers/* — OpenAI-compatible adapters; order from config, not imports. OpenRouter #1, Groq #2",
+         "resolver.ts — own key first (Vault, resolved in vault.ts and nowhere else), else shared pool; default from identity kind",
+         "ratelimit.ts — 429 → next provider; all exhausted → queue as status='pending' and report WHEN",
+         "usage.ts — one llm_requests row per call, batched off the hot path",
+         "Mini-conclusion cache key (highlight.text, notes_hash, persona_id)"],
+      gate:"The whole provider set swaps by editing config. A forced 429 fails over with no user-visible error.", b:"019, 020" },
+
+    { id:"019", p:"E", a:"backend", crit:false, t:"Mini-conclusion",
+      m:"Each focus point gets a cheap conclusion that respects the free-tier budget.",
+      g:["Debounce 3s after a highlight or note change; idempotent per cache key",
+         "Prompt: goal → persona → highlight text → attached notes → output contract",
+         "Write mini_conclusions; the client picks it up through the broadcast like any other row",
+         "Skip entirely for needs-correction highlights below the OCR gate",
+         "Budget check: 40 highlights ≈ 42 calls, not 40 × 7"],
+      gate:"40 highlights processed inside one day's free-tier quota, measured from llm_requests.", b:"020" },
+
+    { id:"020", p:"E", a:"backend", crit:false, t:"Result engine",
+      m:"Individual and group results are produced, scored and rendered from real data.",
+      g:["Three stages via the registry: scope_anchor → analytic → result; one file, one entry, one transition test each",
+         "Individual: own notes + own persona + goal. Group: group + promoted notes + notulen + workspace persona",
+         "owner_profile_id set or null; all mini-conclusions batched into ONE prompt",
+         "Rule-based temperature: backers, corroborating authors, limitation notes, text-layer vs OCR",
+         "run_renderings: descriptive markdown and visualize mermaid",
+         "SSE over a DETACHED context so a dropped socket does not kill the run"],
+      gate:"Swap task 014's stub for the real engine with NO frontend change. That is the proof the seam was right.", b:"023" },
+
+    { id:"021", p:"E", a:"frontend", crit:false, t:"Leader import of an annotated PDF",
+      m:"A leader drops in an already-highlighted PDF and every mark becomes a group focus point with a note and a slug.",
+      g:["RUNG 1 FIRST: getAnnotations() → subtype Highlight → QuadPoints → convertToViewportRectangle()",
+         "Rung 2: flattened highlights — HSV colour mask, connected components, intersect with text items",
+         "Rung 3: scans — same mask, crop, Tesseract, confidence gate",
+         "REVIEW SCREEN before commit — a colour mask fires on charts and coloured table headers",
+         "Each accepted region → layer='group' highlight + empty note + slug, in one batch"],
+      gate:"An Acrobat-annotated PDF imports with exact text and zero OCR calls.", b:"—" },
+
+    { id:"022", p:"F", a:"frontend", crit:false, t:"Responsive, motion, theme",
+      m:"The product is right on the device 70% of users actually hold.",
+      g:["Device matrix: tablet authors, desktop analyses, mobile reads and writes notes; no freehand ink on mobile",
+         "Sheets: full-screen mobile, right sheet tablet, docked rail ≥1280",
+         "motion on DOM only; prefers-reduced-motion honoured; no motion import under components/canvas",
+         "Dark mode: Konva colours passed in explicitly and redrawn; highlights keep hue, lose alpha",
+         "Tablet pass on real hardware: tap targets, pen vs finger, keyboard-open layout"],
+      gate:"A full session completed on the pilot tablet without reaching for a mouse.", b:"—" },
+
+    { id:"023", p:"F", a:"backend", crit:false, t:"Pilot hardening",
+      m:"The pilot survives a real week: bad network, exhausted quota, unhappy paths.",
+      g:["Queued runs surfaced with position and expected time, not a spinner",
+         "Every empty / error / offline / parked-op state designed, not defaulted",
+         "Failed outbox ops visible and retryable from the sync pill",
+         "Telemetry: Tier-A handwriting adoption, sync failure rate, LLM cost per workspace",
+         "Load sanity: one workspace, six members, 200 highlights, eight hours"],
+      gate:"A full pilot day with the network deliberately broken three times, and no data loss.", b:"—" },
+
+    { id:"024", p:"F", a:"frontend", crit:false, cond:true, t:"Ink fallback — conditional",
+      m:"Members whose tablet cannot convert handwriting can still write by hand. Build only if task 012 goal 6 failed.",
+      g:["ink-pad leaf behind a 'draw instead' control; opened deliberately, never the default",
+         "Strokes {x,y,t,pressure} → highlight_notes.ink as JSON; rendered as SVG, never a raster image",
+         "transcribe outbox op: native recognizer → one vision call on reconnect → else leave as ink and stop asking",
+         "transcribed_by recorded; ink kept beside the transcript, never destroyed"],
+      gate:"An ink note survives offline capture, reconnect and transcription with the strokes intact.", b:"—" }
+  ];
+
+  var done = {}, filter = "all";
+  var host = document.getElementById("phases");
+
+  function visible(t){
+    if (filter === "all")  return true;
+    if (filter === "crit") return !!t.crit;
+    return t.a === filter;
+  }
+
+  function render(){
+    host.innerHTML = PHASES.map(function(ph){
+      var list = T.filter(function(t){ return t.p === ph.k && visible(t); });
+      if (!list.length) return "";
+      return '<div class="phase"><div class="phasehead"><span class="k">PHASE ' + ph.k + '</span>'
+        + '<h3>' + ph.name + '</h3><span class="note">' + ph.note + '</span></div>'
+        + list.map(card).join("") + '</div>';
+    }).join("") || '<div class="empty">No tasks match that filter.</div>';
+
+    host.querySelectorAll("[data-open]").forEach(function(b){
+      b.addEventListener("click", function(e){
+        if (e.target.closest("[data-chk]")) return;
+        b.closest(".task").classList.toggle("open");
+      });
+    });
+    host.querySelectorAll("[data-chk]").forEach(function(b){
+      b.addEventListener("click", function(e){
+        e.stopPropagation();
+        var id = b.getAttribute("data-chk");
+        done[id] = !done[id];
+        render(); progress();
+      });
+    });
+    progress();
+  }
+
+  function card(t){
+    var tagClass = t.a === "frontend" ? "fe" : t.a === "backend" ? "be" : "db";
+    return '<div class="task' + (done[t.id] ? " done" : "") + '">'
+      + '<button class="taskhead" data-open>'
+      +   '<span class="chk' + (done[t.id] ? " on" : "") + '" data-chk="' + t.id + '">'
+      +     (done[t.id] ? "✓" : "") + '</span>'
+      +   '<span class="tid">' + t.id + '</span>'
+      +   '<span><span class="tmain">' + t.t + '</span><span class="tgoal">' + t.m + '</span></span>'
+      +   '<span class="tags"><span class="tag ' + tagClass + '">' + t.a + '</span>'
+      +     (t.crit ? '<span class="tag crit">critical path</span>' : "") + '</span>'
+      + '</button>'
+      + '<div class="tbody"><h4>Mini-goals</h4><ul class="mini">'
+      +   t.g.map(function(g, i){ return '<li><span class="g">g' + (i + 1) + '</span><span>' + g + '</span></li>'; }).join("")
+      + '</ul>'
+      + '<div class="gate' + (t.cond ? " cond" : "") + '"><b>Gate — </b>' + t.gate + '</div>'
+      + '<div class="blocks">blocks: ' + t.b + '</div>'
+      + '</div></div>';
+  }
+
+  function progress(){
+    var n = Object.keys(done).filter(function(k){ return done[k]; }).length;
+    document.getElementById("progText").textContent = n + " / " + T.length;
+    document.getElementById("meterFill").style.width = (n / T.length * 100) + "%";
+  }
+
+  document.querySelectorAll("[data-f]").forEach(function(b){
+    b.addEventListener("click", function(){
+      document.querySelectorAll("[data-f]").forEach(function(x){ x.setAttribute("aria-pressed", String(x === b)); });
+      filter = b.getAttribute("data-f");
+      render();
+    });
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,669 @@
+---
+doc_id: thinkboard-lite-task-000-split
+title: Task 000 Split — the Architecture Contract, as five packages
+version: "1.0"
+status: proposed
+read_order_position: 8
+extends: ["07-whole-apps-task.md", "02-working.md", "04-TODO.md"]
+companion: ["07-database-architecture.md", "frontend-folder-architecture.md"]
+authority: "Process + scope for task 000 only. Product intent stays in 06-thinkboard-lite.md. Process law stays in 02-working.md."
+---
+
+# 08 — Task 000 Split
+
+`000-task-architecture-contract` blocks every other task, and as written it is the one task whose
+gate cannot fail. This file splits it into five ordered packages inside **one** task folder, replaces
+its gate with one a stub cannot pass, and records the six places the plan docs disagree with each
+other about a fact the blueprint must state exactly once.
+
+---
+
+## 0. How an agent should read this file
+
+| | |
+|---|---|
+| **Normative** | §2 packages and gates, §3 conflict verdicts, §7 contract scaffolding. Implement exactly. |
+| **Explanatory** | §1, §5. Context for *why*; not requirements. |
+| **On conflict** | `02-working.md` still wins on process. `06-thinkboard-lite.md` still wins on Lite product intent. This file wins on **the scope and sequencing of task 000 only**. |
+| **Numbering** | `NNN` stays a global monotonic counter (`02-working.md` §3). Packages A–E are an ordering **inside** `task.json.goals[]` — not new folders, not new task ids. Tasks 001–024 keep their numbers. |
+| **Do not** | Resolve a §3 conflict differently without recording it. Add a sixth package. Start package B before A closes. |
+
+---
+
+## 1. Why 000 needs splitting
+
+Five defects, all in the seams.
+
+### D1 — The gate is satisfiable by a no-op
+
+`verify:arch green on an empty tree`. An empty tree violates nothing, so a `verify-architecture.mjs`
+containing zero checks exits 0 and the gate goes green. **The gate cannot distinguish a finished
+analyzer from a stub.** And the tree it runs against does not exist yet: the repository is created by
+`create-next-app` in task 004.
+
+### D2 — g3 is a program, not a config line
+
+"Extend `verify-architecture.mjs` with I11–I29" is a static analyzer that parses `store.ts`,
+`tsconfig.json`, `vitest.config.mts`, a Dexie `stores({…})` call and `architecture.blueprint.json`.
+It is larger than g1, g2, g4 and g5 combined, and every later task's `npm run verify` depends on it.
+
+### D3 — Nine of those nineteen rules do not belong in the script
+
+Six are ESLint rules. Two are human review gates — **I19** (painter coordinates pass through
+`shared/utils/geometry`) is already called a review gate in `frontend-architecture.md` §10. And
+**I27** (nothing with `pointer-events:auto` overlaps the note textarea + 16px) is a runtime layout
+property no grep can see. Folded into "extend the script", they become rules that pass forever
+without being checked — the exact failure `frontend-folder-architecture.md` §12 names:
+*a rule that is not in the script is not a rule.*
+
+### D4 — The blueprint must be written from docs that disagree
+
+Six facts the blueprint states once have two values across the plan docs (§3). g1 says write the
+blueprint; it does not say who decides. An agent will resolve them by inference, which is precisely
+what task 000 exists to make impossible.
+
+### D5 — 000 and 004 both claim the same two files
+
+000 writes `eslint.config.mjs` and needs an npm script called `verify:arch`. Task 004 runs
+`create-next-app`, which owns `package.json` and writes its own `eslint.config.mjs`. **As sequenced,
+004 silently overwrites 000.**
+
+---
+
+## 2. The split
+
+One folder — `agent-history/000-task-architecture-contract/` — five packages, 18 goals, one gate each.
+
+```
+A Freeze      g1–g3    ≈ ½ day    unblocks 001
+B Blueprint   g4–g7    ≈ ½ day    needs A
+C AGENTS.md   g8–g10   ≈ ½ day    needs A
+D Verify      g11–g15  ≈ 2–3 d    needs A; g13 needs B
+E Lint + 004  g16–g18  ≈ ½ day    needs A
+```
+
+### Package A — Freeze · `g1–g3`
+
+**Main goal —** settle every fact the blueprint states exactly once, so no later package infers one.
+**This is the package that actually unblocks task 001**, which needs the decision registry and
+nothing else.
+
+- `g1` Source-precedence table, then resolve the six conflicts in §3. One winner per row, each with a
+  `doc` + `§` citation. Anything precedence cannot settle is escalated to the human, never picked.
+- `g2` The canonical invariant registry — all 29 (§4), each with an enforcement class.
+  `frontend-folder-architecture.md` §12 carries only I1–I25; **I26–I29 live in two other files** and
+  I6 is void.
+- `g3` The canonical decision registry — `D-01…D-12`, `Q1…Q11`, `DB-Q1…DB-Q5` (28 entries), each with
+  `state ∈ defaulted | unanswered | confirmed` and `blocks: [taskId]`.
+
+**Gate —** every conflict row carries a winner and a citation; the registries total 29 invariants
+(I6 void) and 28 decisions; no entry reads "TBD". A default taken by a doc author is recorded as
+`defaulted`, **never** as `confirmed`.
+**Blocks —** B, C, D, E, **001**.
+
+### Package B — Blueprint · `g4–g7`
+
+**Main goal —** emit `architecture.blueprint.json`, and the schema that proves it well-formed,
+because three invariants read it and would otherwise pass silently on a typo.
+
+- `g4` `contexts[]` (8, per `frontend-folder-architecture.md` §4), `domainTables[]` from
+  `07-database-architecture.md` §2, and `localFirst{}` — 7 Dexie tables, the compound
+  `[artifactId+page]` index, `idStrategy: "uuidv7-client"`, `blobStore: "opfs"`, **plus the outbox op
+  shape and the three-state row flag from §5.3**.
+- `g5` `commands[]` — 4, each carrying the `baseUrl` it resolves against, so I15 compares like with
+  like. `canvasLeaves[]` — 5, each with `hasPainter` **and** `status`. `listeners[]` — the sync
+  context's four actions.
+- `g6` `openQuestions[]` and `invariants[]`, carried over from A as machine-readable arrays rather
+  than prose.
+- `g7` `blueprint.schema.json`, plus a self-check that runs **before** any cross-check. A malformed
+  blueprint must fail loudly instead of making I13, I15 and I25 vacuously true.
+
+**Gate —** the blueprint validates against its own schema; every `localFirst.tables[]` entry maps to
+a row in `07-database-architecture.md` §2; every command maps to a route file in
+`06-thinkboard-lite.md` §4.3; every canvas leaf maps to a folder in
+`frontend-folder-architecture.md` §5.2.
+**Blocks —** D `g13`, 004.
+
+### Package C — `AGENTS.md` · `g8–g10`
+
+**Main goal —** the cold-start brief. Its real test is not completeness but that an agent holding
+only this file and the blueprint never needs to open a plan doc to place a file.
+
+- `g8` Import-direction law, the placement decision tree **verbatim** from
+  `frontend-folder-architecture.md` §8 (it is normative — paraphrasing loses rules), and the three
+  leaf kinds with their file sets.
+- `g9` The 4-point store edit, and the escalation rule: **on finding two docs that disagree, stop and
+  add an `openQuestions[]` entry — never pick.** This is "ask, don't invent" stated as a procedure
+  rather than a sentiment.
+- `g10` The human review checklist for what no script can check — I19, I27, and the runtime half of
+  I28 — each naming its owner and the task whose test finally covers it.
+
+**Gate —** a cold agent given only `AGENTS.md` and the blueprint places all ten sample artifacts
+correctly with no other file open: a painter, a query hook, a slice, a command API, a domain type, a
+canvas leaf, a container, a shadcn atom, a pure util, a route.
+**Blocks —** every agent-executed task.
+
+### Package D — `verify-architecture.mjs` · `g11–g15`
+
+**Main goal —** the analyzer, and the fixture suite that is its only honest gate. Roughly two thirds
+of task 000 lives here, which is the strongest single argument for splitting at all.
+
+- `g11` Harness: dependency-free Node, walks `src/`, emits `{id, status, file, line, message}`,
+  `--json` for CI, exit 1 on any fail.
+- `g12` The 15 tree-only checks — I1, I2, I4, I5, I7, I8, I9, I10, I11, I12, I14, I16, I17, I22, I24.
+- `g13` The 3 blueprint cross-checks — I13, I15, I25. These read package B's output, the one real
+  ordering constraint inside 000. **I25 must skip leaves whose `status` is `conditional` and whose
+  gating task closed as not-needed** (§3, C4).
+- `g14` **The fixture suite.** One violating tree per script-class invariant plus one clean tree. The
+  script must flag each planted violation *under the right id* — a check that fires on the wrong rule
+  is a false green somewhere else.
+- `g15` Every invariant the script cannot check prints as `skipped` with its reason and owning gate,
+  so the report always shows 29 rows and a dropped rule is visible rather than absent.
+
+**Gate —** `node scripts/verify-architecture.mjs --fixtures`: every planted violation caught under its
+own id, the clean fixture green, and the report printing all 29 rows. **This replaces "green on an
+empty tree", which any stub passes.**
+**Blocks —** 004, and every later `npm run verify`.
+
+### Package E — Lint rules and the 004 handoff · `g16–g18`
+
+**Main goal —** the seven rules ESLint enforces better than any script, plus the written agreement
+that stops task 004 overwriting them.
+
+- `g16` `eslint.architecture.mjs` exporting a flat-config **array**:
+  `shared/**` ↛ `@feature/*|@app/*` (I3, except `store.ts`) ·
+  `*.painter.ts` ↛ `@feature/*|@shared/config/*` (I18) ·
+  `canvas/**` ↛ `motion` (I20) ·
+  `@supabase/supabase-js` in two files only (I21) ·
+  `dexie-react-hooks` in `entities/queries` only (I23) ·
+  no rich-text library under `features/notes/**` (I26) ·
+  `dexie` in three modules only (I29).
+- `g17` The handoff, in writing: **000 does not run `create-next-app`** and owns neither
+  `package.json` nor `eslint.config.mjs`. Task 004 `g1` gains "spread `eslint.architecture.mjs` into
+  the generated config"; 004 `g4` gains "`verify:arch` = `node scripts/verify-architecture.mjs`".
+- `g18` "Green on the real tree" moves to 004's gate, where a real tree exists to be green on.
+
+**Gate —** the rule array flags every planted violation in the lint fixture and is clean on the good
+one; task 004's `task.json` carries both handoff criteria **before** 000 closes.
+**Blocks —** 004.
+
+### The risk this split creates
+
+Package A is executed by an agent, and A's whole job is six judgement calls — precisely the behaviour
+package C is written to forbid. **A resolves only what the precedence table decides; everything else
+stops and asks.** Conflict C6 is the worked example: precedence says the schema file wins, and the
+schema file is the one that is wrong.
+
+---
+
+## 3. The six conflicts
+
+Each is a fact the blueprint states once and the docs state twice. The verdict column is the
+recommendation; the reasoning is what package A's `analyze.json` should carry.
+
+### C1 — The Dexie table set: six tables or seven?
+
+| Source | Value |
+|---|---|
+| `06-thinkboard-lite.md` §5.3, `frontend-architecture.md` §11 | meta · artifacts · highlights · notes · miniConclusions · outbox |
+| `07-database-architecture.md` §6.1 | the same six **plus `runs`** |
+
+**Verdict: seven.** `frontend-folder-architecture.md` §4.1 ships `use-run.ts` in `queries/` while
+declaring only six tables — so its own I13 has a hook with nothing to bind to. Task 014 `g2` settles
+it: result reads come from Dexie, never from the mutation response.
+
+Precedence alone cannot decide this one — `frontend-folder-architecture.md` contradicts *itself*. The
+tiebreak is a downstream task's acceptance criterion.
+
+### C2 — The highlights index: flat or compound?
+
+| Source | Value |
+|---|---|
+| `06-thinkboard-lite.md` §5.3 | `'id, artifactId, page, layer, _dirty'` |
+| `07-database-architecture.md` §6.1, `frontend-folder-architecture.md` §4.1 | `'id, [artifactId+page], layer, _dirty'` |
+
+**Verdict: compound.** Situation S3 in `01-thinkboard-lite-frontend-v2.md` §1.1 argues the entire
+case for Dexie on `where('[artifactId+page]')` being an index seek rather than an O(n) filter.
+Shipping the flat index keeps the dependency and discards the reason for it.
+
+### C3 — The context list: seven or eight, named how?
+
+| Source | Value |
+|---|---|
+| `06-thinkboard-lite.md` §4.2 | workspace · pdf-canvas · highlight · notes · result · presence · offline |
+| `frontend-folder-architecture.md` §4 | entities · sync · workspace · document · highlight · notes · result · presence |
+
+**Verdict: the folder doc wins — eight, `document` not `pdf-canvas`, and no `offline` context at
+all.** Offline is `sync.phase` (`frontend-architecture.md` §5.1). An `offline/` folder would be a
+bounded context with no rows, no slice and no components — an empty box that later work fills by
+accident.
+
+### C4 — Canvas leaves: three or five, and what happens to `ink-pad`?
+
+| Source | Value |
+|---|---|
+| `frontend-architecture.md` §11 | highlight-layer · ink-pad · peer-cursors |
+| `frontend-folder-architecture.md` §5.2 | page-stage · highlight-layer · ink-pad · peer-cursors · marquee |
+
+**Verdict: five — and `ink-pad` needs `status: "conditional"` keyed to task 024.** Task 011 `g1`
+requires a marquee painter, so three is stale. The sharper problem: **I25 fails the moment task 012
+`g6` succeeds.** If the pilot's tablets do convert Indonesian handwriting, task 024 is deleted,
+`ink-pad.painter.ts` is never written, and a blueprint promising `hasPainter: true` makes
+`verify:arch` red forever on work that was correctly skipped. One field in the blueprint; an
+unfixable red build without it.
+
+### C5 — Command URLs: `/v1/…` or `/api/v1/…`?
+
+| Source | Value |
+|---|---|
+| `frontend-architecture.md` §11 | `"url": "/v1/workspaces"` |
+| `06-thinkboard-lite.md` §4.3, `frontend-folder-architecture.md` §3.2 | `app/api/v1/workspaces/route.ts` → `/api/v1/workspaces` |
+
+**Verdict: keep `/v1/…` in the blueprint and state the `baseUrl: "/api"` it resolves against, in the
+blueprint itself.** Both are right — one is the RTK Query path, the other the filesystem route. Left
+implicit, I15 cross-checks two strings that can never match, so the rule either never fires or always
+does.
+
+### C6 — `note_input_mode`: two values or three?
+
+| Source | Value |
+|---|---|
+| `06-thinkboard-lite.md` §6 `create type` | `('keyboard','ink')` |
+| `01-thinkboard-lite-frontend-v2.md` §5, `07-database-architecture.md` §4 | `('keyboard','ink','stylus_os')` + `transcribed_by` |
+
+**Verdict: three values plus the `transcribed_by` column — and this one does not stay inside task
+000.** It is a migration fact. Unless package A hands it to task 001 as an extra criterion on `g2`,
+`0004_lite.sql` ships a two-value enum and task 012 has to `alter type … add value` against a live
+table, then backfill.
+
+This is the conflict to show a human: `06-thinkboard-lite.md` §0 says the schema file wins on schema
+shape, but here the newer frontend doc is correct. **Precedence points at the wrong answer, which is
+exactly when an agent should stop.**
+
+### Also frozen in package A — no conflict, just unstated
+
+- The Dexie table is `notes`; the Postgres table is `highlight_notes`. `toWire`/`toRow` is the only
+  place the two names meet, and task 006 `g6` asserts that mapper's key set against the column list —
+  so both names belong in the blueprint.
+- `_dirty` and `seq` are local-only and never cross into a Postgres write.
+- The database is namespaced per profile — `thinkboard:{profileId}`, deleted on sign-out (DB-Q3).
+  Shared tablets are the stated reason. **OPFS is not namespaced this way — see §5.3 F6.**
+- Four `localStorage` keys, and exactly four: Supabase session, theme, last workspace id, `mode`.
+
+---
+
+## 4. The invariant registry
+
+The list exists nowhere in one piece today. `frontend-folder-architecture.md` §12 has I1–I25,
+`01-thinkboard-lite-frontend-v2.md` §4 adds I26–I28, and I29 appears only in task 006's gate. I6 was
+replaced by I13 and is a hole in the numbering. **An agent implementing "I11–I29" from §12 alone
+would build 15 of the 19.**
+
+Class is the *primary* enforcement; I3 and I22 each carry a second, weaker check elsewhere.
+
+| Id | Rule | Enforced by | Specified in | Note |
+|---|---|---|---|---|
+| I1 | Every component folder has an `index.ts` | script | ffa §12.1 | filesystem walk |
+| I2 | No hooks in a `.tsx` with a sibling `use-*.ts` | script | ffa §12.2 | the UI/logic seam |
+| I3 | `shared/` never imports `@feature/*` or `@app/*` | eslint | ffa §12.3 | one exception, `store.ts`; script re-asserts |
+| I4 | No `useAppSelector`/`useAppDispatch` under `app/` | script | ffa §12.4 | routes compose, never orchestrate |
+| I5 | Every `createApi` `reducerPath` is in `rootReducer` and `.concat()` | script | ffa §12.5 | parses `store.ts` |
+| ~~I6~~ | *replaced by I13* | void | ffa §12.6 | never reassign this number |
+| I7 | `tsconfig` aliases and `vitest.config.mts` aliases match | script | ffa §12.7 | "works in dev, fails in test" |
+| I8 | No duplicated path segment in an import | script | ffa §12.8 | catches deep imports past a barrel |
+| I9 | Domain types use branded primitives from `./common` | script | ffa §12.9 | AST over `shared/types/domain/` |
+| I10 | Slice state types live in `features/<ctx>/types/redux.ts` | script | ffa §12.10 | never inline in the slice file |
+| I11 | No domain row type inside a slice's state | script | ffa §12.11 | slices hold ids and phase |
+| I12 | `whitelist` holds no `reducerPath` and not `entities` | script | ffa §12.12 | hazard 6 |
+| I13 | Every Dexie table has ≥1 query hook | script · blueprint | ffa §12.13 | C1 — currently fails on `runs` |
+| I14 | No `data` destructured from a command hook | script | ffa §12.14 | a command returns an id or a status |
+| I15 | Every `createApi` endpoint traces to `blueprint.commands[]` | script · blueprint | ffa §12.15 | C5 — needs the `baseUrl` stated |
+| I16 | Every persisted slice has a `ui` key; `stripUi` registered | script | ffa §12.16 | fixes reference deviation 8 |
+| I17 | Imperative Konva only in `*.painter.ts` | script | ffa §12.17 | `batchDraw` · `new Konva.` · `getLayer()` |
+| I18 | A painter imports no `@feature/*` and no `@shared/config/*` | eslint | ffa §12.18 | data and a layer ref, nothing else |
+| I19 | Painter coordinates pass through `shared/utils/geometry` | **review** | fa §10 | **not statically decidable** — fa §10 already calls it a review gate |
+| I20 | No `motion` import under `components/canvas/` | eslint | ffa §12.20 | Konva runs its own tween loop |
+| I21 | `@supabase/supabase-js` in its two seam files only | eslint | ffa §12.21 | a third importer has bypassed the outbox |
+| I22 | `setAuth()` precedes every `subscribe()` | script + test | ffa §12.22 | order-in-file grep is weak; pair with fa §6.4's unit test |
+| I23 | `useLiveQuery` only inside `entities/queries/` | eslint | ffa §12.23 | containers call a named hook |
+| I24 | Every canvas file begins `"use client"` | script | ffa §12.24 | react-konva touches `window` at import |
+| I25 | `canvasLeaves[].hasPainter` ↔ a real `*.painter.ts` | script · blueprint | ffa §12.25 | C4 — must skip `conditional` leaves |
+| I26 | Note input is a textarea/input; no rich-text library in `features/notes/**` | eslint | v2 §4 | **not in ffa §12** |
+| I27 | Nothing with `pointer-events:auto` overlaps the textarea + 16px | **deferred → 012** | v2 §4 | **runtime layout** — becomes a named Playwright story test |
+| I28 | No LLM call on the default note path | script + review | v2 §4 | the import is greppable; "never awaited in a save handler" is not |
+| I29 | `dexie` imported only in `db/`, `repository/`, `queries/` | eslint | whole-apps 006 gate | **appears only in a task gate** |
+
+**Totals —** script 18 · eslint 7 · review 2 · deferred 1 · void 1 = **29**.
+Within g3's stated range I11–I29: **10 script checks, 6 ESLint rules, 2 review gates, 1 browser test.**
+
+---
+
+## 5. The Dexie challenge
+
+Package A must record this, because it is the decision every later frontend task inherits.
+
+### 5.1 Verdict — keep Dexie, but the stated reason is the weakest one
+
+`01-thinkboard-lite-frontend-v2.md` §1 rests the decision on S4: a row and its outbox entry must land
+atomically, and Redux has no transaction primitive. That is true, and it is a rigged comparison —
+nobody would build offline-first on `redux-persist`. The real alternatives are raw IndexedDB (Dexie
+*is* that, typed), a sync engine, or **SQLite-wasm over OPFS**, which §2.7 never considers because it
+only evaluates SQLite bundled inside PowerSync.
+
+Evaluated directly, SQLite-wasm loses on three counts that matter more than atomicity:
+
+| | Dexie | SQLite-wasm + OPFS |
+|---|---|---|
+| Reactivity | `useLiveQuery` — the whole "one rendering path" property of `frontend-architecture.md` §4.2 | no change notification; invalidation is hand-rolled |
+| Two tabs open | native, `BroadcastChannel`-backed | the `opfs-sahpool` VFS takes an exclusive lock; the second tab fails |
+| Bundle | ~30 kB | ~1 MB wasm before any app code, on a field connection |
+| Joins | 3 queries + assembly in JS | one statement |
+
+Only the last row favours SQLite, and at 180 highlights and 240 notes it is not felt. **Dexie is the
+right call — but if someone later attacks S4 the decision looks shaky, so record the real reasons.**
+
+The escape hatch also needs rewording. §2.7 says adopt PowerSync when hand-rolled sync passes
+**~500 lines**, and §1.3 estimates ~300. Counting what §2 actually specifies — paginated bootstrap,
+ordered push with coalescing and backoff and parking, two-topic realtime with re-auth, `applyRemote`
+with its dirty guard, manifest reconcile with delete detection, the blob channel, and the seven-case
+failure matrix — the honest number with tests is **800–1200 lines**. By its own trigger the plan
+should already be on PowerSync. Fix the trigger, not the decision: **key the escape hatch to
+behaviour — co-editable notes, or a sync bug that loses a note — not to a line count that week one
+blows through.**
+
+PowerSync remains the right named escape hatch: it is actively maintained and still ships a
+first-class Supabase integration. ElectricSQL is out, and for the reason the plan already suspected —
+Electric was acquired by Databricks in August 2026 and folded toward agentic Postgres and Neon.
+
+### 5.2 Collaboration's impact on Supabase — the shape is favourable
+
+Per member, per workspace: **one WebSocket, two topic subscriptions, and no reads.**
+
+Local-first inverts the usual load profile. Reads never reach Postgres — `RULE-07` puts the network
+off the read path entirely, so the only reads are the one-time paginated bootstrap and the reconcile
+manifest (`select id, updated_at`, a few kB). What collaboration *adds* is on the write side:
+
+| Traffic | Per event | At pilot scale (6 members, 200 highlights, 8h) |
+|---|---|---|
+| Durable write | 1 PostgREST request, RLS-checked | ~600 writes total (notes autosave coalesced at 800 ms) |
+| Broadcast trigger | **+1 insert into `realtime.messages`, inside the same transaction** | ~600 extra rows, auto-deleted after 3 days |
+| Trigger lookup | 1 indexed select (highlights) or a 2-table join (notes), synchronous, on the hot path | negligible at this size |
+| Realtime fanout | 1 message → ≤6 deliveries | trivial against free-tier limits |
+| Cursors / presence | Broadcast only, ~20 Hz, throttled | **never touches Postgres** |
+
+**So: every durable write costs two writes, reads drop to near zero, and each client holds one
+socket.** That is a good trade and well within a free Supabase project for a six-person pilot. The
+load-sanity target in task 023 `g5` is the right one and should pass comfortably.
+
+Two things to watch as it grows, neither urgent:
+
+1. The note broadcast trigger runs `highlights h join artifacts a` **per row change**, inside the
+   write transaction. Confirm `can_access_session` and `is_team_member` are declared `STABLE` so the
+   planner evaluates them once per statement rather than once per row.
+2. `realtime.messages` is WAL traffic. It is a notification channel with a 3-day retention, not a log
+   — nothing should ever read it.
+
+### 5.3 Six defects found in the sync spec while checking this
+
+These do not change the Dexie decision. They change tasks 001, 007, 016 and 021, and package A should
+carry them as `open_questions` so they reach those tasks.
+
+**F1 — a parked op stalls the entire outbox, permanently.** `drainOutbox` takes
+`db.outbox.orderBy("seq").first()` with **no filter on `state`**. A 4xx op is marked `failed` and left
+in the table, so the next drain picks the same op, fails again, and returns. Every write queued behind
+it stops syncing, silently. §2.2's own table claims this case is prevented ("a permission error
+retried forever behind a spinner that never resolves") — the code does the opposite.
+→ *Task 007 `g1`: the head selection must exclude `state = 'failed'`, and ops whose parent row is
+parked must park with it.*
+
+**F2 — `_dirty` is never cleared on a parked op.** It is cleared only in the success branch. A parked
+row therefore stays `_dirty` forever, so `applyRemote` skips it for the rest of the session and
+`reconcile`'s `gone` filter skips it too. The row freezes locally and diverges from the server with no
+indication. → *One bit is not enough: the row flag needs `clean | pending | failed`, and the outbox op
+`state` needs to be readable from the row. This is a blueprint fact — package B `g4`.*
+
+**F3 — the reconcile manifest is unpaginated, and that deletes real rows.**
+`select("id, updated_at").eq("artifact_id", …)` has no `.range()`. PostgREST caps the response, so on
+a large artifact the manifest comes back truncated; every id past the cap is absent from `rMap`, lands
+in `gone`, and is `bulkDelete`d locally. **The `bootstrapped:` meta flag then prevents re-bootstrap**,
+so the loss is silent and permanent. §2.1 states the pagination rule for bootstrap and §2.4 does not
+apply it. → *Task 007 `g4`: paginate the manifest, and refuse to compute `gone` from a response that
+hit the page cap.*
+
+**F4 — the broadcast trigger builds a NULL topic on cascade delete.** `tb_broadcast_highlight()` does
+`select a.session_id into sid from artifacts a where a.id = r.artifact_id`. When an artifact is
+deleted and cascades to its highlights, that row may already be gone, leaving `sid` NULL — and
+`'ws:' || NULL` is **NULL** in Postgres, not `'ws:'`. `realtime.broadcast_changes(NULL, …)` then runs
+inside the delete transaction. → *Task 001 `g3`: guard with `if sid is null then return null; end if;`*
+
+**F5 — leader import fans out 80 messages in one batch.** Task 021 `g5` commits every accepted region
+as `layer='group'` highlight + empty note **in one batch**; the per-row triggers turn a 40-highlight
+import into ~80 broadcasts, and each connected member's `applyRemote` opens one Dexie transaction per
+message plus a live-query re-run. That is a visible stall on a tablet. → *Either the import emits one
+"reconcile this artifact" message, or `applyRemote` batches — task 007 `g3` / task 021 `g5`.*
+
+**F6 — Dexie is namespaced per profile; OPFS is not.** The database is `thinkboard:{profileId}`
+(DB-Q3, shared tablets), but the PDF cache is keyed by `storage_path` in origin-scoped OPFS. D-10
+keeps the group document out of the cache by default, which contains it today — but *clear local data
+on sign out* (task 016 `g6`) must wipe OPFS as well as Dexie, or the next user on a shared tablet
+inherits the previous one's document bytes.
+
+---
+
+## 6. What this changes elsewhere in the plan
+
+| What | As written | After the split |
+|---|---|---|
+| 000's gate | `verify:arch` green on an empty tree | fixture suite — every planted violation caught under its own id |
+| 000's goals | 5 | 18, in five ordered packages, one gate each |
+| `000 → 001` | 001 waits for all of 000 | **001 waits for package A only** (06 §10 needs only D-01/05/07/12 in its `open_questions`) |
+| `eslint.config.mjs` | written by 000 | `eslint.architecture.mjs` by 000; spread into the generated config by 004 |
+| `package.json`, npm scripts | implied by 000's gate | owned by 004; 000 ships the script file and the command string |
+| Effort | 3% | **6–8%** — package D alone is a 29-row analyzer with a fixture suite |
+| I27 | "in the verify script" | a named Playwright story test in task 012, recorded as `deferred` |
+| Task 001 `g2` | three enums, `highlight_notes`, six columns… | …plus `note_input_mode` with three values and `transcribed_by` (C6) |
+| Task 001 `g3` | two broadcast triggers | …plus the NULL-topic guard (F4) |
+| Task 007 `g1`, `g4` | push order; manifest diff | …plus failed-op exclusion (F1) and manifest pagination (F3) |
+| Task 016 `g6` | clear local data on sign out | …explicitly including OPFS (F6) |
+
+The decision registry totals **28** items, of which **four are genuinely unanswered** rather than
+defaulted: `D-12` (free-tier training terms vs Perhutani document sensitivity — gates 018), `Q7`
+(Bahasa Indonesia on Scribble — decides whether 024 exists), `Q8` (the real tablet mix) and `Q9`
+(whether users have styluses at all). Only D-12 and Q7 block a task. The other 24 carry defaults,
+recorded as `defaulted` and never as `confirmed`, because a default taken by a doc author is not a
+decision anyone has made.
+
+**The cheapest item on this page is Q7.** Three people, their own tablets, real Indonesian, a plain
+textarea — 45 minutes. It decides whether task 024 exists, whether `ink-pad` gets a painter, and
+therefore what package B writes into the blueprint. Run it before 000 closes, not in week one of 012.
+
+---
+
+## 7. Contract scaffolding
+
+Per `02-working.md` §4.2, §4.3 and §4.6. Eighteen goals means eighteen `goal_checks` entries — §6 of
+that contract admits no exceptions.
+
+### 7.1 `agent-history/000-task-architecture-contract/task.json`
+
+```json
+{
+  "id": "000-task-architecture-contract",
+  "title": "Architecture contract: blueprint, AGENTS.md, verify script, lint rules",
+  "architecture": "frontend",
+  "secondary_architecture": [],
+  "created_at": "2026-09-18T00:00:00Z",
+  "status": "pending",
+  "depends_on": [],
+  "plan_refs": [
+    { "doc": "07-whole-apps-task.md", "section": "PHASE A · 000-task-architecture-contract" },
+    { "doc": "08-task-000-split.md", "section": "§2 packages A-E" },
+    { "doc": "frontend-folder-architecture.md", "section": "§12 structural invariants" },
+    { "doc": "frontend-architecture.md", "section": "§10 invariants, §11 blueprint extensions" },
+    { "doc": "01-thinkboard-lite-frontend-v2.md", "section": "§4 new invariants I26-I28" },
+    { "doc": "07-database-architecture.md", "section": "§2 scope map, §6 frontend data contract" }
+  ],
+  "goals": [
+    { "id": "g1",  "description": "Source-precedence table; resolve the six conflicts, one winner + citation each; escalate what precedence cannot settle", "plan_ref": "08 §3", "status": "pending" },
+    { "id": "g2",  "description": "Canonical invariant registry I1-I29 with enforcement class (I6 void; I26-I29 sourced outside ffa §12)", "plan_ref": "08 §4", "status": "pending" },
+    { "id": "g3",  "description": "Canonical decision registry: D-01..D-12, Q1..Q11, DB-Q1..DB-Q5 with state and blocks[]", "plan_ref": "06 §10, v2 §6, fa §13, 07-db §10", "status": "pending" },
+    { "id": "g4",  "description": "blueprint: contexts[], domainTables[], localFirst{} incl. outbox op shape and three-state row flag", "plan_ref": "08 §2 pkg B, 08 §5.3 F2", "status": "pending" },
+    { "id": "g5",  "description": "blueprint: commands[] with baseUrl, canvasLeaves[] with hasPainter and status, listeners[]", "plan_ref": "fa §11, 08 §3 C4/C5", "status": "pending" },
+    { "id": "g6",  "description": "blueprint: openQuestions[] and invariants[] as machine-readable arrays", "plan_ref": "08 §3, §4", "status": "pending" },
+    { "id": "g7",  "description": "blueprint.schema.json plus a self-check that runs before any cross-check", "plan_ref": "08 §2 pkg B", "status": "pending" },
+    { "id": "g8",  "description": "AGENTS.md: import-direction law, placement decision tree verbatim, the three leaf kinds", "plan_ref": "ffa §8, §9, §6", "status": "pending" },
+    { "id": "g9",  "description": "AGENTS.md: the 4-point store edit and the escalation rule (stop and record, never pick)", "plan_ref": "fa §5.3, 08 §2 pkg C", "status": "pending" },
+    { "id": "g10", "description": "AGENTS.md: review checklist for I19, I27 and the runtime half of I28, each with an owner and a covering task", "plan_ref": "08 §4", "status": "pending" },
+    { "id": "g11", "description": "verify-architecture.mjs harness: dependency-free, walks src/, {id,status,file,line,message}, --json, exit 1", "plan_ref": "08 §2 pkg D", "status": "pending" },
+    { "id": "g12", "description": "The 15 tree-only checks: I1,I2,I4,I5,I7,I8,I9,I10,I11,I12,I14,I16,I17,I22,I24", "plan_ref": "08 §4", "status": "pending" },
+    { "id": "g13", "description": "The 3 blueprint cross-checks I13,I15,I25; I25 skips conditional leaves whose gating task closed as not-needed", "plan_ref": "08 §3 C4", "status": "pending" },
+    { "id": "g14", "description": "Fixture suite: one violating tree per script-class invariant plus one clean tree; each violation flagged under the correct id", "plan_ref": "08 §2 pkg D", "status": "pending" },
+    { "id": "g15", "description": "Non-script invariants print as skipped with reason and owning gate; the report always shows 29 rows", "plan_ref": "08 §4", "status": "pending" },
+    { "id": "g16", "description": "eslint.architecture.mjs flat-config array covering I3,I18,I20,I21,I23,I26,I29", "plan_ref": "ffa §9, 08 §4", "status": "pending" },
+    { "id": "g17", "description": "004 handoff in writing: 000 owns neither package.json nor eslint.config.mjs; 004 g1 and g4 gain the merge criteria", "plan_ref": "08 §1 D5, §6", "status": "pending" },
+    { "id": "g18", "description": "Move 'green on the real tree' to task 004's gate", "plan_ref": "08 §6", "status": "pending" }
+  ],
+  "phases": {
+    "analyze":  { "file": "analyze.json",  "status": "not_started" },
+    "code":     { "file": "code.json",     "status": "not_started" },
+    "test":     { "file": "test.json",     "status": "not_started" },
+    "validate": { "file": "validate.json", "status": "not_started" },
+    "result":   { "file": "result.json",   "status": "not_started" }
+  }
+}
+```
+
+### 7.2 `analyze.json` — the shape package A must fill
+
+`sources_read` is not optional: §7.1 of `02-working.md` makes reading the `plan_refs` *the* analyze
+step. `open_questions` carries the four unanswered decisions **and** the six defects from §5.3, so
+they reach tasks 001, 007, 016 and 021 instead of dying here.
+
+```json
+{
+  "task_id": "000-task-architecture-contract",
+  "phase": "analyze",
+  "started_at": "",
+  "completed_at": "",
+  "sources_read": [
+    { "doc": "07-whole-apps-task.md", "section": "PHASE A, §2 dependency graph, §5 standing rules" },
+    { "doc": "frontend-folder-architecture.md", "section": "§4, §5.2, §8, §9, §12" },
+    { "doc": "frontend-architecture.md", "section": "§5.3, §10, §11, §13" },
+    { "doc": "01-thinkboard-lite-frontend-v2.md", "section": "§2, §4, §6" },
+    { "doc": "07-database-architecture.md", "section": "§2, §6, §10" },
+    { "doc": "06-thinkboard-lite.md", "section": "§4.3, §5.3, §6, §10" }
+  ],
+  "scope": "Contract artifacts only: blueprint, AGENTS.md, verify script + fixtures, lint rule array. No create-next-app, no package.json, no eslint.config.mjs, no product code.",
+  "acceptance_criteria": [
+    { "goal_id": "g1", "text": "All six conflicts in 08 §3 have one recorded winner with a doc + section citation." },
+    { "goal_id": "g2", "text": "The invariant registry totals 29 rows with I6 marked void and every row carrying an enforcement class." },
+    { "goal_id": "g3", "text": "The decision registry totals 28 rows; exactly four carry state 'unanswered'." },
+    { "goal_id": "g4", "text": "localFirst declares 7 Dexie tables, the compound [artifactId+page] index, and a three-state row flag." },
+    { "goal_id": "g5", "text": "commands[] carries baseUrl; canvasLeaves[] has 5 entries and ink-pad is status 'conditional'." },
+    { "goal_id": "g6", "text": "openQuestions[] and invariants[] are arrays, not prose." },
+    { "goal_id": "g7", "text": "A blueprint with a deliberately wrong table name fails the self-check before any cross-check runs." },
+    { "goal_id": "g8", "text": "The placement decision tree is byte-identical to frontend-folder-architecture.md §8." },
+    { "goal_id": "g9", "text": "AGENTS.md states the escalation rule as a procedure with a destination (openQuestions[])." },
+    { "goal_id": "g10", "text": "I19, I27 and I28 each name an owner and the task whose test covers them." },
+    { "goal_id": "g11", "text": "The harness runs on a tree with no node_modules and exits 1 on any fail." },
+    { "goal_id": "g12", "text": "All 15 tree-only checks are implemented and each has a fixture." },
+    { "goal_id": "g13", "text": "I25 passes on a blueprint whose conditional leaf has no painter and whose gating task is closed as not-needed." },
+    { "goal_id": "g14", "text": "Every planted violation is reported under its own invariant id; the clean fixture is green." },
+    { "goal_id": "g15", "text": "The report prints 29 rows on every run, including skipped ones." },
+    { "goal_id": "g16", "text": "The lint array flags every planted violation in the lint fixture and is clean on the good one." },
+    { "goal_id": "g17", "text": "Task 004's task.json carries both handoff criteria before 000 closes." },
+    { "goal_id": "g18", "text": "Task 004's gate includes 'verify:arch green on the scaffolded tree'." }
+  ],
+  "open_questions": [
+    "D-12 free-tier training terms vs Perhutani document sensitivity — unanswered, gates task 018.",
+    "Q7 Bahasa Indonesia handwriting on the pilot's tablets — unanswered, decides whether task 024 exists and therefore whether ink-pad is a conditional canvas leaf. 45-minute test; run before 000 closes.",
+    "Q8 the real tablet mix (iPad vs Samsung S Pen vs other Android) — unanswered.",
+    "Q9 whether pilot users have styluses at all — assumed yes, unverified.",
+    "C6: note_input_mode must be a three-value enum with transcribed_by. 06 §6 disagrees with v2 §5 and 07-db §4, and the precedence rule points at the wrong doc. Carry to task 001 g2.",
+    "F1 outbox head-of-line stall on a parked 4xx op — carry to task 007 g1.",
+    "F2 _dirty is never cleared on a parked op; the row flag needs three states — affects blueprint g4 and task 007.",
+    "F3 the reconcile manifest is unpaginated and can bulkDelete real local rows — carry to task 007 g4.",
+    "F4 broadcast trigger builds a NULL topic on cascade delete — carry to task 001 g3.",
+    "F5 leader import fans out ~80 broadcasts in one batch — carry to task 021 g5 / task 007 g3.",
+    "F6 OPFS is not namespaced per profile while Dexie is — carry to task 016 g6."
+  ],
+  "risks": [
+    "Package A is an agent making six judgement calls, which is the behaviour package C forbids. A resolves only what precedence decides.",
+    "Package D is 2-3 days of analyzer work against a fixture suite; the original 3% estimate covers roughly half of it.",
+    "I25 becomes permanently red if ink-pad ships hasPainter:true and task 024 is deleted."
+  ]
+}
+```
+
+### 7.3 `validate.json.goal_checks` — eighteen entries, no exceptions
+
+```json
+{
+  "task_id": "000-task-architecture-contract",
+  "phase": "validate",
+  "goal_checks": [
+    { "goal_id": "g1",  "status": "", "notes": "" },
+    { "goal_id": "g2",  "status": "", "notes": "" },
+    { "goal_id": "g3",  "status": "", "notes": "" },
+    { "goal_id": "g4",  "status": "", "notes": "" },
+    { "goal_id": "g5",  "status": "", "notes": "" },
+    { "goal_id": "g6",  "status": "", "notes": "" },
+    { "goal_id": "g7",  "status": "", "notes": "" },
+    { "goal_id": "g8",  "status": "", "notes": "" },
+    { "goal_id": "g9",  "status": "", "notes": "" },
+    { "goal_id": "g10", "status": "", "notes": "" },
+    { "goal_id": "g11", "status": "", "notes": "" },
+    { "goal_id": "g12", "status": "", "notes": "" },
+    { "goal_id": "g13", "status": "", "notes": "" },
+    { "goal_id": "g14", "status": "", "notes": "" },
+    { "goal_id": "g15", "status": "", "notes": "" },
+    { "goal_id": "g16", "status": "", "notes": "" },
+    { "goal_id": "g17", "status": "", "notes": "" },
+    { "goal_id": "g18", "status": "", "notes": "" }
+  ],
+  "cross_check_against_plan": [
+    { "doc": "frontend-folder-architecture.md", "section": "§12", "result": "" },
+    { "doc": "frontend-architecture.md", "section": "§11", "result": "" },
+    { "doc": "01-thinkboard-lite-frontend-v2.md", "section": "§4", "result": "" },
+    { "doc": "07-database-architecture.md", "section": "§2", "result": "" },
+    { "doc": "08-task-000-split.md", "section": "§3 conflict verdicts", "result": "" }
+  ],
+  "signed_off": false,
+  "issues_found": []
+}
+```
+
+### 7.4 `agent-thinking/tracking-todo.json` entry
+
+```json
+{
+  "id": "000-todo-architecture-contract",
+  "name": "Architecture contract, split into five packages",
+  "goal": "Produce the machine-readable contract an agent generates from, so no file is ever created by inference.",
+  "todo_path": "agent-thinking/todo/000-todo-architecture-contract/contract.json",
+  "agent_history": "agent-history/000-task-architecture-contract",
+  "status": "pending"
+}
+```
+
+---
+
+## 8. Standing rules, unchanged
+
+`analyze.json` before any code · one `validate.json.goal_checks` entry per mini-goal, **now eighteen
+of them** · anything touching RLS or stage transitions cannot reach validate with
+`test.json.summary.total: 0` · open decisions get raised in `analyze.json.open_questions`, never
+silently resolved · **no git write without explicit confirmation, every time** (`05-agent-limitation.md`
+§1), landing on the shadow branch and never on `master` · `npm run verify` green before a task closes.
+
+---
+
+## 9. Sources
+
+In repo: `00-thinkboard-lite-abstract-plan.md`, `01-thinkboard-lite-frontend-v2.md` (v2),
+`06-thinkboard-lite.md` (06), `07-database-architecture.md` (07-db), `07-whole-apps-task.md`
+(whole-apps), `frontend-architecture.md` (fa), `frontend-folder-architecture.md` (ffa),
+`02-working.md`, `04-TODO.md`, `05-agent-limitation.md`.
+
+External, checked September 2026 for §5.1: PowerSync's Supabase integration and 2026 changelog;
+the Databricks acquisition of Electric, August 2026.

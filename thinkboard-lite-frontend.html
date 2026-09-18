@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ThinkBoard Lite — frontend architecture</title>
+<style>
+  :root{
+    --paper:#FAFAF8; --card:#FFFFFF; --ink:#17212B; --muted:#6B7785; --rule:#DDE2E8;
+    --amber:#FFD84D; --mint:#6FD6C4; --pink:#FF9AC1;
+    --accent:#2F3A8F; --ok:#1E6E4E; --warn:#B4531E;
+    --serif: ui-serif, Georgia, "Times New Roman", serif;
+    --sans: ui-sans-serif, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
+  .wrap{max-width:1120px;margin:0 auto;padding:52px 26px 110px}
+  h1,h2,h3,h4{font-family:var(--serif);font-weight:600;letter-spacing:-.01em;margin:0}
+  h1{font-size:40px;line-height:1.1} h2{font-size:26px} h3{font-size:17px} h4{font-size:14.5px}
+  p{margin:.6em 0;max-width:70ch}
+  .lede{font-size:18px;color:var(--muted);max-width:62ch;margin-top:14px}
+  .sub{color:var(--muted);font-size:13.5px}
+  code,.t{font-family:var(--mono);font-size:12.5px;background:#EEF1F4;padding:1px 5px;color:#2B3A47;border-radius:2px}
+  pre{font-family:var(--mono);font-size:12px;line-height:1.65;color:#2B3A47;background:#F3F5F7;
+      border:1px solid var(--rule);padding:14px 16px;overflow-x:auto;margin:14px 0 0}
+  .mark{position:relative;display:inline;padding:0 .1em}
+  .mark::before{content:"";position:absolute;left:0;right:0;bottom:.04em;height:.72em;background:var(--amber);
+    z-index:-1;transform-origin:left center;transform:scaleX(0);animation:sw .5s cubic-bezier(.2,.7,.3,1) forwards}
+  @keyframes sw{to{transform:scaleX(1)}}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+  section{margin-top:68px;padding-top:32px;border-top:1px solid var(--rule)}
+  .sechead{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap}
+  .num{font-family:var(--mono);font-size:13px;color:var(--muted);padding-top:6px}
+  .sechead .sub{margin-left:auto}
+  button{font:inherit;cursor:pointer}
+  table{width:100%;border-collapse:collapse;margin-top:22px;font-size:13.5px}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--rule);vertical-align:top}
+  th{font-weight:600;font-size:12px;color:var(--muted);border-bottom:1.5px solid var(--ink)}
+  .callout{margin-top:24px;border-left:4px solid var(--accent);background:#fff;padding:16px 20px}
+  .callout.warn{border-left-color:var(--warn)}
+  .callout p{margin:.25em 0;font-size:14px;max-width:82ch}
+
+  /* layer cake */
+  .cake{margin-top:26px;border:1px solid var(--ink);background:var(--card)}
+  .band{padding:16px 20px;border-bottom:1px solid var(--rule)}
+  .band:last-child{border-bottom:0}
+  .band .tag{font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:.04em}
+  .band h3{margin:3px 0 6px}
+  .band p{font-size:13.5px;color:var(--muted);margin:0}
+  .band .kids{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .kid{font-family:var(--mono);font-size:11.5px;border:1px solid var(--rule);padding:4px 9px;background:#F8F9FB}
+  .kid.k{border-color:var(--accent);color:var(--accent);background:#F2F3FA}
+  .band.app{background:#FCFCFB} .band.shared{background:#F8F9FB}
+  .arrowline{font-family:var(--mono);font-size:11.5px;color:var(--muted);padding:9px 20px;background:#F3F5F7;border-bottom:1px solid var(--rule)}
+
+  /* state ownership */
+  .owners{display:grid;grid-template-columns:repeat(4,1fr);margin-top:26px;border:1px solid var(--ink)}
+  .owners > button{text-align:left;padding:16px 18px;border:0;border-right:1px solid var(--rule);background:#fff;transition:background .15s}
+  .owners > button:last-child{border-right:0}
+  .owners > button:hover{background:#F8F9FB}
+  .owners > button[aria-pressed="true"]{background:var(--ink);color:#fff}
+  .owners .cap{font-family:var(--mono);font-size:10.5px;opacity:.65;display:block;margin-bottom:5px}
+  .owners .nm{font-family:var(--serif);font-size:16px}
+  .ownerbody{border:1px solid var(--ink);border-top:0;padding:18px 20px;background:#fff}
+  .ownerbody p{font-size:14px}
+  @media (max-width:820px){.owners{grid-template-columns:1fr}.owners>button{border-right:0;border-bottom:1px solid var(--rule)}}
+
+  /* flow stepper */
+  .stage{background:var(--card);border:1px solid var(--ink);margin-top:26px}
+  .stagebar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--rule);background:#F3F5F7}
+  .pill{font-size:13px;padding:6px 13px;border:1px solid var(--rule);background:#fff;color:var(--ink);border-radius:999px}
+  .pill[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .btn{font-size:12.5px;padding:6px 12px;border:1px solid var(--ink);background:#fff;color:var(--ink)}
+  .btn:hover:not(:disabled){background:var(--ink);color:#fff}
+  .btn:disabled{opacity:.35;cursor:not-allowed}
+  .btn.go{background:var(--ok);border-color:var(--ok);color:#fff}
+  .stagebar .count{margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .track{padding:20px}
+  .lane{display:grid;grid-template-columns:186px 1fr;gap:14px;align-items:start;
+        padding:12px 14px;border:1px solid var(--rule);margin-bottom:8px;background:#fff;
+        opacity:.32;transition:opacity .3s,border-color .3s,background .3s}
+  .lane:last-child{margin-bottom:0}
+  .lane.on{opacity:1;border-color:var(--ink)}
+  .lane.now{opacity:1;border-color:var(--accent);border-width:1.5px;background:#F7F8FC}
+  .lane .where{font-family:var(--mono);font-size:11px;color:var(--muted);line-height:1.45}
+  .lane .what{font-size:13.5px}
+  .lane .what b{font-family:var(--serif);font-weight:600;display:block;font-size:14.5px;margin-bottom:3px}
+  .why{padding:0 20px 20px}
+  .why .box{border-left:3px solid var(--amber);padding:10px 14px;background:#FFFDF4;font-size:13.5px}
+
+  /* canvas stack */
+  .zstack{margin-top:26px;border:1px solid var(--ink);background:var(--card)}
+  .zrow{display:grid;grid-template-columns:54px 1fr 230px;border-bottom:1px solid var(--rule)}
+  .zrow:last-child{border-bottom:0}
+  .zrow > div{padding:14px 16px}
+  .zrow .z{font-family:var(--mono);font-size:12px;color:var(--muted);background:#F3F5F7;border-right:1px solid var(--rule)}
+  .zrow .owner{border-left:1px solid var(--rule);font-size:12.5px;color:var(--muted)}
+  .zrow h4{margin-bottom:3px}
+  .zrow p{font-size:13px;color:var(--muted);margin:0}
+  .zrow.hl{background:#FFFDF4}
+  @media (max-width:820px){.zrow{grid-template-columns:1fr}.zrow .z,.zrow .owner{border:0;border-bottom:1px solid var(--rule)}}
+
+  /* decision tool */
+  .tool{margin-top:26px;border:1px solid var(--ink);background:var(--card)}
+  .toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--rule);background:#F3F5F7}
+  .crumbs{font-family:var(--mono);font-size:11.5px;color:var(--muted);flex:1;min-width:180px}
+  .toolbody{padding:22px 24px;min-height:210px}
+  .q{font-family:var(--serif);font-size:21px;margin-bottom:16px}
+  .opts{display:flex;flex-direction:column;gap:9px;align-items:flex-start}
+  .opt{text-align:left;font-size:14px;padding:11px 16px;border:1px solid var(--rule);background:#fff;width:100%;max-width:640px;transition:all .14s}
+  .opt:hover{border-color:var(--ink);background:#F8F9FB;transform:translateX(3px)}
+  .res{border-left:4px solid var(--ok);background:#F4F9F6;padding:16px 20px;max-width:720px}
+  .res.stop{border-left-color:var(--warn);background:#FDF6F1}
+  .res .path{font-family:var(--mono);font-size:14px;color:var(--ink);word-break:break-all}
+  .res .note{font-size:13.5px;color:#2B3A47;margin-top:10px}
+  .res .inv{font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-top:10px}
+
+  ul.inv{list-style:none;padding:0;margin:22px 0 0;font-size:13.5px}
+  ul.inv li{display:flex;gap:12px;padding:9px 0;border-bottom:1px solid var(--rule)}
+  ul.inv .id{font-family:var(--mono);font-size:11.5px;color:var(--muted);min-width:34px;padding-top:2px}
+  ul.inv .nw{color:var(--accent);font-weight:600}
+  footer{margin-top:76px;padding-top:30px;border-top:1px solid var(--rule)}
+  footer p{font-size:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>The reference architecture,<br>plus <span class="mark">four forced turns</span>.</h1>
+  <p class="lede">ThinkBoard Lite frontend. DDD contexts, Bulletproof direction, Atomic Design,
+  UI/Logic separation — all kept. Four things change because the app is local-first, and nothing else does.</p>
+</header>
+
+<section id="s0">
+  <div class="sechead"><span class="num">00</span><h2>What changes, and why it is forced</h2>
+    <span class="sub">everything not listed here is copied verbatim</span></div>
+  <table>
+    <thead><tr><th>Reference</th><th>ThinkBoard Lite</th><th>Forced by</th></tr></thead>
+    <tbody>
+      <tr><td><code>features/entities</code> = <code>createEntityAdapter</code> in Redux, persisted</td>
+          <td><strong>Dexie (IndexedDB)</strong> tables + live queries</td>
+          <td>the read path must work with the network off and survive a reload. localStorage is ~5 MB; one workspace of ink exceeds it. The reference already lists persisting <code>entities</code> as deviation #5, wiped by migration v2 — this is that lesson applied at design time.</td></tr>
+      <tr><td>RTK Query is the transport for everything</td>
+          <td>RTK Query for <strong>the four command endpoints only</strong>; all CRUD goes repository → Dexie → sync</td>
+          <td>a write must land locally and enqueue, not await a response.</td></tr>
+      <tr><td>Every <code>.tsx</code> is pure render</td>
+          <td>a fourth tier <code>shared/components/canvas/</code> with one named escape hatch per leaf: <code>*.painter.ts</code></td>
+          <td>60 fps stylus ink cannot go through React reconciliation. One audited file beats imperative code leaking everywhere.</td></tr>
+      <tr><td>3-point store edit</td>
+          <td><strong>4-point</strong> — plus <code>listenerMiddleware</code> registration</td>
+          <td>the sync engine is middleware, not a component.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="s1">
+  <div class="sechead"><span class="num">01</span><h2>The layer cake</h2>
+    <span class="sub">two kernels instead of one — the only graph change</span></div>
+  <div class="cake">
+    <div class="band app">
+      <span class="tag">LAYER 3</span><h3>src/app/</h3>
+      <p>Routing and composition only. No <code>useState</code>, no store hooks, no fetch, no domain branching.</p>
+      <div class="kids"><span class="kid">layout.tsx</span><span class="kid">w/[workspaceId]/page.tsx</span><span class="kid">api/v1/…  ← the 4 commands</span></div>
+    </div>
+    <div class="arrowline">▼ imports — never the reverse</div>
+    <div class="band">
+      <span class="tag">LAYER 2</span><h3>src/features/ — bounded contexts</h3>
+      <p>A context owns its slice, its selectors, its containers. Contexts may import the two kernels and nothing else of each other.</p>
+      <div class="kids">
+        <span class="kid k">entities — KERNEL A · Dexie</span><span class="kid k">sync — KERNEL B · outbox + realtime</span>
+        <span class="kid">workspace</span><span class="kid">document</span><span class="kid">highlight</span>
+        <span class="kid">notes</span><span class="kid">result</span><span class="kid">presence</span>
+      </div>
+    </div>
+    <div class="arrowline">▼ imports — never the reverse</div>
+    <div class="band shared">
+      <span class="tag">LAYER 1</span><h3>src/shared/ — business-agnostic</h3>
+      <p>Atoms are generated. Templates are DOM. Canvas is Konva. Every library has exactly one seam file.</p>
+      <div class="kids">
+        <span class="kid">components/ui — shadcn atoms</span><span class="kid">components/template — DOM</span>
+        <span class="kid k">components/canvas — Konva ➕</span>
+        <span class="kid">config/redux</span><span class="kid">lib</span><span class="kid">providers</span><span class="kid">types/domain</span><span class="kid">hooks</span><span class="kid">utils</span>
+      </div>
+    </div>
+  </div>
+  <pre>features ──▶ features:   ONLY @feature/entities and @feature/sync
+sync     ──▶ entities:   allowed
+entities ──▶ features:   FORBIDDEN — it imports nothing from any context
+shared   ──▶ features:   FORBIDDEN, except shared/config/redux/store.ts
+painter  ──▶ anything stateful: FORBIDDEN — data and a layer ref, nothing else</pre>
+  <p style="margin-top:18px"><code>entities</code> owns <em>what is true</em>. <code>sync</code> owns
+  <em>how it gets true</em>. Contexts depend on both and on neither's internals.</p>
+</section>
+
+<section id="s2">
+  <div class="sechead"><span class="num">02</span><h2>Four stores. Pick the right one.</h2>
+    <span class="sub">putting a fact in the wrong store is the most expensive mistake available</span></div>
+  <div class="owners" id="owners">
+    <button data-own="dexie"  aria-pressed="true"><span class="cap">IndexedDB</span><span class="nm">Dexie</span></button>
+    <button data-own="opfs"   aria-pressed="false"><span class="cap">file system</span><span class="nm">OPFS</span></button>
+    <button data-own="redux"  aria-pressed="false"><span class="cap">localStorage</span><span class="nm">Redux slices</span></button>
+    <button data-own="refs"   aria-pressed="false"><span class="cap">nothing</span><span class="nm">useRef</span></button>
+  </div>
+  <div class="ownerbody" id="ownerbody"></div>
+
+  <div class="callout">
+    <p><strong>Why Dexie replaces the entity adapter rather than sitting beside it.</strong> Two caches for
+    the same rows is the worst outcome available, so one has to lose. Dexie wins on four counts the product
+    needs: it survives a reload with no network; it holds more than 5 MB; <code>where('[artifactId+page]')</code>
+    is an index hit where <code>selectAll().filter()</code> is O(n) per render; and a row plus its outbox entry
+    land in one transaction, which two dispatches cannot do.</p>
+    <p style="margin-top:9px">What is preserved exactly is the kernel's <em>role</em> — one normalized mirror,
+    one read surface, every context reads it, it imports nothing. Only the mechanism moved.</p>
+  </div>
+</section>
+
+<section id="s3">
+  <div class="sechead"><span class="num">03</span><h2>Three data flows, and only three</h2>
+    <span class="sub">an agent that can name the flow will not get the wiring wrong</span></div>
+  <p>Every piece of data movement in this app is one of these. Step through each one.</p>
+  <div class="stage">
+    <div class="stagebar">
+      <button class="pill" data-flow="local"   aria-pressed="true">Local write</button>
+      <button class="pill" data-flow="remote"  aria-pressed="false">Remote change</button>
+      <button class="pill" data-flow="command" aria-pressed="false">Command</button>
+      <button class="btn go" id="flowStep" style="margin-left:8px">Step →</button>
+      <button class="btn" id="flowReset">Reset</button>
+      <span class="count" id="flowCount"></span>
+    </div>
+    <div class="track" id="track"></div>
+    <div class="why"><div class="box" id="flowWhy"></div></div>
+  </div>
+</section>
+
+<section id="s4">
+  <div class="sechead"><span class="num">04</span><h2>The canvas tier</h2>
+    <span class="sub">one PDF page is four stacked layers with four different owners</span></div>
+  <div class="zstack">
+    <div class="zrow"><div class="z">z3</div>
+      <div><h4>Chips, note pins, sheets</h4><p>DOM overlay, absolutely positioned from normalized rects.</p></div>
+      <div class="owner">React + <code>motion</code></div></div>
+    <div class="zrow hl"><div class="z">z2</div>
+      <div><h4>Konva Stage — stored marks and the live stroke</h4>
+        <p>Freehand ink, marquee regions, and the drawn geometry of every highlight regardless of how it was captured.</p></div>
+      <div class="owner"><code>react-konva</code> + <strong>one painter</strong></div></div>
+    <div class="zrow"><div class="z">z1</div>
+      <div><h4>PDF.js text layer — real spans</h4>
+        <p><strong>Text highlights come from here, never from z2.</strong> The Range API gives the exact string for free; a canvas scene would turn it into pixels you then pay to OCR.</p></div>
+      <div class="owner">DOM, selectable</div></div>
+    <div class="zrow"><div class="z">z0</div>
+      <div><h4>PDF.js render output</h4><p>A plain <code>&lt;canvas&gt;</code>. Windowed to ±1 page around the cursor.</p></div>
+      <div class="owner"><code>pdfjs-dist</code></div></div>
+  </div>
+
+  <pre>highlight-layer/
+├── highlight-layer.tsx          react-konva declarative tree — Layer, Rect, Line
+├── use-highlight-layer.ts       logic: live queries, dispatch, derived props
+├── highlight-layer.painter.ts   THE EXCEPTION: refs, rAF, batchDraw, live stroke
+├── types.ts   ·   highlight-layer.test.ts   ·   index.ts   ← painter NOT exported</pre>
+
+  <div class="callout">
+    <p><strong>The painter contract.</strong> It takes a <code>Konva.Layer</code> ref plus plain data and
+    returns a disposer. It imports no store hook, no Dexie, no feature module. <code>pointermove</code>
+    pushes into a ref array; one rAF tick calls <code>batchDraw()</code>. On <code>pointerup</code> the hook
+    converts the buffer to normalized page-relative coordinates and calls the repository — the first and
+    only time that stroke touches state.</p>
+    <p style="margin-top:9px">That normalization is not a detail. Store viewport pixels and every highlight
+    moves the first time someone zooms, and you will find out weeks later on someone else's tablet.</p>
+  </div>
+
+  <div class="callout warn">
+    <p><strong>Peer cursors never enter React.</strong> Five peers at 20 Hz is 100 state updates a second,
+    on a tablet that is also rasterising a PDF page and capturing a pointer stream. It will drop frames, and
+    the laggy ink will get blamed on Konva. Refs, imperative paint, one rAF tick.</p>
+  </div>
+</section>
+
+<section id="s5">
+  <div class="sechead"><span class="num">05</span><h2>Where does this file go?</h2>
+    <span class="sub">the placement decision tree, clickable</span></div>
+  <p>Run it top-down and stop at the first match. This is the same tree as
+  <code>frontend-folder-architecture.md</code> §8 — use it when an agent asks, or when you are reviewing
+  a diff and something is in an odd place.</p>
+  <div class="tool">
+    <div class="toolbar">
+      <span class="crumbs" id="crumbs">start</span>
+      <button class="btn" id="treeBack">← Back</button>
+      <button class="btn" id="treeReset">Start over</button>
+    </div>
+    <div class="toolbody" id="toolbody"></div>
+  </div>
+</section>
+
+<section id="s6">
+  <div class="sechead"><span class="num">06</span><h2>The invariants to add</h2>
+    <span class="sub">extend scripts/verify-architecture.mjs before generating any feature code</span></div>
+  <p>The reference's I1–I10 are unchanged and still apply. These are the additions. A rule that is not in
+  the script is not a rule — it is a preference the next agent will silently violate.</p>
+  <ul class="inv">
+    <li><span class="id">I11</span><span>No domain row type appears inside a slice's state type.</span></li>
+    <li><span class="id">I12</span><span><code>persistConfig.whitelist</code> holds no <code>reducerPath</code> and does not hold <code>entities</code>.</span></li>
+    <li><span class="id">I13</span><span>Every Dexie table has at least one query hook in <code>queries/</code>.</span></li>
+    <li><span class="id">I14</span><span>No container destructures <code>data</code> from a command hook.</span></li>
+    <li><span class="id">I15</span><span>Every <code>createApi</code> endpoint traces to a <code>blueprint.commands[]</code> entry.</span></li>
+    <li><span class="id">I16</span><span>Every persisted slice has a <code>ui</code> key, and <code>stripUi</code> is registered in <code>transforms</code>.</span></li>
+    <li><span class="id">I17</span><span class="nw"><code>batchDraw | new Konva. | getLayer()</code> appears only in <code>*.painter.ts</code>.</span></li>
+    <li><span class="id">I18</span><span>No <code>*.painter.ts</code> imports <code>@feature/*</code> or <code>@shared/config/*</code>.</span></li>
+    <li><span class="id">I19</span><span>No painter returns a value from <code>clientX/offsetX</code> without passing through <code>shared/utils/geometry</code>.</span></li>
+    <li><span class="id">I20</span><span>No file under <code>components/canvas/</code> imports <code>motion</code>.</span></li>
+    <li><span class="id">I21</span><span class="nw"><code>@supabase/supabase-js</code> only in <code>shared/lib/supabase.ts</code> and <code>features/sync/realtime/channel.ts</code>.</span></li>
+    <li><span class="id">I22</span><span><code>setAuth()</code> precedes every <code>subscribe()</code>.</span></li>
+    <li><span class="id">I23</span><span class="nw"><code>useLiveQuery</code> imported only inside <code>features/entities/queries/</code>.</span></li>
+    <li><span class="id">I24</span><span>Every file under <code>components/canvas/</code> begins with <code>"use client"</code>.</span></li>
+    <li><span class="id">I25</span><span>Every blueprint canvas leaf with <code>hasPainter</code> has a painter, and every painter traces to a blueprint entry.</span></li>
+  </ul>
+</section>
+
+<footer>
+  <h3>The failure most likely to happen</h3>
+  <p>Generating P7 containers before P4b (the sync kernel). You get containers calling Supabase directly,
+  the outbox never gets used, and offline silently does not work — while everything looks perfect on a good
+  connection. The reference warns about the analogous P7-before-P4 mistake; this is the same one, a layer out.
+  Invariant I21 is what catches it.</p>
+</footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ── 02 state ownership ── */
+  var OWN = {
+    dexie: { title:"Dexie — the domain rows",
+      body:"Highlights, notes, mini-conclusions, artifact metadata, the outbox, and meta. Written only through <code>features/entities/repository</code> in one transaction with the outbox entry. Read only through named live-query hooks in <code>features/entities/queries</code> — never <code>useLiveQuery</code> inline in a container.",
+      rule:"I13, I23 · a slice never holds a domain row" },
+    opfs: { title:"OPFS — the large binary",
+      body:"The PDF bytes, one file per artifact, behind <code>shared/lib/opfs.ts</code>. A 40 MB document wants streaming file reads, not a blob row in IndexedDB. Call <code>navigator.storage.persist()</code> on first offline open, or the browser can evict it under pressure and the user finds out on the plane.",
+      rule:"one seam file, like every other library" },
+    redux: { title:"Redux slices — session and durable UI",
+      body:"<code>currentWorkspaceId</code>, <code>mode</code>, <code>zoom</code>, <code>activeTool</code>, <code>openSheet</code>, <code>activeTab</code>. Ids and phase, never rows. Each slice keeps its throwaway state under <code>ui</code>, which a <code>stripUi</code> transform drops on the way to localStorage — the correct fix for the reference's deviation #8.",
+      rule:"I11, I12, I16 · whitelist holds slices only" },
+    refs: { title:"useRef — the 60 fps path",
+      body:"Live stroke points, peer cursors, pinch delta. Never <code>useState</code>, never a selector, never a live query. The painter pushes into a ref array and one rAF tick calls <code>batchDraw()</code>. This state is not persisted and never needs to be — on <code>pointerup</code> it becomes a row and enters Dexie once.",
+      rule:"I17, I18 · and no Zustand for this either" }
+  };
+  var ownBody = document.getElementById('ownerbody');
+  function paintOwner(k){
+    var o = OWN[k];
+    ownBody.innerHTML = '<h3>' + o.title + '</h3><p>' + o.body + '</p>'
+      + '<p class="sub" style="margin-top:12px;font-family:var(--mono);font-size:11.5px">' + o.rule + '</p>';
+  }
+  document.querySelectorAll('[data-own]').forEach(function(b){
+    b.addEventListener('click', function(){
+      document.querySelectorAll('[data-own]').forEach(function(x){ x.setAttribute('aria-pressed', String(x === b)); });
+      paintOwner(b.getAttribute('data-own'));
+    });
+  });
+  paintOwner('dexie');
+
+  /* ── 03 flows ── */
+  var FLOWS = {
+    local: {
+      why:"The UI never waits for the server. There is no optimistic-update code here, because there is nothing to be optimistic about — you wrote to the database the UI renders from. That single property removes rollback handling from every container in the app.",
+      steps:[
+        { where:"features/&lt;ctx&gt;/components/…/use-*.ts", what:"<b>Container hook fires</b>The user lifts the stylus. The hook converts the ref buffer into normalized page-relative coordinates." },
+        { where:"features/entities/repository/<br>highlight-repository.ts", what:"<b>repository.createHighlight(input)</b>Generates a uuidv7 client-side, so the row carries its final id before the server has ever seen it." },
+        { where:"features/entities/db/<br>thinkboard-db.ts", what:"<b>ONE Dexie transaction</b><code>highlights.add(row)</code> and <code>outbox.add(op)</code> together. Both land, or neither does." },
+        { where:"features/entities/queries/<br>use-highlights-for-page.ts", what:"<b>The live query re-runs</b>Dexie fires a change event; the named query hook re-emits; the container re-renders. The mark is on screen." },
+        { where:"features/sync/middleware/<br>sync-listener.ts", what:"<b>The listener wakes</b>Drains the outbox in strict seq order. 5xx and network errors back off; a 4xx parks the op as failed and surfaces it rather than retrying forever." }
+      ]},
+    remote: {
+      why:"A remote change and a local pen stroke take the identical path into the UI from step 3 onward. One rendering path to debug, not two — and that is worth more than it sounds when something only reproduces with two people in the room.",
+      steps:[
+        { where:"features/sync/realtime/channel.ts", what:"<b>Broadcast arrives</b>One socket, two topics: <code>ws:{sessionId}</code> for group and promoted rows, <code>user:{profileId}</code> for your own other devices." },
+        { where:"features/sync/middleware/<br>sync-listener.ts", what:"<b>dispatch(remoteChangeReceived)</b>An action, so the whole sync history is readable in DevTools. This is the concrete reason the engine is middleware and not a component." },
+        { where:"features/entities/repository/<br>apply-remote.ts", what:"<b>Write WITHOUT an outbox entry</b>The only writer that skips the outbox. A remote change echoed back to the server is an infinite loop." },
+        { where:"features/entities/queries/…", what:"<b>The same live query re-runs</b>Same hook, same re-render path as a local write." }
+      ]},
+    command: {
+      why:"Four endpoints exist, and they are the only ones. They run a model call on the server, so they have no local equivalent. Everything else the client can do through the repository, it does — that is what keeps the API surface at four instead of forty.",
+      steps:[
+        { where:"features/result/components/…/use-*.ts", what:"<b>useGenerateResultMutation().unwrap()</b>RTK Query, used for <code>isLoading</code> and <code>isError</code> only. The button state comes from here." },
+        { where:"src/app/api/v1/workspaces/[id]/<br>results/route.ts", what:"<b>Handler: bind, call one service method, map the error</b>No business rules in the route. The logic lives in <code>src/server/</code>." },
+        { where:"(server)", what:"<b>Returns an id, never a row</b>The run is written server-side. The command hands back <code>{ runId }</code> and nothing else." },
+        { where:"features/sync → entities", what:"<b>The broadcast brings the run back</b>Through flow 2, into Dexie, like everything else." },
+        { where:"features/entities/queries/use-run.ts", what:"<b>The container reads the run from Dexie</b>Not from the mutation's response. <code>const { data } = useXQuery()</code> in a container is a defect." }
+      ]}
+  };
+  var flow = 'local', fstep = 0;
+  var track = document.getElementById('track'),
+      fwhy  = document.getElementById('flowWhy'),
+      fcnt  = document.getElementById('flowCount'),
+      fstepBtn = document.getElementById('flowStep');
+
+  function paintFlow(){
+    var f = FLOWS[flow];
+    track.innerHTML = f.steps.map(function(s, i){
+      var cls = i < fstep ? 'lane on' : (i === fstep ? 'lane now' : 'lane');
+      return '<div class="' + cls + '"><div class="where">' + s.where + '</div><div class="what">' + s.what + '</div></div>';
+    }).join('');
+    fwhy.innerHTML = f.why;
+    fcnt.textContent = Math.min(fstep + 1, f.steps.length) + ' / ' + f.steps.length;
+    fstepBtn.disabled = fstep >= f.steps.length - 1;
+  }
+  document.querySelectorAll('[data-flow]').forEach(function(b){
+    b.addEventListener('click', function(){
+      document.querySelectorAll('[data-flow]').forEach(function(x){ x.setAttribute('aria-pressed', String(x === b)); });
+      flow = b.getAttribute('data-flow'); fstep = 0; paintFlow();
+    });
+  });
+  fstepBtn.addEventListener('click', function(){ fstep++; paintFlow(); });
+  document.getElementById('flowReset').addEventListener('click', function(){ fstep = 0; paintFlow(); });
+  paintFlow();
+
+  /* ── 05 placement tree ── */
+  var T = {
+    start: { q:"What are you building?", o:[
+      ["A route or page", "r_route"],
+      ["One of the four command endpoints", "r_api"],
+      ["Something that writes domain rows", "q_write"],
+      ["Something that reads domain rows", "r_query"],
+      ["A component", "q_component"],
+      ["A type", "q_type"],
+      ["A function", "q_function"],
+      ["Something that talks to Supabase", "q_supabase"]
+    ]},
+    q_write: { q:"What kind of write is it?", o:[
+      ["A user action, happening locally", "r_repo"],
+      ["A remote change arriving over the socket", "r_applyremote"],
+      ["A model call with no local equivalent", "r_command"]
+    ]},
+    q_component: { q:"Does it touch Redux, or call a command hook?", o:[
+      ["Yes", "q_ctx"],
+      ["No — it takes props and renders", "q_canvas"]
+    ]},
+    q_ctx: { q:"Does it belong to exactly one bounded context?", o:[
+      ["Yes", "r_container"],
+      ["No — it needs two", "r_misscoped"]
+    ]},
+    q_canvas: { q:"Does it render on a Konva Stage?", o:[
+      ["Yes", "q_imperative"],
+      ["No — it is DOM", "q_shadcn"]
+    ]},
+    q_imperative: { q:"Is it imperative — refs, rAF, batchDraw, node mutation?", o:[
+      ["Yes", "r_painter"],
+      ["No — it is a declarative react-konva tree", "r_canvasleaf"]
+    ]},
+    q_shadcn: { q:"Is it a shadcn primitive — button, input, dialog, sheet?", o:[
+      ["Yes", "r_atom"],
+      ["No — it composes atoms", "r_template"]
+    ]},
+    q_type: { q:"What does the type describe?", o:[
+      ["A database table", "r_domaintype"],
+      ["A local row — domain type plus _dirty", "r_rowtype"],
+      ["Slice state or its unions", "r_reduxtype"],
+      ["Props for one component", "r_propstype"]
+    ]},
+    q_function: { q:"What does the function depend on?", o:[
+      ["Nothing — pure, no React, no domain", "r_sharedutil"],
+      ["Pure, but specific to one context", "r_ctxutil"],
+      ["It wraps a third-party library", "r_lib"]
+    ]},
+    q_supabase: { q:"What is it doing with Supabase?", o:[
+      ["Auth, or constructing the client", "r_supalib"],
+      ["Subscribing to a realtime channel", "r_channel"],
+      ["Reading or writing a table", "r_stop"]
+    ]},
+
+    r_route:      { path:"src/app/<route>/page.tsx", note:"Layout wrappers, a heading, one or more feature containers, a metadata export. That is the ceiling. No useState, no store hooks, no fetch, no domain branching.", inv:"I2 · I4" },
+    r_api:        { path:"src/app/api/v1/<...>/route.ts", note:"Bind, call one service method, map the error. Business logic lives in src/server/. There is no fifth endpoint without a blueprint entry.", inv:"I15" },
+    r_repo:       { path:"features/entities/repository/<subject>-repository.ts", note:"One db.transaction('rw', …) containing the row AND its outbox entry. Both land or neither does. The id is a client-generated uuidv7, so replaying the outbox is idempotent.", inv:"RULE-08 · RULE-09" },
+    r_applyremote:{ path:"features/entities/repository/apply-remote.ts", note:"The only writer that omits the outbox entry. A remote change echoed back to the server is an infinite loop.", inv:"—" },
+    r_command:    { path:"features/<ctx>/api/<x>-api/  + a blueprint.commands[] entry", note:"RTK Query is scoped to the four command endpoints. If the endpoint is CRUD-shaped, it does not belong here — it belongs in the repository.", inv:"I14 · I15" },
+    r_query:      { path:"features/entities/queries/use-<subject>-for-<scope>.ts", note:"useLiveQuery lives here and nowhere else. A container calls useHighlightsForPage(page), never a raw Dexie query. Same rule the reference applies to entity-selectors — one read surface.", inv:"I23" },
+    r_container:  { path:"features/<context>/components/<name>/", note:"Six files: .tsx, use-*.ts, types.ts, index.ts, *.test.tsx, *.stories.tsx. The .tsx holds no logic hooks; the hook returns a flat object of primitives and callbacks.", inv:"I2 · barrel contract" },
+    r_misscoped:  { path:"STOP — it is mis-scoped", note:"Split it, or the context boundary is wrong. A component that needs two contexts usually means one of them owns a concept it should not.", inv:"—", stop:true },
+    r_painter:    { path:"<leaf>/<leaf>.painter.ts", note:"The one imperative escape hatch. Takes a Konva.Layer ref plus plain data, returns a disposer. No store hook, no Dexie, no feature import. Not exported from the barrel — if another leaf needs it, it is a utility, not a painter.", inv:"I17 · I18 · I19" },
+    r_canvasleaf: { path:"shared/components/canvas/<name>/", note:"Presentational react-konva, like template/ but on a Stage. Must start with \"use client\" — react-konva touches window at import. No motion import here; Konva owns animation on the canvas.", inv:"I20 · I24" },
+    r_atom:       { path:"shared/components/ui/   (npx shadcn add <name>)", note:"Never hand-written. Hand-edit only for theme wiring. Watch where the CLI puts multi-part blocks — it writes them to the components alias, i.e. into template/.", inv:"no domain imports, ever" },
+    r_template:   { path:"shared/components/template/<name>/", note:"DOM molecules and organisms. The hook derives only — no dispatch, no fetch, no router. If it needs any of those, it is a container and belongs in a feature.", inv:"I1 · I2" },
+    r_domaintype: { path:"shared/types/domain/<table>.ts", note:"snake_case fields, wire-identical. Branded ids from ./common — never an inline string. One table, one type, one file.", inv:"I9" },
+    r_rowtype:    { path:"features/entities/types/rows.ts", note:"The local shape: the domain type plus _dirty and any sync bookkeeping. Kept separate so the domain type stays a faithful mirror of the table.", inv:"—" },
+    r_reduxtype:  { path:"features/<ctx>/types/redux.ts", note:"Never inline in the slice file. phase is a string union, never a boolean soup, and ui holds the throwaway state that stripUi drops before persistence.", inv:"I10 · I11 · I16" },
+    r_propstype:  { path:"<component>/types.ts", note:"Colocated with the leaf, exported through its barrel.", inv:"—" },
+    r_sharedutil: { path:"shared/utils/", note:"Pure and dependency-free. geometry.ts lives here — normalize and denormalize page-relative rects, the function every painter's output passes through.", inv:"I19" },
+    r_ctxutil:    { path:"features/<ctx>/utils/", note:"Pure but context-specific. Normalizers, slug building, per-context derivation.", inv:"—" },
+    r_lib:        { path:"shared/lib/<library>.ts", note:"One file per library, and it is the only place that library is configured. lib/ wraps a third party; utils/ is pure and dependency-free. Keep that line sharp — the reference notes it went fuzzy.", inv:"seam discipline" },
+    r_supalib:    { path:"shared/lib/supabase.ts", note:"Client construction and auth. One of exactly two files allowed to import @supabase/supabase-js.", inv:"I21" },
+    r_channel:    { path:"features/sync/realtime/channel.ts", note:"The other one. setAuth() before subscribe(), and again on every token refresh — miss the second and the channel stops delivering silently about an hour in.", inv:"I21 · I22" },
+    r_stop:       { path:"STOP — you are bypassing the outbox", note:"Reads come from Dexie through a query hook; writes go through the repository. A container that reaches Supabase directly means offline silently does not work, and it will look fine on a good connection right up until it matters.", inv:"I21", stop:true }
+  };
+
+  var node = 'start', stack = [];
+  var body = document.getElementById('toolbody'), crumbs = document.getElementById('crumbs');
+
+  function renderTree(){
+    var n = T[node];
+    crumbs.textContent = stack.length ? stack.concat([node]).join(' → ') : 'start';
+    document.getElementById('treeBack').disabled = stack.length === 0;
+    if (n.o){
+      body.innerHTML = '<div class="q">' + n.q + '</div><div class="opts">'
+        + n.o.map(function(o, i){ return '<button class="opt" data-go="' + i + '">' + o[0] + '</button>'; }).join('')
+        + '</div>';
+      body.querySelectorAll('[data-go]').forEach(function(b){
+        b.addEventListener('click', function(){
+          stack.push(node);
+          node = n.o[parseInt(b.getAttribute('data-go'), 10)][1];
+          renderTree();
+        });
+      });
+    } else {
+      body.innerHTML = '<div class="res' + (n.stop ? ' stop' : '') + '">'
+        + '<div class="path">' + n.path + '</div>'
+        + '<div class="note">' + n.note + '</div>'
+        + (n.inv !== '—' ? '<div class="inv">checked by ' + n.inv + '</div>' : '')
+        + '</div>';
+    }
+  }
+  document.getElementById('treeBack').addEventListener('click', function(){
+    if (stack.length){ node = stack.pop(); renderTree(); }
+  });
+  document.getElementById('treeReset').addEventListener('click', function(){
+    node = 'start'; stack = []; renderTree();
+  });
+  renderTree();
+})();
+</script>
+</body>
+</html>

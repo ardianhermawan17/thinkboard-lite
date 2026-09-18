@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ThinkBoard Lite — connection, layers, offline</title>
+<style>
+  :root{
+    --paper:#FAFAF8; --card:#FFFFFF; --ink:#17212B; --muted:#6B7785; --rule:#DDE2E8;
+    --hl-a:#FFD84D; --hl-b:#6FD6C4; --hl-c:#FF9AC1;
+    --group:#2F3A8F; --wire:#1E6E4E; --warn:#B4531E;
+    --serif: ui-serif, Georgia, "Times New Roman", serif;
+    --sans: ui-sans-serif, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
+  .wrap{max-width:1120px;margin:0 auto;padding:56px 28px 96px}
+  h1,h2,h3{font-family:var(--serif);font-weight:600;letter-spacing:-.01em;margin:0}
+  h1{font-size:42px;line-height:1.1}
+  h2{font-size:25px}
+  h3{font-size:16px}
+  p{margin:.6em 0;max-width:68ch}
+  .lede{font-size:18px;color:var(--muted);max-width:60ch;margin-top:14px}
+  .sub{color:var(--muted);font-size:14px}
+  .mark{position:relative;display:inline;padding:0 .1em}
+  .mark::before{content:"";position:absolute;left:0;right:0;bottom:.04em;height:.72em;background:var(--hl-a);
+    z-index:-1;transform-origin:left center;transform:scaleX(0);animation:swipe .55s cubic-bezier(.2,.7,.3,1) forwards}
+  .mark.b::before{background:var(--hl-b);animation-delay:.18s}
+  @keyframes swipe{to{transform:scaleX(1)}}
+  @media (prefers-reduced-motion:reduce){.mark::before{animation:none;transform:scaleX(1)}}
+
+  section{margin-top:64px;padding-top:30px;border-top:1px solid var(--rule)}
+  .sechead{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:4px}
+  .sechead .sub{margin-left:auto}
+  svg{display:block;width:100%;height:auto}
+  figure{margin:24px 0 0}
+
+  table{width:100%;border-collapse:collapse;margin-top:22px;font-size:14px}
+  th,td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--rule);vertical-align:top}
+  th{font-weight:600;font-size:12.5px;color:var(--muted);border-bottom:1.5px solid var(--ink)}
+  code,.t{font-family:var(--mono);font-size:12.5px;background:#EEF1F4;padding:1px 5px;color:#2B3A47}
+
+  .layers{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:26px;border:1px solid var(--ink)}
+  .layers > div{padding:18px 20px;border-right:1px solid var(--rule)}
+  .layers > div:last-child{border-right:0}
+  .layers h3{margin-bottom:4px}
+  .layers .who{font-size:12.5px;color:var(--muted);margin-bottom:12px}
+  .layers p{font-size:13.5px;margin:.3em 0}
+  .swatch{height:5px;margin:-18px -20px 16px}
+  .s1{background:var(--hl-a)} .s2{background:var(--hl-b)} .s3{background:var(--group)}
+
+  .chain{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:26px}
+  .chain .box{background:var(--card);border:1px solid var(--rule);padding:16px 18px}
+  .chain .box h3{font-size:14.5px;margin-bottom:8px}
+  .chain pre{margin:0;font-family:var(--mono);font-size:11.5px;line-height:1.6;color:#2B3A47;
+    white-space:pre-wrap;word-break:break-word}
+  .slug{background:var(--hl-a);padding:0 3px}
+
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:26px;margin-top:26px}
+  .on,.off{background:var(--card);border:1px solid var(--rule);padding:18px 20px}
+  .on{border-left:4px solid var(--wire)} .off{border-left:4px solid var(--warn)}
+  .on h3,.off h3{margin-bottom:10px}
+  .on ul,.off ul{margin:0;padding-left:18px;font-size:13.5px;color:#2B3A47}
+  .on li,.off li{margin:5px 0}
+
+  .callout{margin-top:26px;border-left:4px solid var(--group);background:#fff;padding:16px 20px}
+  .callout p{margin:.2em 0;font-size:14px}
+  @media (max-width:820px){
+    h1{font-size:30px}
+    .layers,.chain,.two{grid-template-columns:1fr}
+    .layers > div{border-right:0;border-bottom:1px solid var(--rule)}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>Writes go out as <span class="mark">ordinary requests</span>.<br>Changes come back on <span class="mark b">one socket</span>.</h1>
+    <p class="lede">ThinkBoard Lite, revision 2 — the connection model, the private/group split, and what
+    survives with the network off.</p>
+  </header>
+
+  <section>
+    <div class="sechead">
+      <h2>How collaboration connects</h2>
+      <span class="sub">one WebSocket per person · one TLS handshake · four kinds of traffic</span>
+    </div>
+    <p>The socket is for listening, never for writing. Broadcast is unvalidated by design, so if clients
+    could publish state directly you would have a second write path that row-level security does not
+    cover. One write path, one set of policies.</p>
+
+    <figure>
+      <svg viewBox="0 0 1100 430" role="img" aria-label="Connection model: HTTPS writes to PostgREST, WebSocket for presence, broadcast and database change events">
+        <defs>
+          <marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M0 0 L10 5 L0 10 z" fill="#1E6E4E"/></marker>
+          <marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M0 0 L10 5 L0 10 z" fill="#2F3A8F"/></marker>
+          <marker id="a3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M0 0 L10 5 L0 10 z" fill="#6B7785"/></marker>
+        </defs>
+
+        <!-- clients -->
+        <rect x="16" y="64" width="176" height="86" fill="#fff" stroke="#17212B"/>
+        <text x="34" y="92" font-family="ui-serif,Georgia,serif" font-size="15">Member · tablet</text>
+        <text x="34" y="112" font-family="ui-sans-serif,system-ui" font-size="11.5" fill="#6B7785">private layer</text>
+        <rect x="34" y="122" width="60" height="10" fill="#FFD84D"/>
+
+        <rect x="16" y="176" width="176" height="86" fill="#fff" stroke="#2F3A8F" stroke-width="1.5"/>
+        <rect x="16" y="176" width="176" height="5" fill="#2F3A8F"/>
+        <text x="34" y="206" font-family="ui-serif,Georgia,serif" font-size="15">Leader · desktop</text>
+        <text x="34" y="226" font-family="ui-sans-serif,system-ui" font-size="11.5" fill="#6B7785">group layer, minutes</text>
+        <rect x="34" y="236" width="86" height="10" fill="#2F3A8F" opacity=".35"/>
+
+        <rect x="16" y="288" width="176" height="86" fill="#fff" stroke="#17212B"/>
+        <text x="34" y="316" font-family="ui-serif,Georgia,serif" font-size="15">Member · phone</text>
+        <text x="34" y="336" font-family="ui-sans-serif,system-ui" font-size="11.5" fill="#6B7785">reads, writes notes</text>
+        <rect x="34" y="346" width="44" height="10" fill="#FF9AC1"/>
+
+        <!-- write path -->
+        <path d="M200 96 C 300 96, 320 120, 432 120" stroke="#1E6E4E" fill="none" marker-end="url(#a1)"/>
+        <path d="M200 208 C 300 208, 320 150, 432 136" stroke="#1E6E4E" fill="none" marker-end="url(#a1)"/>
+        <text x="228" y="88" font-family="ui-sans-serif,system-ui" font-size="12" fill="#1E6E4E" font-weight="600">HTTPS · one write path</text>
+        <text x="228" y="105" font-family="ui-monospace,monospace" font-size="10.5" fill="#6B7785">insert / update · RLS · transactional</text>
+
+        <!-- socket path -->
+        <path d="M432 296 C 320 296, 300 330, 200 330" stroke="#2F3A8F" fill="none" marker-end="url(#a2)"/>
+        <path d="M432 282 C 320 270, 300 230, 200 232" stroke="#2F3A8F" fill="none" marker-end="url(#a2)"/>
+        <path d="M432 268 C 320 250, 300 130, 200 122" stroke="#2F3A8F" fill="none" marker-end="url(#a2)"/>
+        <text x="216" y="358" font-family="ui-sans-serif,system-ui" font-size="12" fill="#2F3A8F" font-weight="600">one WebSocket · listen only</text>
+        <text x="216" y="375" font-family="ui-monospace,monospace" font-size="10.5" fill="#6B7785">channel ws:{sessionId} · handshake once</text>
+
+        <!-- supabase side -->
+        <rect x="440" y="56" width="300" height="104" fill="#fff" stroke="#17212B"/>
+        <text x="458" y="84" font-family="ui-serif,Georgia,serif" font-size="16">PostgREST + RLS</text>
+        <text x="458" y="106" font-family="ui-sans-serif,system-ui" font-size="12" fill="#6B7785">every write checked against the same</text>
+        <text x="458" y="123" font-family="ui-sans-serif,system-ui" font-size="12" fill="#6B7785">policies the client reads through</text>
+        <text x="458" y="145" font-family="ui-monospace,monospace" font-size="11" fill="#1E6E4E">no service-role key anywhere</text>
+
+        <rect x="440" y="176" width="300" height="76" fill="#fff" stroke="#17212B"/>
+        <text x="458" y="204" font-family="ui-serif,Georgia,serif" font-size="16">Postgres</text>
+        <text x="458" y="226" font-family="ui-sans-serif,system-ui" font-size="12" fill="#6B7785">row commits → trigger fires →</text>
+        <text x="458" y="242" font-family="ui-monospace,monospace" font-size="11" fill="#6B7785">realtime.broadcast_changes()</text>
+
+        <rect x="440" y="266" width="300" height="108" fill="#fff" stroke="#2F3A8F" stroke-width="1.5"/>
+        <rect x="440" y="266" width="300" height="5" fill="#2F3A8F"/>
+        <text x="458" y="294" font-family="ui-serif,Georgia,serif" font-size="16">Realtime</text>
+        <text x="458" y="316" font-family="ui-sans-serif,system-ui" font-size="12" fill="#6B7785">Presence · who is here, which page</text>
+        <text x="458" y="334" font-family="ui-sans-serif,system-ui" font-size="12" fill="#6B7785">Broadcast · cursors, ~20 Hz, never stored</text>
+        <text x="458" y="352" font-family="ui-sans-serif,system-ui" font-size="12" fill="#6B7785">Broadcast-from-DB · durable changes, from WAL</text>
+
+        <path d="M590 160 L590 172" stroke="#6B7785" fill="none" marker-end="url(#a3)"/>
+        <path d="M590 252 L590 262" stroke="#6B7785" fill="none" marker-end="url(#a3)"/>
+
+        <!-- right note -->
+        <line x1="772" y1="56" x2="772" y2="374" stroke="#DDE2E8"/>
+        <text x="792" y="80" font-family="ui-serif,Georgia,serif" font-size="16">No CRDT. None.</text>
+        <text x="792" y="106" font-family="ui-sans-serif,system-ui" font-size="12.5" fill="#6B7785">Group layer: one writer (leader).</text>
+        <text x="792" y="126" font-family="ui-sans-serif,system-ui" font-size="12.5" fill="#6B7785">Private layer: one writer (author).</text>
+        <text x="792" y="146" font-family="ui-sans-serif,system-ui" font-size="12.5" fill="#6B7785">Highlight geometry: immutable.</text>
+        <text x="792" y="174" font-family="ui-sans-serif,system-ui" font-size="12.5" fill="#17212B">Two people never edit the same</text>
+        <text x="792" y="192" font-family="ui-sans-serif,system-ui" font-size="12.5" fill="#17212B">text at the same time, so there</text>
+        <text x="792" y="210" font-family="ui-sans-serif,system-ui" font-size="12.5" fill="#17212B">is nothing to merge.</text>
+        <text x="792" y="240" font-family="ui-sans-serif,system-ui" font-size="12.5" fill="#6B7785">The one real case is the leader on</text>
+        <text x="792" y="258" font-family="ui-sans-serif,system-ui" font-size="12.5" fill="#6B7785">two devices. A version column and</text>
+        <text x="792" y="276" font-family="ui-sans-serif,system-ui" font-size="12.5" fill="#6B7785">a rejected stale update covers it.</text>
+        <text x="792" y="306" font-family="ui-monospace,monospace" font-size="11" fill="#2F3A8F">ten lines, not a library</text>
+
+        <text x="792" y="350" font-family="ui-sans-serif,system-ui" font-size="12" fill="#6B7785">mark appears locally: instant</text>
+        <text x="792" y="368" font-family="ui-sans-serif,system-ui" font-size="12" fill="#6B7785">teammates see it: ~100–300 ms</text>
+      </svg>
+    </figure>
+
+    <table>
+      <thead><tr><th>Traffic</th><th>Goes over</th><th>Why that one</th></tr></thead>
+      <tbody>
+        <tr><td>Highlight created, note saved, note promoted</td><td>HTTPS to PostgREST</td><td>Must be transactional and must pass the single authorisation path. Survives a dropped socket.</td></tr>
+        <tr><td>A teammate's change appearing on your screen</td><td>Broadcast from Database</td><td>The database is the source of truth. A trigger emits the event only after the row commits, so the screen can never show a write that rolled back.</td></tr>
+        <tr><td>Cursors, “leader is drawing”, page position</td><td>Broadcast</td><td>Ephemeral. Never touches Postgres. Throttled to about 20 Hz and only sent on real movement.</td></tr>
+        <tr><td>Who is in the workspace</td><td>Presence</td><td>Cleans itself up on disconnect, so no stale “online” ghosts.</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <p><strong>Why not Postgres Changes, the simpler option?</strong></p>
+      <p>It authorises every event once per subscriber and runs on a single thread to preserve ordering,
+      so throughput scales with how many people are watching rather than with how often you write — and a
+      bigger compute add-on does not help. Supabase now points most use cases at Broadcast instead. Both
+      work for a six-person workspace; only one of them still works later, and the setup cost is one
+      trigger and one policy either way.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sechead">
+      <h2>Private, promoted, group</h2>
+      <span class="sub">the contradiction in the spec, and the one column that resolves it</span>
+    </div>
+    <p>“Individual is private” and “only the leader writes the group sheet” together mean a member's
+    thinking can never reach the Group Result. The leader cannot read private notes; members cannot write
+    group ones. Promotion is the bridge — and it stays the author's decision, not the leader's.</p>
+
+    <div class="layers">
+      <div>
+        <div class="swatch s1"></div>
+        <h3>Private</h3>
+        <div class="who">visible to the author only</div>
+        <p>Highlight and note on my own layer. Works offline. Never leaves my account until I say so.</p>
+        <p><span class="t">layer='individual'</span><br><span class="t">shared_at is null</span></p>
+      </div>
+      <div>
+        <div class="swatch s2"></div>
+        <h3>Promoted</h3>
+        <div class="who">visible to the workspace · still authored by me</div>
+        <p>I press <em>Share to group</em>. The mark and its note become readable by everyone, with my name
+        on them. I can still edit; the leader can hide but never delete.</p>
+        <p><span class="t">shared_at = now()</span></p>
+      </div>
+      <div>
+        <div class="swatch s3"></div>
+        <h3>Group sheet</h3>
+        <div class="who">visible to everyone · written by the leader</div>
+        <p>The leader marks it directly, imports an already-highlighted PDF, or pulls a promoted note
+        across. This is what the Group Result reads.</p>
+        <p><span class="t">layer='group'</span> · leader-only write</p>
+      </div>
+    </div>
+
+    <div class="callout">
+      <p><strong>The quiet hole to close in task 000.</strong> The existing policy on <span class="t">highlights</span>
+      is workspace-wide, so private highlights are impossible until it is dropped and recreated — and the
+      policy on <span class="t">mini_conclusions</span> joins through to the artifact, so it would expose
+      the conclusion drawn from a private highlight while the highlight itself stayed hidden. Test it by
+      signing in as a second member and asserting both are invisible. This is the only non-additive change
+      in the whole plan.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sechead">
+      <h2>Offline</h2>
+      <span class="sub">a capture mode, not a thinking mode</span>
+    </div>
+    <p>Build the local-first data layer at task 002, not task 010. If every read and write goes through a
+    local repository from the first highlight, offline mode is just <em>stop syncing and hide the group
+    layer</em>. Added at the end instead, it means rewriting the data layer, the optimistic updates and the
+    error handling at once.</p>
+
+    <div class="two">
+      <div class="on">
+        <h3>Works with the network off</h3>
+        <ul>
+          <li>Open the document from local storage</li>
+          <li>Highlight — text layer and stylus region</li>
+          <li>Write notes, typed or handwritten</li>
+          <li>Read your own past notes</li>
+          <li>Read the group layer as last synced, read-only</li>
+          <li>Export the bundle: PDF + notes.md + json</li>
+        </ul>
+      </div>
+      <div class="off">
+        <h3>Waits for the network</h3>
+        <ul>
+          <li>Presence and live updates</li>
+          <li>Any write to the group layer</li>
+          <li>Mini-conclusions and both Results</li>
+          <li>Handwriting transcription, unless the browser has a local recogniser</li>
+          <li>Promotion of a note to the group</li>
+        </ul>
+      </div>
+    </div>
+
+    <table>
+      <thead><tr><th>Concern</th><th>Choice</th><th>The reason it is that one</th></tr></thead>
+      <tbody>
+        <tr><td>Row ids</td><td>client-generated UUIDv7</td><td>An offline row already carries its final id, so replaying the outbox is idempotent and rows sort by creation time.</td></tr>
+        <tr><td>The PDF</td><td>OPFS, not IndexedDB</td><td>A 40 MB document wants streaming file reads, not a blob row.</td></tr>
+        <tr><td>Sync</td><td>outbox replayed in order, upsert on conflict do nothing</td><td>No conflicts exist on a single-author layer, so ordering is the only thing to preserve.</td></tr>
+        <tr><td>Auth</td><td>a locally cached session, not a live token check</td><td>Otherwise the app locks someone out of their own notes on a plane.</td></tr>
+        <tr><td>The switch</td><td>manual is authoritative; auto-detect may only degrade</td><td>Dropping to offline automatically is helpful. Silently resyncing someone mid-thought is not.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <div class="sechead">
+      <h2>One id, three places</h2>
+      <span class="sub">so a note found its way home from any of them</span>
+    </div>
+    <p>The slug is written into the database row, the markdown anchor and the PDF annotation's name field.
+    Any one of the three can rebuild the link if the others are edited by hand. It is derived from the page,
+    the order and a hash of the text plus the rect, so re-importing the same document twice dedupes instead
+    of duplicating.</p>
+
+    <div class="chain">
+      <div class="box">
+        <h3>In the database</h3>
+<pre>highlights
+  slug  <span class="slug">h-p03-07-k4m2xq</span>
+  page  3
+  bbox  {rects:[…]}
+  layer individual</pre>
+      </div>
+      <div class="box">
+        <h3>In notes.md</h3>
+<pre>## p.3 · Cost basis is 2023
+&lt;!-- tb id=<span class="slug">h-p03-07-k4m2xq</span>
+     page=3 rect=0.118,0.412,…
+     layer=individual --&gt;
+
+Kalau pakai angka 2023…</pre>
+      </div>
+      <div class="box">
+        <h3>In the exported PDF</h3>
+<pre>/Subtype /Highlight
+/NM (<span class="slug">h-p03-07-k4m2xq</span>)
+/Contents (Kalau pakai…)
+/QuadPoints [ … ]</pre>
+      </div>
+    </div>
+
+    <div class="callout">
+      <p><strong>The import rule, stated once so it is testable.</strong> The HTML comment is the only thing
+      read for identity. Prose between comments can be edited freely and re-imports cleanly. A section with
+      no comment imports as a new, unanchored note rather than being dropped. A deleted comment orphans its
+      note, and the importer says so instead of guessing.</p>
+    </div>
+  </section>
+
+</div>
+</body>
+</html>

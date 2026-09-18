@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ThinkBoard Lite — how it works</title>
+<style>
+  :root{
+    --paper:#FAFAF8;
+    --card:#FFFFFF;
+    --ink:#17212B;
+    --muted:#6B7785;
+    --rule:#DDE2E8;
+    --hl-a:#FFD84D;
+    --hl-b:#6FD6C4;
+    --hl-c:#FF9AC1;
+    --group:#2F3A8F;
+    --warn:#B4531E;
+    --serif: ui-serif, Georgia, "Times New Roman", serif;
+    --sans: ui-sans-serif, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:var(--sans); font-size:15px; line-height:1.55;
+  }
+  .wrap{max-width:1120px; margin:0 auto; padding:56px 28px 96px}
+  h1,h2,h3{font-family:var(--serif); font-weight:600; letter-spacing:-.01em; margin:0}
+  h1{font-size:44px; line-height:1.08}
+  h2{font-size:26px; line-height:1.2}
+  h3{font-size:17px}
+  p{margin:.6em 0; max-width:68ch}
+  .lede{font-size:18px; color:var(--muted); max-width:62ch; margin-top:14px}
+  .sub{color:var(--muted); font-size:14px}
+
+  /* the recurring device: a highlighter swipe behind text */
+  .mark{position:relative; display:inline; padding:0 .1em}
+  .mark::before{
+    content:""; position:absolute; left:0; right:0; bottom:.04em; height:.72em;
+    background:var(--hl-a); z-index:-1; transform-origin:left center;
+    transform:scaleX(0); animation:swipe .55s cubic-bezier(.2,.7,.3,1) forwards;
+  }
+  .mark.b::before{background:var(--hl-b); animation-delay:.18s}
+  .mark.c::before{background:var(--hl-c); animation-delay:.36s}
+  @keyframes swipe{to{transform:scaleX(1)}}
+  @media (prefers-reduced-motion: reduce){
+    .mark::before{animation:none; transform:scaleX(1)}
+  }
+
+  section{margin-top:66px; padding-top:30px; border-top:1px solid var(--rule)}
+  section:first-of-type{border-top:0}
+  .sechead{display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; margin-bottom:6px}
+  .sechead .sub{margin-left:auto}
+
+  figure{margin:26px 0 0}
+  svg{display:block; width:100%; height:auto}
+
+  .grid{display:grid; gap:18px; margin-top:26px}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g2{grid-template-columns:1.1fr .9fr}
+  @media (max-width:860px){ .g3,.g2{grid-template-columns:1fr} }
+
+  .panel{background:var(--card); border:1px solid var(--rule); padding:18px 20px}
+  .panel h3{margin-bottom:8px}
+  .panel p{font-size:14px; color:var(--muted); margin:.35em 0}
+
+  code, .t{font-family:var(--mono); font-size:12.5px; background:#EEF1F4; padding:1px 5px; color:#2B3A47}
+
+  table{width:100%; border-collapse:collapse; margin-top:22px; font-size:14px}
+  th,td{text-align:left; padding:11px 12px; border-bottom:1px solid var(--rule); vertical-align:top}
+  th{font-family:var(--sans); font-weight:600; font-size:12.5px; color:var(--muted); border-bottom:1.5px solid var(--ink)}
+  td:first-child{width:30%}
+  .keep{color:#1E6E4E} .simp{color:#8A5A00} .defer{color:var(--muted)}
+
+  /* wireframe */
+  .wire{border:1px solid var(--ink); background:var(--card); display:grid;
+        grid-template-columns:52px 1fr 250px; min-height:330px; margin-top:26px}
+  .wire > div{padding:12px; border-right:1px solid var(--rule)}
+  .wire > div:last-child{border-right:0}
+  .rail{display:flex; flex-direction:column; gap:9px; align-items:center; background:#F3F5F7}
+  .tool{width:28px; height:28px; border:1px solid var(--rule); background:#fff}
+  .tool.on{background:var(--hl-a); border-color:#C9A21F}
+  .page{background:linear-gradient(transparent 0 calc(100% - 1px), var(--rule) 0);
+        background-size:100% 23px; min-height:250px; padding:16px 18px; border:1px solid var(--rule)}
+  .line{height:9px; background:#E7EBEF; margin:7px 0; width:100%}
+  .line.s{width:62%} .line.m{width:84%}
+  .line.hl{background:var(--hl-a)} .line.hl2{background:var(--hl-b)} .line.hl3{background:var(--hl-c)}
+  .sheet{background:#F8F9FB}
+  .sheettab{display:flex; gap:0; border-bottom:1px solid var(--rule); margin:-12px -12px 12px}
+  .sheettab span{flex:1; padding:9px 6px; font-size:11.5px; text-align:center; color:var(--muted); border-right:1px solid var(--rule)}
+  .sheettab span.on{color:var(--ink); background:#fff; font-weight:600; box-shadow:inset 0 -2px 0 var(--group)}
+  .sheettab span:last-child{border-right:0}
+  .note{border-left:3px solid var(--hl-a); padding:7px 10px; margin-bottom:9px; background:#fff; font-size:12.5px}
+  .note.b{border-left-color:var(--hl-b)} .note.c{border-left-color:var(--hl-c)}
+  .note .who{color:var(--muted); font-size:11px}
+  .caption{font-size:13px; color:var(--muted); margin-top:12px}
+
+  ul.checks{list-style:none; padding:0; margin:22px 0 0}
+  ul.checks li{display:flex; gap:14px; padding:13px 0; border-bottom:1px solid var(--rule); font-size:14px}
+  ul.checks .id{font-family:var(--mono); font-size:12px; color:var(--muted); min-width:28px; padding-top:2px}
+  ul.checks .q{flex:1}
+  ul.checks .a{color:var(--group); font-weight:600; min-width:140px; text-align:right}
+  @media (max-width:640px){
+    h1{font-size:32px}
+    ul.checks li{flex-wrap:wrap}
+    ul.checks .a{text-align:left; min-width:0}
+    .wire{grid-template-columns:1fr}
+    .wire > div{border-right:0; border-bottom:1px solid var(--rule)}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>A shared document where every<br><span class="mark">highlight</span> is a thought,<br>and every thought can be <span class="mark b">backed up</span>.</h1>
+    <p class="lede">ThinkBoard Lite. Four moves, two results, four server endpoints. Every box on this page
+    is already a row in <span class="t">thinkboard-schema-final.sql</span> — the delta is one table and two columns.</p>
+  </header>
+
+  <section>
+    <div class="sechead">
+      <h2>The loop</h2>
+      <span class="sub">3 of the 7 pipeline stages · ~1 LLM call per highlight</span>
+    </div>
+    <p>A member marks a region of the workspace PDF. That mark is a focus point. Notes attached to it are
+    the evidence. The model writes a small conclusion per point, then one conclusion for the whole
+    workspace — once for you, once for the team.</p>
+
+    <figure>
+      <svg viewBox="0 0 1100 430" role="img" aria-label="Flow from highlight capture through notes and mini-conclusions to individual and group results">
+        <defs>
+          <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M0 0 L10 5 L0 10 z" fill="#17212B"/>
+          </marker>
+          <marker id="arg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M0 0 L10 5 L0 10 z" fill="#2F3A8F"/>
+          </marker>
+        </defs>
+
+        <!-- stage bands -->
+        <text x="18" y="24" font-family="ui-sans-serif,system-ui" font-size="12" fill="#6B7785">client · no LLM</text>
+        <line x1="18" y1="32" x2="500" y2="32" stroke="#DDE2E8"/>
+        <text x="520" y="24" font-family="ui-sans-serif,system-ui" font-size="12" fill="#6B7785">stage: analytic</text>
+        <line x1="520" y1="32" x2="740" y2="32" stroke="#DDE2E8"/>
+        <text x="760" y="24" font-family="ui-sans-serif,system-ui" font-size="12" fill="#6B7785">stage: result</text>
+        <line x1="760" y1="32" x2="1082" y2="32" stroke="#DDE2E8"/>
+
+        <!-- 1. the page -->
+        <rect x="18" y="58" width="170" height="220" fill="#fff" stroke="#17212B"/>
+        <g fill="#E7EBEF">
+          <rect x="34" y="78" width="138" height="8"/><rect x="34" y="94" width="120" height="8"/>
+          <rect x="34" y="128" width="138" height="8"/>
+          <rect x="34" y="176" width="110" height="8"/><rect x="34" y="192" width="138" height="8"/>
+          <rect x="34" y="240" width="96" height="8"/>
+        </g>
+        <rect x="34" y="110" width="138" height="12" fill="#FFD84D"/>
+        <rect x="34" y="158" width="104" height="12" fill="#6FD6C4"/>
+        <rect x="34" y="222" width="122" height="12" fill="#FF9AC1"/>
+        <text x="18" y="298" font-family="ui-serif,Georgia,serif" font-size="15" fill="#17212B">1 · Capture</text>
+        <text x="18" y="317" font-family="ui-monospace,monospace" font-size="11" fill="#6B7785">highlights</text>
+        <text x="18" y="334" font-family="ui-sans-serif,system-ui" font-size="11.5" fill="#6B7785">text layer, or Konva</text>
+        <text x="18" y="350" font-family="ui-sans-serif,system-ui" font-size="11.5" fill="#6B7785">region → cropped OCR</text>
+
+        <path d="M196 168 L242 168" stroke="#17212B" fill="none" marker-end="url(#ar)"/>
+
+        <!-- 2. notes -->
+        <g>
+          <rect x="250" y="70" width="210" height="52" fill="#fff" stroke="#DDE2E8"/>
+          <rect x="250" y="70" width="4" height="52" fill="#FFD84D"/>
+          <text x="266" y="90" font-family="ui-sans-serif,system-ui" font-size="12" fill="#17212B">“Cost basis is 2023 —</text>
+          <text x="266" y="106" font-family="ui-sans-serif,system-ui" font-size="12" fill="#17212B">check against Q2.”</text>
+          <text x="404" y="90" font-family="ui-sans-serif,system-ui" font-size="10.5" fill="#6B7785">private</text>
+
+          <rect x="250" y="134" width="210" height="52" fill="#fff" stroke="#DDE2E8"/>
+          <rect x="250" y="134" width="4" height="52" fill="#6FD6C4"/>
+          <text x="266" y="154" font-family="ui-sans-serif,system-ui" font-size="12" fill="#17212B">“Agreed, but the permit</text>
+          <text x="266" y="170" font-family="ui-sans-serif,system-ui" font-size="12" fill="#17212B">window blocks this.”</text>
+          <text x="410" y="154" font-family="ui-sans-serif,system-ui" font-size="10.5" fill="#2F3A8F">group</text>
+
+          <rect x="250" y="198" width="210" height="52" fill="#fff" stroke="#DDE2E8"/>
+          <rect x="250" y="198" width="4" height="52" fill="#FF9AC1"/>
+          <text x="266" y="218" font-family="ui-sans-serif,system-ui" font-size="12" fill="#17212B">“Same finding as the</text>
+          <text x="266" y="234" font-family="ui-sans-serif,system-ui" font-size="12" fill="#17212B">2024 audit, p.11.”</text>
+          <text x="410" y="218" font-family="ui-sans-serif,system-ui" font-size="10.5" fill="#2F3A8F">group</text>
+        </g>
+        <text x="250" y="298" font-family="ui-serif,Georgia,serif" font-size="15" fill="#17212B">2 · Strengthen</text>
+        <text x="250" y="317" font-family="ui-monospace,monospace" font-size="11" fill="#6B7785">highlight_notes</text>
+        <text x="250" y="334" font-family="ui-sans-serif,system-ui" font-size="11.5" fill="#6B7785">each note declares which</text>
+        <text x="250" y="350" font-family="ui-sans-serif,system-ui" font-size="11.5" fill="#6B7785">result it feeds</text>
+
+        <path d="M468 160 L512 160" stroke="#17212B" fill="none" marker-end="url(#ar)"/>
+
+        <!-- 3. mini conclusions -->
+        <rect x="520" y="94" width="196" height="132" fill="#fff" stroke="#17212B"/>
+        <text x="538" y="122" font-family="ui-serif,Georgia,serif" font-size="14" fill="#17212B">Mini conclusion</text>
+        <rect x="538" y="134" width="160" height="7" fill="#E7EBEF"/>
+        <rect x="538" y="148" width="132" height="7" fill="#E7EBEF"/>
+        <rect x="538" y="162" width="150" height="7" fill="#E7EBEF"/>
+        <rect x="538" y="186" width="64" height="20" fill="#FFF4CC" stroke="#E0C255"/>
+        <text x="548" y="200" font-family="ui-monospace,monospace" font-size="11" fill="#7A5E00">temp .62</text>
+        <text x="612" y="200" font-family="ui-sans-serif,system-ui" font-size="11" fill="#6B7785">2 backers</text>
+        <text x="520" y="298" font-family="ui-serif,Georgia,serif" font-size="15" fill="#17212B">3 · Distil</text>
+        <text x="520" y="317" font-family="ui-monospace,monospace" font-size="11" fill="#6B7785">mini_conclusions → points</text>
+        <text x="520" y="334" font-family="ui-sans-serif,system-ui" font-size="11.5" fill="#6B7785">one cheap call per highlight,</text>
+        <text x="520" y="350" font-family="ui-sans-serif,system-ui" font-size="11.5" fill="#6B7785">cached until a note changes</text>
+
+        <path d="M724 132 L768 112" stroke="#17212B" fill="none" marker-end="url(#ar)"/>
+        <path d="M724 188 L768 210" stroke="#2F3A8F" fill="none" marker-end="url(#arg)"/>
+
+        <!-- 4. results -->
+        <rect x="776" y="58" width="306" height="104" fill="#fff" stroke="#17212B"/>
+        <text x="794" y="84" font-family="ui-serif,Georgia,serif" font-size="16" fill="#17212B">Individual result</text>
+        <text x="794" y="106" font-family="ui-sans-serif,system-ui" font-size="12" fill="#6B7785">my highlights + my private notes</text>
+        <text x="794" y="124" font-family="ui-sans-serif,system-ui" font-size="12" fill="#6B7785">+ my persona + the workspace goal</text>
+        <text x="794" y="146" font-family="ui-monospace,monospace" font-size="11" fill="#6B7785">pipeline_runs.owner_profile_id = me</text>
+
+        <rect x="776" y="178" width="306" height="122" fill="#fff" stroke="#2F3A8F" stroke-width="1.5"/>
+        <rect x="776" y="178" width="306" height="5" fill="#2F3A8F"/>
+        <text x="794" y="208" font-family="ui-serif,Georgia,serif" font-size="16" fill="#17212B">Group result</text>
+        <text x="794" y="230" font-family="ui-sans-serif,system-ui" font-size="12" fill="#6B7785">every highlight + group notes + the</text>
+        <text x="794" y="248" font-family="ui-sans-serif,system-ui" font-size="12" fill="#6B7785">leader’s minutes + workspace persona</text>
+        <text x="794" y="270" font-family="ui-monospace,monospace" font-size="11" fill="#6B7785">owner_profile_id = null</text>
+        <text x="794" y="288" font-family="ui-sans-serif,system-ui" font-size="11.5" fill="#2F3A8F" font-weight="600">leader triggers this one</text>
+
+        <text x="776" y="332" font-family="ui-serif,Georgia,serif" font-size="15" fill="#17212B">4 · Conclude</text>
+        <text x="776" y="351" font-family="ui-sans-serif,system-ui" font-size="11.5" fill="#6B7785">rendered as prose + a Mermaid diagram · <tspan font-family="ui-monospace,monospace" font-size="11">run_renderings</tspan></text>
+
+        <line x1="18" y1="392" x2="1082" y2="392" stroke="#DDE2E8"/>
+        <text x="18" y="414" font-family="ui-sans-serif,system-ui" font-size="12" fill="#6B7785">Total for a 40-highlight workspace: about 42 model calls — not 40 × 7 stages. That is what makes a free tier survivable.</text>
+      </svg>
+    </figure>
+  </section>
+
+  <section>
+    <div class="sechead">
+      <h2>A workspace is not a new table</h2>
+      <span class="sub">one new table · two new columns · two new policies</span>
+    </div>
+    <p>Everything the Lite feature list asks for already has a home in the Full schema. Naming it
+    “workspace” in the interface costs nothing in the database.</p>
+
+    <table>
+      <thead><tr><th>What the team sees</th><th>Where it lives</th><th>Already enforced by</th></tr></thead>
+      <tbody>
+        <tr><td>Workspace</td><td><span class="t">teams</span> + <span class="t">boards</span> + <span class="t">board_columns</span> + <span class="t">sessions</span>, one each</td><td class="sub">board layer hidden in Lite; Full’s kanban turns on with no migration</td></tr>
+        <tr><td>Workspace goal</td><td><span class="t">sessions.initial_question</span></td><td class="sub">plus ideas / limitations in <span class="t">memory_entries scope='initial'</span></td></tr>
+        <tr><td>Workspace persona</td><td><span class="t">team_personas</span></td><td class="sub"><span class="t">team_personas_one_active</span> — one per team</td></tr>
+        <tr><td>Leader</td><td><span class="t">team_members.role = 'leader'</span></td><td class="sub"><span class="t">team_members_one_leader</span> — one per team</td></tr>
+        <tr><td>My persona</td><td><span class="t">user_personas</span> owned by my profile</td><td class="sub">new partial index: one active per person</td></tr>
+        <tr><td>The PDF</td><td><span class="t">artifacts kind='pdf' slot='main'</span></td><td class="sub"><span class="t">artifacts_one_per_slot</span> — one document per workspace</td></tr>
+        <tr><td>A highlight</td><td><span class="t">highlights</span>, coordinates in <span class="t">bbox</span> jsonb</td><td class="sub">no geometry columns needed; <span class="t">extraction</span> already splits text-layer from OCR</td></tr>
+        <tr><td>A note on a highlight</td><td><strong><span class="t">highlight_notes</span> — the one new table</strong></td><td class="sub">individual / group visibility</td></tr>
+        <tr><td>Leader’s minutes</td><td><span class="t">memory_entries scope='group'</span></td><td class="sub">Full’s “group thinking memory”, used as-is</td></tr>
+        <tr><td>A result</td><td><span class="t">pipeline_runs</span> → <span class="t">points</span> → <span class="t">point_conclusions</span> → <span class="t">run_renderings</span></td><td class="sub">new nullable <span class="t">owner_profile_id</span> splits mine from ours</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <div class="sechead">
+      <h2>One screen</h2>
+      <span class="sub">tablet authors · desktop analyses · phone reads</span>
+    </div>
+    <p>A document canvas with a Figma <em>feel</em> — pan, pinch-zoom, floating tools, live cursors — rather
+    than an infinite board. Real text selection needs the PDF.js text layer, which is DOM. Put the whole
+    page inside a canvas scene and you lose exact text, then pay to OCR words that were already perfect.</p>
+
+    <div class="wire">
+      <div class="rail" aria-label="tool rail">
+        <div class="tool on" title="text highlight"></div>
+        <div class="tool" title="region"></div>
+        <div class="tool" title="ink"></div>
+        <div class="tool" title="comment"></div>
+      </div>
+      <div>
+        <div class="page">
+          <div class="line m"></div>
+          <div class="line"></div>
+          <div class="line hl s"></div>
+          <div class="line"></div>
+          <div class="line m"></div>
+          <div class="line hl2"></div>
+          <div class="line s"></div>
+          <div class="line"></div>
+          <div class="line hl3 m"></div>
+          <div class="line s"></div>
+        </div>
+        <p class="caption">Text layer for selection. A Konva layer on top for stylus ink and marquee
+        regions — the only place OCR runs, and only on the cropped rectangle.</p>
+      </div>
+      <div class="sheet">
+        <div class="sheettab">
+          <span>My notes</span><span>Group</span><span class="on">Result</span>
+        </div>
+        <div class="note"><div class="who">Focus point · p.3</div>Permit window is the binding constraint, not cost.</div>
+        <div class="note b"><div class="who">temperature .71 · 3 backers</div>Supported by two members and one recorded limitation.</div>
+        <div class="note c"><div class="who">open</div>No one has checked the 2024 figure.</div>
+        <p class="caption" style="margin-top:14px">Three sheets, one open at a time below 1280px,
+        docked as a rail above it.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sechead">
+      <h2>What was cut, and what it bought</h2>
+      <span class="sub">against ThinkBoard Full</span>
+    </div>
+    <table>
+      <thead><tr><th>Full</th><th>Lite</th><th>Why that is safe</th></tr></thead>
+      <tbody>
+        <tr><td>Seven pipeline stages</td><td class="simp">Three</td><td>Same <span class="t">pipeline_stage</span> enum, a subset of its values. Adding the rest later means emitting more rows, not migrating.</td></tr>
+        <tr><td>Go orchestration gateway</td><td class="defer">Deferred — server code sits in <span class="t">apps/web/src/server/</span> under the gateway’s own package names</td><td>Go was chosen for 450 users × 8 hours of streaming. Lite has neither. The port is mechanical because the folder names match.</td></tr>
+        <tr><td>Gateway bypasses RLS, so Go must re-implement every policy</td><td class="keep">Deleted outright — no service-role key anywhere</td><td>The biggest deletion available. No bypass means no second copy of the authorisation rules to keep in sync.</td></tr>
+        <tr><td>Context-warning drift heuristic</td><td class="defer">Deferred, but the scope embedding is still written</td><td>The PDF is the scope anchor in Lite. Turning the heuristic on later needs no backfill.</td></tr>
+        <tr><td>20/80 internet / material retrieval</td><td class="simp">Material only</td><td>Web search is the slowest and most rate-limited leg, for the smaller share of context.</td></tr>
+        <tr><td>Bring-your-own LLM key via Vault</td><td class="defer">Shared free-tier pool only</td><td>This is Full’s own documented fallback path, so nothing has to be undone. Resolving Vault secrets in the web tier is exactly what Full pushed into the gateway.</td></tr>
+        <tr><td>Temperature scored through Research → Validation → Questioning</td><td class="simp">Computed by rule from human evidence</td><td>With no validation stage, a model-invented confidence number is decoration. Count backers, corroborations, limitations and text accuracy instead — explainable in one tooltip.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <div class="sechead">
+      <h2>Six things to confirm before task 000</h2>
+      <span class="sub">defaults taken in the plan, not settled</span>
+    </div>
+    <ul class="checks">
+      <li><span class="id">D1</span><span class="q">Does “individual” mean private, or just authored-by-me and scored with my persona?</span><span class="a">authorship only</span></li>
+      <li><span class="id">D2</span><span class="q">One PDF per workspace, or several?</span><span class="a">one</span></li>
+      <li><span class="id">D3</span><span class="q">Can any member run the group result, or the leader only?</span><span class="a">leader only</span></li>
+      <li><span class="id">D4</span><span class="q">Can a person hold more than one active persona?</span><span class="a">no</span></li>
+      <li><span class="id">D5</span><span class="q">Does this backlog replace the task list in <span class="t">02-working.md</span> §8?</span><span class="a">yes, proposed</span></li>
+      <li><span class="id">D6</span><span class="q">Can the leader edit generated minutes in place?</span><span class="a">yes, as a draft</span></li>
+    </ul>
+    <p class="caption" style="margin-top:26px">One more, and it is the first one to answer: most no-card free
+    tiers fund themselves with your prompts, and several say so in their own terms. Decide whether workspace
+    documents can go to such an endpoint <em>before</em> picking a provider.</p>
+  </section>
+
+</div>
+</body>
+</html>
