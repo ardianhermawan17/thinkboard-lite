@@ -55,8 +55,8 @@ thinkboard-lite-architecture/          # this repo — plan + process
       analyze.json
       ...
   todo-task-NNN-<slug>.md              # the per-task plan an agent opens the folder from
-  frontend-thinkboard-lite/            # the Next.js app — own git repo; src/server/** is Lite's "backend"
-thinkboard-supabase/                   # migrations 0001-0004 — outside this repo
+  frontend-thinkboard-lite/            # the Next.js app; src/server/** is Lite's "backend" (git runs from this root)
+  database-thinkboard-lite/            # the Supabase project — supabase/migrations/0001-0004
 ```
 
 Rules:
@@ -267,7 +267,7 @@ Every task declares exactly one **primary** `architecture`, matching Lite's thre
 
 | Value | Covers | Repo location |
 |---|---|---|
-| `supabase` | Schema/migrations, RLS policies, auth config, Vault secrets, Realtime/storage config | `thinkboard-supabase/` migrations; the spec is `02-database-architecture.md` §8.1 |
+| `supabase` | Schema/migrations, RLS policies, auth config, Vault secrets, Realtime/storage config | `database-thinkboard-lite/supabase/migrations/`; the spec is `02-database-architecture.md` §8.1 |
 | `backend` | The four command endpoints, pipeline stages, LLM adapter / key routing, memory — **no Go gateway in Lite** | `frontend-thinkboard-lite/src/server/**` + `src/app/api/v1/**` |
 | `frontend` | The Next.js app: workspace shell, PDF canvas, highlights, notes, sheets, results, sync, offline | `frontend-thinkboard-lite/src/**` |
 

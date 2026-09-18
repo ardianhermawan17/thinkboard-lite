@@ -80,7 +80,7 @@ Every row goes into `analyze.json.open_questions`. An **unanswered** row stops t
 ## 4. Where the work lands
 
 ```
-thinkboard-supabase/…/0004_lite.sql            # next to 0001-0003
+database-thinkboard-lite/supabase/migrations/0004_lite.sql   # next to 0001-0003
 code.json.decisions         # the non-additive change, recorded
 ```
 

@@ -1,0 +1,35 @@
+{
+  "task_id": "000-task-architecture-contract",
+  "phase": "result",
+  "closed_at": "2026-09-18T11:50:00Z",
+  "final_status": "done",
+  "goals_summary": {
+    "total": 18,
+    "done": 18,
+    "blocked": 0
+  },
+  "artifacts": [
+    "frontend-thinkboard-lite/architecture.blueprint.json",
+    "frontend-thinkboard-lite/blueprint.schema.json",
+    "frontend-thinkboard-lite/scripts/verify-architecture.mjs",
+    "frontend-thinkboard-lite/scripts/verify-architecture.fixtures.mjs",
+    "frontend-thinkboard-lite/scripts/verify-architecture.test.mjs",
+    "frontend-thinkboard-lite/eslint.architecture.mjs",
+    "frontend-thinkboard-lite/scripts/eslint-architecture.test.mjs",
+    "frontend-thinkboard-lite/AGENTS.md",
+    "frontend-thinkboard-lite/CLAUDE.md",
+    "frontend-thinkboard-lite/README.md",
+    "06-whole-apps-task.md",
+    "todo-task-004-frontend-scaffold.md",
+    "agent-history/000-task-architecture-contract/analyze.json",
+    "agent-history/000-task-architecture-contract/code.json",
+    "agent-history/000-task-architecture-contract/test.json",
+    "agent-history/000-task-architecture-contract/validate.json"
+  ],
+  "follow_up_tasks": [
+    "004-task-frontend-scaffold: make npm run lint work (eslint-config-next / ESLint 10 incompatibility), spread eslint.architecture.mjs, wire verify:arch and node --test \"scripts/*.test.mjs\".",
+    "Owner decision: replace the frontend-thinkboard-lite gitlink in the root repo so its files are tracked (git write).",
+    "Owner decision: agent-history/000-task-example/ numbering.",
+    "Optional: re-run package C's cold-agent placement check with a fresh agent."
+  ]
+}

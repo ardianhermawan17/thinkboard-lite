@@ -1,0 +1,131 @@
+{
+  "task_id": "000-task-architecture-contract",
+  "phase": "validate",
+  "goal_checks": [
+    {
+      "goal_id": "g1",
+      "status": "pass",
+      "notes": "Split §3.0 precedence table + verdicts for C1-C9 and G1; C6 escalated for a human yes; C7 resolved by the owner. Checked mechanically."
+    },
+    {
+      "goal_id": "g2",
+      "status": "pass",
+      "notes": "29 invariants (I6 void), each with an enforcement class; blueprint copy totals script 18, eslint 7, review 2, deferred 1, void 1."
+    },
+    {
+      "goal_id": "g3",
+      "status": "pass",
+      "notes": "35 decisions; unanswered D-12, Q7, Q8, Q9; confirmed only D-05, DB-Q5."
+    },
+    {
+      "goal_id": "g4",
+      "status": "pass",
+      "notes": "localFirst = 02 §6.1: 7 tables, [artifactId+page], _sync clean|pending|failed, outbox shape; test g4."
+    },
+    {
+      "goal_id": "g5",
+      "status": "pass",
+      "notes": "4 commands with baseUrl /api and derived route; 5 leaves, ink-pad conditional gatedBy 024; listeners; test g5."
+    },
+    {
+      "goal_id": "g6",
+      "status": "pass",
+      "notes": "openQuestions[] and invariants[] are arrays parsed from the split; test g6."
+    },
+    {
+      "goal_id": "g7",
+      "status": "pass",
+      "notes": "blueprint.schema.json + dependency-free self-check that runs first; a wrong table name fails it and I13/I15/I25 fail rather than pass vacuously; test g7."
+    },
+    {
+      "goal_id": "g8",
+      "status": "pass",
+      "notes": "Next.js block kept; placement tree and import law byte-identical to 04 §8/§9 (CRLF-normalised); test g8."
+    },
+    {
+      "goal_id": "g9",
+      "status": "pass",
+      "notes": "Escalation stated as a 4-step procedure with destinations (blueprint openQuestions[], split §4.1, analyze.json); 4-point store edit verbatim; test g9/g10."
+    },
+    {
+      "goal_id": "g10",
+      "status": "pass",
+      "notes": "I19, I27, I28 each with what, owner, and covering task (009/010, 012 g7, 012 g5 / 024 g3)."
+    },
+    {
+      "goal_id": "g11",
+      "status": "pass",
+      "notes": "Stdlib only; runs with no node_modules; --json; exit 1 on any fail and when src/ is missing; test g11/g15."
+    },
+    {
+      "goal_id": "g12",
+      "status": "pass",
+      "notes": "15 tree checks implemented, each with a fixture."
+    },
+    {
+      "goal_id": "g13",
+      "status": "pass",
+      "notes": "I13, I15 (via baseUrl), I25 read the blueprint after its self-check; I25 conditional/not-needed behaviour tested."
+    },
+    {
+      "goal_id": "g14",
+      "status": "pass",
+      "notes": "19/19 fixtures ok; each violation reported under its own id only."
+    },
+    {
+      "goal_id": "g15",
+      "status": "pass",
+      "notes": "29 rows on every run including missing src/ and a clean tree; non-script rows print skipped with reason; I6 void."
+    },
+    {
+      "goal_id": "g16",
+      "status": "pass",
+      "notes": "7 rules, each fires on its violation and not on its seam; overlap case proves no rule overrides another."
+    },
+    {
+      "goal_id": "g17",
+      "status": "pass",
+      "notes": "06 task 004 g1/g4 carry the handoff; todo-task-004 §7.1 task.json template already carries both criteria."
+    },
+    {
+      "goal_id": "g18",
+      "status": "pass",
+      "notes": "06 task 004 gate: npm run verify green on the real, conformed tree; 000's gate points at the fixture suite."
+    }
+  ],
+  "cross_check_against_plan": [
+    {
+      "doc": "04-frontend-folder-architecture.md",
+      "section": "§12",
+      "result": "I1-I25 present; script-class ones checked, eslint-class ones in eslint.architecture.mjs, I19 in the review checklist"
+    },
+    {
+      "doc": "03-frontend-architecture.md",
+      "section": "§11",
+      "result": "blueprint keys localFirst/commands/canvasLeaves/listeners present, extended per split C4/C5"
+    },
+    {
+      "doc": "05-frontend-sync-handwriting.md",
+      "section": "§4",
+      "result": "I26 lint rule (libraries + contentEditable), I27 deferred to 012 g7, I28 in the review checklist"
+    },
+    {
+      "doc": "02-database-architecture.md",
+      "section": "§2, §6.1",
+      "result": "every localFirst mirror is a §2 table; Dexie schema strings identical to §6.1"
+    },
+    {
+      "doc": "todo-task-000-split.md",
+      "section": "§3 conflict verdicts, §4.1 decision registry",
+      "result": "blueprint arrays parsed from these sections; counts asserted by tests"
+    }
+  ],
+  "signed_off": true,
+  "issues_found": [
+    "Package C's cold-agent gate was self-graded, not run by a fresh agent — weaker evidence than the gate asks for.",
+    "npm run lint crashes on the untouched scaffold (eslint-config-next 16.3.4 bundles eslint-plugin-react 7.37.5; ESLint 10 removed context.getFilename). Pre-existing; handed to task 004.",
+    "Root git records frontend-thinkboard-lite/ as a gitlink (submodule) with no .git inside it, so root git cannot track these new files until the gitlink is replaced — a git write that needs the owner's yes.",
+    "agent-history/000-task-example/ still reuses number 000 with task_id 001-task-backend-gateway-scaffolding; left untouched, owner to decide.",
+    "C6 (three-value note_input_mode) is still escalated; it gates task 001 g2, not this task."
+  ]
+}

@@ -82,7 +82,7 @@ Every row goes into `analyze.json.open_questions`. An **unanswered** row stops t
 ## 4. Where the work lands
 
 ```
-thinkboard-supabase/…/tests/                 # SQL policy tests (harness chosen in analyze — e.g. pgTAP via `supabase test db`)
+database-thinkboard-lite/supabase/tests/                 # SQL policy tests (harness chosen in analyze — e.g. pgTAP via `supabase test db`)
 a realtime test script with two signed-in supabase-js clients   # g5, g10, g11, g12
 ```
 

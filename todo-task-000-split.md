@@ -317,8 +317,8 @@ This is the conflict to show a human: `01-thinkboard-lite-spec.md` §0 says the 
 shape, but here the newer frontend doc is correct. **Precedence points at the wrong answer, which is
 exactly when an agent should stop.**
 
-*Update 2026-09-18:* already applied in `02-database-architecture.md` §8.1 (DB-F1), and spec §6 now
-points there. It still needs a human's yes before task 001 ships it.
+*Update 2026-09-18:* applied in `02-database-architecture.md` §8.1 (DB-F1), and **signed off by the owner** — task 001
+shipped it in `database-thinkboard-lite/supabase/migrations/0004_lite.sql`.
 
 ### C7 — Task ids: the plan's `001–024` or the next free numbers?
 
@@ -463,15 +463,15 @@ duplicates cannot drift apart unnoticed.
 | DB-Q3 | Per-profile Dexie namespace? | db §10 | defaulted | yes — and OPFS is wiped with it (F6) | 006, 016 |
 | DB-Q4 | Keep `messages`, `context_warnings`, `sources` parked? | db §10 | defaulted | keep parked | 001 |
 | DB-Q5 | = D-05 | db §10 | **confirmed** | as D-05 | — |
-| DB-Q6 | `create_workspace` RPC — referenced, never defined | db §10 | defaulted | definer RPC in `0004`; creator is leader; other leader = transfer | 001, 008, 017 |
+| DB-Q6 | `create_workspace` RPC — referenced, never defined | db §10 | **confirmed** | `create_workspace(p_name, p_title, p_goal) returns uuid`, definer, creator is leader; plus `transfer_leadership` (owner, 2026-09-18) | 001, 008, 017 |
 | DB-Q7 | May a member write a group-visibility note directly? | db §10 | defaulted | allowed as written; kept off `ws:` unless the highlight is public | 002, 013 |
 | DB-Q8 | `mini_conclusions` writable by any member on shared highlights | db §10 | defaulted | as written; tighten after DB-Q7 | 019 |
 | DB-Q9 | Topic for client-sent cursors and presence | db §10 | defaulted | separate `live:{sessionId}` topic | 015 |
-| DB-Q10 | Is `memory_entries` group scope leader-only in `0001`? | db §10 | defaulted | verify; add a restrictive policy if not | 001, 002 |
+| DB-Q10 | Is `memory_entries` group scope leader-only in `0001`? | db §10 | **confirmed** | `0001` had no write policy at all; "leader writes memory" added (owner, 2026-09-18) | 001, 002 |
 | DB-Q11 | Storage path and policy for PDFs | db §10 | defaulted | `artifacts/{sessionId}/{artifactId}.pdf` | 003 |
 | DB-Q12 | Read/write path for non-mirrored tables (G1) | db §10 | defaulted | pull into Dexie `meta`; write through the outbox | 000, 006, 007, 008 |
 
-**Totals —** 35 · unanswered **4** (D-12, Q7, Q8, Q9) · confirmed 2 (D-05, DB-Q5) · defaulted 29.
+**Totals —** 35 · unanswered **4** (D-12, Q7, Q8, Q9) · confirmed 4 (D-05, DB-Q5, DB-Q6, DB-Q10) · defaulted 27.
 spec §10 requires D-01, D-05, D-07 and D-12 in task 000's and 001's `analyze.json.open_questions`.
 
 ---

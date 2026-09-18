@@ -1,6 +1,6 @@
 {
 	"schema_version": "1.0",
-	"updated_at": "2026-09-18T09:40:00Z",
+	"updated_at": "2026-09-18T10:46:27Z",
 	"tracked_todos": [
 		{
 			"id": "000-todo-architecture-contract",
@@ -8,7 +8,15 @@
 			"goal": "Produce the machine-readable contract an agent generates from, so no file is ever created by inference.",
 			"todo_path": "agent-thinking/todo/000-todo-architecture-contract/contract.json",
 			"agent_history": "agent-history/000-task-architecture-contract",
-			"status": "in_progress"
+			"status": "done"
+		},
+		{
+			"id": "001-todo-supabase-lite-migration",
+			"name": "Supabase Lite migration",
+			"goal": "The Lite schema exists on a fresh project, so the frontend has real tables to build against.",
+			"todo_path": "agent-thinking/todo/001-todo-supabase-lite-migration/contract.json",
+			"agent_history": "agent-history/001-task-supabase-lite-migration",
+			"status": "done"
 		}
 	]
 }

@@ -72,7 +72,7 @@ Every row goes into `analyze.json.open_questions`. An **unanswered** row stops t
 ```
 src/features/presence/
 src/shared/components/canvas/peer-cursors/ (+ painter)
-thinkboard-supabase/…/0005_live_topic.sql
+database-thinkboard-lite/supabase/migrations/0005_live_topic.sql
 ```
 
 Placement follows `04-frontend-folder-architecture.md` §8; anything that does not fit is a question, not a new folder.

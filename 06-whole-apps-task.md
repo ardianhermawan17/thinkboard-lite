@@ -26,7 +26,7 @@ companion: ["02-database-architecture.md", "06-whole-apps-task.html"]
 |---|---|
 | **ID** | `NNN-task-<slug>`, global monotonic per `07-agent-working.md` §3. Never reused. Plan id = folder id (C7, resolved 2026-09-18). |
 | **Plan doc** | Every task has one at the repo root: `todo-task-NNN-<slug>.md` (task 000's is `todo-task-000-split.md`). It carries the goals below plus what the review added, the decisions to raise, and ready `task.json` / `analyze.json` / `validate.json`. **Open a task from its plan doc, through the main gate in `README.md`.** |
-| **Arch** | `supabase` \| `frontend` \| `backend`. In Lite, `backend` = `apps/web/src/server/**`. |
+| **Arch** | `supabase` \| `frontend` \| `backend`. In Lite, `backend` = `frontend-thinkboard-lite/src/server/**`. |
 | **Main-goal** | One sentence. The capability a reviewer can see working. |
 | **Mini-goals** | The implementable units. Each becomes a `task.json.goals[]` entry. |
 | **Gate** | Must be green before the task closes and before dependents start. |
@@ -73,8 +73,8 @@ by inference.
 - `g4` Write ESLint rules: `shared/` may not import features; painters may not import store or features; `components/canvas/**` may not import `motion`.
 - `g5` Record `openQuestions[]` in the blueprint for every unanswered D-/Q- item across the plan docs.
 
-**Gate** — `verify:arch` runs green on an empty tree. Every blueprint table maps to a row in
-`02-database-architecture.md` §2.
+**Gate** — replaced by `todo-task-000-split.md` §2 (18 goals, five packages): `node scripts/verify-architecture.mjs --fixtures`
+catches every planted violation under its own id and prints all 29 rows. "Green on an empty tree" was satisfiable by a stub (D1).
 **Blocks** — everything.
 
 ---
@@ -134,13 +134,13 @@ by inference.
 **Main-goal —** An empty app that already obeys the folder law, so no later task has to retrofit it.
 
 **Mini-goals**
-- `g1` `create-next-app` (App Router, TS strict), the four path aliases in **both** `tsconfig.json` and `vitest.config.mts`.
+- `g1` **Conform the existing scaffold** (C9 — `create-next-app` already ran): move it under `src/`, the four path aliases in **both** `tsconfig.json` and `vitest.config.mts`, and spread `eslint.architecture.mjs` into the existing `eslint.config.mjs` *(handoff from 000 g17)*.
 - `g2` `src/{app,features,shared}` skeleton; `components.json` bound to the three component tiers.
 - `g3` Vitest (jsdom + `fake-indexeddb`) and Storybook + Playwright wired.
-- `g4` `verify:arch`, `lint`, `typecheck`, `test` as npm scripts, all green on the empty tree.
+- `g4` `verify:arch` = `node scripts/verify-architecture.mjs` *(handoff from 000 g17)*, `lint`, `typecheck`, `test` (Vitest + `node --test "scripts/*.test.mjs"`) as npm scripts, all green.
 - `g5` Serwist configured, with a note that it is disabled in dev under Turbopack.
 
-**Gate** — `npm run verify` green.
+**Gate** — `npm run verify` green **on the real, conformed tree** — moved here from task 000's gate *(000 g18)*.
 **Blocks** — 005, 006.
 
 ### `005-task-design-system` · `frontend`
