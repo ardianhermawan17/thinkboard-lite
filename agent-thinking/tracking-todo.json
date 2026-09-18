@@ -1,30 +1,14 @@
 {
-  "schema_version": "1.0",
-  "updated_at": "2026-09-14T05:00:00Z",
-  "tracked_todos": [
-    {
-      "id": "005-todo-swagger-backend-api",
-      "name": "Add Swagger to backend and implement api.json",
-      "goal": "Document the backend's real route surface via OpenAPI/Swagger and reconcile thinkboard-backend/api/api.json with it, validated by a test login using admin@gmail.com / password.",
-      "todo_path": "agent-thinking/todo/005-todo-swagger-backend-api/contract.json",
-      "agent_history": "agent-history/005-task-swagger-openapi-docs",
-      "status": "done"
-    },
-    {
-      "id": "009-todo-start-run-analytic-stub",
-      "name": "StartRun service with stub analytic stage",
-      "goal": "Implement pipeline.Service.StartRun driving one stubbed analytic stage through a fake LLM dependency, no real provider and no DB, proving the orchestration shape from build order step 4.",
-      "todo_path": "agent-thinking/todo/009-todo-start-run-analytic-stub/contract.json",
-      "agent_history": "agent-history/009-task-start-run-analytic-stub",
-      "status": "done"
-    },
-    {
-      "id": "010-todo-pipeline-sse-hub",
-      "name": "SSE run hub: detached context, reattach, bounded buffers, slow-subscriber drop",
-      "goal": "Build the per-run SSE Hub (build order step 5's streaming contract) with a detached run context, replay-on-reattach, bounded subscriber buffers, and slow-subscriber drop, standalone from StartRun/httpapi.",
-      "todo_path": "agent-thinking/todo/010-todo-pipeline-sse-hub/contract.json",
-      "agent_history": "agent-history/010-task-pipeline-sse-hub",
-      "status": "in_progress"
-    }
-  ]
+	"schema_version": "1.0",
+	"updated_at": "2026-09-18T09:40:00Z",
+	"tracked_todos": [
+		{
+			"id": "000-todo-architecture-contract",
+			"name": "Architecture contract, split into five packages",
+			"goal": "Produce the machine-readable contract an agent generates from, so no file is ever created by inference.",
+			"todo_path": "agent-thinking/todo/000-todo-architecture-contract/contract.json",
+			"agent_history": "agent-history/000-task-architecture-contract",
+			"status": "in_progress"
+		}
+	]
 }
