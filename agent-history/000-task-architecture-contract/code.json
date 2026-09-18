@@ -1,0 +1,88 @@
+{
+  "task_id": "000-task-architecture-contract",
+  "phase": "code",
+  "started_at": "2026-09-18T10:05:00Z",
+  "completed_at": "2026-09-18T11:40:00Z",
+  "files_changed": [
+    {
+      "path": "frontend-thinkboard-lite/architecture.blueprint.json",
+      "action": "created",
+      "summary": "g4-g6: 8 contexts, 29 domain tables, localFirst copied from 02 §6.1 (7 Dexie tables, _sync, outbox), 4 commands with baseUrl, 5 canvas leaves (ink-pad conditional on 024), sync listeners, 29 invariants and 35 open questions parsed from split §4/§4.1"
+    },
+    {
+      "path": "frontend-thinkboard-lite/blueprint.schema.json",
+      "action": "created",
+      "summary": "g7: JSON Schema (draft 2020-12 subset) for the blueprint"
+    },
+    {
+      "path": "frontend-thinkboard-lite/scripts/verify-architecture.mjs",
+      "action": "created",
+      "summary": "g7 self-check, g11 harness, g12 15 tree checks, g13 I13/I15/I25, g14 --fixtures runner, g15 29-row report; Node stdlib only"
+    },
+    {
+      "path": "frontend-thinkboard-lite/scripts/verify-architecture.fixtures.mjs",
+      "action": "created",
+      "summary": "g14: one clean tree + one planted violation per scripted invariant (18), materialised in os.tmpdir()"
+    },
+    {
+      "path": "frontend-thinkboard-lite/scripts/verify-architecture.test.mjs",
+      "action": "created",
+      "summary": "node:test coverage for packages B, C, D"
+    },
+    {
+      "path": "frontend-thinkboard-lite/eslint.architecture.mjs",
+      "action": "created",
+      "summary": "g16: flat-config array, local plugin with one rule per invariant (I3, I18, I20, I21, I23, I26, I29)"
+    },
+    {
+      "path": "frontend-thinkboard-lite/scripts/eslint-architecture.test.mjs",
+      "action": "created",
+      "summary": "g16 lint fixture via ESLint.lintText at virtual paths"
+    },
+    {
+      "path": "frontend-thinkboard-lite/AGENTS.md",
+      "action": "modified",
+      "summary": "g8-g10: Next.js block kept; import law, placement tree, context skeleton copied verbatim from 04; leaf kinds; state + 4-point store edit; escalation procedure; review checklist for I19/I27/I28"
+    },
+    {
+      "path": "frontend-thinkboard-lite/CLAUDE.md",
+      "action": "modified",
+      "summary": "slimmed to what AGENTS.md (imported) does not say; git runs from the root repo"
+    },
+    {
+      "path": "frontend-thinkboard-lite/README.md",
+      "action": "modified",
+      "summary": "git now runs from the root repo only"
+    },
+    {
+      "path": "06-whole-apps-task.md",
+      "action": "modified",
+      "summary": "g17/g18: task 004 g1 conforms the scaffold and spreads eslint.architecture.mjs, g4 verify:arch = node scripts/verify-architecture.mjs, gate on the real tree; 000's gate points at the split; backend path corrected"
+    },
+    {
+      "path": "todo-task-004-frontend-scaffold.md",
+      "action": "modified",
+      "summary": "records the npm run lint crash found here (eslint-config-next 16.3.4 + ESLint 10)"
+    }
+  ],
+  "decisions": [
+    "Package A needed no new file: split §3.0, §3, §4 and §4.1 are the canonical registries (split §0 marks them normative); A's gate was checked mechanically and recorded in test.json.",
+    "The blueprint's invariants[] and openQuestions[] are parsed from split §4/§4.1, not retyped, so they cannot drift.",
+    "I28 is classed review, matching split §4's totals (review 2) and g12's list of 15 tree checks; the table cell reads 'script + review'.",
+    "page-stage has hasPainter: false — no source requires a painter for the Stage host; adding one later needs a blueprint edit first, which is I25's point.",
+    "I13 applies once localFirst.db exists and I25 once a leaf's folder exists; otherwise task 004's 'verify green on the real tree' gate could never pass before 006/009/011/015 build them. An empty src/ passes, a missing src/ fails; the fixture suite, not an empty tree, is the anti-stub gate.",
+    "I25 treats 'conditional' leaves as skipped and 'not-needed' leaves as must-not-have-a-painter; the blueprint status enum is active | conditional | not-needed.",
+    "I16 skips whitelist entries that are I12 violations (entities, a reducerPath) so one mistake fails one id.",
+    "blueprint.schema.json has no maxItems on invariants/openQuestions: the escalation procedure adds rows; the counts are asserted by tests instead.",
+    "eslint.architecture.mjs uses a local plugin with one rule per invariant: core no-restricted-imports is a single rule, so overlapping file globs would silently overwrite each other.",
+    "Fixture trees and lint fixtures never touch the project tree (os.tmpdir() / lintText), so 000 needed no change to tsconfig.json or eslint.config.mjs.",
+    "Source text is CRLF-normalised on read: git autocrlf gives Windows checkouts CRLF.",
+    "The cold-agent gate for package C was self-graded (the owner did not answer whether a fresh agent may be spawned); recorded as a limitation."
+  ],
+  "commands_run": [
+    "node scripts/verify-architecture.mjs --fixtures",
+    "node --test \"scripts/*.test.mjs\"",
+    "node scripts/verify-architecture.mjs",
+    "node node_modules/eslint/bin/eslint.js app/page.tsx"
+  ]
+}

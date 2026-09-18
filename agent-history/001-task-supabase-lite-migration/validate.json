@@ -1,0 +1,74 @@
+{
+  "task_id": "001-task-supabase-lite-migration",
+  "phase": "validate",
+  "goal_checks": [
+    {
+      "goal_id": "g1",
+      "status": "pass",
+      "notes": "0001-0003 copied unchanged and applied on a fresh stack; verify row answered (helpers STABLE, RLS on for the run cluster, member writes found -> g5, memory_entries write gap -> DB-Q10, 0003 default privileges)."
+    },
+    {
+      "goal_id": "g2",
+      "status": "pass",
+      "notes": "0004 = 02 §8.1 plus the recorded additions (code.json.decisions); note_input_mode has three values after C6 sign-off."
+    },
+    {
+      "goal_id": "g3",
+      "status": "pass",
+      "notes": "Four after-row broadcast triggers present; NULL-topic guard and RETRACT are in the trigger bodies."
+    },
+    {
+      "goal_id": "g4",
+      "status": "pass",
+      "notes": "Both realtime.messages policies present; re-created cleanly on the second apply."
+    },
+    {
+      "goal_id": "g5",
+      "status": "pass",
+      "notes": "Full 'artifact highlights' dropped; client with-checks test membership; run cluster private reads + owner/leader writes with 20 restrictive policies; recorded in code.json.decisions."
+    },
+    {
+      "goal_id": "g6",
+      "status": "pass",
+      "notes": "db reset exit 0 twice; second apply of 0004 exit 0."
+    },
+    {
+      "goal_id": "g7",
+      "status": "pass",
+      "notes": "create_workspace with the confirmed signature; smoke test passes (plus transfer_leadership)."
+    }
+  ],
+  "cross_check_against_plan": [
+    {
+      "doc": "02-database-architecture.md",
+      "section": "§8.1",
+      "result": "byte-identical to 0004_lite.sql"
+    },
+    {
+      "doc": "02-database-architecture.md",
+      "section": "§9",
+      "result": "the 13 tests are task 002's; every object they need now exists"
+    },
+    {
+      "doc": "02-database-architecture.md",
+      "section": "§11",
+      "result": "DB-F1-DB-F13 applied; verify row answered"
+    },
+    {
+      "doc": "06-whole-apps-task.md",
+      "section": "PHASE B · 001",
+      "result": "gate met: reset twice with no manual fix; 0004 idempotent on re-run"
+    },
+    {
+      "doc": "todo-task-000-split.md",
+      "section": "§3 C6, §4.1",
+      "result": "C6 signed off; DB-Q6 and DB-Q10 confirmed"
+    }
+  ],
+  "signed_off": true,
+  "issues_found": [
+    "RLS behaviour is not yet proven — that is task 002, and it is the highest-risk item in the plan.",
+    "Adding a member to a team also needs a definer RPC (team_members has no client insert policy); raised for task 008, not built here.",
+    "D-09 lets the workspace creator transfer leadership too; the confirmed transfer_leadership allows the current leader only."
+  ]
+}

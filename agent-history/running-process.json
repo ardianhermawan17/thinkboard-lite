@@ -1,16 +1,22 @@
 {
 	"schema_version": "1.0",
-	"updated_at": "2026-09-18T09:40:00Z",
-	"current_task_id": "000-task-architecture-contract",
-	"current_phase": "analyze",
-	"history_path": "agent-history/000-task-architecture-contract",
-	"status": "in_progress",
+	"updated_at": "2026-09-18T10:46:27Z",
+	"current_task_id": null,
+	"current_phase": "idle",
+	"history_path": null,
+	"status": "idle",
 	"task_sequence": [
 		{
 			"id": "000-task-architecture-contract",
 			"architecture": "frontend",
-			"status": "in_progress",
+			"status": "done",
 			"title": "Architecture contract: blueprint, AGENTS.md, verify script, lint rules"
+		},
+		{
+			"id": "001-task-supabase-lite-migration",
+			"architecture": "supabase",
+			"status": "done",
+			"title": "The Lite schema exists on a fresh project, so the frontend has real tables to build against"
 		}
 	]
 }

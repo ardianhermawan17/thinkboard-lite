@@ -4,7 +4,7 @@
   "architecture": "frontend",
   "secondary_architecture": [],
   "created_at": "2026-09-18T09:22:02Z",
-  "status": "in_progress",
+  "status": "done",
   "depends_on": [],
   "plan_refs": [
     {
@@ -37,109 +37,109 @@
       "id": "g1",
       "description": "Source-precedence table; resolve C1-C9 and G1, one winner + citation each; escalate what precedence cannot settle",
       "plan_ref": "08 §3.0, §3",
-      "status": "pending"
+      "status": "done"
     },
     {
       "id": "g2",
       "description": "Canonical invariant registry I1-I29 with enforcement class (I6 void; I26-I29 sourced outside ffa §12)",
       "plan_ref": "08 §4",
-      "status": "pending"
+      "status": "done"
     },
     {
       "id": "g3",
       "description": "Canonical decision registry: D-01..D-12, Q1..Q11, DB-Q1..DB-Q12 (35) with state and blocks[]",
       "plan_ref": "08 §4.1; spec §10, v2 §6, fa §13, db §10",
-      "status": "pending"
+      "status": "done"
     },
     {
       "id": "g4",
       "description": "blueprint: contexts[], domainTables[], localFirst{} incl. outbox op shape and three-state _sync row flag",
       "plan_ref": "08 §2 pkg B, db §6.1",
-      "status": "pending"
+      "status": "done"
     },
     {
       "id": "g5",
       "description": "blueprint: commands[] with baseUrl, canvasLeaves[] with hasPainter and status, listeners[]",
       "plan_ref": "fa §11, split §3 C4/C5",
-      "status": "pending"
+      "status": "done"
     },
     {
       "id": "g6",
       "description": "blueprint: openQuestions[] and invariants[] as machine-readable arrays",
       "plan_ref": "08 §3, §4",
-      "status": "pending"
+      "status": "done"
     },
     {
       "id": "g7",
       "description": "blueprint.schema.json plus a self-check that runs before any cross-check",
       "plan_ref": "08 §2 pkg B",
-      "status": "pending"
+      "status": "done"
     },
     {
       "id": "g8",
       "description": "AGENTS.md: import-direction law, placement decision tree verbatim, the three leaf kinds",
       "plan_ref": "ffa §8, §9, §6",
-      "status": "pending"
+      "status": "done"
     },
     {
       "id": "g9",
       "description": "AGENTS.md: the 4-point store edit and the escalation rule (stop and record, never pick)",
       "plan_ref": "fa §5.3, split §2 pkg C",
-      "status": "pending"
+      "status": "done"
     },
     {
       "id": "g10",
       "description": "AGENTS.md: review checklist for I19, I27 and the runtime half of I28, each with an owner and a covering task",
       "plan_ref": "08 §4",
-      "status": "pending"
+      "status": "done"
     },
     {
       "id": "g11",
       "description": "verify-architecture.mjs harness: dependency-free, walks src/, {id,status,file,line,message}, --json, exit 1",
       "plan_ref": "08 §2 pkg D",
-      "status": "pending"
+      "status": "done"
     },
     {
       "id": "g12",
       "description": "The 15 tree-only checks: I1,I2,I4,I5,I7,I8,I9,I10,I11,I12,I14,I16,I17,I22,I24",
       "plan_ref": "08 §4",
-      "status": "pending"
+      "status": "done"
     },
     {
       "id": "g13",
       "description": "The 3 blueprint cross-checks I13,I15,I25; I25 skips conditional leaves whose gating task closed as not-needed",
       "plan_ref": "08 §3 C4",
-      "status": "pending"
+      "status": "done"
     },
     {
       "id": "g14",
       "description": "Fixture suite: one violating tree per script-class invariant plus one clean tree; each violation flagged under the correct id",
       "plan_ref": "08 §2 pkg D",
-      "status": "pending"
+      "status": "done"
     },
     {
       "id": "g15",
       "description": "Non-script invariants print as skipped with reason and owning gate; the report always shows 29 rows",
       "plan_ref": "08 §4",
-      "status": "pending"
+      "status": "done"
     },
     {
       "id": "g16",
       "description": "eslint.architecture.mjs flat-config array covering I3,I18,I20,I21,I23,I26,I29",
       "plan_ref": "ffa §9, split §4",
-      "status": "pending"
+      "status": "done"
     },
     {
       "id": "g17",
       "description": "004 handoff in writing: 000 owns neither package.json nor eslint.config.mjs; 004 g1 conforms the existing scaffold, 004 g1 and g4 gain the merge criteria",
       "plan_ref": "08 §1 D5, §3 C9, §6",
-      "status": "pending"
+      "status": "done"
     },
     {
       "id": "g18",
       "description": "Move 'green on the real tree' to task 004's gate",
       "plan_ref": "08 §6",
-      "status": "pending"
+      "status": "done"
     }
   ],
   "phases": {
@@ -149,19 +149,19 @@
     },
     "code": {
       "file": "code.json",
-      "status": "not_started"
+      "status": "done"
     },
     "test": {
       "file": "test.json",
-      "status": "not_started"
+      "status": "done"
     },
     "validate": {
       "file": "validate.json",
-      "status": "not_started"
+      "status": "done"
     },
     "result": {
       "file": "result.json",
-      "status": "not_started"
+      "status": "done"
     }
   }
 }

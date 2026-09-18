@@ -73,7 +73,7 @@ Every row goes into `analyze.json.open_questions`. An **unanswered** row stops t
 
 ```
 frontend-thinkboard-lite/src/shared/types/domain/*.ts   # generated
-thinkboard-supabase/…/seed.sql + storage policy
+database-thinkboard-lite/supabase/seed.sql + storage policy
 db:seed script
 ```
 

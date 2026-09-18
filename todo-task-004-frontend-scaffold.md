@@ -33,6 +33,7 @@ authority: "Scope and contract for task 004 only. Product intent stays in 01-thi
 
 ## 1. What can go wrong
 
+- **`npm run lint` already crashes on the untouched scaffold** (found by task 000): `eslint-config-next` 16.3.4 bundles `eslint-plugin-react` 7.37.5, which calls `context.getFilename()`, removed in ESLint 10. g4's green `lint` needs a compatible pairing first — raise the version choice, don't pick it silently.
 - Next 16 differs from training data — read node_modules/next/dist/docs/ before touching config (AGENTS.md).
 - Aliases declared once instead of twice: works in dev, fails in test (I7).
 - shadcn add writes multi-part blocks to the components alias; check nothing domain-flavoured lands in template/.

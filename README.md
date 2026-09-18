@@ -7,8 +7,8 @@ git). `CLAUDE.md` imports it; the numbered docs hold the detail it points to.
 ThinkBoard Lite is a shared PDF workspace: every highlight is a focus point, every focus point carries
 notes (typed or handwritten), and the workspace produces a private and a group conclusion — collaborative
 by default, still working with the network off. This repo is the **plan and the process**. The app is
-[`frontend-thinkboard-lite/`](frontend-thinkboard-lite/README.md) (own git repo); the Supabase migrations
-live in `thinkboard-supabase/`, outside this repo.
+[`frontend-thinkboard-lite/`](frontend-thinkboard-lite/README.md); the Supabase project (migrations `0001`–`0004`) is
+[`database-thinkboard-lite/`](database-thinkboard-lite/). Git runs from this repo's root only.
 
 ---
 
@@ -156,8 +156,8 @@ in `task_sequence` is *not opened*.
 
 | Phase | Task | Plan doc | Arch | Depends on | Status |
 |---|---|---|---|---|---|
-| A | 000 architecture contract | [todo-task-000-split](todo-task-000-split.md) | frontend | — | intake pending |
-| B | 001 Supabase Lite migration | [todo-task-001](todo-task-001-supabase-lite-migration.md) | supabase | 000 (pkg A) | not opened |
+| A | 000 architecture contract | [todo-task-000-split](todo-task-000-split.md) | frontend | — | **done** |
+| B | 001 Supabase Lite migration | [todo-task-001](todo-task-001-supabase-lite-migration.md) | supabase | 000 (pkg A) | **done** |
 | B | 002 RLS access proof | [todo-task-002](todo-task-002-rls-access-proof.md) | supabase | 001 | not opened |
 | B | 003 types and seed | [todo-task-003](todo-task-003-types-and-seed.md) | supabase | 001 | not opened |
 | C | 004 conform the scaffold | [todo-task-004](todo-task-004-frontend-scaffold.md) | frontend | 000 | not opened |
@@ -191,17 +191,18 @@ Critical path = the demoable slice:  000 → 001 → 004 → 006 → 008 → 009
 
 ## 6. Where things stand — 2026-09-18
 
-- **Next:** task 000. Its contract is in intake (`tracking-todo.json`, `pending`); its folder is not opened.
+- **Done:** 000 (architecture contract — blueprint, verify script, lint rules, `AGENTS.md`) and 001 (`0004_lite.sql`
+  in `database-thinkboard-lite/`, reset twice and re-applied clean on the local stack).
+- **Next:** 002 (RLS proof), 003 (types and seed) and 004 (conform the scaffold) are all unblocked.
 - **Waiting on a human:**
-  - **C6** — sign-off on the three-value `note_input_mode` (task 001).
   - **D-12** — free-tier training terms vs document sensitivity. Blocks 018, and ink transcription in 024.
   - **Q7** — the 45-minute Bahasa Indonesia handwriting test. Decides 024, and the blueprint's `ink-pad`.
   - **Q8, Q9** — the real tablet mix; whether users have styluses.
-  - **DB-Q6** — the `create_workspace` signature (001 g7).
-  - **New, raised in plan docs:** the workspace-create path before 017 exists (008); Vault access under the
-    user's JWT (018).
-- `02-database-architecture.md` §8.1 has **not been executed** yet; task 001 runs it twice on a fresh stack.
-- `agent-history/` was cleared by the owner on 2026-09-18. Numbering restarts at the Lite plan (C7).
+  - **Raised in plan docs:** the workspace-create path before 017 exists (008); Vault access under the user's
+    JWT (018); adding members to a team needs its own definer RPC, like `create_workspace` (008).
+- **Local stacks:** the Lite stack runs on ports 553xx (`database-thinkboard-lite/supabase/config.toml`), beside the
+  Full project's stack on 543xx.
+- `agent-history/_example/` is a filled-in reference task from the Full era, kept outside the numbered space.
 
 ---
 
@@ -209,7 +210,8 @@ Critical path = the demoable slice:  000 → 001 → 004 → 006 → 008 → 009
 
 - **Git** (`09-agent-limitation.md`): every `commit`, `push`, `merge`, `pull --rebase`, branch delete or
   `gh pr create` needs an explicit yes, every time. Writes land on the session's shadow branch, never on
-  `master` — not even a fast-forward. `frontend-thinkboard-lite/` is its own repo, with the same rules.
+  `master` — not even a fast-forward. Git runs from this repo's root only; `frontend-thinkboard-lite/` and
+  `database-thinkboard-lite/` have no `.git` of their own.
 - **No service-role key in Lite** (RULE-01 / DB-1). RLS *is* the authorization layer.
 - **Supabase key names:** use the publishable (`sb_publishable_…`) and secret (`sb_secret_…`) keys.
   `anon` / `service_role` are deprecated by end-2026, and `0003_grant_schema.sql` still uses them.
@@ -229,6 +231,7 @@ todo-task-NNN-<slug>.md   one plan doc per task (§5)
 *.html                    visual companions
 agent-thinking/           intake: todo/NNN-todo-<slug>/contract.json + tracking-todo.json
 agent-history/            execution: NNN-task-<slug>/ + running-process.json
-frontend-thinkboard-lite/ the Next.js app — own git repo, own CLAUDE.md
+frontend-thinkboard-lite/ the Next.js app — own CLAUDE.md and AGENTS.md
+database-thinkboard-lite/ the Supabase project — supabase/migrations/0001-0004
 claude-artifact/ old/     archived snapshots — git-ignored, never edited
 ```

@@ -55,7 +55,7 @@ frontend-thinkboard-lite/
 └── package.json
 ```
 
-The Supabase project stays where it already is, in `thinkboard-supabase/`. This repository is frontend
+The Supabase project is `database-thinkboard-lite/`, beside this app in the architecture repo. This app is frontend
 only; there are no Edge Functions, because Lite's four server endpoints are Next.js route handlers
 (§3.2).
 

@@ -1,0 +1,85 @@
+{
+  "task_id": "001-task-supabase-lite-migration",
+  "phase": "code",
+  "started_at": "2026-09-18T10:30:00Z",
+  "completed_at": "2026-09-18T10:46:27Z",
+  "files_changed": [
+    {
+      "path": "database-thinkboard-lite/supabase/migrations/0001_initial.sql",
+      "action": "created",
+      "summary": "copied unchanged from ../thinkboard-architecture/thinkboard-supabase/supabase/migrations/"
+    },
+    {
+      "path": "database-thinkboard-lite/supabase/migrations/0002_auth_trigger.sql",
+      "action": "created",
+      "summary": "copied unchanged"
+    },
+    {
+      "path": "database-thinkboard-lite/supabase/migrations/0003_grant_schema.sql",
+      "action": "created",
+      "summary": "copied unchanged"
+    },
+    {
+      "path": "database-thinkboard-lite/supabase/migrations/0004_lite.sql",
+      "action": "created",
+      "summary": "02 §8.1 plus: restrictive insert/update/delete guards on the run children and a restrictive delete on pipeline_runs (DB-F11), 'leader writes memory' (DB-F12, DB-Q10), create_workspace + transfer_leadership (DB-F13, DB-Q6, D-09)"
+    },
+    {
+      "path": "database-thinkboard-lite/supabase/config.toml",
+      "action": "modified",
+      "summary": "ports 543xx -> 553xx (api 55321, db 55322, shadow 55320, pooler 55329, studio 55323, inbucket 55324, analytics 55327, inspector 8093)"
+    },
+    {
+      "path": "02-database-architecture.md",
+      "action": "modified",
+      "summary": "rev 1.2: §8.1 byte-identical to 0004_lite.sql; §10 DB-Q6/DB-Q10 confirmed; §11 verify row answered, DB-F11-DB-F13 added"
+    },
+    {
+      "path": "todo-task-000-split.md",
+      "action": "modified",
+      "summary": "§4.1 DB-Q6/DB-Q10 confirmed (totals 4 confirmed / 27 defaulted); C6 signed off"
+    },
+    {
+      "path": "frontend-thinkboard-lite/architecture.blueprint.json",
+      "action": "modified",
+      "summary": "openQuestions DB-Q6/DB-Q10 confirmed, in step with split §4.1"
+    },
+    {
+      "path": "frontend-thinkboard-lite/scripts/verify-architecture.test.mjs",
+      "action": "modified",
+      "summary": "registry totals now 27/4/4"
+    },
+    {
+      "path": "README.md",
+      "action": "modified",
+      "summary": "Supabase project is database-thinkboard-lite/; status; git runs from the root only"
+    },
+    {
+      "path": "04-frontend-folder-architecture.md, 07-agent-working.md, todo-task-001/002/003/015",
+      "action": "modified",
+      "summary": "thinkboard-supabase/ -> database-thinkboard-lite/"
+    },
+    {
+      "path": "agent-history/_example/",
+      "action": "created",
+      "summary": "moved from agent-history/000-task-example/ out of the numbered space (owner, 2026-09-18)"
+    }
+  ],
+  "decisions": [
+    "Owner answers of 2026-09-18 ('yes continue'): C6 signed off; create_workspace(p_name, p_title, p_goal) returns uuid and transfer_leadership(p_team, p_to_profile) confirmed; DB-Q10 leader write policy confirmed; example folder moved.",
+    "0001 grants every member `for all` on pipeline_runs and its children, which §8.1's ponytail note anticipated: restrictive write guards added on pipeline_stages, points, run_renderings, point_conclusions, plus a restrictive delete on pipeline_runs.",
+    "transfer_leadership is callable by the current leader only, as confirmed; D-09 also names the workspace creator — not implemented, recorded here.",
+    "create_workspace sets sessions.internet_ratio to 0 (0001 defaults it to 0.20; Lite has no RAG) and derives teams.slug from the name plus 8 chars of the team id.",
+    "The Lite stack moved to ports 553xx so it can run beside the Full project's stack (thinkboard-supabase) on 543xx; later tasks read ports from config.toml.",
+    "supabase start excluded storage, imgproxy, studio, postgres-meta, edge-runtime, logflare, vector, supavisor and mailpit: 001 needs db, auth (auth.users for 0002), realtime (realtime.messages) and kong (the health check); supavisor's required image is not installed and would have been downloaded.",
+    "02 §8.1 and 0004_lite.sql are kept byte-identical; the doc says so and the check is recorded in test.json."
+  ],
+  "commands_run": [
+    "npx --no-install supabase services",
+    "npx --no-install supabase start -x storage-api,imgproxy,studio,postgres-meta,edge-runtime,logflare,vector,supavisor,mailpit",
+    "npx --no-install supabase db reset   (twice)",
+    "docker exec -i supabase_db_database-thinkboard-lite psql -U postgres -d postgres -v ON_ERROR_STOP=1 < 0004_lite.sql",
+    "docker exec ... psql (catalog checks + rolled-back create_workspace smoke)",
+    "node --test \"scripts/*.test.mjs\" (frontend-thinkboard-lite)"
+  ]
+}

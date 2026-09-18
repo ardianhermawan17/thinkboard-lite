@@ -1,0 +1,56 @@
+{
+  "task_id": "001-task-supabase-lite-migration",
+  "phase": "test",
+  "test_files": [
+    "database-thinkboard-lite/supabase/migrations/0004_lite.sql"
+  ],
+  "commands_run": [
+    {
+      "command": "supabase start (fresh stack)",
+      "result": "0001, 0002, 0003, 0004 applied; exit 0"
+    },
+    {
+      "command": "supabase db reset #1",
+      "result": "exit 0 — all four migrations applied"
+    },
+    {
+      "command": "supabase db reset #2",
+      "result": "exit 0 — all four migrations applied"
+    },
+    {
+      "command": "psql -v ON_ERROR_STOP=1 < 0004_lite.sql on the already-migrated database",
+      "result": "exit 0 — only 'already exists, skipping' notices"
+    },
+    {
+      "command": "catalog: note_input_mode",
+      "result": "keyboard,ink,stylus_os; highlight_notes.transcribed_by present"
+    },
+    {
+      "command": "catalog: functions",
+      "result": "can_lead_session, can_own_run, can_write_run, create_workspace, promote_highlight, tb_broadcast_{highlight,note,mini_conclusion,run}, tb_touch, transfer_leadership"
+    },
+    {
+      "command": "catalog: triggers",
+      "result": "highlights_{touch,broadcast}, highlight_notes_{touch,broadcast}, mini_conclusions_broadcast, pipeline_runs_broadcast"
+    },
+    {
+      "command": "catalog: policies",
+      "result": "realtime.messages: 2; restrictive: 20 on pipeline_runs + 4 children; 'artifact highlights' gone; 'leader writes memory' present; pipeline_runs.owner_profile_id on delete cascade"
+    },
+    {
+      "command": "smoke (rolled back): a signed-in user calls create_workspace",
+      "result": "returns a session id; caller is leader; internet_ratio 0.00; the team is visible to the caller through RLS"
+    },
+    {
+      "command": "02 §8.1 vs 0004_lite.sql",
+      "result": "byte-identical"
+    }
+  ],
+  "summary": {
+    "total": 10,
+    "passed": 10,
+    "failed": 0,
+    "skipped": 0
+  },
+  "coverage_notes": "This task proves the migration applies, re-applies and lands every object. It does not prove the access model: the 13 behavioural RLS and broadcast tests are task 002, which touches RLS and must run with test.json.summary.total >= 13."
+}

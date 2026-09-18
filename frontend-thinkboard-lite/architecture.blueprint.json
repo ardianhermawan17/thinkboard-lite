@@ -1,0 +1,1043 @@
+{
+  "$schema": "./blueprint.schema.json",
+  "blueprintVersion": 1,
+  "generatedFrom": [
+    "todo-task-000-split.md §3, §4, §4.1",
+    "02-database-architecture.md §2, §6.1",
+    "04-frontend-folder-architecture.md §4, §5.2",
+    "03-frontend-architecture.md §11",
+    "01-thinkboard-lite-spec.md §4.3"
+  ],
+  "contexts": [
+    {
+      "name": "entities",
+      "kind": "kernel",
+      "path": "src/features/entities",
+      "owns": "the Dexie mirror: db, repository (writes), queries (reads)"
+    },
+    {
+      "name": "sync",
+      "kind": "kernel",
+      "path": "src/features/sync",
+      "owns": "outbox push, realtime pull, reconcile"
+    },
+    {
+      "name": "workspace",
+      "kind": "context",
+      "path": "src/features/workspace",
+      "owns": "auth guard, create, members, leader, personas, goal, the shell"
+    },
+    {
+      "name": "document",
+      "kind": "context",
+      "path": "src/features/document",
+      "owns": "PDF load, page windowing, viewport"
+    },
+    {
+      "name": "highlight",
+      "kind": "context",
+      "path": "src/features/highlight",
+      "owns": "capture, layers, promotion, import"
+    },
+    {
+      "name": "notes",
+      "kind": "context",
+      "path": "src/features/notes",
+      "owns": "individual and group notes, handwriting"
+    },
+    {
+      "name": "result",
+      "kind": "context",
+      "path": "src/features/result",
+      "owns": "runs, temperature, renderings"
+    },
+    {
+      "name": "presence",
+      "kind": "context",
+      "path": "src/features/presence",
+      "owns": "who is here, cursors — ref-based, no store"
+    }
+  ],
+  "domainTables": [
+    {
+      "name": "profiles",
+      "cluster": "identity",
+      "lite": "active",
+      "dexie": "meta"
+    },
+    {
+      "name": "profile_identities",
+      "cluster": "identity",
+      "lite": "active",
+      "dexie": "meta"
+    },
+    {
+      "name": "teams",
+      "cluster": "identity",
+      "lite": "active",
+      "dexie": "meta"
+    },
+    {
+      "name": "team_members",
+      "cluster": "identity",
+      "lite": "active",
+      "dexie": "meta"
+    },
+    {
+      "name": "persona_disciplines",
+      "cluster": "personas",
+      "lite": "read-only",
+      "dexie": null
+    },
+    {
+      "name": "user_personas",
+      "cluster": "personas",
+      "lite": "active",
+      "dexie": "meta"
+    },
+    {
+      "name": "team_personas",
+      "cluster": "personas",
+      "lite": "active",
+      "dexie": "meta"
+    },
+    {
+      "name": "boards",
+      "cluster": "workspace",
+      "lite": "active",
+      "dexie": null
+    },
+    {
+      "name": "board_columns",
+      "cluster": "workspace",
+      "lite": "active",
+      "dexie": null
+    },
+    {
+      "name": "sessions",
+      "cluster": "workspace",
+      "lite": "active",
+      "dexie": "meta"
+    },
+    {
+      "name": "messages",
+      "cluster": "workspace",
+      "lite": "parked",
+      "dexie": null
+    },
+    {
+      "name": "context_warnings",
+      "cluster": "workspace",
+      "lite": "parked",
+      "dexie": null
+    },
+    {
+      "name": "artifacts",
+      "cluster": "document",
+      "lite": "active",
+      "dexie": "artifacts"
+    },
+    {
+      "name": "highlights",
+      "cluster": "document",
+      "lite": "active",
+      "dexie": "highlights"
+    },
+    {
+      "name": "highlight_notes",
+      "cluster": "document",
+      "lite": "active",
+      "dexie": "notes"
+    },
+    {
+      "name": "mini_conclusions",
+      "cluster": "document",
+      "lite": "active",
+      "dexie": "miniConclusions"
+    },
+    {
+      "name": "highlight_term_weights",
+      "cluster": "document",
+      "lite": "active",
+      "dexie": null
+    },
+    {
+      "name": "memory_entries",
+      "cluster": "memory",
+      "lite": "active",
+      "dexie": "meta"
+    },
+    {
+      "name": "pipeline_runs",
+      "cluster": "pipeline",
+      "lite": "active",
+      "dexie": "runs"
+    },
+    {
+      "name": "pipeline_stages",
+      "cluster": "pipeline",
+      "lite": "active",
+      "dexie": null
+    },
+    {
+      "name": "points",
+      "cluster": "pipeline",
+      "lite": "active",
+      "dexie": "runs"
+    },
+    {
+      "name": "point_conclusions",
+      "cluster": "pipeline",
+      "lite": "active",
+      "dexie": "runs"
+    },
+    {
+      "name": "run_renderings",
+      "cluster": "pipeline",
+      "lite": "active",
+      "dexie": "runs"
+    },
+    {
+      "name": "sources",
+      "cluster": "sources",
+      "lite": "parked",
+      "dexie": null
+    },
+    {
+      "name": "point_sources",
+      "cluster": "sources",
+      "lite": "parked",
+      "dexie": null
+    },
+    {
+      "name": "llm_providers",
+      "cluster": "llm",
+      "lite": "read-only",
+      "dexie": "meta"
+    },
+    {
+      "name": "llm_models",
+      "cluster": "llm",
+      "lite": "read-only",
+      "dexie": "meta"
+    },
+    {
+      "name": "user_llm_keys",
+      "cluster": "llm",
+      "lite": "active",
+      "dexie": "meta"
+    },
+    {
+      "name": "llm_requests",
+      "cluster": "llm",
+      "lite": "active",
+      "dexie": "meta"
+    }
+  ],
+  "localFirst": {
+    "db": "src/features/entities/db/thinkboard-db.ts",
+    "dbName": "thinkboard:{profileId}",
+    "dexieVersion": 1,
+    "idStrategy": "uuidv7-client",
+    "blobStore": "opfs",
+    "tables": [
+      {
+        "name": "meta",
+        "schema": "key",
+        "mirrors": [
+          "profiles",
+          "profile_identities",
+          "teams",
+          "team_members",
+          "user_personas",
+          "team_personas",
+          "sessions",
+          "memory_entries",
+          "llm_providers",
+          "llm_models",
+          "user_llm_keys",
+          "llm_requests"
+        ],
+        "localOnly": false
+      },
+      {
+        "name": "artifacts",
+        "schema": "id, sessionId",
+        "mirrors": [
+          "artifacts"
+        ],
+        "localOnly": false
+      },
+      {
+        "name": "highlights",
+        "schema": "id, [artifactId+page], layer, _sync",
+        "mirrors": [
+          "highlights"
+        ],
+        "localOnly": false
+      },
+      {
+        "name": "notes",
+        "schema": "id, highlightId, profileId, _sync",
+        "mirrors": [
+          "highlight_notes"
+        ],
+        "localOnly": false
+      },
+      {
+        "name": "miniConclusions",
+        "schema": "highlightId",
+        "mirrors": [
+          "mini_conclusions"
+        ],
+        "localOnly": false
+      },
+      {
+        "name": "runs",
+        "schema": "id, sessionId, ownerProfileId",
+        "mirrors": [
+          "pipeline_runs",
+          "points",
+          "point_conclusions",
+          "run_renderings"
+        ],
+        "localOnly": false
+      },
+      {
+        "name": "outbox",
+        "schema": "++seq, rowId, table, state",
+        "mirrors": [],
+        "localOnly": true
+      }
+    ],
+    "rowFlag": {
+      "field": "_sync",
+      "values": [
+        "clean",
+        "pending",
+        "failed"
+      ]
+    },
+    "outbox": {
+      "table": "outbox",
+      "ops": [
+        "insert",
+        "update",
+        "delete",
+        "rpc"
+      ],
+      "rpcFns": [
+        "promote_highlight"
+      ],
+      "states": [
+        "queued",
+        "failed"
+      ],
+      "fields": [
+        "seq",
+        "rowId",
+        "table",
+        "op",
+        "fn",
+        "payload",
+        "state",
+        "attempts",
+        "lastError"
+      ]
+    },
+    "localOnlyFields": [
+      "_sync",
+      "seq",
+      "state"
+    ],
+    "wireNames": {
+      "notes": "highlight_notes"
+    },
+    "localStorageKeys": [
+      "supabase-session",
+      "theme",
+      "last-workspace-id",
+      "mode"
+    ]
+  },
+  "commands": [
+    {
+      "name": "create-workspace",
+      "method": "POST",
+      "baseUrl": "/api",
+      "url": "/v1/workspaces",
+      "route": "src/app/api/v1/workspaces/route.ts",
+      "returns": "id"
+    },
+    {
+      "name": "mini-conclusion",
+      "method": "POST",
+      "baseUrl": "/api",
+      "url": "/v1/highlights/:id/mini-conclusion",
+      "route": "src/app/api/v1/highlights/[id]/mini-conclusion/route.ts",
+      "returns": "status"
+    },
+    {
+      "name": "generate-result",
+      "method": "POST",
+      "baseUrl": "/api",
+      "url": "/v1/workspaces/:id/results",
+      "route": "src/app/api/v1/workspaces/[id]/results/route.ts",
+      "returns": "id"
+    },
+    {
+      "name": "run-stream",
+      "method": "GET",
+      "baseUrl": "/api",
+      "url": "/v1/runs/:id/stream",
+      "route": "src/app/api/v1/runs/[id]/stream/route.ts",
+      "returns": "sse"
+    }
+  ],
+  "canvasLeaves": [
+    {
+      "name": "page-stage",
+      "layer": "z2-host",
+      "hasPainter": false,
+      "status": "active"
+    },
+    {
+      "name": "highlight-layer",
+      "layer": "z2",
+      "hasPainter": true,
+      "status": "active"
+    },
+    {
+      "name": "ink-pad",
+      "layer": "modal",
+      "hasPainter": true,
+      "status": "conditional",
+      "gatedBy": "024"
+    },
+    {
+      "name": "peer-cursors",
+      "layer": "z2",
+      "hasPainter": true,
+      "status": "active"
+    },
+    {
+      "name": "marquee",
+      "layer": "z2",
+      "hasPainter": true,
+      "status": "active"
+    }
+  ],
+  "listeners": [
+    {
+      "context": "sync",
+      "on": [
+        "workspaceOpened",
+        "outboxQueued",
+        "modeChanged",
+        "remoteChangeReceived"
+      ]
+    }
+  ],
+  "invariants": [
+    {
+      "id": "I1",
+      "rule": "Every component folder has an index.ts",
+      "enforcedBy": "script",
+      "enforcement": "script",
+      "specifiedIn": "ffa §12.1",
+      "note": "filesystem walk"
+    },
+    {
+      "id": "I2",
+      "rule": "No hooks in a .tsx with a sibling use-.ts",
+      "enforcedBy": "script",
+      "enforcement": "script",
+      "specifiedIn": "ffa §12.2",
+      "note": "the UI/logic seam"
+    },
+    {
+      "id": "I3",
+      "rule": "shared/ never imports @feature/ or @app/",
+      "enforcedBy": "eslint",
+      "enforcement": "eslint",
+      "specifiedIn": "ffa §12.3",
+      "note": "one exception, store.ts; script re-asserts"
+    },
+    {
+      "id": "I4",
+      "rule": "No useAppSelector/useAppDispatch under app/",
+      "enforcedBy": "script",
+      "enforcement": "script",
+      "specifiedIn": "ffa §12.4",
+      "note": "routes compose, never orchestrate"
+    },
+    {
+      "id": "I5",
+      "rule": "Every createApi reducerPath is in rootReducer and .concat()",
+      "enforcedBy": "script",
+      "enforcement": "script",
+      "specifiedIn": "ffa §12.5",
+      "note": "parses store.ts"
+    },
+    {
+      "id": "I6",
+      "rule": "replaced by I13",
+      "enforcedBy": "void",
+      "enforcement": "void",
+      "specifiedIn": "ffa §12.6",
+      "note": "never reassign this number"
+    },
+    {
+      "id": "I7",
+      "rule": "tsconfig aliases and vitest.config.mts aliases match",
+      "enforcedBy": "script",
+      "enforcement": "script",
+      "specifiedIn": "ffa §12.7",
+      "note": "\"works in dev, fails in test\""
+    },
+    {
+      "id": "I8",
+      "rule": "No duplicated path segment in an import",
+      "enforcedBy": "script",
+      "enforcement": "script",
+      "specifiedIn": "ffa §12.8",
+      "note": "catches deep imports past a barrel"
+    },
+    {
+      "id": "I9",
+      "rule": "Domain types use branded primitives from ./common",
+      "enforcedBy": "script",
+      "enforcement": "script",
+      "specifiedIn": "ffa §12.9",
+      "note": "AST over shared/types/domain/"
+    },
+    {
+      "id": "I10",
+      "rule": "Slice state types live in features/<ctx>/types/redux.ts",
+      "enforcedBy": "script",
+      "enforcement": "script",
+      "specifiedIn": "ffa §12.10",
+      "note": "never inline in the slice file"
+    },
+    {
+      "id": "I11",
+      "rule": "No domain row type inside a slice's state",
+      "enforcedBy": "script",
+      "enforcement": "script",
+      "specifiedIn": "ffa §12.11",
+      "note": "slices hold ids and phase"
+    },
+    {
+      "id": "I12",
+      "rule": "whitelist holds no reducerPath and not entities",
+      "enforcedBy": "script",
+      "enforcement": "script",
+      "specifiedIn": "ffa §12.12",
+      "note": "hazard 6"
+    },
+    {
+      "id": "I13",
+      "rule": "Every Dexie table has ≥1 query hook",
+      "enforcedBy": "script",
+      "enforcement": "script · blueprint",
+      "specifiedIn": "ffa §12.13",
+      "note": "C1 — currently fails on runs"
+    },
+    {
+      "id": "I14",
+      "rule": "No data destructured from a command hook",
+      "enforcedBy": "script",
+      "enforcement": "script",
+      "specifiedIn": "ffa §12.14",
+      "note": "a command returns an id or a status"
+    },
+    {
+      "id": "I15",
+      "rule": "Every createApi endpoint traces to blueprint.commands[]",
+      "enforcedBy": "script",
+      "enforcement": "script · blueprint",
+      "specifiedIn": "ffa §12.15",
+      "note": "C5 — needs the baseUrl stated"
+    },
+    {
+      "id": "I16",
+      "rule": "Every persisted slice has a ui key; stripUi registered",
+      "enforcedBy": "script",
+      "enforcement": "script",
+      "specifiedIn": "ffa §12.16",
+      "note": "fixes reference deviation 8"
+    },
+    {
+      "id": "I17",
+      "rule": "Imperative Konva only in .painter.ts",
+      "enforcedBy": "script",
+      "enforcement": "script",
+      "specifiedIn": "ffa §12.17",
+      "note": "batchDraw · new Konva. · getLayer()"
+    },
+    {
+      "id": "I18",
+      "rule": "A painter imports no @feature/ and no @shared/config/",
+      "enforcedBy": "eslint",
+      "enforcement": "eslint",
+      "specifiedIn": "ffa §12.18",
+      "note": "data and a layer ref, nothing else"
+    },
+    {
+      "id": "I19",
+      "rule": "Painter coordinates pass through shared/utils/geometry",
+      "enforcedBy": "review",
+      "enforcement": "review",
+      "specifiedIn": "fa §10",
+      "note": "not statically decidable — fa §10 already calls it a review gate"
+    },
+    {
+      "id": "I20",
+      "rule": "No motion import under components/canvas/",
+      "enforcedBy": "eslint",
+      "enforcement": "eslint",
+      "specifiedIn": "ffa §12.20",
+      "note": "Konva runs its own tween loop"
+    },
+    {
+      "id": "I21",
+      "rule": "@supabase/supabase-js in its two seam files only",
+      "enforcedBy": "eslint",
+      "enforcement": "eslint",
+      "specifiedIn": "ffa §12.21",
+      "note": "a third importer has bypassed the outbox"
+    },
+    {
+      "id": "I22",
+      "rule": "setAuth() precedes every subscribe()",
+      "enforcedBy": "script",
+      "enforcement": "script + test",
+      "specifiedIn": "ffa §12.22",
+      "note": "order-in-file grep is weak; pair with fa §6.4's unit test"
+    },
+    {
+      "id": "I23",
+      "rule": "useLiveQuery only inside entities/queries/",
+      "enforcedBy": "eslint",
+      "enforcement": "eslint",
+      "specifiedIn": "ffa §12.23",
+      "note": "containers call a named hook"
+    },
+    {
+      "id": "I24",
+      "rule": "Every canvas file begins \"use client\"",
+      "enforcedBy": "script",
+      "enforcement": "script",
+      "specifiedIn": "ffa §12.24",
+      "note": "react-konva touches window at import"
+    },
+    {
+      "id": "I25",
+      "rule": "canvasLeaves[].hasPainter ↔ a real .painter.ts",
+      "enforcedBy": "script",
+      "enforcement": "script · blueprint",
+      "specifiedIn": "ffa §12.25",
+      "note": "C4 — must skip conditional leaves"
+    },
+    {
+      "id": "I26",
+      "rule": "Note input is a textarea/input; no rich-text library in features/notes/",
+      "enforcedBy": "eslint",
+      "enforcement": "eslint",
+      "specifiedIn": "v2 §4",
+      "note": "not in ffa §12"
+    },
+    {
+      "id": "I27",
+      "rule": "Nothing with pointer-events:auto overlaps the textarea + 16px",
+      "enforcedBy": "deferred",
+      "enforcement": "deferred → 012",
+      "specifiedIn": "v2 §4",
+      "note": "runtime layout — becomes a named Playwright story test"
+    },
+    {
+      "id": "I28",
+      "rule": "No LLM call on the default note path",
+      "enforcedBy": "review",
+      "enforcement": "script + review",
+      "specifiedIn": "v2 §4",
+      "note": "the import is greppable; \"never awaited in a save handler\" is not"
+    },
+    {
+      "id": "I29",
+      "rule": "dexie imported only in db/, repository/, queries/",
+      "enforcedBy": "eslint",
+      "enforcement": "eslint",
+      "specifiedIn": "whole-apps 006 gate",
+      "note": "appears only in a task gate"
+    }
+  ],
+  "openQuestions": [
+    {
+      "id": "D-01",
+      "question": "Is \"individual\" a privacy boundary?",
+      "source": "spec §10",
+      "state": "defaulted",
+      "default": "yes",
+      "blocks": [
+        "001",
+        "002"
+      ]
+    },
+    {
+      "id": "D-02",
+      "question": "One PDF per workspace?",
+      "source": "spec §10",
+      "state": "defaulted",
+      "default": "one main + the leader's note copy",
+      "blocks": [
+        "003",
+        "021"
+      ]
+    },
+    {
+      "id": "D-03",
+      "question": "Who runs the Group Result?",
+      "source": "spec §10",
+      "state": "defaulted",
+      "default": "leader only — enforced in RLS by db §8.1",
+      "blocks": [
+        "017",
+        "020"
+      ]
+    },
+    {
+      "id": "D-04",
+      "question": "One active persona per person?",
+      "source": "spec §10",
+      "state": "defaulted",
+      "default": "yes",
+      "blocks": [
+        "001"
+      ]
+    },
+    {
+      "id": "D-05",
+      "question": "Does the Lite backlog replace 07-agent-working.md §8?",
+      "source": "spec §10",
+      "state": "confirmed",
+      "default": "yes — 06-whole-apps-task.md is the backlog (user, 2026-09-18)",
+      "blocks": []
+    },
+    {
+      "id": "D-06",
+      "question": "Can the leader edit generated minutes in place?",
+      "source": "spec §10",
+      "state": "defaulted",
+      "default": "yes, as a draft",
+      "blocks": [
+        "013"
+      ]
+    },
+    {
+      "id": "D-07",
+      "question": "How does a member's thinking reach the Group Result?",
+      "source": "spec §10",
+      "state": "defaulted",
+      "default": "explicit promotion via shared_at",
+      "blocks": [
+        "001",
+        "013"
+      ]
+    },
+    {
+      "id": "D-08",
+      "question": "Can the leader hide or delete a promoted note?",
+      "source": "spec §10",
+      "state": "defaulted",
+      "default": "neither in v1",
+      "blocks": [
+        "013"
+      ]
+    },
+    {
+      "id": "D-09",
+      "question": "Does leadership transfer?",
+      "source": "spec §10",
+      "state": "defaulted",
+      "default": "yes, by the leader or the creator",
+      "blocks": [
+        "008"
+      ]
+    },
+    {
+      "id": "D-10",
+      "question": "Is the group document cached offline?",
+      "source": "spec §10",
+      "state": "defaulted",
+      "default": "no",
+      "blocks": [
+        "016"
+      ]
+    },
+    {
+      "id": "D-11",
+      "question": "Device parity",
+      "source": "spec §10",
+      "state": "defaulted",
+      "default": "tablet authors, desktop analyses, mobile reads and writes notes; no ink on mobile",
+      "blocks": [
+        "022"
+      ]
+    },
+    {
+      "id": "D-12",
+      "question": "Free-tier provider vs. document sensitivity",
+      "source": "spec §10, whole-apps §3",
+      "state": "unanswered",
+      "default": "—",
+      "blocks": [
+        "018"
+      ]
+    },
+    {
+      "id": "Q1",
+      "question": "Dexie, or createEntityAdapter + persist?",
+      "source": "fa §13",
+      "state": "defaulted",
+      "default": "Dexie (reasons: §5.1)",
+      "blocks": [
+        "006"
+      ]
+    },
+    {
+      "id": "Q2",
+      "question": "RTK Query scope",
+      "source": "fa §13",
+      "state": "defaulted",
+      "default": "the four commands only",
+      "blocks": [
+        "014",
+        "017"
+      ]
+    },
+    {
+      "id": "Q3",
+      "question": "Sync as listener middleware or a provider?",
+      "source": "fa §13",
+      "state": "defaulted",
+      "default": "listener middleware",
+      "blocks": [
+        "007"
+      ]
+    },
+    {
+      "id": "Q4",
+      "question": "Canvas leaves as a third shared tier?",
+      "source": "fa §13",
+      "state": "defaulted",
+      "default": "third tier",
+      "blocks": [
+        "000",
+        "009"
+      ]
+    },
+    {
+      "id": "Q5",
+      "question": "Storybook for canvas leaves?",
+      "source": "fa §13",
+      "state": "defaulted",
+      "default": "yes, with fixture strokes",
+      "blocks": [
+        "004",
+        "011"
+      ]
+    },
+    {
+      "id": "Q6",
+      "question": "Mobile at the end?",
+      "source": "fa §13",
+      "state": "defaulted",
+      "default": "breakpoint hook + sheet early, layout last",
+      "blocks": [
+        "005",
+        "022"
+      ]
+    },
+    {
+      "id": "Q7",
+      "question": "Does Scribble produce usable Bahasa Indonesia on the fleet?",
+      "source": "v2 §6",
+      "state": "unanswered",
+      "default": "45-minute test — run before 000 closes",
+      "blocks": [
+        "012",
+        "024"
+      ]
+    },
+    {
+      "id": "Q8",
+      "question": "The real tablet mix",
+      "source": "v2 §6",
+      "state": "unanswered",
+      "default": "—",
+      "blocks": [
+        "012",
+        "022"
+      ]
+    },
+    {
+      "id": "Q9",
+      "question": "Do users have styluses at all?",
+      "source": "v2 §6",
+      "state": "unanswered",
+      "default": "assume a pen; verify",
+      "blocks": [
+        "012"
+      ]
+    },
+    {
+      "id": "Q10",
+      "question": "Hand-rolled sync, or PowerSync from day one?",
+      "source": "v2 §6",
+      "state": "defaulted",
+      "default": "hand-rolled; escape hatch keyed to behaviour (§5.1)",
+      "blocks": [
+        "007"
+      ]
+    },
+    {
+      "id": "Q11",
+      "question": "Note sheet docked or overlaid?",
+      "source": "v2 §6",
+      "state": "defaulted",
+      "default": "dock ≥1280, overlay below (I27)",
+      "blocks": [
+        "012",
+        "013"
+      ]
+    },
+    {
+      "id": "DB-Q1",
+      "question": "= D-01",
+      "source": "db §10",
+      "state": "defaulted",
+      "default": "yes",
+      "blocks": [
+        "001",
+        "002"
+      ]
+    },
+    {
+      "id": "DB-Q2",
+      "question": "= D-02",
+      "source": "db §10",
+      "state": "defaulted",
+      "default": "main + note",
+      "blocks": [
+        "003"
+      ]
+    },
+    {
+      "id": "DB-Q3",
+      "question": "Per-profile Dexie namespace?",
+      "source": "db §10",
+      "state": "defaulted",
+      "default": "yes — and OPFS is wiped with it (F6)",
+      "blocks": [
+        "006",
+        "016"
+      ]
+    },
+    {
+      "id": "DB-Q4",
+      "question": "Keep messages, context_warnings, sources parked?",
+      "source": "db §10",
+      "state": "defaulted",
+      "default": "keep parked",
+      "blocks": [
+        "001"
+      ]
+    },
+    {
+      "id": "DB-Q5",
+      "question": "= D-05",
+      "source": "db §10",
+      "state": "confirmed",
+      "default": "as D-05",
+      "blocks": []
+    },
+    {
+      "id": "DB-Q6",
+      "question": "create_workspace RPC — referenced, never defined",
+      "source": "db §10",
+      "state": "confirmed",
+      "default": "create_workspace(p_name, p_title, p_goal) returns uuid, definer, creator is leader; plus transfer_leadership (owner, 2026-09-18)",
+      "blocks": [
+        "001",
+        "008",
+        "017"
+      ]
+    },
+    {
+      "id": "DB-Q7",
+      "question": "May a member write a group-visibility note directly?",
+      "source": "db §10",
+      "state": "defaulted",
+      "default": "allowed as written; kept off ws: unless the highlight is public",
+      "blocks": [
+        "002",
+        "013"
+      ]
+    },
+    {
+      "id": "DB-Q8",
+      "question": "mini_conclusions writable by any member on shared highlights",
+      "source": "db §10",
+      "state": "defaulted",
+      "default": "as written; tighten after DB-Q7",
+      "blocks": [
+        "019"
+      ]
+    },
+    {
+      "id": "DB-Q9",
+      "question": "Topic for client-sent cursors and presence",
+      "source": "db §10",
+      "state": "defaulted",
+      "default": "separate live:{sessionId} topic",
+      "blocks": [
+        "015"
+      ]
+    },
+    {
+      "id": "DB-Q10",
+      "question": "Is memory_entries group scope leader-only in 0001?",
+      "source": "db §10",
+      "state": "confirmed",
+      "default": "0001 had no write policy at all; \"leader writes memory\" added (owner, 2026-09-18)",
+      "blocks": [
+        "001",
+        "002"
+      ]
+    },
+    {
+      "id": "DB-Q11",
+      "question": "Storage path and policy for PDFs",
+      "source": "db §10",
+      "state": "defaulted",
+      "default": "artifacts/{sessionId}/{artifactId}.pdf",
+      "blocks": [
+        "003"
+      ]
+    },
+    {
+      "id": "DB-Q12",
+      "question": "Read/write path for non-mirrored tables (G1)",
+      "source": "db §10",
+      "state": "defaulted",
+      "default": "pull into Dexie meta; write through the outbox",
+      "blocks": [
+        "000",
+        "006",
+        "007",
+        "008"
+      ]
+    }
+  ]
+}

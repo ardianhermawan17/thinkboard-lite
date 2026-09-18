@@ -1,0 +1,475 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "Validated by the dependency-free self-check in scripts/verify-architecture.mjs, which supports: type, required, properties, additionalProperties:false, items, enum, const, minItems, maxItems, minLength, pattern.",
+  "type": "object",
+  "required": [
+    "blueprintVersion",
+    "contexts",
+    "domainTables",
+    "localFirst",
+    "commands",
+    "canvasLeaves",
+    "listeners",
+    "invariants",
+    "openQuestions"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "blueprintVersion": {
+      "const": 1
+    },
+    "generatedFrom": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "contexts": {
+      "type": "array",
+      "minItems": 8,
+      "maxItems": 8,
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "kind",
+          "path"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "enum": [
+              "entities",
+              "sync",
+              "workspace",
+              "document",
+              "highlight",
+              "notes",
+              "result",
+              "presence"
+            ]
+          },
+          "kind": {
+            "enum": [
+              "kernel",
+              "context"
+            ]
+          },
+          "path": {
+            "type": "string",
+            "pattern": "^src/features/[a-z-]+$"
+          },
+          "owns": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "domainTables": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "cluster",
+          "lite",
+          "dexie"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[a-z_]+$"
+          },
+          "cluster": {
+            "type": "string",
+            "minLength": 1
+          },
+          "lite": {
+            "enum": [
+              "active",
+              "read-only",
+              "parked"
+            ]
+          },
+          "dexie": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "localFirst": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "db",
+        "dbName",
+        "dexieVersion",
+        "idStrategy",
+        "blobStore",
+        "tables",
+        "rowFlag",
+        "outbox",
+        "localOnlyFields",
+        "wireNames",
+        "localStorageKeys"
+      ],
+      "properties": {
+        "db": {
+          "type": "string",
+          "minLength": 1
+        },
+        "dbName": {
+          "const": "thinkboard:{profileId}"
+        },
+        "dexieVersion": {
+          "type": "integer"
+        },
+        "idStrategy": {
+          "const": "uuidv7-client"
+        },
+        "blobStore": {
+          "const": "opfs"
+        },
+        "tables": {
+          "type": "array",
+          "minItems": 7,
+          "maxItems": 7,
+          "items": {
+            "type": "object",
+            "required": [
+              "name",
+              "schema",
+              "mirrors",
+              "localOnly"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "type": "string",
+                "pattern": "^[a-zA-Z]+$"
+              },
+              "schema": {
+                "type": "string",
+                "minLength": 1
+              },
+              "mirrors": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "localOnly": {
+                "type": "boolean"
+              }
+            }
+          }
+        },
+        "rowFlag": {
+          "type": "object",
+          "required": [
+            "field",
+            "values"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "field": {
+              "const": "_sync"
+            },
+            "values": {
+              "type": "array",
+              "minItems": 3,
+              "maxItems": 3,
+              "items": {
+                "enum": [
+                  "clean",
+                  "pending",
+                  "failed"
+                ]
+              }
+            }
+          }
+        },
+        "outbox": {
+          "type": "object",
+          "required": [
+            "table",
+            "ops",
+            "rpcFns",
+            "states",
+            "fields"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "table": {
+              "const": "outbox"
+            },
+            "ops": {
+              "type": "array",
+              "items": {
+                "enum": [
+                  "insert",
+                  "update",
+                  "delete",
+                  "rpc"
+                ]
+              }
+            },
+            "rpcFns": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "states": {
+              "type": "array",
+              "items": {
+                "enum": [
+                  "queued",
+                  "failed"
+                ]
+              }
+            },
+            "fields": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "localOnlyFields": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "wireNames": {
+          "type": "object"
+        },
+        "localStorageKeys": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "commands": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "method",
+          "baseUrl",
+          "url",
+          "route",
+          "returns"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "method": {
+            "enum": [
+              "GET",
+              "POST"
+            ]
+          },
+          "baseUrl": {
+            "const": "/api"
+          },
+          "url": {
+            "type": "string",
+            "pattern": "^/v1/"
+          },
+          "route": {
+            "type": "string",
+            "pattern": "^src/app/api/v1/.+/route\\.ts$"
+          },
+          "returns": {
+            "enum": [
+              "id",
+              "status",
+              "sse"
+            ]
+          }
+        }
+      }
+    },
+    "canvasLeaves": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "layer",
+          "hasPainter",
+          "status"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[a-z-]+$"
+          },
+          "layer": {
+            "type": "string",
+            "minLength": 1
+          },
+          "hasPainter": {
+            "type": "boolean"
+          },
+          "status": {
+            "enum": [
+              "active",
+              "conditional",
+              "not-needed"
+            ]
+          },
+          "gatedBy": {
+            "type": "string",
+            "pattern": "^\\d{3}$"
+          }
+        }
+      }
+    },
+    "listeners": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "context",
+          "on"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "context": {
+            "type": "string",
+            "minLength": 1
+          },
+          "on": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    },
+    "invariants": {
+      "type": "array",
+      "minItems": 29,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "rule",
+          "enforcedBy",
+          "specifiedIn"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^I\\d+$"
+          },
+          "rule": {
+            "type": "string",
+            "minLength": 1
+          },
+          "enforcedBy": {
+            "enum": [
+              "script",
+              "eslint",
+              "review",
+              "deferred",
+              "void"
+            ]
+          },
+          "enforcement": {
+            "type": "string",
+            "minLength": 1
+          },
+          "specifiedIn": {
+            "type": "string",
+            "minLength": 1
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "openQuestions": {
+      "type": "array",
+      "minItems": 35,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "question",
+          "source",
+          "state",
+          "blocks"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^(D-\\d{2}|Q\\d+|DB-Q\\d+)$"
+          },
+          "question": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source": {
+            "type": "string",
+            "minLength": 1
+          },
+          "state": {
+            "enum": [
+              "defaulted",
+              "unanswered",
+              "confirmed"
+            ]
+          },
+          "default": {
+            "type": "string"
+          },
+          "blocks": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^\\d{3}$"
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,7 +1,7 @@
 ---
 doc_id: thinkboard-lite-database-architecture
 title: Database Architecture — ThinkBoard Lite
-version: "1.1"
+version: "1.2"
 status: proposed
 updated: 2026-09-18
 read_order_position: 2
@@ -451,12 +451,12 @@ each piece is there:
 
 ### 8.1 `0004_lite.sql` — final
 
-Requires `0001`–`0003`, which live in `thinkboard-supabase/` and provide `current_profile_id()`,
-`can_access_session()`, `is_team_member()` and `is_team_leader()`. Task 001 checks the §11 items marked
-*verify* against those files before applying this one.
+Requires `0001`–`0003` in `database-thinkboard-lite/supabase/migrations/`, which provide `current_profile_id()`,
+`can_access_session()`, `is_team_member()` and `is_team_leader()`. This block is byte-identical to
+`database-thinkboard-lite/supabase/migrations/0004_lite.sql` (task 001); change both or neither.
 
 ```sql
--- 0004_lite.sql — ThinkBoard Lite delta (02-database-architecture.md rev 1.1)
+-- 0004_lite.sql — ThinkBoard Lite delta (02-database-architecture.md §8.1, rev 1.2)
 -- Re-runnable: every statement is guarded, so a second apply is a no-op.
 
 -- ── enums ───────────────────────────────────────────────────────────────
@@ -577,6 +577,12 @@ create policy "write own notes" on highlight_notes for all
     select 1 from highlights h join artifacts a on a.id = h.artifact_id
      where h.id = highlight_id and can_access_session(a.session_id)));
 
+-- ── memory: 0001 has only a select policy; the leader writes the minutes and the initial ideas (DB-Q10) ──
+drop policy if exists "leader writes memory" on memory_entries;
+create policy "leader writes memory" on memory_entries for all
+  using      ((scope = 'group' and is_team_leader(team_id)) or (scope = 'initial' and can_lead_session(session_id)))
+  with check ((scope = 'group' and is_team_leader(team_id)) or (scope = 'initial' and can_lead_session(session_id)));
+
 -- ── results: individual runs are private (DB-F6); the requester's JWT writes them (DB-F7) ──
 -- Permissive policies grant; restrictive ones narrow whatever 0001 grants and can never widen it.
 drop policy if exists "runs readable by members" on pipeline_runs;
@@ -594,10 +600,13 @@ create policy "only owner or leader inserts runs" on pipeline_runs as restrictiv
 drop policy if exists "only owner or leader updates runs" on pipeline_runs;
 create policy "only owner or leader updates runs" on pipeline_runs as restrictive for update
   using (can_own_run(session_id, owner_profile_id)) with check (can_own_run(session_id, owner_profile_id));
+drop policy if exists "only owner or leader deletes runs" on pipeline_runs;
+create policy "only owner or leader deletes runs" on pipeline_runs as restrictive for delete
+  using (can_own_run(session_id, owner_profile_id));
 
--- children keyed by run_id: readable iff the run is (pipeline_runs is RLS-filtered inside exists)
--- ponytail: assumes 0001 grants no client writes on these (Full wrote them with the service role);
---           task 001 verifies, and adds restrictive write policies here if it does.
+-- children keyed by run_id: readable iff the run is (pipeline_runs is RLS-filtered inside exists).
+-- 0001 grants every member `for all` on them ("run stages", "run points", ...), so writes are narrowed too
+-- (task 001 verify, §11 DB-F11): only the run's owner, or the leader for a group run, may insert/update/delete.
 do $$
 declare t text;
 begin
@@ -611,6 +620,15 @@ begin
     execute format('drop policy if exists "run written by owner or leader" on %I', t);
     execute format('create policy "run written by owner or leader" on %I for all
                       using (can_write_run(run_id)) with check (can_write_run(run_id))', t);
+    execute format('drop policy if exists "run insert guard" on %I', t);
+    execute format('create policy "run insert guard" on %I as restrictive for insert
+                      with check (can_write_run(run_id))', t);
+    execute format('drop policy if exists "run update guard" on %I', t);
+    execute format('create policy "run update guard" on %I as restrictive for update
+                      using (can_write_run(run_id)) with check (can_write_run(run_id))', t);
+    execute format('drop policy if exists "run delete guard" on %I', t);
+    execute format('create policy "run delete guard" on %I as restrictive for delete
+                      using (can_write_run(run_id))', t);
   end loop;
 end $$;
 
@@ -624,6 +642,16 @@ drop policy if exists "run written by owner or leader" on point_conclusions;
 create policy "run written by owner or leader" on point_conclusions for all
   using      (can_write_run((select p.run_id from points p where p.id = point_id)))
   with check (can_write_run((select p.run_id from points p where p.id = point_id)));
+drop policy if exists "run insert guard" on point_conclusions;
+create policy "run insert guard" on point_conclusions as restrictive for insert
+  with check (can_write_run((select p.run_id from points p where p.id = point_id)));
+drop policy if exists "run update guard" on point_conclusions;
+create policy "run update guard" on point_conclusions as restrictive for update
+  using      (can_write_run((select p.run_id from points p where p.id = point_id)))
+  with check (can_write_run((select p.run_id from points p where p.id = point_id)));
+drop policy if exists "run delete guard" on point_conclusions;
+create policy "run delete guard" on point_conclusions as restrictive for delete
+  using (can_write_run((select p.run_id from points p where p.id = point_id)));
 
 -- ── promotion: atomic over highlight + note (RULE-05) ───────────────────
 create or replace function promote_highlight(p_highlight uuid, p_note uuid default null)
@@ -647,6 +675,35 @@ begin
   -- re-fire the broadcast so an existing mini-conclusion reaches ws:{sessionId} (DB-F5)
   update mini_conclusions set content = content where highlight_id = p_highlight;
   return h;
+end $$;
+
+-- ── workspace RPCs: teams and team_members are select-only for clients (0001), so these run as definer ──
+-- create_workspace (DB-Q6): team + leader + board + column + session in one transaction; returns the session id.
+create or replace function create_workspace(p_name text, p_title text, p_goal text) returns uuid
+language plpgsql security definer set search_path = public as $$
+declare me uuid := current_profile_id(); t uuid := gen_random_uuid(); b uuid; c uuid; s uuid;
+begin
+  if me is null then raise exception 'not signed in'; end if;
+  insert into teams (id, name, slug, created_by)
+    values (t, p_name, trim(both '-' from lower(regexp_replace(p_name, '[^a-zA-Z0-9]+', '-', 'g'))) || '-' || left(t::text, 8), me);
+  insert into team_members (team_id, profile_id, role) values (t, me, 'leader');
+  insert into boards (team_id, name) values (t, p_name) returning id into b;
+  insert into board_columns (board_id, name) values (b, 'Workspace') returning id into c;
+  insert into sessions (column_id, title, initial_question, internet_ratio, created_by)
+    values (c, p_title, p_goal, 0, me) returning id into s;             -- 0.00: no RAG in Lite
+  return s;
+end $$;
+
+-- transfer_leadership (D-09): the current leader hands the role to an existing member.
+create or replace function transfer_leadership(p_team uuid, p_to_profile uuid) returns void
+language plpgsql security definer set search_path = public as $$
+begin
+  if not is_team_leader(p_team) then raise exception 'only the leader can transfer leadership'; end if;
+  if not exists (select 1 from team_members where team_id = p_team and profile_id = p_to_profile) then
+    raise exception 'the new leader must already be a member';
+  end if;
+  update team_members set role = 'member' where team_id = p_team and role = 'leader';        -- demote first,
+  update team_members set role = 'leader' where team_id = p_team and profile_id = p_to_profile; -- one leader
 end $$;
 
 -- ── touch triggers (reconnect reconciliation depends on updated_at) ─────
@@ -815,11 +872,11 @@ is flagged as the highest-risk item in the plan. Checks 7–13 extend task 002 (
 | DB-Q3 | Per-profile Dexie namespace? | **yes** — shared tablets are real |
 | DB-Q4 | Keep `messages`, `context_warnings`, `sources` parked, or drop them from Lite's migration? | **keep parked** — they cost nothing and Full needs them |
 | DB-Q5 | Does the Lite task backlog replace `07-agent-working.md` §8? | **confirmed** by the user 2026-09-18: `06-whole-apps-task.md` is the backlog |
-| DB-Q6 | `create_workspace` RPC — §2 names a "workspace create RPC" and spec §4.3 promises one transaction, but none is defined. A route handler under the user's JWT cannot span PostgREST calls in one transaction, and a new team's first `team_members` row needs a definer to bootstrap. | a `security definer` RPC in `0004` that creates the four rows and makes the creator leader; a different leader is a transfer (D-09). **Blocks 001, 008 g2, 017.** |
+| DB-Q6 | `create_workspace` RPC — §2 names a "workspace create RPC" and spec §4.3 promises one transaction, but none is defined. A route handler under the user's JWT cannot span PostgREST calls in one transaction, and a new team's first `team_members` row needs a definer to bootstrap. | **confirmed** by the owner 2026-09-18: `create_workspace(p_name, p_title, p_goal) returns uuid` (the session id), security definer, creator is leader; plus `transfer_leadership(p_team, p_to_profile)` for the current leader. Both in §8.1. |
 | DB-Q7 | May a member write a `visibility='group'` note directly, bypassing `promote_highlight()`, or add a note to a group highlight? `"write own notes"` allows both today. | allowed as written; §8.1 keeps such notes off `ws:` unless the highlight is public, and task 002 pins the behaviour in a test |
 | DB-Q8 | `mini_conclusions` is `for all`: any member who can see a promoted or group highlight can overwrite its mini-conclusion. | as written; tighten to author / leader once DB-Q7 settles who triggers mini-conclusions on group highlights |
 | DB-Q9 | Cursors, "leader is drawing" and presence (spec §5.2) need client **insert** on `realtime.messages`. Granting it on `ws:{sessionId}` lets any member forge a database-change event that `applyRemote` writes into teammates' Dexie. | a separate `live:{sessionId}` topic for client-sent broadcast + presence, members only; `ws:` / `user:` stay database-sent only. Additive (`0005`). **Blocks 015.** |
-| DB-Q10 | `memory_entries scope='group'` is leader-write (§2, §6), but `0004` adds no policy and `0001` is unverified here. | task 001 reads `0001`; if members can write group scope, add a restrictive policy `scope <> 'group' or can_lead_session(session_id)` |
+| DB-Q10 | `memory_entries scope='group'` is leader-write (§2, §6), but `0004` adds no policy and `0001` is unverified here. | **confirmed** 2026-09-18, the other way round: `0001` has no write policy at all, so §8.1 adds `"leader writes memory"` — group scope needs the team leader, initial scope the session leader. |
 | DB-Q11 | Storage bucket path and policy for artifact PDFs are undefined. | `artifacts/{sessionId}/{artifactId}.pdf`; read = `can_access_session(first segment)`, write = leader. Task 003 g4. |
 | DB-Q12 | Non-mirrored tables (`teams`, `team_members`, `memory_entries`, `llm_*`, `user_llm_keys`) are "queried live" per §6, which RULE-07 forbids and I15 / I21 give no home. | the sync engine pulls them into Dexie `meta` on workspace open; their writes go through the outbox (`OutboxOp.table` widens). A blueprint fact — package A / B. |
 
@@ -842,6 +899,9 @@ Every item below was found by reading this file against `01-thinkboard-lite-spec
 | DB-F8 | Unsharing chose its topic from the *new* row, so teammates were never told and kept a stale copy until their next reconnect. | applied — `RETRACT` on `ws:`; client rule in §6.1 |
 | DB-F9 | `owner_profile_id … on delete set null` turned a deleted member's private result into a group result. | applied — `on delete cascade` |
 | DB-F10 | `highlight_notes` is created after `0003` restored the grants; without default privileges `authenticated` gets nothing on it. | applied — explicit grant |
-| *verify* | `current_profile_id`, `can_access_session`, `is_team_member` and `is_team_leader` are `STABLE` (split §5.2), and RLS is enabled on the run-cluster tables in `0001`. | task 001 g2 — `0001` is not in this repo |
+| *verify* | `current_profile_id`, `can_access_session`, `is_team_member` and `is_team_leader` are `STABLE` (split §5.2), and RLS is enabled on the run-cluster tables in `0001`. | **checked by task 001:** all four are `stable security definer`; RLS is on for every run-cluster table |
+| DB-F11 | `0001` grants every member `for all` on `pipeline_runs` and each run child, so a non-leader could insert, change or delete **group** result rows. | applied — restrictive insert/update/delete guards on the children, restrictive delete on runs (task 001) |
+| DB-F12 | `memory_entries` had only a `select` policy in `0001`: nobody could write the leader's notulen or a session's initial ideas. | applied — `"leader writes memory"` (DB-Q10, confirmed) |
+| DB-F13 | `teams` and `team_members` are `select`-only for clients in `0001`, so a workspace could not be created and leadership could not move. | applied — `create_workspace()` (DB-Q6) and `transfer_leadership()` (D-09), both confirmed |
 
 Escalated rather than applied: DB-Q6 – DB-Q12 in §10. Each has a default and a blocked task.

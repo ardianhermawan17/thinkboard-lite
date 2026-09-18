@@ -1,0 +1,42 @@
+{
+  "task_id": "000-task-architecture-contract",
+  "phase": "test",
+  "test_files": [
+    "frontend-thinkboard-lite/scripts/verify-architecture.test.mjs",
+    "frontend-thinkboard-lite/scripts/eslint-architecture.test.mjs",
+    "frontend-thinkboard-lite/scripts/verify-architecture.fixtures.mjs"
+  ],
+  "commands_run": [
+    {
+      "command": "node --test \"scripts/*.test.mjs\"",
+      "result": "29 tests, 29 pass, 0 fail"
+    },
+    {
+      "command": "node scripts/verify-architecture.mjs --fixtures",
+      "result": "19/19 ok — clean tree green; each of the 18 planted violations failed under its own id only"
+    },
+    {
+      "command": "node scripts/verify-architecture.mjs",
+      "result": "exit 1 as designed: 18 fail (src/ not found), 10 skipped, 1 void — the real tree has no src/ until task 004"
+    },
+    {
+      "command": "package A gate check (python over todo-task-000-split.md)",
+      "result": "C1-C9 and G1 each carry a Verdict; 29 invariants (I6 void); 35 decisions, unanswered = D-12, Q7, Q8, Q9; the only 'TBD' is the gate's own wording"
+    },
+    {
+      "command": "package C cold-agent check (self-graded)",
+      "result": "10/10 placed from AGENTS.md + blueprint only: painter -> <leaf>/<leaf>.painter.ts; query hook -> features/entities/queries/use-<subject>-for-<scope>.ts; slice -> features/<ctx>/stores/<ctx>-slice.ts (§3 skeleton); command API -> features/<ctx>/api/<x>-api/ + commands[]; domain type -> shared/types/domain/<table>.ts; canvas leaf -> shared/components/canvas/<name>/; container -> features/<ctx>/components/<name>/; shadcn atom -> shared/components/ui/; pure util -> shared/utils/; route -> src/app/<route>/page.tsx. Without §3 the slice was unplaceable — the skeleton was added for that reason."
+    },
+    {
+      "command": "node node_modules/eslint/bin/eslint.js app/page.tsx (untouched scaffold)",
+      "result": "crash: eslint-plugin-react 7.37.5 (bundled by eslint-config-next 16.3.4) calls context.getFilename(), removed in ESLint 10 — pre-existing, handed to task 004"
+    }
+  ],
+  "summary": {
+    "total": 29,
+    "passed": 29,
+    "failed": 0,
+    "skipped": 0
+  },
+  "coverage_notes": "Every scripted invariant (18) has a planted-violation fixture and the suite asserts the fixture list equals the script-class invariants; every lint rule (7) has a violating and an allowed case plus an overlap case. Checks are regex over source text (ponytail note in the script); the fixtures pin each one."
+}

@@ -1,0 +1,103 @@
+{
+  "id": "001-task-supabase-lite-migration",
+  "title": "The Lite schema exists on a fresh project, so the frontend has real tables to build against",
+  "architecture": "supabase",
+  "secondary_architecture": [],
+  "created_at": "2026-09-18T10:23:06Z",
+  "status": "done",
+  "depends_on": [
+    "000-task-architecture-contract"
+  ],
+  "plan_refs": [
+    {
+      "doc": "06-whole-apps-task.md",
+      "section": "PHASE B · 001"
+    },
+    {
+      "doc": "database-thinkboard-lite/",
+      "section": "supabase/config.toml; migrations/ (0001-0003 copied from ../thinkboard-architecture/thinkboard-supabase/supabase/migrations/)"
+    },
+    {
+      "doc": "02-database-architecture.md",
+      "section": "§2, §7, §8, §8.1, §10, §11"
+    },
+    {
+      "doc": "todo-task-000-split.md",
+      "section": "§3 C6, §4.1, §6"
+    },
+    {
+      "doc": "01-thinkboard-lite-spec.md",
+      "section": "§3 RULE-01..06, §6 (record only), §10"
+    },
+    {
+      "doc": "todo-task-001-supabase-lite-migration.md",
+      "section": "§2 goals and gate, §3 decisions"
+    }
+  ],
+  "goals": [
+    {
+      "id": "g1",
+      "description": "Apply 0001-0003 clean on a fresh local stack, then check the db §11 verify row against them: helpers STABLE, RLS enabled on the run-cluster tables, no permissive client writes there, memory_entries group scope (DB-Q10)",
+      "plan_ref": "tasks 001 g1; db §11",
+      "status": "done"
+    },
+    {
+      "id": "g2",
+      "description": "Author 0004_lite.sql as db §8.1 verbatim: three enums (note_input_mode has three values), highlight_notes with transcribed_by, six columns, can_lead_session / can_own_run / can_write_run, promote_highlight RPC, two touch triggers",
+      "plan_ref": "tasks 001 g2; db §8.1; split C6",
+      "status": "done"
+    },
+    {
+      "id": "g3",
+      "description": "Four broadcast triggers with per-row topic selection (ws:{sessionId} vs user:{profileId}), the NULL-topic guard and RETRACT on unshare",
+      "plan_ref": "tasks 001 g3; db §8.1 DB-F2 DB-F5 DB-F8",
+      "status": "done"
+    },
+    {
+      "id": "g4",
+      "description": "The two realtime.messages policies",
+      "plan_ref": "tasks 001 g4; db §8.1",
+      "status": "done"
+    },
+    {
+      "id": "g5",
+      "description": "Drop and recreate \"artifact highlights\" and \"highlight conclusions\" — the only non-additive change — plus membership in every client with-check (DB-F4) and the run-cluster policies (DB-F6, DB-F7); note all of it in code.json.decisions",
+      "plan_ref": "tasks 001 g5; db §8.1",
+      "status": "done"
+    },
+    {
+      "id": "g6",
+      "description": "supabase db reset runs clean end to end, twice; 0004 applied twice on one database is a no-op",
+      "plan_ref": "tasks 001 g6; db §9 #13",
+      "status": "done"
+    },
+    {
+      "id": "g7",
+      "description": "create_workspace RPC per the DB-Q6 default — only once a human confirms its signature; otherwise mark blocked",
+      "plan_ref": "db §10 DB-Q6",
+      "status": "done"
+    }
+  ],
+  "phases": {
+    "analyze": {
+      "file": "analyze.json",
+      "status": "done"
+    },
+    "code": {
+      "file": "code.json",
+      "status": "done"
+    },
+    "test": {
+      "file": "test.json",
+      "status": "done"
+    },
+    "validate": {
+      "file": "validate.json",
+      "status": "done"
+    },
+    "result": {
+      "file": "result.json",
+      "status": "done"
+    }
+  }
+}
