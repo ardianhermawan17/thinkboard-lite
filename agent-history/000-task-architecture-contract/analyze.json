@@ -1,0 +1,164 @@
+{
+  "task_id": "000-task-architecture-contract",
+  "phase": "analyze",
+  "started_at": "2026-09-18T09:22:02Z",
+  "completed_at": "2026-09-18T09:40:00Z",
+  "sources_read": [
+    {
+      "doc": "README.md",
+      "section": "full file (main gate)"
+    },
+    {
+      "doc": "todo-task-000-split.md",
+      "section": "full file"
+    },
+    {
+      "doc": "06-whole-apps-task.md",
+      "section": "§0, PHASE A, §2 dependency graph, §5 standing rules"
+    },
+    {
+      "doc": "04-frontend-folder-architecture.md",
+      "section": "§2, §4, §5.2, §6, §8, §9, §10, §12"
+    },
+    {
+      "doc": "03-frontend-architecture.md",
+      "section": "§3, §5.3, §6, §10, §11, §13"
+    },
+    {
+      "doc": "05-frontend-sync-handwriting.md",
+      "section": "§2, §4, §6"
+    },
+    {
+      "doc": "02-database-architecture.md",
+      "section": "§2, §6, §6.1, §8.1, §10, §11"
+    },
+    {
+      "doc": "01-thinkboard-lite-spec.md",
+      "section": "§3, §4.3, §5.3, §10"
+    },
+    {
+      "doc": "07-agent-working.md",
+      "section": "§0-§7"
+    },
+    {
+      "doc": "08-agent-todo-intake.md",
+      "section": "full file"
+    },
+    {
+      "doc": "09-agent-limitation.md",
+      "section": "full file"
+    },
+    {
+      "doc": "frontend-thinkboard-lite/",
+      "section": "package.json, tsconfig.json, components.json, eslint.config.mjs, .prettierrc, AGENTS.md, CLAUDE.md (C9); node v24.17.0, eslint 10.10.0, typescript 5.9.3 installed"
+    },
+    {
+      "doc": "agent-history/",
+      "section": "running-process.json (idle), 000-task-example/ (Gate 0 finding)"
+    }
+  ],
+  "scope": "Contract artifacts only: blueprint, AGENTS.md, verify script + fixtures, lint rule array. No create-next-app, no package.json, no eslint.config.mjs, no product code.",
+  "acceptance_criteria": [
+    {
+      "goal_id": "g1",
+      "text": "C1-C9 and G1 in split §3 each have one recorded winner with a doc + section citation, or an escalation naming the human (C6); C7 recorded as resolved by the owner."
+    },
+    {
+      "goal_id": "g2",
+      "text": "The invariant registry totals 29 rows with I6 marked void and every row carrying an enforcement class."
+    },
+    {
+      "goal_id": "g3",
+      "text": "The decision registry totals 35 rows; exactly four carry state 'unanswered'; only D-05 and DB-Q5 carry 'confirmed'."
+    },
+    {
+      "goal_id": "g4",
+      "text": "localFirst declares 7 Dexie tables, the compound [artifactId+page] index, and the three-state _sync flag, identical to db §6.1."
+    },
+    {
+      "goal_id": "g5",
+      "text": "commands[] carries baseUrl; canvasLeaves[] has 5 entries and ink-pad is status 'conditional'."
+    },
+    {
+      "goal_id": "g6",
+      "text": "openQuestions[] and invariants[] are arrays, not prose."
+    },
+    {
+      "goal_id": "g7",
+      "text": "A blueprint with a deliberately wrong table name fails the self-check before any cross-check runs."
+    },
+    {
+      "goal_id": "g8",
+      "text": "The placement decision tree is byte-identical to 04-frontend-folder-architecture.md §8."
+    },
+    {
+      "goal_id": "g9",
+      "text": "AGENTS.md states the escalation rule as a procedure with a destination (openQuestions[])."
+    },
+    {
+      "goal_id": "g10",
+      "text": "I19, I27 and I28 each name an owner and the task whose test covers them."
+    },
+    {
+      "goal_id": "g11",
+      "text": "The harness runs on a tree with no node_modules, exits 1 on any fail, and exits 1 when src/ is missing."
+    },
+    {
+      "goal_id": "g12",
+      "text": "All 15 tree-only checks are implemented and each has a fixture."
+    },
+    {
+      "goal_id": "g13",
+      "text": "I25 passes on a blueprint whose conditional leaf has no painter and whose gating task is closed as not-needed."
+    },
+    {
+      "goal_id": "g14",
+      "text": "Every planted violation is reported under its own invariant id; the clean fixture is green."
+    },
+    {
+      "goal_id": "g15",
+      "text": "The report prints 29 rows on every run, including skipped ones."
+    },
+    {
+      "goal_id": "g16",
+      "text": "The lint array flags every planted violation in the lint fixture and is clean on the good one."
+    },
+    {
+      "goal_id": "g17",
+      "text": "Task 004's task.json carries both handoff criteria before 000 closes."
+    },
+    {
+      "goal_id": "g18",
+      "text": "Task 004's gate includes 'verify:arch green on the scaffolded tree'."
+    }
+  ],
+  "open_questions": [
+    "D-12 free-tier training terms vs Perhutani document sensitivity — unanswered, gates task 018.",
+    "Q7 Bahasa Indonesia handwriting on the pilot's tablets — unanswered, decides whether task 024 exists and therefore whether ink-pad is a conditional canvas leaf. 45-minute test; run before 000 closes.",
+    "Q8 the real tablet mix (iPad vs Samsung S Pen vs other Android) — unanswered.",
+    "Q9 whether pilot users have styluses at all — assumed yes, unverified.",
+    "C6: note_input_mode must be a three-value enum with transcribed_by. spec §6 disagrees with v2 §5 and db §4, and the precedence rule points at the wrong doc. Carry to task 001 g2.",
+    "F1 outbox head-of-line stall on a parked 4xx op — carry to task 007 g1.",
+    "F2 _dirty is never cleared on a parked op; the row flag needs three states — affects blueprint g4 and task 007.",
+    "F3 the reconcile manifest is unpaginated and can bulkDelete real local rows — carry to task 007 g4.",
+    "F4 broadcast trigger builds a NULL topic on cascade delete — carry to task 001 g3.",
+    "F5 leader import fans out ~80 broadcasts in one batch — carry to task 021 g5 / task 007 g3.",
+    "F6 OPFS is not namespaced per profile while Dexie is — carry to task 016 g6.",
+    "F7 applyRemote reads payload.record.id, which is null on DELETE — carry to task 007 g3.",
+    "F8 reconcile diffs highlights only; notes need their own manifest — carry to task 007 g4.",
+    "C7 resolved by the owner 2026-09-18: agent-history cleared, plan id = folder id for 000-024.",
+    "C8 state library: Redux Toolkit per 03-frontend-architecture.md, not spec §5.3's TanStack Query + Zustand.",
+    "C9 the scaffold already exists without src/ — task 004 g1 becomes 'conform the scaffold'; AGENTS.md keeps Next's agent-rules block.",
+    "G1 / DB-Q12 non-mirrored tables have no legal read path — defaulted to Dexie meta + outbox; package B waits on it.",
+    "db §11: DB-F1..DB-F10 applied in §8.1 — carry to task 001 g2/g3 and task 002 (tests 7-13); DB-Q6 blocks 001/008, DB-Q9 blocks 015.",
+    "Gate 0 finding: agent-history/000-task-example/ reuses number 000 and its files carry task_id 001-task-backend-gateway-scaffolding (folder/task_id mismatch). Treated as a human-supplied reference example, not a task, and left untouched. Owner to decide: move it outside the NNN space (e.g. agent-history/_example/) or delete.",
+    "g7 vs g11: the verify harness must be dependency-free, so the blueprint self-check hand-validates the subset of JSON Schema that blueprint.schema.json uses; ajv 6 is installed only transitively and is not relied on."
+  ],
+  "risks": [
+    "Package A is an agent making ten judgement calls, which is the behaviour package C forbids. A resolves only what precedence decides.",
+    "Package D is 2-3 days of analyzer work against a fixture suite; the original 3% estimate covers roughly half of it.",
+    "I25 becomes permanently red if ink-pad ships hasPainter:true and task 024 is deleted.",
+    "Planted-violation fixtures written as files under frontend-thinkboard-lite/ would be caught by `npm run lint` and `tsc` (tsconfig includes **/*.ts), which 000 may not reconfigure. Mitigation: fixture trees are defined as data and materialised in os.tmpdir() at run time; the lint fixture uses ESLint.lintText with virtual paths.",
+    "C6 remains escalated: package A records it, it does not block A's gate, but task 001 g2 cannot ship without a human yes."
+  ]
+}

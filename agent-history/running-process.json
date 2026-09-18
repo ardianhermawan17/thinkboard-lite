@@ -1,9 +1,16 @@
 {
 	"schema_version": "1.0",
-	"updated_at": "2026-09-14T05:00:00Z",
-	"current_task_id": null,
-	"current_phase": "idle",
-	"history_path": null,
-	"status": "idle",
-	"task_sequence": []
+	"updated_at": "2026-09-18T09:40:00Z",
+	"current_task_id": "000-task-architecture-contract",
+	"current_phase": "analyze",
+	"history_path": "agent-history/000-task-architecture-contract",
+	"status": "in_progress",
+	"task_sequence": [
+		{
+			"id": "000-task-architecture-contract",
+			"architecture": "frontend",
+			"status": "in_progress",
+			"title": "Architecture contract: blueprint, AGENTS.md, verify script, lint rules"
+		}
+	]
 }

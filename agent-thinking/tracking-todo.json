@@ -1,14 +1,14 @@
 {
 	"schema_version": "1.0",
-	"updated_at": "2026-09-18T00:00:00Z",
+	"updated_at": "2026-09-18T09:40:00Z",
 	"tracked_todos": [
 		{
 			"id": "000-todo-architecture-contract",
 			"name": "Architecture contract, split into five packages",
 			"goal": "Produce the machine-readable contract an agent generates from, so no file is ever created by inference.",
 			"todo_path": "agent-thinking/todo/000-todo-architecture-contract/contract.json",
-			"agent_history": null,
-			"status": "pending"
+			"agent_history": "agent-history/000-task-architecture-contract",
+			"status": "in_progress"
 		}
 	]
 }
