@@ -436,6 +436,9 @@ the text layer everything depends on is destroyed.
 
 ## 6. Schema delta — `0004_lite.sql` (final)
 
+> **Superseded 2026-09-18 by `07-database-architecture.md` §8.1.** Implement from there. It applies C6
+> (`note_input_mode` has three values) and the review fixes DB-F2 – DB-F10. This section stays as the record.
+
 One new table, six new columns, two replaced policies, three triggers. **The two policy drops are the
 only non-additive change in the entire plan.**
 

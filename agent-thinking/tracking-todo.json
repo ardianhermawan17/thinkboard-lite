@@ -1,7 +1,15 @@
 {
   "schema_version": "1.0",
-  "updated_at": "2026-09-14T05:00:00Z",
+  "updated_at": "2026-09-18T00:00:00Z",
   "tracked_todos": [
+    {
+      "id": "000-todo-architecture-contract",
+      "name": "Architecture contract, split into five packages",
+      "goal": "Produce the machine-readable contract an agent generates from, so no file is ever created by inference.",
+      "todo_path": "agent-thinking/todo/000-todo-architecture-contract/contract.json",
+      "agent_history": null,
+      "status": "pending"
+    },
     {
       "id": "005-todo-swagger-backend-api",
       "name": "Add Swagger to backend and implement api.json",
