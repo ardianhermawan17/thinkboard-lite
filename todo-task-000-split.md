@@ -4,13 +4,13 @@ title: Task 000 Split — the Architecture Contract, as five packages
 version: "1.1"
 status: proposed
 updated: 2026-09-18
-read_order_position: 8
-extends: ["07-whole-apps-task.md", "02-working.md", "04-TODO.md"]
-companion: ["07-database-architecture.md", "frontend-folder-architecture.md"]
-authority: "Process + scope for task 000 only. Product intent stays in 06-thinkboard-lite.md. Process law stays in 02-working.md."
+task: "000"
+extends: ["06-whole-apps-task.md", "07-agent-working.md", "08-agent-todo-intake.md"]
+companion: ["02-database-architecture.md", "04-frontend-folder-architecture.md"]
+authority: "Process + scope for task 000 only. Product intent stays in 01-thinkboard-lite-spec.md. Process law stays in 07-agent-working.md."
 ---
 
-# 08 — Task 000 Split
+# Task 000 — Split: the architecture contract as five packages
 
 `000-task-architecture-contract` blocks every other task, and as written it is the one task whose
 gate cannot fail. This file splits it into five ordered packages inside **one** task folder, replaces
@@ -19,8 +19,9 @@ other — or with the repository — about a fact the blueprint must state exact
 
 > **rev 1.1 (2026-09-18) — finished.** Adds the source-precedence table (§3.0), conflicts C7–C9 and gap
 > G1 (§3), the decision registry (§4.1), sync defects F7–F8 (§5.3), and the database review that now
-> lives in `07-database-architecture.md` §11. Package A's inputs are therefore complete. What remains for
-> A is transcription into `analyze.json` plus **human sign-off on the escalated rows: C6 and C7**.
+> lives in `02-database-architecture.md` §11. Package A's inputs are therefore complete. What remains for
+> A is transcription into `analyze.json` plus **human sign-off on C6**. C7 was resolved by the owner the
+> same day (plan id = folder id).
 
 ---
 
@@ -30,8 +31,8 @@ other — or with the repository — about a fact the blueprint must state exact
 |---|---|
 | **Normative** | §2 packages and gates, §3.0 precedence, §3 conflict verdicts, §4 + §4.1 registries, §7 contract scaffolding. Implement exactly. |
 | **Explanatory** | §1, §5. Context for *why*; not requirements. |
-| **On conflict** | `02-working.md` still wins on process. `06-thinkboard-lite.md` still wins on Lite product intent. This file wins on **the scope and sequencing of task 000 only**. |
-| **Numbering** | `NNN` stays a global monotonic counter (`02-working.md` §3). Packages A–E are an ordering **inside** `task.json.goals[]` — not new folders, not new task ids. Tasks 001–024 keep their **plan** numbers; their **folder** ids collide with `agent-history/` and are escalated (C7). `000` is free and is used as-is. |
+| **On conflict** | `07-agent-working.md` still wins on process. `01-thinkboard-lite-spec.md` still wins on Lite product intent. This file wins on **the scope and sequencing of task 000 only**. |
+| **Numbering** | `NNN` stays a global monotonic counter (`07-agent-working.md` §3). Packages A–E are an ordering **inside** `task.json.goals[]` — not new folders, not new task ids. Plan id = folder id for `000`–`024` (C7, resolved 2026-09-18). |
 | **Do not** | Resolve a §3 conflict differently without recording it. Add a sixth package. Start package B before A closes. |
 
 ---
@@ -60,10 +61,10 @@ It is larger than g1, g2, g4 and g5 combined, and every later task's `npm run ve
 ### D3 — Nine of those nineteen rules do not belong in the script
 
 Six are ESLint rules. Two are human review gates — **I19** (painter coordinates pass through
-`shared/utils/geometry`) is already called a review gate in `frontend-architecture.md` §10. And
+`shared/utils/geometry`) is already called a review gate in `03-frontend-architecture.md` §10. And
 **I27** (nothing with `pointer-events:auto` overlaps the note textarea + 16px) is a runtime layout
 property no grep can see. Folded into "extend the script", they become rules that pass forever
-without being checked — the exact failure `frontend-folder-architecture.md` §12 names:
+without being checked — the exact failure `04-frontend-folder-architecture.md` §12 names:
 *a rule that is not in the script is not a rule.*
 
 ### D4 — The blueprint must be written from docs that disagree
@@ -105,7 +106,7 @@ nothing else.
   row, each with a `doc` + `§` citation. Anything precedence cannot settle is escalated to the human,
   never picked.
 - `g2` The canonical invariant registry — all 29 (§4), each with an enforcement class.
-  `frontend-folder-architecture.md` §12 carries only I1–I25; **I26–I29 live in two other files** and
+  `04-frontend-folder-architecture.md` §12 carries only I1–I25; **I26–I29 live in two other files** and
   I6 is void.
 - `g3` The canonical decision registry — `D-01…D-12`, `Q1…Q11`, `DB-Q1…DB-Q12` (35 entries, §4.1), each
   with `state ∈ defaulted | unanswered | confirmed` and `blocks: [taskId]`.
@@ -120,10 +121,10 @@ author is recorded as `defaulted`, **never** as `confirmed`. Only a human's word
 **Main goal —** emit `architecture.blueprint.json`, and the schema that proves it well-formed,
 because three invariants read it and would otherwise pass silently on a typo.
 
-- `g4` `contexts[]` (8, per `frontend-folder-architecture.md` §4), `domainTables[]` from
-  `07-database-architecture.md` §2, and `localFirst{}` — 7 Dexie tables, the compound
+- `g4` `contexts[]` (8, per `04-frontend-folder-architecture.md` §4), `domainTables[]` from
+  `02-database-architecture.md` §2, and `localFirst{}` — 7 Dexie tables, the compound
   `[artifactId+page]` index, `idStrategy: "uuidv7-client"`, `blobStore: "opfs"`, **plus the outbox op
-  shape and the three-state `_sync` row flag**, copied verbatim from `07-database-architecture.md` §6.1.
+  shape and the three-state `_sync` row flag**, copied verbatim from `02-database-architecture.md` §6.1.
 - `g5` `commands[]` — 4, each carrying the `baseUrl` it resolves against, so I15 compares like with
   like. `canvasLeaves[]` — 5, each with `hasPainter` **and** `status`. `listeners[]` — the sync
   context's four actions.
@@ -133,9 +134,9 @@ because three invariants read it and would otherwise pass silently on a typo.
   blueprint must fail loudly instead of making I13, I15 and I25 vacuously true.
 
 **Gate —** the blueprint validates against its own schema; every `localFirst.tables[]` entry maps to
-a row in `07-database-architecture.md` §2; every command maps to a route file in
-`06-thinkboard-lite.md` §4.3; every canvas leaf maps to a folder in
-`frontend-folder-architecture.md` §5.2.
+a row in `02-database-architecture.md` §2; every command maps to a route file in
+`01-thinkboard-lite-spec.md` §4.3; every canvas leaf maps to a folder in
+`04-frontend-folder-architecture.md` §5.2.
 **Blocks —** D `g13`, 004.
 
 ### Package C — `AGENTS.md` · `g8–g10`
@@ -144,7 +145,7 @@ a row in `07-database-architecture.md` §2; every command maps to a route file i
 only this file and the blueprint never needs to open a plan doc to place a file.
 
 - `g8` Import-direction law, the placement decision tree **verbatim** from
-  `frontend-folder-architecture.md` §8 (it is normative — paraphrasing loses rules), and the three
+  `04-frontend-folder-architecture.md` §8 (it is normative — paraphrasing loses rules), and the three
   leaf kinds with their file sets.
 - `g9` The 4-point store edit, and the escalation rule: **on finding two docs that disagree, stop and
   add an `openQuestions[]` entry — never pick.** This is "ask, don't invent" stated as a procedure
@@ -195,7 +196,7 @@ that stops task 004 overwriting them.
 - `g17` The handoff, in writing: **000 does not run `create-next-app`** and owns neither
   `package.json` nor `eslint.config.mjs`. Task 004 `g1` becomes "conform the existing scaffold" (C9)
   and gains "spread `eslint.architecture.mjs` into the existing config"; 004 `g4` gains
-  "`verify:arch` = `node scripts/verify-architecture.mjs`". Record both in `07-whole-apps-task.md`
+  "`verify:arch` = `node scripts/verify-architecture.mjs`". Record both in `06-whole-apps-task.md`
   task 004 until 004's own `task.json` exists.
 - `g18` "Green on the real tree" moves to 004's gate, where a real tree exists to be green on.
 
@@ -224,16 +225,16 @@ covers the fact:
 
 | # | Fact is about… | Winner | Authority |
 |---|---|---|---|
-| P0 | anything the user has decided in chat | the user's words, recorded as `confirmed` | `05-agent-limitation.md` §3 |
-| P1 | process — phases, files, numbering, git | `02-working.md` → `04-TODO.md` → `05-agent-limitation.md` | 06 §0, whole-apps §0 |
+| P0 | anything the user has decided in chat | the user's words, recorded as `confirmed` | `09-agent-limitation.md` §3 |
+| P1 | process — phases, files, numbering, git | `07-agent-working.md` → `08-agent-todo-intake.md` → `09-agent-limitation.md` | spec §0, whole-apps §0 |
 | P2 | scope and sequencing of task 000 | this file | frontmatter `authority` |
-| P3 | the task backlog and each task's goals | `07-whole-apps-task.md` | D-05 / DB-Q5, confirmed |
-| P4 | Lite schema, RLS, triggers, the Dexie mirror | `07-database-architecture.md` rev 1.1 (§6.1, §8.1) | its `supersedes`; 06 §6 carries the pointer |
-| P5 | frontend structure — folders, aliases, leaves, invariants | `frontend-folder-architecture.md` | "normative", its §0 |
-| P6 | frontend mechanism — state library, flows, seams | `frontend-architecture.md`, as amended by v2 §3–§4 | v2 `supersedes` fa §6.5 |
-| P7 | Lite product intent — what a user can do | `06-thinkboard-lite.md` | 06 §0 |
-| P8 | Full product intent, Full base schema | `00-thinkboard-abstract-plan.md`, `thinkboard-schema-final.sql` | 06 §0 — not in this repo |
-| — | `00-thinkboard-lite-abstract-plan.md`, HTML companions, `claude-artifact/`, `old/` | never a winner | superseded by 06, explanatory, or archived |
+| P3 | the task backlog and each task's goals | `06-whole-apps-task.md` | D-05 / DB-Q5, confirmed |
+| P4 | Lite schema, RLS, triggers, the Dexie mirror | `02-database-architecture.md` rev 1.1 (§6.1, §8.1) | its `supersedes`; spec §6 carries the pointer |
+| P5 | frontend structure — folders, aliases, leaves, invariants | `04-frontend-folder-architecture.md` | "normative", its §0 |
+| P6 | frontend mechanism — state library, flows, seams | `03-frontend-architecture.md`, as amended by v2 §3–§4 | v2 `supersedes` fa §6.5 |
+| P7 | Lite product intent — what a user can do | `01-thinkboard-lite-spec.md` | spec §0 |
+| P8 | Full product intent, Full base schema | `00-thinkboard-abstract-plan.md`, `thinkboard-schema-final.sql` | spec §0 — not in this repo |
+| — | `10-abstract-plan-superseded.md`, HTML companions, `claude-artifact/`, `old/` | never a winner | superseded by spec, explanatory, or archived |
 
 When two rows both claim a fact, or the winning row is demonstrably wrong (C6), **stop and escalate**.
 
@@ -241,24 +242,24 @@ When two rows both claim a fact, or the winning row is demonstrably wrong (C6), 
 
 | Source | Value |
 |---|---|
-| `06-thinkboard-lite.md` §5.3, `frontend-architecture.md` §11 | meta · artifacts · highlights · notes · miniConclusions · outbox |
-| `07-database-architecture.md` §6.1 | the same six **plus `runs`** |
+| `01-thinkboard-lite-spec.md` §5.3, `03-frontend-architecture.md` §11 | meta · artifacts · highlights · notes · miniConclusions · outbox |
+| `02-database-architecture.md` §6.1 | the same six **plus `runs`** |
 
-**Verdict: seven.** `frontend-folder-architecture.md` §4.1 ships `use-run.ts` in `queries/` while
+**Verdict: seven.** `04-frontend-folder-architecture.md` §4.1 ships `use-run.ts` in `queries/` while
 declaring only six tables — so its own I13 has a hook with nothing to bind to. Task 014 `g2` settles
 it: result reads come from Dexie, never from the mutation response.
 
-Precedence alone cannot decide this one — `frontend-folder-architecture.md` contradicts *itself*. The
+Precedence alone cannot decide this one — `04-frontend-folder-architecture.md` contradicts *itself*. The
 tiebreak is a downstream task's acceptance criterion.
 
 ### C2 — The highlights index: flat or compound?
 
 | Source | Value |
 |---|---|
-| `06-thinkboard-lite.md` §5.3 | `'id, artifactId, page, layer, _dirty'` |
-| `07-database-architecture.md` §6.1, `frontend-folder-architecture.md` §4.1 | `'id, [artifactId+page], layer, _dirty'` |
+| `01-thinkboard-lite-spec.md` §5.3 | `'id, artifactId, page, layer, _dirty'` |
+| `02-database-architecture.md` §6.1, `04-frontend-folder-architecture.md` §4.1 | `'id, [artifactId+page], layer, _dirty'` |
 
-**Verdict: compound.** Situation S3 in `01-thinkboard-lite-frontend-v2.md` §1.1 argues the entire
+**Verdict: compound.** Situation S3 in `05-frontend-sync-handwriting.md` §1.1 argues the entire
 case for Dexie on `where('[artifactId+page]')` being an index seek rather than an O(n) filter.
 Shipping the flat index keeps the dependency and discards the reason for it.
 
@@ -266,11 +267,11 @@ Shipping the flat index keeps the dependency and discards the reason for it.
 
 | Source | Value |
 |---|---|
-| `06-thinkboard-lite.md` §4.2 | workspace · pdf-canvas · highlight · notes · result · presence · offline |
-| `frontend-folder-architecture.md` §4 | entities · sync · workspace · document · highlight · notes · result · presence |
+| `01-thinkboard-lite-spec.md` §4.2 | workspace · pdf-canvas · highlight · notes · result · presence · offline |
+| `04-frontend-folder-architecture.md` §4 | entities · sync · workspace · document · highlight · notes · result · presence |
 
 **Verdict: the folder doc wins — eight, `document` not `pdf-canvas`, and no `offline` context at
-all.** Offline is `sync.phase` (`frontend-architecture.md` §5.1). An `offline/` folder would be a
+all.** Offline is `sync.phase` (`03-frontend-architecture.md` §5.1). An `offline/` folder would be a
 bounded context with no rows, no slice and no components — an empty box that later work fills by
 accident.
 
@@ -278,8 +279,8 @@ accident.
 
 | Source | Value |
 |---|---|
-| `frontend-architecture.md` §11 | highlight-layer · ink-pad · peer-cursors |
-| `frontend-folder-architecture.md` §5.2 | page-stage · highlight-layer · ink-pad · peer-cursors · marquee |
+| `03-frontend-architecture.md` §11 | highlight-layer · ink-pad · peer-cursors |
+| `04-frontend-folder-architecture.md` §5.2 | page-stage · highlight-layer · ink-pad · peer-cursors · marquee |
 
 **Verdict: five — and `ink-pad` needs `status: "conditional"` keyed to task 024.** Task 011 `g1`
 requires a marquee painter, so three is stale. The sharper problem: **I25 fails the moment task 012
@@ -292,8 +293,8 @@ unfixable red build without it.
 
 | Source | Value |
 |---|---|
-| `frontend-architecture.md` §11 | `"url": "/v1/workspaces"` |
-| `06-thinkboard-lite.md` §4.3, `frontend-folder-architecture.md` §3.2 | `app/api/v1/workspaces/route.ts` → `/api/v1/workspaces` |
+| `03-frontend-architecture.md` §11 | `"url": "/v1/workspaces"` |
+| `01-thinkboard-lite-spec.md` §4.3, `04-frontend-folder-architecture.md` §3.2 | `app/api/v1/workspaces/route.ts` → `/api/v1/workspaces` |
 
 **Verdict: keep `/v1/…` in the blueprint and state the `baseUrl: "/api"` it resolves against, in the
 blueprint itself.** Both are right — one is the RTK Query path, the other the filesystem route. Left
@@ -304,43 +305,42 @@ does.
 
 | Source | Value |
 |---|---|
-| `06-thinkboard-lite.md` §6 `create type` | `('keyboard','ink')` |
-| `01-thinkboard-lite-frontend-v2.md` §5, `07-database-architecture.md` §4 | `('keyboard','ink','stylus_os')` + `transcribed_by` |
+| `01-thinkboard-lite-spec.md` §6 `create type` | `('keyboard','ink')` |
+| `05-frontend-sync-handwriting.md` §5, `02-database-architecture.md` §4 | `('keyboard','ink','stylus_os')` + `transcribed_by` |
 
 **Verdict: three values plus the `transcribed_by` column — and this one does not stay inside task
 000.** It is a migration fact. Unless package A hands it to task 001 as an extra criterion on `g2`,
 `0004_lite.sql` ships a two-value enum and task 012 has to `alter type … add value` against a live
 table, then backfill.
 
-This is the conflict to show a human: `06-thinkboard-lite.md` §0 says the schema file wins on schema
+This is the conflict to show a human: `01-thinkboard-lite-spec.md` §0 says the schema file wins on schema
 shape, but here the newer frontend doc is correct. **Precedence points at the wrong answer, which is
 exactly when an agent should stop.**
 
-*Update 2026-09-18:* already applied in `07-database-architecture.md` §8.1 (DB-F1), and 06 §6 now
+*Update 2026-09-18:* already applied in `02-database-architecture.md` §8.1 (DB-F1), and spec §6 now
 points there. It still needs a human's yes before task 001 ships it.
 
 ### C7 — Task ids: the plan's `001–024` or the next free numbers?
 
 | Source | Value |
 |---|---|
-| `07-whole-apps-task.md` §0, this file §0 | Lite tasks are `000`–`024`, "global monotonic, never reused" |
+| `06-whole-apps-task.md` §0, this file §0 | Lite tasks are `000`–`024`, "global monotonic, never reused" |
 | `agent-history/running-process.json` | `001`–`010` are already taken by Full's Go-backend tasks — `006` twice |
-| `02-working.md` §3 | numbers are never reused or resequenced |
+| `07-agent-working.md` §3 | numbers are never reused or resequenced |
 
-**Verdict: escalated.** Precedence (P1) settles *that* the plan ids cannot become folder ids — and
-whole-apps §0 says so itself. It does not settle *how* to remap them, which touches every cross-reference
-in three docs. Recommended default: **`000` stays; `001`–`024` open as `011`–`034` (plan id + 10)**, with
-the plan id kept in each `task.json.title`, e.g. `"[plan 008] Auth and workspace shell"`. Until a human
-answers, **no Lite task other than 000 may open a folder.**
+**Verdict: escalated, then resolved by the owner (P0), 2026-09-18.** The owner cleared `agent-history/`
+(001–010, `running-process.json`) and `tracking-todo.json`, which removes the collision instead of remapping
+around it: **plan id = folder id, `000`–`024`**. The never-reuse rule of `07-agent-working.md` §3 applies
+from this clean start on. (The rejected alternative was plan id + 10.)
 
 ### C8 — The state library: Redux Toolkit, or TanStack Query + Zustand?
 
 | Source | Value |
 |---|---|
-| `06-thinkboard-lite.md` §5.3 | "TanStack Query (queryFn reads Dexie)"; sync status and UI state in **Zustand** |
-| `frontend-architecture.md` §1, §5.4; ffa §4.4, §5; whole-apps 005 `g3` | Redux Toolkit + redux-persist; RTK Query for the four commands only; "**No Zustand**" |
+| `01-thinkboard-lite-spec.md` §5.3 | "TanStack Query (queryFn reads Dexie)"; sync status and UI state in **Zustand** |
+| `03-frontend-architecture.md` §1, §5.4; ffa §4.4, §5; whole-apps 005 `g3` | Redux Toolkit + redux-persist; RTK Query for the four commands only; "**No Zustand**" |
 
-**Verdict: Redux Toolkit (P6 over P7).** 06 §0 gives 06 authority over Lite *product intent*; the state
+**Verdict: Redux Toolkit (P6 over P7).** spec §0 gives spec authority over Lite *product intent*; the state
 library is frontend mechanism, which fa governs, and task 005 already builds against it — the same basis
 as C3. Blueprint consequence: `listeners[]` are RTK listener-middleware effects, and I4, I5, I10–I12, I14
 and I16 only make sense under this verdict.
@@ -362,7 +362,7 @@ unchanged.)
 
 ### G1 — Gap: tables the client uses but Dexie does not mirror
 
-Not a conflict — a hole. `07-database-architecture.md` §6 marks `teams`, `team_members`,
+Not a conflict — a hole. `02-database-architecture.md` §6 marks `teams`, `team_members`,
 `memory_entries` and `llm_*` as "queried live". RULE-07 forbids network reads, I21 limits
 `@supabase/supabase-js` to two files, and I15 limits `createApi` to the four commands — so a live read
 has no legal file to live in. **Verdict: escalated as DB-Q12**, with a default: the sync engine pulls them
@@ -376,7 +376,7 @@ into Dexie `meta`, and their writes go through the outbox. It is a blueprint fac
   so both names belong in the blueprint.
 - `_sync` (`clean | pending | failed`, replacing the one-bit `_dirty` — F2), `seq` and the outbox op
   `state` are local-only and never cross into a Postgres write. The one definition is
-  `07-database-architecture.md` §6.1.
+  `02-database-architecture.md` §6.1.
 - The database is namespaced per profile — `thinkboard:{profileId}`, deleted on sign-out (DB-Q3).
   Shared tablets are the stated reason. **OPFS is not namespaced this way — see §5.3 F6.**
 - Four `localStorage` keys, and exactly four: Supabase session, theme, last workspace id, `mode`.
@@ -385,8 +385,8 @@ into Dexie `meta`, and their writes go through the outbox. It is a blueprint fac
 
 ## 4. The invariant registry
 
-The list exists nowhere in one piece today. `frontend-folder-architecture.md` §12 has I1–I25,
-`01-thinkboard-lite-frontend-v2.md` §4 adds I26–I28, and I29 appears only in task 006's gate. I6 was
+The list exists nowhere in one piece today. `04-frontend-folder-architecture.md` §12 has I1–I25,
+`05-frontend-sync-handwriting.md` §4 adds I26–I28, and I29 appears only in task 006's gate. I6 was
 replaced by I13 and is a hole in the numbering. **An agent implementing "I11–I29" from §12 alone
 would build 15 of the 19.**
 
@@ -429,24 +429,24 @@ Within g3's stated range I11–I29: **10 script checks, 6 ESLint rules, 2 review
 
 ### 4.1 The decision registry — package A `g3`
 
-Every open choice across the plan docs, in one place. `blocks` uses **plan** task ids (C7). Three pairs
+Every open choice across the plan docs, in one place. `blocks` uses task ids, which equal folder ids (C7). Three pairs
 are one question asked twice (D-01/DB-Q1, D-02/DB-Q2, D-05/DB-Q5); each id is still its own row, so
 duplicates cannot drift apart unnoticed.
 
 | Id | Question | Source | State | Default / answer | Blocks |
 |---|---|---|---|---|---|
-| D-01 | Is "individual" a privacy boundary? | 06 §10 | defaulted | yes | 001, 002 |
-| D-02 | One PDF per workspace? | 06 §10 | defaulted | one `main` + the leader's `note` copy | 003, 021 |
-| D-03 | Who runs the Group Result? | 06 §10 | defaulted | leader only — enforced in RLS by 07-db §8.1 | 017, 020 |
-| D-04 | One active persona per person? | 06 §10 | defaulted | yes | 001 |
-| D-05 | Does the Lite backlog replace `02-working.md` §8? | 06 §10 | **confirmed** | yes — `07-whole-apps-task.md` is the backlog (user, 2026-09-18) | — |
-| D-06 | Can the leader edit generated minutes in place? | 06 §10 | defaulted | yes, as a draft | 013 |
-| D-07 | How does a member's thinking reach the Group Result? | 06 §10 | defaulted | explicit promotion via `shared_at` | 001, 013 |
-| D-08 | Can the leader hide or delete a promoted note? | 06 §10 | defaulted | neither in v1 | 013 |
-| D-09 | Does leadership transfer? | 06 §10 | defaulted | yes, by the leader or the creator | 008 |
-| D-10 | Is the group document cached offline? | 06 §10 | defaulted | no | 016 |
-| D-11 | Device parity | 06 §10 | defaulted | tablet authors, desktop analyses, mobile reads and writes notes; no ink on mobile | 022 |
-| D-12 | Free-tier provider vs. document sensitivity | 06 §10, whole-apps §3 | **unanswered** | — | 018 |
+| D-01 | Is "individual" a privacy boundary? | spec §10 | defaulted | yes | 001, 002 |
+| D-02 | One PDF per workspace? | spec §10 | defaulted | one `main` + the leader's `note` copy | 003, 021 |
+| D-03 | Who runs the Group Result? | spec §10 | defaulted | leader only — enforced in RLS by db §8.1 | 017, 020 |
+| D-04 | One active persona per person? | spec §10 | defaulted | yes | 001 |
+| D-05 | Does the Lite backlog replace `07-agent-working.md` §8? | spec §10 | **confirmed** | yes — `06-whole-apps-task.md` is the backlog (user, 2026-09-18) | — |
+| D-06 | Can the leader edit generated minutes in place? | spec §10 | defaulted | yes, as a draft | 013 |
+| D-07 | How does a member's thinking reach the Group Result? | spec §10 | defaulted | explicit promotion via `shared_at` | 001, 013 |
+| D-08 | Can the leader hide or delete a promoted note? | spec §10 | defaulted | neither in v1 | 013 |
+| D-09 | Does leadership transfer? | spec §10 | defaulted | yes, by the leader or the creator | 008 |
+| D-10 | Is the group document cached offline? | spec §10 | defaulted | no | 016 |
+| D-11 | Device parity | spec §10 | defaulted | tablet authors, desktop analyses, mobile reads and writes notes; no ink on mobile | 022 |
+| D-12 | Free-tier provider vs. document sensitivity | spec §10, whole-apps §3 | **unanswered** | — | 018 |
 | Q1 | Dexie, or `createEntityAdapter` + persist? | fa §13 | defaulted | Dexie (reasons: §5.1) | 006 |
 | Q2 | RTK Query scope | fa §13 | defaulted | the four commands only | 014, 017 |
 | Q3 | Sync as listener middleware or a provider? | fa §13 | defaulted | listener middleware | 007 |
@@ -458,21 +458,21 @@ duplicates cannot drift apart unnoticed.
 | Q9 | Do users have styluses at all? | v2 §6 | **unanswered** | assume a pen; verify | 012 |
 | Q10 | Hand-rolled sync, or PowerSync from day one? | v2 §6 | defaulted | hand-rolled; escape hatch keyed to behaviour (§5.1) | 007 |
 | Q11 | Note sheet docked or overlaid? | v2 §6 | defaulted | dock ≥1280, overlay below (I27) | 012, 013 |
-| DB-Q1 | = D-01 | 07-db §10 | defaulted | yes | 001, 002 |
-| DB-Q2 | = D-02 | 07-db §10 | defaulted | `main` + `note` | 003 |
-| DB-Q3 | Per-profile Dexie namespace? | 07-db §10 | defaulted | yes — and OPFS is wiped with it (F6) | 006, 016 |
-| DB-Q4 | Keep `messages`, `context_warnings`, `sources` parked? | 07-db §10 | defaulted | keep parked | 001 |
-| DB-Q5 | = D-05 | 07-db §10 | **confirmed** | as D-05 | — |
-| DB-Q6 | `create_workspace` RPC — referenced, never defined | 07-db §10 | defaulted | definer RPC in `0004`; creator is leader; other leader = transfer | 001, 008, 017 |
-| DB-Q7 | May a member write a group-visibility note directly? | 07-db §10 | defaulted | allowed as written; kept off `ws:` unless the highlight is public | 002, 013 |
-| DB-Q8 | `mini_conclusions` writable by any member on shared highlights | 07-db §10 | defaulted | as written; tighten after DB-Q7 | 019 |
-| DB-Q9 | Topic for client-sent cursors and presence | 07-db §10 | defaulted | separate `live:{sessionId}` topic | 015 |
-| DB-Q10 | Is `memory_entries` group scope leader-only in `0001`? | 07-db §10 | defaulted | verify; add a restrictive policy if not | 001, 002 |
-| DB-Q11 | Storage path and policy for PDFs | 07-db §10 | defaulted | `artifacts/{sessionId}/{artifactId}.pdf` | 003 |
-| DB-Q12 | Read/write path for non-mirrored tables (G1) | 07-db §10 | defaulted | pull into Dexie `meta`; write through the outbox | 000, 006, 007, 008 |
+| DB-Q1 | = D-01 | db §10 | defaulted | yes | 001, 002 |
+| DB-Q2 | = D-02 | db §10 | defaulted | `main` + `note` | 003 |
+| DB-Q3 | Per-profile Dexie namespace? | db §10 | defaulted | yes — and OPFS is wiped with it (F6) | 006, 016 |
+| DB-Q4 | Keep `messages`, `context_warnings`, `sources` parked? | db §10 | defaulted | keep parked | 001 |
+| DB-Q5 | = D-05 | db §10 | **confirmed** | as D-05 | — |
+| DB-Q6 | `create_workspace` RPC — referenced, never defined | db §10 | defaulted | definer RPC in `0004`; creator is leader; other leader = transfer | 001, 008, 017 |
+| DB-Q7 | May a member write a group-visibility note directly? | db §10 | defaulted | allowed as written; kept off `ws:` unless the highlight is public | 002, 013 |
+| DB-Q8 | `mini_conclusions` writable by any member on shared highlights | db §10 | defaulted | as written; tighten after DB-Q7 | 019 |
+| DB-Q9 | Topic for client-sent cursors and presence | db §10 | defaulted | separate `live:{sessionId}` topic | 015 |
+| DB-Q10 | Is `memory_entries` group scope leader-only in `0001`? | db §10 | defaulted | verify; add a restrictive policy if not | 001, 002 |
+| DB-Q11 | Storage path and policy for PDFs | db §10 | defaulted | `artifacts/{sessionId}/{artifactId}.pdf` | 003 |
+| DB-Q12 | Read/write path for non-mirrored tables (G1) | db §10 | defaulted | pull into Dexie `meta`; write through the outbox | 000, 006, 007, 008 |
 
 **Totals —** 35 · unanswered **4** (D-12, Q7, Q8, Q9) · confirmed 2 (D-05, DB-Q5) · defaulted 29.
-06 §10 requires D-01, D-05, D-07 and D-12 in task 000's and 001's `analyze.json.open_questions`.
+spec §10 requires D-01, D-05, D-07 and D-12 in task 000's and 001's `analyze.json.open_questions`.
 
 ---
 
@@ -482,7 +482,7 @@ Package A must record this, because it is the decision every later frontend task
 
 ### 5.1 Verdict — keep Dexie, but the stated reason is the weakest one
 
-`01-thinkboard-lite-frontend-v2.md` §1 rests the decision on S4: a row and its outbox entry must land
+`05-frontend-sync-handwriting.md` §1 rests the decision on S4: a row and its outbox entry must land
 atomically, and Redux has no transaction primitive. That is true, and it is a rigged comparison —
 nobody would build offline-first on `redux-persist`. The real alternatives are raw IndexedDB (Dexie
 *is* that, typed), a sync engine, or **SQLite-wasm over OPFS**, which §2.7 never considers because it
@@ -492,7 +492,7 @@ Evaluated directly, SQLite-wasm loses on three counts that matter more than atom
 
 | | Dexie | SQLite-wasm + OPFS |
 |---|---|---|
-| Reactivity | `useLiveQuery` — the whole "one rendering path" property of `frontend-architecture.md` §4.2 | no change notification; invalidation is hand-rolled |
+| Reactivity | `useLiveQuery` — the whole "one rendering path" property of `03-frontend-architecture.md` §4.2 | no change notification; invalidation is hand-rolled |
 | Two tabs open | native, `BroadcastChannel`-backed | the `opfs-sahpool` VFS takes an exclusive lock; the second tab fails |
 | Bundle | ~30 kB | ~1 MB wasm before any app code, on a field connection |
 | Joins | 3 queries + assembly in JS | one statement |
@@ -545,7 +545,7 @@ Two things to watch as it grows, neither urgent:
 
 These do not change the Dexie decision. They change tasks 001, 007, 016 and 021, and package A should
 carry them as `open_questions` so they reach those tasks. The database-side defects live in
-`07-database-architecture.md` §11 (DB-F1 – DB-F10) and are already applied to its §8.1.
+`02-database-architecture.md` §11 (DB-F1 – DB-F10) and are already applied to its §8.1.
 
 **F1 — a parked op stalls the entire outbox, permanently.** `drainOutbox` takes
 `db.outbox.orderBy("seq").first()` with **no filter on `state`**. A 4xx op is marked `failed` and left
@@ -592,7 +592,7 @@ inherits the previous one's document bytes.
 `null` — only `old_record` is set — so the lookup throws and the delete branch is never reached. Remote
 deletes then only land at the next reconnect's reconcile, which on a stable connection may be days away.
 → *Task 007 `g3`: key on `(payload.record ?? payload.old_record).id`; same for the new `RETRACT` event
-(07-db §6.1).*
+(db §6.1).*
 
 **F8 — reconcile only diffs highlights.** `reconcile()` builds a manifest for `highlights` alone. A note
 deleted or un-grouped while you were offline never leaves your Dexie. → *Task 007 `g4`: one manifest per
@@ -606,19 +606,19 @@ mirrored client-written table — `highlights` and `highlight_notes` — each pa
 |---|---|---|
 | 000's gate | `verify:arch` green on an empty tree | fixture suite — every planted violation caught under its own id |
 | 000's goals | 5 | 18, in five ordered packages, one gate each |
-| `000 → 001` | 001 waits for all of 000 | **001 waits for package A only** (06 §10 needs only D-01/05/07/12 in its `open_questions`) |
+| `000 → 001` | 001 waits for all of 000 | **001 waits for package A only** (spec §10 needs only D-01/05/07/12 in its `open_questions`) |
 | `eslint.config.mjs` | written by 000 | `eslint.architecture.mjs` by 000; spread into the generated config by 004 |
 | `package.json`, npm scripts | implied by 000's gate | owned by 004; 000 ships the script file and the command string |
 | Effort | 3% | **6–8%** — package D alone is a 29-row analyzer with a fixture suite |
 | I27 | "in the verify script" | a named Playwright story test in task 012, recorded as `deferred` |
-| Task 001 `g2` | three enums, `highlight_notes`, six columns… | …**implement `07-database-architecture.md` §8.1 verbatim**: C6, DB-F3 – DB-F10, the run-cluster policies; verify the §11 *verify* row against `0001` |
+| Task 001 `g2` | three enums, `highlight_notes`, six columns… | …**implement `02-database-architecture.md` §8.1 verbatim**: C6, DB-F3 – DB-F10, the run-cluster policies; verify the §11 *verify* row against `0001` |
 | Task 001 `g3` | two broadcast triggers | four, with the NULL-topic guard (F4) and `RETRACT` on unshare (DB-F8) |
-| Task 002 | six RLS tests | thirteen — 07-db §9 items 7–13 added |
+| Task 002 | six RLS tests | thirteen — db §9 items 7–13 added |
 | Task 004 `g1` | `create-next-app` | conform the existing scaffold (C9) |
 | Task 007 `g1`, `g3`, `g4` | push order; realtime; manifest diff | …plus failed-op exclusion (F1), the `record ?? old_record` key and `RETRACT` (F7), manifest pagination (F3) and a notes manifest (F8) |
 | Task 015 | presence and cursors on `ws:` | on a separate client-writable topic (DB-Q9), additive `0005` |
 | Task 016 `g6` | clear local data on sign out | …explicitly including OPFS (F6) |
-| Task folder ids | plan ids 001–024 | escalated (C7) — only 000 opens until answered |
+| Task folder ids | plan ids 001–024 | plan id = folder id — C7 resolved by the owner |
 
 The decision registry (§4.1) totals **35** items, of which **four are genuinely unanswered** rather than
 defaulted: `D-12` (free-tier training terms vs Perhutani document sensitivity — gates 018), `Q7`
@@ -635,7 +635,7 @@ therefore what package B writes into the blueprint. Run it before 000 closes, no
 
 ## 7. Contract scaffolding
 
-Per `02-working.md` §4.2, §4.3 and §4.6. Eighteen goals means eighteen `goal_checks` entries — §6 of
+Per `07-agent-working.md` §4.2, §4.3 and §4.6. Eighteen goals means eighteen `goal_checks` entries — §6 of
 that contract admits no exceptions.
 
 ### 7.1 `agent-history/000-task-architecture-contract/task.json`
@@ -650,30 +650,30 @@ that contract admits no exceptions.
   "status": "pending",
   "depends_on": [],
   "plan_refs": [
-    { "doc": "07-whole-apps-task.md", "section": "PHASE A · 000-task-architecture-contract" },
+    { "doc": "06-whole-apps-task.md", "section": "PHASE A · 000-task-architecture-contract" },
     { "doc": "todo-task-000-split.md", "section": "§2 packages A-E, §3.0 precedence, §4.1 decision registry" },
-    { "doc": "frontend-folder-architecture.md", "section": "§12 structural invariants" },
-    { "doc": "frontend-architecture.md", "section": "§10 invariants, §11 blueprint extensions" },
-    { "doc": "01-thinkboard-lite-frontend-v2.md", "section": "§4 new invariants I26-I28" },
-    { "doc": "07-database-architecture.md", "section": "§2 scope map, §6 frontend data contract, §6.1 Dexie mirror, §10 open questions" }
+    { "doc": "04-frontend-folder-architecture.md", "section": "§12 structural invariants" },
+    { "doc": "03-frontend-architecture.md", "section": "§10 invariants, §11 blueprint extensions" },
+    { "doc": "05-frontend-sync-handwriting.md", "section": "§4 new invariants I26-I28" },
+    { "doc": "02-database-architecture.md", "section": "§2 scope map, §6 frontend data contract, §6.1 Dexie mirror, §10 open questions" }
   ],
   "goals": [
     { "id": "g1",  "description": "Source-precedence table; resolve C1-C9 and G1, one winner + citation each; escalate what precedence cannot settle", "plan_ref": "08 §3.0, §3", "status": "pending" },
     { "id": "g2",  "description": "Canonical invariant registry I1-I29 with enforcement class (I6 void; I26-I29 sourced outside ffa §12)", "plan_ref": "08 §4", "status": "pending" },
-    { "id": "g3",  "description": "Canonical decision registry: D-01..D-12, Q1..Q11, DB-Q1..DB-Q12 (35) with state and blocks[]", "plan_ref": "08 §4.1; 06 §10, v2 §6, fa §13, 07-db §10", "status": "pending" },
-    { "id": "g4",  "description": "blueprint: contexts[], domainTables[], localFirst{} incl. outbox op shape and three-state _sync row flag", "plan_ref": "08 §2 pkg B, 07-db §6.1", "status": "pending" },
-    { "id": "g5",  "description": "blueprint: commands[] with baseUrl, canvasLeaves[] with hasPainter and status, listeners[]", "plan_ref": "fa §11, 08 §3 C4/C5", "status": "pending" },
+    { "id": "g3",  "description": "Canonical decision registry: D-01..D-12, Q1..Q11, DB-Q1..DB-Q12 (35) with state and blocks[]", "plan_ref": "08 §4.1; spec §10, v2 §6, fa §13, db §10", "status": "pending" },
+    { "id": "g4",  "description": "blueprint: contexts[], domainTables[], localFirst{} incl. outbox op shape and three-state _sync row flag", "plan_ref": "08 §2 pkg B, db §6.1", "status": "pending" },
+    { "id": "g5",  "description": "blueprint: commands[] with baseUrl, canvasLeaves[] with hasPainter and status, listeners[]", "plan_ref": "fa §11, split §3 C4/C5", "status": "pending" },
     { "id": "g6",  "description": "blueprint: openQuestions[] and invariants[] as machine-readable arrays", "plan_ref": "08 §3, §4", "status": "pending" },
     { "id": "g7",  "description": "blueprint.schema.json plus a self-check that runs before any cross-check", "plan_ref": "08 §2 pkg B", "status": "pending" },
     { "id": "g8",  "description": "AGENTS.md: import-direction law, placement decision tree verbatim, the three leaf kinds", "plan_ref": "ffa §8, §9, §6", "status": "pending" },
-    { "id": "g9",  "description": "AGENTS.md: the 4-point store edit and the escalation rule (stop and record, never pick)", "plan_ref": "fa §5.3, 08 §2 pkg C", "status": "pending" },
+    { "id": "g9",  "description": "AGENTS.md: the 4-point store edit and the escalation rule (stop and record, never pick)", "plan_ref": "fa §5.3, split §2 pkg C", "status": "pending" },
     { "id": "g10", "description": "AGENTS.md: review checklist for I19, I27 and the runtime half of I28, each with an owner and a covering task", "plan_ref": "08 §4", "status": "pending" },
     { "id": "g11", "description": "verify-architecture.mjs harness: dependency-free, walks src/, {id,status,file,line,message}, --json, exit 1", "plan_ref": "08 §2 pkg D", "status": "pending" },
     { "id": "g12", "description": "The 15 tree-only checks: I1,I2,I4,I5,I7,I8,I9,I10,I11,I12,I14,I16,I17,I22,I24", "plan_ref": "08 §4", "status": "pending" },
     { "id": "g13", "description": "The 3 blueprint cross-checks I13,I15,I25; I25 skips conditional leaves whose gating task closed as not-needed", "plan_ref": "08 §3 C4", "status": "pending" },
     { "id": "g14", "description": "Fixture suite: one violating tree per script-class invariant plus one clean tree; each violation flagged under the correct id", "plan_ref": "08 §2 pkg D", "status": "pending" },
     { "id": "g15", "description": "Non-script invariants print as skipped with reason and owning gate; the report always shows 29 rows", "plan_ref": "08 §4", "status": "pending" },
-    { "id": "g16", "description": "eslint.architecture.mjs flat-config array covering I3,I18,I20,I21,I23,I26,I29", "plan_ref": "ffa §9, 08 §4", "status": "pending" },
+    { "id": "g16", "description": "eslint.architecture.mjs flat-config array covering I3,I18,I20,I21,I23,I26,I29", "plan_ref": "ffa §9, split §4", "status": "pending" },
     { "id": "g17", "description": "004 handoff in writing: 000 owns neither package.json nor eslint.config.mjs; 004 g1 conforms the existing scaffold, 004 g1 and g4 gain the merge criteria", "plan_ref": "08 §1 D5, §3 C9, §6", "status": "pending" },
     { "id": "g18", "description": "Move 'green on the real tree' to task 004's gate", "plan_ref": "08 §6", "status": "pending" }
   ],
@@ -689,7 +689,7 @@ that contract admits no exceptions.
 
 ### 7.2 `analyze.json` — the shape package A must fill
 
-`sources_read` is not optional: §7.1 of `02-working.md` makes reading the `plan_refs` *the* analyze
+`sources_read` is not optional: §7.1 of `07-agent-working.md` makes reading the `plan_refs` *the* analyze
 step. `open_questions` carries the four unanswered decisions **and** the eight defects from §5.3, so
 they reach tasks 001, 007, 016 and 021 instead of dying here.
 
@@ -700,26 +700,26 @@ they reach tasks 001, 007, 016 and 021 instead of dying here.
   "started_at": "",
   "completed_at": "",
   "sources_read": [
-    { "doc": "07-whole-apps-task.md", "section": "PHASE A, §2 dependency graph, §5 standing rules" },
-    { "doc": "frontend-folder-architecture.md", "section": "§4, §5.2, §8, §9, §12" },
-    { "doc": "frontend-architecture.md", "section": "§5.3, §10, §11, §13" },
-    { "doc": "01-thinkboard-lite-frontend-v2.md", "section": "§2, §4, §6" },
-    { "doc": "07-database-architecture.md", "section": "§2, §6, §6.1, §8.1, §10, §11" },
-    { "doc": "06-thinkboard-lite.md", "section": "§4.3, §5.3, §6, §10" },
+    { "doc": "06-whole-apps-task.md", "section": "PHASE A, §2 dependency graph, §5 standing rules" },
+    { "doc": "04-frontend-folder-architecture.md", "section": "§4, §5.2, §8, §9, §12" },
+    { "doc": "03-frontend-architecture.md", "section": "§5.3, §10, §11, §13" },
+    { "doc": "05-frontend-sync-handwriting.md", "section": "§2, §4, §6" },
+    { "doc": "02-database-architecture.md", "section": "§2, §6, §6.1, §8.1, §10, §11" },
+    { "doc": "01-thinkboard-lite-spec.md", "section": "§4.3, §5.3, §6, §10" },
     { "doc": "todo-task-000-split.md", "section": "§3.0, §3, §4, §4.1, §5.3" },
     { "doc": "frontend-thinkboard-lite/", "section": "package.json, tsconfig.json, components.json, AGENTS.md (C9)" },
     { "doc": "agent-history/running-process.json", "section": "task_sequence (C7)" }
   ],
   "scope": "Contract artifacts only: blueprint, AGENTS.md, verify script + fixtures, lint rule array. No create-next-app, no package.json, no eslint.config.mjs, no product code.",
   "acceptance_criteria": [
-    { "goal_id": "g1", "text": "C1-C9 and G1 in 08 §3 each have one recorded winner with a doc + section citation, or an escalation naming the human (C6, C7)." },
+    { "goal_id": "g1", "text": "C1-C9 and G1 in split §3 each have one recorded winner with a doc + section citation, or an escalation naming the human (C6); C7 recorded as resolved by the owner." },
     { "goal_id": "g2", "text": "The invariant registry totals 29 rows with I6 marked void and every row carrying an enforcement class." },
     { "goal_id": "g3", "text": "The decision registry totals 35 rows; exactly four carry state 'unanswered'; only D-05 and DB-Q5 carry 'confirmed'." },
-    { "goal_id": "g4", "text": "localFirst declares 7 Dexie tables, the compound [artifactId+page] index, and the three-state _sync flag, identical to 07-db §6.1." },
+    { "goal_id": "g4", "text": "localFirst declares 7 Dexie tables, the compound [artifactId+page] index, and the three-state _sync flag, identical to db §6.1." },
     { "goal_id": "g5", "text": "commands[] carries baseUrl; canvasLeaves[] has 5 entries and ink-pad is status 'conditional'." },
     { "goal_id": "g6", "text": "openQuestions[] and invariants[] are arrays, not prose." },
     { "goal_id": "g7", "text": "A blueprint with a deliberately wrong table name fails the self-check before any cross-check runs." },
-    { "goal_id": "g8", "text": "The placement decision tree is byte-identical to frontend-folder-architecture.md §8." },
+    { "goal_id": "g8", "text": "The placement decision tree is byte-identical to 04-frontend-folder-architecture.md §8." },
     { "goal_id": "g9", "text": "AGENTS.md states the escalation rule as a procedure with a destination (openQuestions[])." },
     { "goal_id": "g10", "text": "I19, I27 and I28 each name an owner and the task whose test covers them." },
     { "goal_id": "g11", "text": "The harness runs on a tree with no node_modules, exits 1 on any fail, and exits 1 when src/ is missing." },
@@ -736,7 +736,7 @@ they reach tasks 001, 007, 016 and 021 instead of dying here.
     "Q7 Bahasa Indonesia handwriting on the pilot's tablets — unanswered, decides whether task 024 exists and therefore whether ink-pad is a conditional canvas leaf. 45-minute test; run before 000 closes.",
     "Q8 the real tablet mix (iPad vs Samsung S Pen vs other Android) — unanswered.",
     "Q9 whether pilot users have styluses at all — assumed yes, unverified.",
-    "C6: note_input_mode must be a three-value enum with transcribed_by. 06 §6 disagrees with v2 §5 and 07-db §4, and the precedence rule points at the wrong doc. Carry to task 001 g2.",
+    "C6: note_input_mode must be a three-value enum with transcribed_by. spec §6 disagrees with v2 §5 and db §4, and the precedence rule points at the wrong doc. Carry to task 001 g2.",
     "F1 outbox head-of-line stall on a parked 4xx op — carry to task 007 g1.",
     "F2 _dirty is never cleared on a parked op; the row flag needs three states — affects blueprint g4 and task 007.",
     "F3 the reconcile manifest is unpaginated and can bulkDelete real local rows — carry to task 007 g4.",
@@ -745,11 +745,11 @@ they reach tasks 001, 007, 016 and 021 instead of dying here.
     "F6 OPFS is not namespaced per profile while Dexie is — carry to task 016 g6.",
     "F7 applyRemote reads payload.record.id, which is null on DELETE — carry to task 007 g3.",
     "F8 reconcile diffs highlights only; notes need their own manifest — carry to task 007 g4.",
-    "C7 plan ids 001-024 collide with agent-history 001-010 — escalated; recommended default plan id + 10; only 000 opens a folder until answered.",
-    "C8 state library: Redux Toolkit per frontend-architecture.md, not 06 §5.3's TanStack Query + Zustand.",
+    "C7 resolved by the owner 2026-09-18: agent-history cleared, plan id = folder id for 000-024.",
+    "C8 state library: Redux Toolkit per 03-frontend-architecture.md, not spec §5.3's TanStack Query + Zustand.",
     "C9 the scaffold already exists without src/ — task 004 g1 becomes 'conform the scaffold'; AGENTS.md keeps Next's agent-rules block.",
     "G1 / DB-Q12 non-mirrored tables have no legal read path — defaulted to Dexie meta + outbox; package B waits on it.",
-    "07-db §11: DB-F1..DB-F10 applied in §8.1 — carry to task 001 g2/g3 and task 002 (tests 7-13); DB-Q6 blocks 001/008, DB-Q9 blocks 015."
+    "db §11: DB-F1..DB-F10 applied in §8.1 — carry to task 001 g2/g3 and task 002 (tests 7-13); DB-Q6 blocks 001/008, DB-Q9 blocks 015."
   ],
   "risks": [
     "Package A is an agent making ten judgement calls, which is the behaviour package C forbids. A resolves only what precedence decides.",
@@ -786,10 +786,10 @@ they reach tasks 001, 007, 016 and 021 instead of dying here.
     { "goal_id": "g18", "status": "", "notes": "" }
   ],
   "cross_check_against_plan": [
-    { "doc": "frontend-folder-architecture.md", "section": "§12", "result": "" },
-    { "doc": "frontend-architecture.md", "section": "§11", "result": "" },
-    { "doc": "01-thinkboard-lite-frontend-v2.md", "section": "§4", "result": "" },
-    { "doc": "07-database-architecture.md", "section": "§2", "result": "" },
+    { "doc": "04-frontend-folder-architecture.md", "section": "§12", "result": "" },
+    { "doc": "03-frontend-architecture.md", "section": "§11", "result": "" },
+    { "doc": "05-frontend-sync-handwriting.md", "section": "§4", "result": "" },
+    { "doc": "02-database-architecture.md", "section": "§2", "result": "" },
     { "doc": "todo-task-000-split.md", "section": "§3 conflict verdicts, §4.1 decision registry", "result": "" }
   ],
   "signed_off": false,
@@ -817,17 +817,17 @@ they reach tasks 001, 007, 016 and 021 instead of dying here.
 `analyze.json` before any code · one `validate.json.goal_checks` entry per mini-goal, **now eighteen
 of them** · anything touching RLS or stage transitions cannot reach validate with
 `test.json.summary.total: 0` · open decisions get raised in `analyze.json.open_questions`, never
-silently resolved · **no git write without explicit confirmation, every time** (`05-agent-limitation.md`
+silently resolved · **no git write without explicit confirmation, every time** (`09-agent-limitation.md`
 §1), landing on the shadow branch and never on `master` · `npm run verify` green before a task closes.
 
 ---
 
 ## 9. Sources
 
-In repo: `00-thinkboard-lite-abstract-plan.md`, `01-thinkboard-lite-frontend-v2.md` (v2),
-`06-thinkboard-lite.md` (06), `07-database-architecture.md` (07-db), `07-whole-apps-task.md`
-(whole-apps), `frontend-architecture.md` (fa), `frontend-folder-architecture.md` (ffa),
-`02-working.md`, `04-TODO.md`, `05-agent-limitation.md`. **"08" in `plan_ref`s means this file,
+In repo: `10-abstract-plan-superseded.md`, `05-frontend-sync-handwriting.md` (v2),
+`01-thinkboard-lite-spec.md` (spec), `02-database-architecture.md` (db), `06-whole-apps-task.md`
+(whole-apps), `03-frontend-architecture.md` (fa), `04-frontend-folder-architecture.md` (ffa),
+`07-agent-working.md`, `08-agent-todo-intake.md`, `09-agent-limitation.md`. **"split" in `plan_ref`s means this file,
 `todo-task-000-split.md`** (archived as `claude-artifact/08-task-000-split.md`).
 
 Repository state, inspected 2026-09-18 for C7 and C9: `agent-history/running-process.json`,
