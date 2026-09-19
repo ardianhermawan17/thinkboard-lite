@@ -54,11 +54,14 @@ authority: "Scope and contract for task 002 only. Product intent stays in 01-thi
 - `g11` A's group-visibility note on A's private highlight does not reach ws:{sessionId}, and B cannot select it. *(db §9 #11 RULE-03 DB-Q7)*
 - `g12` A mini-conclusion for a promoted highlight arrives on ws:{sessionId}; for a private one only on user:{A}. *(db §9 #12 DB-F5)*
 - `g13` 0004_lite.sql applied twice on the same database raises no error. *(db §9 #13 DB-F3)*
+- `g14` Run children (points, point_conclusions, run_renderings, pipeline_stages): a non-owner, non-leader cannot insert, update or delete rows of a group run, nor delete the run; the leader can; A can on A's own individual run. *(db §9 #14 DB-F11)*
+- `g15` memory_entries: a member cannot write scope 'group' or 'initial'; the leader can write both. *(db §9 #15 DB-F12 DB-Q10)*
+- `g16` create_workspace makes the caller the one leader; transfer_leadership refuses a non-leader and a non-member target, and leaves exactly one leader. *(db §9 #16 DB-F13 DB-Q6 D-09)*
 
-**Gate —** All thirteen green against a real local Supabase. `g3`, `g5`, `g8` and `g11` are the ones that never surface in manual testing.
+**Gate —** All sixteen green against a real local Supabase. `g3`, `g5`, `g8` and `g11` are the ones that never surface in manual testing.
 **Blocks —** [`008`](todo-task-008-auth-and-workspace-shell.md).
 
-Goals beyond the plan's list carry their source in brackets: they come from the split's §6 table, the database
+`g14`–`g16` were added at analyze (owner, 2026-09-19): they pin what task 001 added on reading `0001`. Goals beyond the plan's list carry their source in brackets: they come from the split's §6 table, the database
 review (`02-database-architecture.md` §10–§11) or a resolved conflict, and are part of this task's contract.
 
 ---
@@ -75,15 +78,18 @@ Every row goes into `analyze.json.open_questions`. An **unanswered** row stops t
 | D-07 | defaulted | explicit promotion via `shared_at` | g6 |
 | DB-Q1 | defaulted | = D-01 | = D-01 |
 | DB-Q7 | defaulted | member group-visibility notes allowed as written | g11 pins today's behaviour |
-| DB-Q10 | defaulted | verify 0001; add a restrictive policy if needed | add a memory_entries case if 001 found member-writable group scope |
+| DB-Q10 | **confirmed** | `0001` had no write policy; "leader writes memory" added (owner, 2026-09-18) | g15 |
+| DB-Q6 | **confirmed** | `create_workspace` + `transfer_leadership` (owner, 2026-09-18) | g16 |
+| D-09 | defaulted | leadership transfers, by the leader or the creator | g16 tests the leader path; the creator path is not built (task 001 decision) |
+| *new* | resolved by default | no dependency | delivery goals (g5, g10-g12) are proven at the routing + authorization layer in SQL, so no `@supabase/supabase-js` is added. A live-socket test is the upgrade if a delivery bug ever slips through. |
 
 ---
 
 ## 4. Where the work lands
 
 ```
-database-thinkboard-lite/supabase/tests/                 # SQL policy tests (harness chosen in analyze — e.g. pgTAP via `supabase test db`)
-a realtime test script with two signed-in supabase-js clients   # g5, g10, g11, g12
+database-thinkboard-lite/supabase/tests/rls.sql        # g1-g12, g14-g16 — one rolled-back transaction, every check as role `authenticated` with a JWT sub
+database-thinkboard-lite/supabase/tests/rls.test.mjs   # runs rls.sql through docker exec psql; g13 re-applies 0004; `npm test`
 ```
 
 Placement follows `04-frontend-folder-architecture.md` §8; anything that does not fit is a question, not a new folder.
@@ -92,7 +98,7 @@ Placement follows `04-frontend-folder-architecture.md` §8; anything that does n
 
 ## 5. Tests that must exist
 
-- this task is its tests: 13 cases, test.json.summary.total ≥ 13 (RLS rule)
+- this task is its tests: 16 cases, test.json.summary.total ≥ 16 (RLS rule)
 
 ---
 
@@ -137,7 +143,10 @@ Per `07-agent-working.md` §4. Open the folder only through the main gate in `RE
     {"id": "g10", "description": "A unshares a promoted highlight: B receives RETRACT on ws:{sessionId}; A's other device keeps the row", "plan_ref": "db §9 #10 DB-F8", "status": "pending"},
     {"id": "g11", "description": "A's group-visibility note on A's private highlight does not reach ws:{sessionId}, and B cannot select it", "plan_ref": "db §9 #11 RULE-03 DB-Q7", "status": "pending"},
     {"id": "g12", "description": "A mini-conclusion for a promoted highlight arrives on ws:{sessionId}; for a private one only on user:{A}", "plan_ref": "db §9 #12 DB-F5", "status": "pending"},
-    {"id": "g13", "description": "0004_lite.sql applied twice on the same database raises no error", "plan_ref": "db §9 #13 DB-F3", "status": "pending"}
+    {"id": "g13", "description": "0004_lite.sql applied twice on the same database raises no error", "plan_ref": "db §9 #13 DB-F3", "status": "pending"},
+    {"id": "g14", "description": "Run children (points, point_conclusions, run_renderings, pipeline_stages): a non-owner, non-leader cannot insert, update or delete rows of a group run, nor delete the run; the leader can; A can on A's own individual run", "plan_ref": "db §9 #14 DB-F11", "status": "pending"},
+    {"id": "g15", "description": "memory_entries: a member cannot write scope 'group' or 'initial'; the leader can write both", "plan_ref": "db §9 #15 DB-F12 DB-Q10", "status": "pending"},
+    {"id": "g16", "description": "create_workspace makes the caller the one leader; transfer_leadership refuses a non-leader and a non-member target, and leaves exactly one leader", "plan_ref": "db §9 #16 DB-F13 DB-Q6 D-09", "status": "pending"}
   ],
   "phases": {
     "analyze": {"file": "analyze.json", "status": "not_started"},
@@ -177,14 +186,17 @@ Per `07-agent-working.md` §4. Open the folder only through the main gate in `RE
     {"goal_id": "g10", "text": "B's client gets RETRACT; A's second client gets UPDATE on user:{A}."},
     {"goal_id": "g11", "text": "Nothing arrives for B; B's select returns 0 rows."},
     {"goal_id": "g12", "text": "Routing matches the highlight's visibility in both cases."},
-    {"goal_id": "g13", "text": "The second apply exits 0."}
+    {"goal_id": "g13", "text": "The second apply exits 0."},
+    {"goal_id": "g14", "text": "Every write by B on a group run's children, and B's delete of the group run, changes no row or is denied; the leader's and A's-own-run writes succeed."},
+    {"goal_id": "g15", "text": "B's inserts (group, initial) are RLS denials; the leader's both succeed; B still reads group memory."},
+    {"goal_id": "g16", "text": "Caller is leader after create_workspace; the two refusals raise; after a valid transfer exactly one leader exists and it is the target."}
   ],
-  "open_questions": ["D-01 (defaulted: individual is a privacy boundary) — g2, g3, g8 are its proof.", "D-03 (defaulted: group result is leader-only) — g9.", "D-07 (defaulted: explicit promotion via `shared_at`) — g6.", "DB-Q1 (defaulted: = D-01) — = D-01.", "DB-Q7 (defaulted: member group-visibility notes allowed as written) — g11 pins today's behaviour.", "DB-Q10 (defaulted: verify 0001; add a restrictive policy if needed) — add a memory_entries case if 001 found member-writable group scope."],
+  "open_questions": ["D-01 (defaulted: individual is a privacy boundary) — g2, g3, g8 are its proof.", "D-03 (defaulted: group result is leader-only) — g9.", "D-07 (defaulted: explicit promotion via `shared_at`) — g6.", "DB-Q1 (defaulted: = D-01) — = D-01.", "DB-Q7 (defaulted: member group-visibility notes allowed as written) — g11 pins today's behaviour.", "DB-Q10 (confirmed: 0001 had no write policy; leader writes memory) — g15.", "DB-Q6 (confirmed) — g16.", "D-09 (defaulted) — g16 tests the leader path only.", "NEW: @supabase/supabase-js devDependency for the realtime tests — awaiting the owner's yes."],
   "risks": ["A realtime assertion that passes because the client never subscribed. Assert the positive case (g5's promoted row) in the same test as the negative one.", "Testing as the postgres role bypasses RLS entirely. Every query must run under a signed-in user's JWT.", "setAuth() before subscribe (I22) applies to the test clients too, or g5/g10/g12 silently receive nothing."]
 }
 ```
 
-### 7.3 `validate.json` — 13 goal checks, no exceptions
+### 7.3 `validate.json` — 16 goal checks, no exceptions
 
 ```json
 {
@@ -203,7 +215,10 @@ Per `07-agent-working.md` §4. Open the folder only through the main gate in `RE
     {"goal_id": "g10", "status": "", "notes": ""},
     {"goal_id": "g11", "status": "", "notes": ""},
     {"goal_id": "g12", "status": "", "notes": ""},
-    {"goal_id": "g13", "status": "", "notes": ""}
+    {"goal_id": "g13", "status": "", "notes": ""},
+    {"goal_id": "g14", "status": "", "notes": ""},
+    {"goal_id": "g15", "status": "", "notes": ""},
+    {"goal_id": "g16", "status": "", "notes": ""}
   ],
   "cross_check_against_plan": [
     {"doc": "06-whole-apps-task.md", "section": "PHASE B · 002", "result": ""},
@@ -234,7 +249,7 @@ Per `07-agent-working.md` §4. Open the folder only through the main gate in `RE
 
 ## 8. Standing rules, unchanged
 
-`analyze.json` before any code · one `validate.json.goal_checks` entry per goal, **13 here** · anything
+`analyze.json` before any code · one `validate.json.goal_checks` entry per goal, **16 here** · anything
 touching RLS or stage transitions cannot reach validate with `test.json.summary.total: 0` · open decisions go in
 `analyze.json.open_questions`, never silently resolved · **no git write without explicit confirmation, every
 time** (`09-agent-limitation.md` §1), on the shadow branch, never `master` · `npm run verify` green before a

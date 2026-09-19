@@ -855,12 +855,23 @@ Added in rev 1.1 — each pins one §11 fix:
  12. A mini-conclusion written for a promoted highlight arrives on
      ws:{sessionId}; for a private one, only on user:{A}.           → routed       (DB-F5)
  13. 0004_lite.sql applied twice on the same database.              → no error     (DB-F3)
+ 14. A non-owner, non-leader cannot insert/update/delete rows of a
+     group run's children, nor delete the run; the leader can.       → denied / ok  (DB-F11)
+ 15. A member cannot write memory_entries group or initial scope;
+     the leader can write both.                                     → denied / ok  (DB-F12)
+ 16. create_workspace makes the caller the one leader;
+     transfer_leadership refuses a non-leader and a non-member
+     target, and leaves exactly one leader.                         → ok / raises  (DB-F13)
 ```
 
 Checks 2, 5, 8 and 11 are the ones that never show up in manual testing and are the reason the RLS rewrite
-is flagged as the highest-risk item in the plan. Checks 7–13 extend task 002 (see
+is flagged as the highest-risk item in the plan. Checks 7–16 extend task 002 (see
 `todo-task-000-split.md` §6).
 
+
+Run them with `npm test` in `database-thinkboard-lite/` (`supabase/tests/rls.sql`). Broadcast checks assert the
+topic each row is routed to and who may read that topic through the real `realtime.messages` policy; socket
+delivery itself is Realtime's job.
 ---
 
 ## 10. Open questions

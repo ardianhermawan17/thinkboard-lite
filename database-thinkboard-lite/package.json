@@ -1,5 +1,11 @@
 {
   "devDependencies": {
     "supabase": "^2.117.0"
+  },
+  "scripts": {
+    "start": "supabase start -x storage-api,imgproxy,studio,postgres-meta,edge-runtime,logflare,vector,supavisor,mailpit",
+    "stop": "supabase stop",
+    "reset": "supabase db reset",
+    "test": "node --test \"supabase/tests/*.test.mjs\""
   }
 }

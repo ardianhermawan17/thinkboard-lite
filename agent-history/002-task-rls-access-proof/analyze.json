@@ -1,0 +1,132 @@
+{
+  "task_id": "002-task-rls-access-proof",
+  "phase": "analyze",
+  "started_at": "2026-09-18T23:06:38Z",
+  "completed_at": "2026-09-18T23:06:38Z",
+  "sources_read": [
+    {
+      "doc": "README.md",
+      "section": "main gate §1-§3"
+    },
+    {
+      "doc": "todo-task-002-rls-access-proof.md",
+      "section": "full file"
+    },
+    {
+      "doc": "06-whole-apps-task.md",
+      "section": "PHASE B · 002"
+    },
+    {
+      "doc": "02-database-architecture.md",
+      "section": "§4.1, §8.1, §9, §10, §11"
+    },
+    {
+      "doc": "01-thinkboard-lite-spec.md",
+      "section": "§3 RULE-01..06, §5.1, §5.2"
+    },
+    {
+      "doc": "agent-history/001-task-supabase-lite-migration/",
+      "section": "code.json decisions, validate.json issues_found"
+    },
+    {
+      "doc": "database-thinkboard-lite/supabase/migrations/0004_lite.sql",
+      "section": "full file (policies, triggers, RPCs)"
+    },
+    {
+      "doc": "database-thinkboard-lite/supabase/config.toml",
+      "section": "[auth] sign-up on, email confirmations off; [db.seed] sql_paths ./seed.sql; ports 553xx"
+    },
+    {
+      "doc": "database-thinkboard-lite/",
+      "section": "file audit: tracked files, missing seed.sql/tests/README/scripts"
+    }
+  ],
+  "scope": "Automated proof of the RLS and broadcast-topic model (16 goals) against the local Supabase stack, in database-thinkboard-lite/supabase/tests/. Out of scope: changing a policy to make a test pass (a red test is a finding for 001 — stop and show the owner), seed data (003), the live topic (015), any product code.",
+  "acceptance_criteria": [
+    {
+      "goal_id": "g1",
+      "text": "A test fixture creates the three profiles and one workspace from scratch."
+    },
+    {
+      "goal_id": "g2",
+      "text": "Query as B returns 0 rows."
+    },
+    {
+      "goal_id": "g3",
+      "text": "Query as B returns 0 rows."
+    },
+    {
+      "goal_id": "g4",
+      "text": "B's insert is an RLS denial; the leader's succeeds."
+    },
+    {
+      "goal_id": "g5",
+      "text": "B's subscribed client sees exactly one event, for the promoted row."
+    },
+    {
+      "goal_id": "g6",
+      "text": "Both rows change in one call; B's call on A's highlight raises."
+    },
+    {
+      "goal_id": "g7",
+      "text": "Both inserts are RLS denials."
+    },
+    {
+      "goal_id": "g8",
+      "text": "All four queries as B return 0 rows."
+    },
+    {
+      "goal_id": "g9",
+      "text": "Denial, success, success — in that order."
+    },
+    {
+      "goal_id": "g10",
+      "text": "B's client gets RETRACT; A's second client gets UPDATE on user:{A}."
+    },
+    {
+      "goal_id": "g11",
+      "text": "Nothing arrives for B; B's select returns 0 rows."
+    },
+    {
+      "goal_id": "g12",
+      "text": "Routing matches the highlight's visibility in both cases."
+    },
+    {
+      "goal_id": "g13",
+      "text": "The second apply exits 0."
+    },
+    {
+      "goal_id": "g14",
+      "text": "Every write by B on a group run's children, and B's delete of the group run, changes no row or is denied; the leader's and A's-own-run writes succeed."
+    },
+    {
+      "goal_id": "g15",
+      "text": "B's inserts (group, initial) are RLS denials; the leader's both succeed; B still reads group memory."
+    },
+    {
+      "goal_id": "g16",
+      "text": "Caller is leader after create_workspace; the two refusals raise; after a valid transfer exactly one leader exists and it is the target."
+    }
+  ],
+  "open_questions": [
+    "D-01 (defaulted: individual is a privacy boundary) — g2, g3, g8 are its proof.",
+    "D-03 (defaulted: group result is leader-only) — g9.",
+    "D-07 (defaulted: explicit promotion via `shared_at`) — g6.",
+    "DB-Q1 (defaulted: = D-01) — = D-01.",
+    "DB-Q7 (defaulted: member group-visibility notes allowed as written) — g11 pins today's behaviour.",
+    "DB-Q10 (confirmed: 0001 had no write policy; leader writes memory) — g15.",
+    "DB-Q6 (confirmed) — g16.",
+    "D-09 (defaulted) — g16 tests the leader path only.",
+    "NEW: @supabase/supabase-js devDependency for the realtime tests — not answered by the owner; defaulted to no dependency (see code.json.decisions)."
+  ],
+  "risks": [
+    "A realtime assertion that passes because the client never subscribed. Assert the positive case (g5's promoted row) in the same test as the negative one.",
+    "Testing as the postgres role bypasses RLS entirely. Every query must run under a signed-in user's JWT.",
+    "setAuth() before subscribe (I22) applies to the test clients too, or g5/g10/g12 silently receive nothing.",
+    "Harness: no pg_prove image is cached, so `supabase test db` would download one. SQL tests therefore run as plain SQL through `docker exec psql`; each test is one transaction that rolls back.",
+    "Seeding runs as postgres because clients cannot add team members (the gap raised for task 008). Each test then sets `role authenticated` and asserts current_user, so RLS is really in force.",
+    "Realtime tests need two real signed-in sessions: users sign up through GoTrue with the publishable key (sign-up on, confirmations off), so no secret key is used.",
+    "'Nothing arrives' needs a wait window; it is one named constant, and every negative case also asserts a positive event on the same connection.",
+    "database-thinkboard-lite/ has no README/CLAUDE.md, no package.json scripts and no seed.sql — the seed.sql absence means `db reset` runs with seeding enabled but no file."
+  ]
+}

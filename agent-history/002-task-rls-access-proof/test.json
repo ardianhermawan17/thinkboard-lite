@@ -1,0 +1,73 @@
+{
+  "task_id": "002-task-rls-access-proof",
+  "phase": "test",
+  "test_files": [
+    "database-thinkboard-lite/supabase/tests/rls.sql",
+    "database-thinkboard-lite/supabase/tests/rls.test.mjs"
+  ],
+  "commands_run": [
+    {
+      "command": "npm test",
+      "result": "17 tests, 17 pass: suite exits 0, g1-g12 and g14-g16 each have passing checks, g13 second apply of 0004 exits 0"
+    },
+    {
+      "command": "psql < rls.sql",
+      "result": "56 checks, 56 ok, 0 FAIL"
+    },
+    {
+      "command": "mutation: drop 'run insert guard' on points",
+      "result": "suite red — fails g14"
+    },
+    {
+      "command": "mutation: drop 'only owner or leader deletes runs'",
+      "result": "suite red — fails g14"
+    },
+    {
+      "command": "mutation: drop 'individual runs private'",
+      "result": "suite red — fails g8"
+    },
+    {
+      "command": "mutation: drop 'leader writes memory'",
+      "result": "suite red — fails g15"
+    },
+    {
+      "command": "mutation: drop 'leader writes group highlights'",
+      "result": "suite red — fails g4"
+    },
+    {
+      "command": "mutation: membership check removed from 'write own notes'",
+      "result": "suite red — fails g7"
+    },
+    {
+      "command": "mutation: realtime.messages readable by every authenticated user",
+      "result": "suite red — fails g5"
+    },
+    {
+      "command": "mutation: drop highlights_broadcast trigger",
+      "result": "suite red — fails g5, g10"
+    },
+    {
+      "command": "mutation: drop mini_conclusions_broadcast trigger",
+      "result": "suite red — fails g12"
+    },
+    {
+      "command": "mutation: transfer_leadership skips the leader check",
+      "result": "suite red — fails g16"
+    },
+    {
+      "command": "mutation: promote_highlight ignores the author",
+      "result": "suite red — fails g5, g6, g11, g12"
+    },
+    {
+      "command": "mutation: drop 'private highlights' policy; create_workspace without making the creator leader",
+      "result": "fixture aborts with an RLS / assertion error (nonzero exit) rather than a named goal — still red"
+    }
+  ],
+  "summary": {
+    "total": 56,
+    "passed": 56,
+    "failed": 0,
+    "skipped": 0
+  },
+  "coverage_notes": "56 SQL checks (17 node tests wrap them). Behaviour proven against the real local stack, as role authenticated. Mutation checks show the suite fails when each protecting policy, trigger or function is broken, so a green run is not vacuous. Not covered: socket delivery, which is Realtime's, and the effect of 0001-0003 policies I did not touch."
+}
