@@ -1,0 +1,153 @@
+{
+  "id": "002-task-rls-access-proof",
+  "title": "Prove the access model in code, because DB-1 makes RLS the authorization layer rather than a safety net",
+  "architecture": "supabase",
+  "secondary_architecture": [],
+  "created_at": "2026-09-18T23:06:38Z",
+  "status": "done",
+  "depends_on": [
+    "001-task-supabase-lite-migration"
+  ],
+  "plan_refs": [
+    {
+      "doc": "06-whole-apps-task.md",
+      "section": "PHASE B · 002"
+    },
+    {
+      "doc": "database-thinkboard-lite/",
+      "section": "supabase/config.toml, migrations/0001-0004, package.json"
+    },
+    {
+      "doc": "02-database-architecture.md",
+      "section": "§4.1, §8.1, §9, §10, §11"
+    },
+    {
+      "doc": "01-thinkboard-lite-spec.md",
+      "section": "§3 RULE-01..06, §5.1, §5.2"
+    },
+    {
+      "doc": "todo-task-002-rls-access-proof.md",
+      "section": "§2 goals and gate, §3 decisions"
+    }
+  ],
+  "goals": [
+    {
+      "id": "g1",
+      "description": "Seed two members (A, B) and one leader in one workspace for the tests",
+      "plan_ref": "tasks 002 g1",
+      "status": "done"
+    },
+    {
+      "id": "g2",
+      "description": "B cannot select A's private highlight",
+      "plan_ref": "tasks 002 g2; db §9 #1",
+      "status": "done"
+    },
+    {
+      "id": "g3",
+      "description": "B cannot select the mini_conclusion of A's private highlight",
+      "plan_ref": "tasks 002 g3; db §9 #2",
+      "status": "done"
+    },
+    {
+      "id": "g4",
+      "description": "B cannot insert layer='group'; the leader can",
+      "plan_ref": "tasks 002 g4; db §9 #3 #6",
+      "status": "done"
+    },
+    {
+      "id": "g5",
+      "description": "B receives A's promoted highlight on ws:{sessionId}, and A's private highlight on no topic",
+      "plan_ref": "tasks 002 g5; db §9 #4 #5",
+      "status": "done"
+    },
+    {
+      "id": "g6",
+      "description": "promote_highlight() flips the highlight and its note together, and refuses someone else's row",
+      "plan_ref": "tasks 002 g6",
+      "status": "done"
+    },
+    {
+      "id": "g7",
+      "description": "After removal from team_members, A cannot insert a highlight or a note in the workspace",
+      "plan_ref": "db §9 #7 DB-F4",
+      "status": "done"
+    },
+    {
+      "id": "g8",
+      "description": "B cannot select A's individual run, its points, conclusions or renderings",
+      "plan_ref": "db §9 #8 DB-F6",
+      "status": "done"
+    },
+    {
+      "id": "g9",
+      "description": "B cannot insert a run with owner_profile_id null; the leader can; A can insert their own",
+      "plan_ref": "db §9 #9 DB-F7 D-03",
+      "status": "done"
+    },
+    {
+      "id": "g10",
+      "description": "A unshares a promoted highlight: B receives RETRACT on ws:{sessionId}; A's other device keeps the row",
+      "plan_ref": "db §9 #10 DB-F8",
+      "status": "done"
+    },
+    {
+      "id": "g11",
+      "description": "A's group-visibility note on A's private highlight does not reach ws:{sessionId}, and B cannot select it",
+      "plan_ref": "db §9 #11 RULE-03 DB-Q7",
+      "status": "done"
+    },
+    {
+      "id": "g12",
+      "description": "A mini-conclusion for a promoted highlight arrives on ws:{sessionId}; for a private one only on user:{A}",
+      "plan_ref": "db §9 #12 DB-F5",
+      "status": "done"
+    },
+    {
+      "id": "g13",
+      "description": "0004_lite.sql applied twice on the same database raises no error",
+      "plan_ref": "db §9 #13 DB-F3",
+      "status": "done"
+    },
+    {
+      "id": "g14",
+      "description": "Run children (points, point_conclusions, run_renderings, pipeline_stages): a non-owner, non-leader cannot insert, update or delete rows of a group run, nor delete the run; the leader can; A can on A's own individual run",
+      "plan_ref": "db §9 #14 DB-F11",
+      "status": "done"
+    },
+    {
+      "id": "g15",
+      "description": "memory_entries: a member cannot write scope 'group' or 'initial'; the leader can write both",
+      "plan_ref": "db §9 #15 DB-F12 DB-Q10",
+      "status": "done"
+    },
+    {
+      "id": "g16",
+      "description": "create_workspace makes the caller the one leader; transfer_leadership refuses a non-leader and a non-member target, and leaves exactly one leader",
+      "plan_ref": "db §9 #16 DB-F13 DB-Q6 D-09",
+      "status": "done"
+    }
+  ],
+  "phases": {
+    "analyze": {
+      "file": "analyze.json",
+      "status": "done"
+    },
+    "code": {
+      "file": "code.json",
+      "status": "done"
+    },
+    "test": {
+      "file": "test.json",
+      "status": "done"
+    },
+    "validate": {
+      "file": "validate.json",
+      "status": "done"
+    },
+    "result": {
+      "file": "result.json",
+      "status": "done"
+    }
+  }
+}

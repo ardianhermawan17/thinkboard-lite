@@ -1,0 +1,22 @@
+{
+  "task_id": "002-task-rls-access-proof",
+  "phase": "result",
+  "closed_at": "2026-09-18T23:22:19Z",
+  "final_status": "done",
+  "goals_summary": {
+    "total": 16,
+    "done": 16,
+    "blocked": 0
+  },
+  "artifacts": [
+    "database-thinkboard-lite/supabase/tests/rls.sql",
+    "database-thinkboard-lite/supabase/tests/rls.test.mjs",
+    "database-thinkboard-lite/package.json",
+    "database-thinkboard-lite/README.md"
+  ],
+  "follow_up_tasks": [
+    "008-task-auth-and-workspace-shell — add-member definer RPC (team_members is client-read-only); the access model it builds on is now proven.",
+    "Optional: one supabase-js socket test for g5 if a delivery bug ever appears.",
+    "003-task-types-and-seed / 004-task-frontend-scaffold — unblocked; 003 g1 waits for 004's src/."
+  ]
+}

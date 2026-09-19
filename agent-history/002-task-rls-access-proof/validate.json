@@ -1,0 +1,115 @@
+{
+  "task_id": "002-task-rls-access-proof",
+  "phase": "validate",
+  "goal_checks": [
+    {
+      "goal_id": "g1",
+      "status": "pass",
+      "notes": "4 profiles, one workspace (L leads, A and B members) and a sanity check that every check runs as authenticated as the right profile."
+    },
+    {
+      "goal_id": "g2",
+      "status": "pass",
+      "notes": "B sees 0 of A's private highlights; A sees their own (positive twin)."
+    },
+    {
+      "goal_id": "g3",
+      "status": "pass",
+      "notes": "B sees 0 mini_conclusions of a private highlight; A sees it."
+    },
+    {
+      "goal_id": "g4",
+      "status": "pass",
+      "notes": "B cannot insert layer=group or insert as A; the leader can."
+    },
+    {
+      "goal_id": "g5",
+      "status": "pass",
+      "notes": "Private row routed to user:{A} only; promoted row reaches ws:{session}; B may listen on ws: and not user:{A}; an outsider cannot listen on ws:; A's other devices can listen on user:{A}. Killed by a leak mutation."
+    },
+    {
+      "goal_id": "g6",
+      "status": "pass",
+      "notes": "B's promote raises and changes nothing; A's one call flips highlight and note together; B then sees the promoted pair and still not the private one."
+    },
+    {
+      "goal_id": "g7",
+      "status": "pass",
+      "notes": "A removed from team_members cannot insert a highlight or a note."
+    },
+    {
+      "goal_id": "g8",
+      "status": "pass",
+      "notes": "B sees 0 of A's individual run and its four child tables; sees the group run; A sees their own."
+    },
+    {
+      "goal_id": "g9",
+      "status": "pass",
+      "notes": "B cannot insert a group run or a run owned by A; A can insert their own but not a group run; the leader can insert a group run."
+    },
+    {
+      "goal_id": "g10",
+      "status": "pass",
+      "notes": "Unsharing sends RETRACT on ws:{session}; the row update goes to user:{A}; B reads the RETRACT and no longer sees the row."
+    },
+    {
+      "goal_id": "g11",
+      "status": "pass",
+      "notes": "A group-visibility note on a private highlight is routed to user:{A} only and B cannot select it."
+    },
+    {
+      "goal_id": "g12",
+      "status": "pass",
+      "notes": "A private highlight's mini_conclusion goes to user:{A} only; a promoted one is re-fired to ws:{session}."
+    },
+    {
+      "goal_id": "g13",
+      "status": "pass",
+      "notes": "Second apply of 0004_lite.sql on the same database exits 0 (node test)."
+    },
+    {
+      "goal_id": "g14",
+      "status": "pass",
+      "notes": "B cannot insert/update/delete children of a group run nor delete the run; a non-leader member cannot add; the owner can write and delete their own run; the leader can write and delete the group run. Killed by two mutations."
+    },
+    {
+      "goal_id": "g15",
+      "status": "pass",
+      "notes": "Members cannot write group or initial memory; the leader can write both; members read the minutes. Killed by a mutation."
+    },
+    {
+      "goal_id": "g16",
+      "status": "pass",
+      "notes": "Creator is the one leader; other workspaces are invisible; a non-leader and a former leader cannot transfer; a non-member target is refused; after a transfer exactly one leader; an unknown user cannot create a workspace. Killed by mutations."
+    }
+  ],
+  "cross_check_against_plan": [
+    {
+      "doc": "02-database-architecture.md",
+      "section": "§9 tests 1-16",
+      "result": "all sixteen present; 7-16 pin the §11 fixes"
+    },
+    {
+      "doc": "02-database-architecture.md",
+      "section": "§8.1",
+      "result": "unchanged — no policy needed fixing; still byte-identical to 0004_lite.sql"
+    },
+    {
+      "doc": "06-whole-apps-task.md",
+      "section": "PHASE B · 002",
+      "result": "gate met: all green against a real local Supabase; g3 and g5 killed by mutations"
+    },
+    {
+      "doc": "todo-task-002-rls-access-proof.md",
+      "section": "§2, §3",
+      "result": "16 goals; DB-Q10 and DB-Q6 treated as confirmed"
+    }
+  ],
+  "signed_off": true,
+  "issues_found": [
+    "g5, g10, g11 and g12 prove routing and authorization, not socket delivery; a delivery bug in Realtime itself would not be caught (upgrade: one supabase-js socket test).",
+    "Two mutations abort the fixture instead of failing a named goal; they are still red but louder than attributed.",
+    "The fixture seeds team members as postgres because clients cannot add members (0001); an add-member definer RPC is still open for task 008.",
+    "Work is on branch claude/task-002 and uncommitted; a git write needs the owner's yes."
+  ]
+}

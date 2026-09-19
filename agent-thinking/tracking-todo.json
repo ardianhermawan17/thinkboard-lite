@@ -1,6 +1,6 @@
 {
 	"schema_version": "1.0",
-	"updated_at": "2026-09-18T10:46:27Z",
+	"updated_at": "2026-09-18T23:22:19Z",
 	"tracked_todos": [
 		{
 			"id": "000-todo-architecture-contract",
@@ -16,6 +16,14 @@
 			"goal": "The Lite schema exists on a fresh project, so the frontend has real tables to build against.",
 			"todo_path": "agent-thinking/todo/001-todo-supabase-lite-migration/contract.json",
 			"agent_history": "agent-history/001-task-supabase-lite-migration",
+			"status": "done"
+		},
+		{
+			"id": "002-todo-rls-access-proof",
+			"name": "RLS access proof",
+			"goal": "Prove the access model in code, because DB-1 makes RLS the authorization layer rather than a safety net.",
+			"todo_path": "agent-thinking/todo/002-todo-rls-access-proof/contract.json",
+			"agent_history": "agent-history/002-task-rls-access-proof",
 			"status": "done"
 		}
 	]

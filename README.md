@@ -158,7 +158,7 @@ in `task_sequence` is *not opened*.
 |---|---|---|---|---|---|
 | A | 000 architecture contract | [todo-task-000-split](todo-task-000-split.md) | frontend | — | **done** |
 | B | 001 Supabase Lite migration | [todo-task-001](todo-task-001-supabase-lite-migration.md) | supabase | 000 (pkg A) | **done** |
-| B | 002 RLS access proof | [todo-task-002](todo-task-002-rls-access-proof.md) | supabase | 001 | not opened |
+| B | 002 RLS access proof | [todo-task-002](todo-task-002-rls-access-proof.md) | supabase | 001 | **done** |
 | B | 003 types and seed | [todo-task-003](todo-task-003-types-and-seed.md) | supabase | 001 | not opened |
 | C | 004 conform the scaffold | [todo-task-004](todo-task-004-frontend-scaffold.md) | frontend | 000 | not opened |
 | C | 005 design system | [todo-task-005](todo-task-005-design-system.md) | frontend | 004 | not opened |
@@ -191,9 +191,9 @@ Critical path = the demoable slice:  000 → 001 → 004 → 006 → 008 → 009
 
 ## 6. Where things stand — 2026-09-18
 
-- **Done:** 000 (architecture contract — blueprint, verify script, lint rules, `AGENTS.md`) and 001 (`0004_lite.sql`
-  in `database-thinkboard-lite/`, reset twice and re-applied clean on the local stack).
-- **Next:** 002 (RLS proof), 003 (types and seed) and 004 (conform the scaffold) are all unblocked.
+- **Done:** 000 (architecture contract), 001 (`0004_lite.sql` in `database-thinkboard-lite/`) and 002 (the RLS proof:
+  56 checks in `database-thinkboard-lite/supabase/tests/`, each policy mutation-tested).
+- **Next:** 003 (types and seed, needs 004's `src/` for its types goal) and 004 (conform the scaffold); 008 also needs 005 and 006.
 - **Waiting on a human:**
   - **D-12** — free-tier training terms vs document sensitivity. Blocks 018, and ink transcription in 024.
   - **Q7** — the 45-minute Bahasa Indonesia handwriting test. Decides 024, and the blueprint's `ink-pad`.
@@ -232,6 +232,7 @@ todo-task-NNN-<slug>.md   one plan doc per task (§5)
 agent-thinking/           intake: todo/NNN-todo-<slug>/contract.json + tracking-todo.json
 agent-history/            execution: NNN-task-<slug>/ + running-process.json
 frontend-thinkboard-lite/ the Next.js app — own CLAUDE.md and AGENTS.md
-database-thinkboard-lite/ the Supabase project — supabase/migrations/0001-0004
+database-thinkboard-lite/ the Supabase project — migrations 0001-0004, tests, its own README
+backend-thinkboard-lite/  (later) the Go backend — a sibling of database-thinkboard-lite/, not created yet
 claude-artifact/ old/     archived snapshots — git-ignored, never edited
 ```

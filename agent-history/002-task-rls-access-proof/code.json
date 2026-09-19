@@ -1,0 +1,57 @@
+{
+  "task_id": "002-task-rls-access-proof",
+  "phase": "code",
+  "started_at": "2026-09-19T00:00:00Z",
+  "completed_at": "2026-09-18T23:22:19Z",
+  "files_changed": [
+    {
+      "path": "database-thinkboard-lite/supabase/tests/rls.sql",
+      "action": "created",
+      "summary": "56 checks for g1-g12 and g14-g16 in one rolled-back transaction; every check runs as role authenticated with a JWT sub through tb_test helpers"
+    },
+    {
+      "path": "database-thinkboard-lite/supabase/tests/rls.test.mjs",
+      "action": "created",
+      "summary": "node:test runner: rls.sql through docker exec psql, one test per goal, g13 re-applies 0004"
+    },
+    {
+      "path": "database-thinkboard-lite/package.json",
+      "action": "modified",
+      "summary": "scripts: start (services these tasks use), stop, reset, test"
+    },
+    {
+      "path": "database-thinkboard-lite/README.md",
+      "action": "created",
+      "summary": "what the folder owns, ports, scripts; notes the later sibling backend-thinkboard-lite/"
+    },
+    {
+      "path": "02-database-architecture.md",
+      "action": "modified",
+      "summary": "§9: checks 14-16 and how to run them"
+    },
+    {
+      "path": "todo-task-002-rls-access-proof.md",
+      "action": "modified",
+      "summary": "goals g14-g16, harness and paths as built, supabase-js question resolved"
+    },
+    {
+      "path": "README.md",
+      "action": "modified",
+      "summary": "002 done; layout lists the future backend folder"
+    }
+  ],
+  "decisions": [
+    "Owner answers this session: add g14-g16 (yes); Docker Desktop already running; work on branch claude/task-002; the folder is split database / (later Go) backend.",
+    "The supabase-js devDependency question went unanswered; defaulted to NO dependency. g5, g10-g12 are proven at the layer 0004 owns: which topic each row is routed to (realtime.messages rows) and who may read that topic (the real policy, with realtime.topic set as the server sets it). Socket delivery is Realtime's job. Upgrade: one supabase-js socket test.",
+    "Tests run in ONE rolled-back transaction per run, as role authenticated with request.jwt.claims — never as postgres — and every negative check has a positive twin (the same actor can do the allowed thing) so a check cannot pass vacuously.",
+    "Helpers live in a throwaway schema tb_test created inside the transaction (security-definer only for stash/ok/p), so nothing persists and pg_temp privilege rules never bite.",
+    "'denied' means an RLS error OR zero rows affected: USING-filtered updates and deletes do not raise.",
+    "Seeding uses postgres (the fixture only): clients cannot add team members (0001), the gap raised for task 008.",
+    "The stack and 0004 are unchanged: no policy needed fixing, so §8.1 and 0004_lite.sql stay byte-identical."
+  ],
+  "commands_run": [
+    "npm test (database-thinkboard-lite)",
+    "docker exec -i supabase_db_database-thinkboard-lite psql ... < supabase/tests/rls.sql",
+    "mutation runs: one policy/trigger/function broken per run inside the test transaction"
+  ]
+}
