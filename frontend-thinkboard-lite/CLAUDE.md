@@ -14,13 +14,13 @@ overview: `README.md`.
 
 ## The tree today vs. the law
 
-**Today:** create-next-app + shadcn — root `app/`, `components/`, `lib/`, `hooks/`, one alias `@/*`.
-**Law:** `src/{app,features,shared}` + `src/server/`, aliases `@app/* @feature/* @shared/* @public/*` in
-`tsconfig.json` **and** `vitest.config.mts` (`../04-frontend-folder-architecture.md` §2).
+**Done (task 004):** the create-next-app + shadcn scaffold now lives under `src/{app,features,shared}`, with the
+aliases `@app/* @feature/* @shared/* @public/*` declared in `tsconfig.json` **and** `vitest.config.mts`
+(`../04-frontend-folder-architecture.md` §2). `src/server/` is not created until a task gives it a real member.
+**Law:** that tree is the law; nothing else moves files between layers.
 
-Task 004 does that move and nothing else does it. Don't build features on the current tree. Task 000 ships
-`architecture.blueprint.json`, `scripts/verify-architecture.mjs` and `eslint.architecture.mjs`; until 004 wires
-them into `npm run verify`, run them by hand (`AGENTS.md` §8).
+`npm run verify` runs `verify:arch` (task 000's `architecture.blueprint.json`, `scripts/verify-architecture.mjs` and
+`eslint.architecture.mjs`), lint, typecheck and the tests. It must be green before a frontend task closes.
 
 Where a file goes, where state lives, leaf shapes, the store edit and the escalation procedure are all in
 `AGENTS.md` (imported above) — read it, not a copy of it.
@@ -44,7 +44,13 @@ All 29 invariants, with how each is enforced: `../todo-task-000-split.md` §4.
 - Prettier: no semicolons, double quotes, 2 spaces, `trailingComma: es5`, Tailwind class sorting — `npm run format`.
 - shadcn style `radix-nova`; `cn()` comes from the `cn` package (shadcn's `clsx` + `tailwind-merge`
   replacement). After any `shadcn add`, check nothing domain-flavoured landed in the components alias.
-- Commands: `npm run dev | build | lint | typecheck | format`. Task 004 adds `test`, `verify:arch`, `verify`.
+- Commands: `npm run dev | build | lint | typecheck | format | test | test:scripts | verify:arch | verify | storybook | build-storybook | gen:types`.
+  `gen:types` regenerates `src/shared/types/domain/*` from the local Supabase stack (it must be up); those files are
+  generated, so never hand-edit them: only `domain/common.ts` (the brands) is hand-written.
+  `build` is `next build --webpack`: Serwist is a webpack plugin, so it is disabled in dev (Turbopack) and only a
+  production build generates and registers the service worker.
+- `npm run test` runs Vitest in two projects: `unit` (jsdom, and `fake-indexeddb/auto` where a test needs IndexedDB) and
+  `stories` (every Storybook story, in headless Chrome through Playwright).
 - `scripts/` is plain Node ESM with no dependencies; its tests run with `node --test "scripts/*.test.mjs"`.
 
 ## Git

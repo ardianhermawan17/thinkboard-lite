@@ -1,0 +1,47 @@
+{
+  "task_id": "004-task-frontend-scaffold",
+  "phase": "analyze",
+  "started_at": "2026-09-19T05:06:34Z",
+  "completed_at": "2026-09-19T05:10:38Z",
+  "sources_read": [
+    {"doc": "06-whole-apps-task.md", "section": "PHASE C · 004 (via todo-task-004 §2)"},
+    {"doc": "todo-task-000-split.md", "section": "§3 C9, §4 invariant table I1-I29"},
+    {"doc": "04-frontend-folder-architecture.md", "section": "§2 top-level tree and path aliases, §5.1 three tiers + components.json, §10 testing and Storybook colocation"},
+    {"doc": "03-frontend-architecture.md", "section": "§1 stack (via frontend CLAUDE.md / AGENTS.md)"},
+    {"doc": "todo-task-004-frontend-scaffold.md", "section": "full file"},
+    {"doc": "frontend-thinkboard-lite/AGENTS.md + CLAUDE.md", "section": "full files (the tree today vs the law, never list, placement tree)"},
+    {"doc": "frontend-thinkboard-lite/node_modules/next/dist/docs", "section": "01-app/02-guides/progressive-web-apps.md (Serwist for service-worker offline caching, Turbopack and webpack examples)"},
+    {"doc": "frontend-thinkboard-lite/", "section": "package.json, tsconfig.json, components.json, eslint.config.mjs, next.config.ts, scripts/verify-architecture.mjs run on today's tree (18 fail: src/ not found, by design)"}
+  ],
+  "scope": "Restructure the existing create-next-app scaffold into the folder law and wire the tooling; no product code. In scope: git mv app/, components/, lib/, hooks/ under src/ (app -> src/app; components/ui -> src/shared/components/ui; lib -> src/shared/lib; hooks -> src/shared/hooks); aliases @app/* @feature/* @shared/* @public/* in tsconfig.json AND vitest.config.mts; src/{app,features,shared} skeleton; components.json rebound to the three tiers (ui = src/shared/components/ui, components = src/shared/components/template, lib = src/shared/lib, utils = src/shared/lib/utils, hooks = src/shared/hooks); eslint.architecture.mjs spread into eslint.config.mjs; Vitest (jsdom + fake-indexeddb), Storybook + Playwright, Serwist; scripts verify:arch, lint, typecheck, test, verify. Out of scope: regenerating the scaffold, product code, any store library (Redux Toolkit is expected by the skeleton but not added here), Supabase or Dexie code.",
+  "acceptance_criteria": [
+    {"goal_id": "g1", "text": "No root app/ components/ lib/ hooks/ remain; the four aliases match in tsconfig.json and vitest.config.mts (I7); eslint.config.mjs spreads eslint.architecture.mjs and `npm run lint` runs."},
+    {"goal_id": "g2", "text": "src/{app,features,shared} exist with real files (no empty placeholder folders); components.json aliases point at src/shared/components/{ui,template}, src/shared/lib, src/shared/hooks."},
+    {"goal_id": "g3", "text": "One trivial test per environment runs green: a jsdom test, a fake-indexeddb test, and a Storybook story test under Playwright."},
+    {"goal_id": "g4", "text": "`npm run verify` runs verify:arch, lint, typecheck and test, and exits non-zero if any fails."},
+    {"goal_id": "g5", "text": "Serwist is configured with a note that it is disabled in dev under Turbopack; a production build registers the service worker."},
+    {"goal_id": "g6", "text": "`node scripts/verify-architecture.mjs` exits 0 on the scaffolded tree and exits 1 when src/ is missing (proven in a temp copy, not by deleting src/)."}
+  ],
+  "open_questions": [
+    "Q4 (defaulted: canvas leaves are a third shared tier) — src/shared/components/canvas/ is the third tier in the skeleton; created only if it gets a real member.",
+    "Q5 (defaulted: Storybook stories for canvas leaves) — Storybook wired now.",
+    "C8 (resolved in split §3) — Redux Toolkit is the store library the skeleton expects; not installed by this task.",
+    "C9 (resolved in split §3) — conform the existing scaffold, never regenerate.",
+    "ANSWERED 2026-09-19 (raised, task doc §1): eslint-config-next 16.3.4 bundles eslint-plugin-react 7.37.5, which calls context.getFilename(), removed in ESLint 10, so `npm run lint` crashes on the untouched scaffold. Owner: downgrade eslint to 9.",
+    "ANSWERED 2026-09-19: npm install is allowed for the tooling dependencies (Vitest, jsdom, fake-indexeddb, Storybook, Playwright, Serwist and their peers). No dependency beyond those in scope.",
+    "ANSWERED 2026-09-19: work is on a new branch claude/task-004 cut from origin/master (PRs #4 and #5 merged).",
+    "NEW (defaulted, no answer needed): Serwist is the service-worker library — the plan names it and the Next 16 PWA guide points to Serwist examples for both Turbopack and webpack. Next 16 defaults to Turbopack; the exact Serwist integration is decided at code time from those examples and stays inside next.config.ts + a service-worker entry.",
+    "NEW (defaulted): Storybook framework package and the Playwright story runner are chosen at code time to fit Next 16 + Vitest; Playwright uses the already-installed Chrome where possible rather than downloading a browser.",
+    "NEW (RISK, may need to be raised): some verify:arch checks may demand product code that later tasks create, e.g. I13 (every Dexie table has a query hook, from the blueprint's localFirst.tables) belongs to task 006. If g6 cannot go green on a no-product-code skeleton without weakening the verifier, that is a conflict between g6 and the scope — stop and ask, do not weaken the check or add product code."
+  ],
+  "risks": [
+    "Next 16 differs from training data — the bundled docs were read for PWA; read the docs for any config API used (AGENTS.md).",
+    "Aliases declared once instead of twice: works in dev, fails in test (I7) — declare both in one step.",
+    "eslint 9 downgrade must also satisfy eslint-config-next 16.3.4's peer range and `defineConfig`/`globalIgnores` from eslint/config used in eslint.config.mjs.",
+    "shadcn add writes multi-part blocks to the components alias; check nothing domain-flavoured lands in template/ or canvas/.",
+    "AGENTS.md's nextjs-agent-rules block is owned by Next's tooling — keep it when task 000's file is edited.",
+    "Many new dev dependencies: install in one pass, keep package-lock.json consistent, and do not add a store library, Supabase or Dexie.",
+    "git mv keeps history; the working tree must not be left half-moved (aliases and imports updated in the same step).",
+    "The tree carries CRLF/LF differences on Windows after git restore; edit files with line-ending-preserving tools."
+  ]
+}

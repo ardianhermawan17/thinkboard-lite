@@ -35,5 +35,37 @@
     "Enabling storage-api makes the local stack heavier and may need imgproxy or config.toml [storage] settings; verify `supabase start` boots before relying on it.",
     "Inserting into auth.users needs encrypted_password and an auth.identities row for email sign-in to work; the 0002 auth trigger must create profile_identities.",
     "Touching start/db scripts must leave task 002's `npm test` green (56 checks) — re-run it."
-  ]
+  ],
+  "round_2": {
+    "started_at": "2026-09-19T09:19:13Z",
+    "completed_at": "2026-09-19T09:19:25Z",
+    "trigger": "Owner asked on 2026-09-19 to complete task 003. Task 004 is done (src/ exists), so g1 is unblocked; the owner ruled that g3 may use placeholder rows.",
+    "sources_read": [
+      {"doc": "04-frontend-folder-architecture.md", "section": "§5 tree (types/domain: common.ts, one file per table), §12 I9"},
+      {"doc": "02-database-architecture.md", "section": "§6 frontend data contract (llm_providers, llm_models: client read, populate a settings dropdown)"},
+      {"doc": "frontend-thinkboard-lite/architecture.blueprint.json", "section": "domainTables: 22 active, 3 read-only, 4 parked"},
+      {"doc": "frontend-thinkboard-lite/scripts/verify-architecture.mjs", "section": "I9 (bare string on id, *_id, *_at in domain files except common.ts)"},
+      {"doc": "supabase gen types typescript --local", "section": "output format: Row per table, Relationships with the referenced table, Enums as literal unions, Json"},
+      {"doc": "local database", "section": "llm_providers.key is citext UNIQUE, base_url NOT NULL; llm_models UNIQUE (provider_id, model_key)"}
+    ],
+    "acceptance_criteria": [
+      {"goal_id": "g1", "text": "npm run gen:types writes src/shared/types/domain/<table>.ts (kebab-case) for the 25 non-parked tables from the supabase CLI output; every id, foreign key and *_at column is branded from ./common; typecheck and verify:arch (I9) are green; the generator has its own passing tests."},
+      {"goal_id": "g3", "text": "db:seed yields exactly 2 placeholder llm_providers and 2 placeholder llm_models: inactive, on a non-routable host, labelled as D-12 pending, with no key; seeding twice gives the same counts."}
+    ],
+    "open_questions": [
+      "D-12 is still UNANSWERED. The owner ruled on 2026-09-19 that g3 uses placeholder rows that name no provider, hold no key and are inactive. That is not an answer to D-12: task 018 stays gated on it.",
+      "ANSWERED 2026-09-19: the follow-up is on branch claude/task-003b, cut from claude/task-004 after task 004 was committed (8a41428).",
+      "NEW (defaulted): domain files are generated for the 25 non-parked blueprint tables; the 4 parked tables (messages, context_warnings, sources, point_sources) get none until they go live.",
+      "NEW (defaulted): type names are PascalCase singulars of the table (highlight_notes -> HighlightNote); enum columns inline their literal union, so no file outside the documented tree is needed.",
+      "NEW (defaulted): common.ts is hand-written and is the only non-generated file in domain/; it holds UUID<Table>, ISODateString and Json. An id is branded with its own table, a foreign key with its referenced table, any other *_id with the generic UUID, and *_at with ISODateString.",
+      "NEW (defaulted): the generator is frontend scripts/gen-domain-types.mjs, plain Node ESM with no dependencies and a node:test file, exposed as npm run gen:types; it runs the supabase CLI in database-thinkboard-lite/ and needs the local stack up.",
+      "NEW (defaulted): g3 seeds two placeholder providers (keys placeholder-a and placeholder-b, base_url https://placeholder.invalid) and one placeholder model each, all inactive."
+    ],
+    "risks": [
+      "Generated files must not be hand-edited (task doc section 1); the header says so and the generator is the only writer.",
+      "A regex parser over CLI output breaks if the CLI format changes; the generator test pins the format and fails loudly on an unknown shape instead of guessing.",
+      "Placeholder rows must not look like a provider decision: reserved .invalid host, inactive, labelled D-12 pending.",
+      "The seed test previously asserted zero provider rows and must change with the seed, and the seed-twice count snapshot grows by two columns."
+    ]
+  }
 }

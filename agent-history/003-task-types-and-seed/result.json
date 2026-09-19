@@ -1,25 +1,30 @@
 {
   "task_id": "003-task-types-and-seed",
   "phase": "result",
-  "closed_at": "2026-09-19T03:46:56Z",
-  "final_status": "blocked",
+  "closed_at": "2026-09-19T09:40:00Z",
+  "final_status": "done",
   "goals_summary": {
     "total": 5,
-    "done": 3,
-    "blocked": 2
+    "done": 5,
+    "blocked": 0
   },
+  "rounds": [
+    "round 1 (2026-09-19, merged in PR #4): g2 seed, g4 storage, g5 db:seed done; g1 blocked on 004's src/, g3 held on D-12; closed blocked.",
+    "round 2 (2026-09-19, branch claude/task-003b): g1 generated domain types and g3 placeholder provider rows done; task closes done."
+  ],
   "artifacts": [
     "database-thinkboard-lite/supabase/migrations/0005_storage_artifacts.sql",
-    "database-thinkboard-lite/supabase/seed.sql",
+    "database-thinkboard-lite/supabase/seed.sql (incl. placeholder llm_providers / llm_models)",
     "database-thinkboard-lite/supabase/seed/upload-pdf.mjs",
     "database-thinkboard-lite/supabase/tests/seed/seed.test.mjs",
-    "database-thinkboard-lite/package.json",
-    "database-thinkboard-lite/README.md"
+    "frontend-thinkboard-lite/scripts/gen-domain-types.{mjs,test.mjs}",
+    "frontend-thinkboard-lite/src/shared/types/domain/ (common.ts + 25 generated files)",
+    "frontend-thinkboard-lite/package.json (gen:types)"
   ],
   "follow_up_tasks": [
-    "003 g1 (generated types): resume after 004-task-frontend-scaffold creates src/. This task stays open (blocked); reopen it at Gate 3 then.",
-    "003 g3 (llm_providers / llm_models rows): resume when D-12 is answered by the human. Until then no provider rows exist.",
-    "004-task-frontend-scaffold: next by the owner's order; ready now (depends only on 000).",
-    "008 / 009: 008 can log into the seeded workspace (leader@, member-a@, member-b@thinkboard.test / password) and 009 can render the seeded 3-page PDF once their other dependencies are done."
+    "D-12 (human): still unanswered. It gates task 018 (LLM adapter) and ink transcription in 024. The placeholder llm_providers / llm_models rows are replaced when it is answered.",
+    "Rerun npm run gen:types (local stack up) whenever a migration changes a table; the generated files are never hand-edited.",
+    "008 can log into the seeded workspace and import the domain types; 009 can render the seeded 3-page PDF. 006 (entities kernel) builds its row types on these domain types.",
+    "The 4 parked tables (messages, context_warnings, sources, point_sources) get domain types when they go live."
   ]
 }

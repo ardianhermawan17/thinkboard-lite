@@ -1,0 +1,29 @@
+{
+  "task_id": "004-task-frontend-scaffold",
+  "phase": "validate",
+  "goal_checks": [
+    {"goal_id": "g1", "status": "pass", "notes": "No root app/ components/ lib/ hooks/ remain; everything is under src/ via git mv. The four aliases (@app, @feature, @shared, @public) match in tsconfig.json and vitest.config.mts (I7 passes). eslint.config.mjs spreads eslint.architecture.mjs and npm run lint runs (it crashed before; ESLint is now 9)."},
+    {"goal_id": "g2", "status": "pass", "notes": "src/{app,features,shared} exist. src/features holds only a .gitkeep (its first real context arrives with task 006, and empty placeholder folders are not created). components.json aliases point at src/shared/components/{ui,template}, src/shared/lib, src/shared/hooks."},
+    {"goal_id": "g3", "status": "pass", "notes": "One trivial test per environment runs green: jsdom (Button), fake-indexeddb (round trip), and a Storybook story under Playwright in headless Chrome (Button Default). Storybook also builds."},
+    {"goal_id": "g4", "status": "pass", "notes": "npm run verify runs verify:arch, lint, typecheck and test in one && chain and exits non-zero if any fails. Exit 0 on the real tree."},
+    {"goal_id": "g5", "status": "pass", "notes": "@serwist/next configured in next.config.ts with swSrc src/app/sw.ts, disabled in dev with a comment about Turbopack. A production build (next build --webpack) writes public/sw.js and Chrome registers it (scope /, script /sw.js)."},
+    {"goal_id": "g6", "status": "pass", "notes": "verify:arch exits 0 on the scaffolded tree (18 pass, 0 fail) and exits 1 when src/ is absent (18 fail), proven with --root on a temp copy, not by deleting src/."}
+  ],
+  "cross_check_against_plan": [
+    {"doc": "06-whole-apps-task.md", "section": "PHASE C · 004", "result": "All six mini-goals met. Gate: npm run verify is green on the real, scaffolded tree, not an empty one."},
+    {"doc": "todo-task-000-split.md", "section": "§3 C9, §2 package E", "result": "C9 followed: the scaffold was conformed, never regenerated. Package E's eslint rules are spread in and verify:arch is wired (g17) and green on the real tree (g18)."},
+    {"doc": "04-frontend-folder-architecture.md", "section": "§2, §5.1, §10", "result": "Tree, aliases (declared twice), components.json binding and Vitest/Storybook/Playwright colocation follow the doc. sw.ts sits at src/app/sw.ts as the doc's tree shows."},
+    {"doc": "03-frontend-architecture.md", "section": "§1 stack", "result": "Stack respected: Redux Toolkit expected but not added (C8); no Zustand or TanStack Query; Serwist via @serwist/next as 03 section 7 lists."}
+  ],
+  "signed_off": true,
+  "issues_found": [
+    "OWNER-VISIBLE: the build script is now `next build --webpack`. Serwist is a webpack plugin and Next 16 builds with Turbopack by default, which would silently produce no service worker. Dev stays on Turbopack with Serwist disabled, as g5 requires.",
+    "Two edits to eslint.config.mjs were made through a shell edit, each explicitly authorised by the owner after the config-protection hook blocked the normal edit: the architecture spread (3 lines) and the generated-worker ignore (3 lines). Neither weakens a rule.",
+    "A task 000 file, scripts/verify-architecture.mjs, was fixed: its JSONC parser read the '/*' in path aliases as a comment start and crashed on any real tsconfig. No invariant was changed; a regression test was added.",
+    "ESLint was downgraded from 10 to 9 (owner decision, raised as required by the task doc). Vitest is 4, not 5, because Vitest 5 needs a newer @types/node than the scaffold's ^20; revisit both when the scaffold's Node types are bumped.",
+    "Security: @serwist/next pins browserslist 4.28.6 with two high-severity advisories; an npm overrides entry pins 4.29.0. npm audit is 0 vulnerabilities. Remove the override once @serwist/next ships a fixed pin.",
+    "Two lint warnings remain and are not errors: an anonymous default export in eslint.architecture.mjs (task 000) and an unused Geist import in the create-next-app layout.tsx.",
+    "The story project uses the installed Chrome (channel chrome), so a machine without Chrome cannot run npm run test until Playwright's own browser is installed; there is no CI in the repo yet.",
+    "An earlier mistake was corrected: @serwist/turbopack was installed against the docs and then replaced by @serwist/next; and a PowerShell helper named Rd (an alias of Remove-Item) briefly deleted two tracked state files, restored from git with nothing lost."
+  ]
+}

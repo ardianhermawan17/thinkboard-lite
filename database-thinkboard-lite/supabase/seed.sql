@@ -2,7 +2,13 @@
 -- One team, one leader, two members, one board / column / session, one pdf artifact (D-02: one `main` PDF).
 -- Local stack only. The users share the dev password below; it is a password on a throwaway local database, not a key.
 -- The PDF bytes are uploaded afterwards by seed/upload-pdf.mjs (npm run db:seed), signed in as the leader.
--- g3 (llm_providers / llm_models) is deliberately absent: D-12 is unanswered.
+-- g3 (llm_providers / llm_models) is PLACEHOLDER rows only, see the end of this file: D-12 is still unanswered.
+
+-- Guard: this seed creates users with a known password, so it runs only on an EMPTY database. A remote project
+-- (`db reset --linked`, `db push --include-seed`) already has users and stops here.
+do $$ begin
+  if exists (select 1 from auth.users) then raise exception 'seed.sql is for an empty local database only'; end if;
+end $$;
 
 insert into auth.users (instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
                         raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
@@ -37,3 +43,13 @@ begin
   insert into artifacts (session_id, kind, slot, title, created_by)
     values (s, 'pdf', 'main', 'Placeholder report', current_profile_id());
 end $$;
+
+-- g3: PLACEHOLDER providers so the settings dropdown has entries. D-12 (free-tier training terms vs document
+-- sensitivity) is still unanswered, and the owner ruled on 2026-09-19 that these must not imply a provider choice:
+-- no real provider is named, none is active, none holds a key, and the host is a reserved non-routable one
+-- (RFC 2606 .invalid). Task 018 replaces them once D-12 is answered.
+insert into llm_providers (key, label, base_url, is_active) values
+  ('placeholder-a', 'Placeholder provider A (D-12 pending)', 'https://placeholder.invalid', false),
+  ('placeholder-b', 'Placeholder provider B (D-12 pending)', 'https://placeholder.invalid', false);
+insert into llm_models (provider_id, model_key, label, is_active)
+  select id, 'placeholder-model', 'Placeholder model (D-12 pending)', false from llm_providers;

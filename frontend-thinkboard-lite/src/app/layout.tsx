@@ -1,8 +1,8 @@
 import { Geist, Geist_Mono, IBM_Plex_Sans } from "next/font/google"
 
 import "./globals.css"
-import { ThemeProvider } from "@/components/theme-provider"
-import { cn } from "@/lib/utils";
+import { ThemeProvider } from "@shared/components/template/theme-provider"
+import { cn } from "@shared/lib/utils";
 
 const ibmPlexSans = IBM_Plex_Sans({subsets:['latin'],variable:'--font-sans'})
 

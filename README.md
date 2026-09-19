@@ -187,8 +187,8 @@ in `task_sequence` is *not opened*.
 | A | 000 architecture contract | [todo-task-000-split](todo-task-000-split.md) | frontend | — | **done** |
 | B | 001 Supabase Lite migration | [todo-task-001](todo-task-001-supabase-lite-migration.md) | supabase | 000 (pkg A) | **done** |
 | B | 002 RLS access proof | [todo-task-002](todo-task-002-rls-access-proof.md) | supabase | 001 | **done** |
-| B | 003 types and seed | [todo-task-003](todo-task-003-types-and-seed.md) | supabase | 001 | **partial** — g2 g4 g5 done; g1 blocked on 004, g3 on D-12 |
-| C | 004 conform the scaffold | [todo-task-004](todo-task-004-frontend-scaffold.md) | frontend | 000 | not opened |
+| B | 003 types and seed | [todo-task-003](todo-task-003-types-and-seed.md) | supabase | 001 | **done** — g3 as placeholder rows; D-12 still open |
+| C | 004 conform the scaffold | [todo-task-004](todo-task-004-frontend-scaffold.md) | frontend | 000 | **done** |
 | C | 005 design system | [todo-task-005](todo-task-005-design-system.md) | frontend | 004 | not opened |
 | C | 006 entities kernel | [todo-task-006](todo-task-006-entities-kernel.md) | frontend | 004 | not opened |
 | C | 007 sync kernel | [todo-task-007](todo-task-007-sync-kernel.md) | frontend | 006 | not opened |
@@ -219,14 +219,18 @@ Critical path = the demoable slice:  000 → 001 → 004 → 006 → 008 → 009
 
 ## 6. Where things stand — 2026-09-19
 
-- **Done:** 000 (architecture contract), 001 (`0004_lite.sql` in `database-thinkboard-lite/`) and 002 (the RLS proof:
-  56 checks in `database-thinkboard-lite/supabase/tests/`, each policy mutation-tested).
-- **Partial:** 003 (types and seed) — g2 seed, g4 storage (`0005_storage_artifacts.sql`) and g5 `npm run db:seed` are done
-  and tested; **g1** (generated types) waits for 004's `src/`, **g3** (provider rows) waits for D-12. The task is `blocked`
-  and reopens at Gate 3 when either is unblocked.
-- **Next:** 004 (conform the scaffold), which unblocks 003 g1; 008 also needs 005 and 006.
+- **Done:** 000 (architecture contract), 001 (`0004_lite.sql` in `database-thinkboard-lite/`), 002 (the RLS proof:
+  56 checks in `database-thinkboard-lite/supabase/tests/`, each policy mutation-tested) and 004 (the scaffold conformed
+  to the folder law under `src/`; `npm run verify` is green on the real tree: `verify:arch` 18/0, lint, typecheck,
+  Vitest with a Storybook story test in Chrome, Serwist registering in a `--webpack` production build).
+- **Also done:** 003 (types and seed) — the seed, storage (`0005_storage_artifacts.sql`), `npm run db:seed`, the
+  generated domain types (`npm run gen:types` → `src/shared/types/domain/`, ids and timestamps branded, I9 green) and
+  the settings-dropdown rows. **Those provider rows are placeholders** (inactive, `placeholder.invalid`, "D-12 pending",
+  no key, no real provider named): D-12 is still unanswered, and the placeholders decide nothing.
+- **Next:** 005 (design system) and 006 (entities kernel), both unblocked by 004; 008 also needs them.
 - **Waiting on a human:**
-  - **D-12** — free-tier training terms vs document sensitivity. Blocks 018, and ink transcription in 024.
+  - **D-12** — free-tier training terms vs document sensitivity. Blocks 018, and ink transcription in 024. 003's
+    placeholder provider rows stand in until it is answered.
   - **Q7** — the 45-minute Bahasa Indonesia handwriting test. Decides 024, and the blueprint's `ink-pad`.
   - **Q8, Q9** — the real tablet mix; whether users have styluses.
   - **Raised in plan docs:** the workspace-create path before 017 exists (008); Vault access under the user's

@@ -2,7 +2,7 @@
 doc_id: thinkboard-lite-task-004
 title: Task 004 — Conform the frontend scaffold
 version: "1.0"
-status: proposed
+status: done — 6/6 goals (2026-09-19), see agent-history/004-task-frontend-scaffold/
 updated: 2026-09-18
 task: "004"
 phase: "C — Frontend foundation"

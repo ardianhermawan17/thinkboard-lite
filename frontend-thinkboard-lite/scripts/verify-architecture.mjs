@@ -104,8 +104,29 @@ function subdirs(root, rel) {
   return existsSync(d) ? readdirSync(d).filter((n) => statSync(join(d, n)).isDirectory()).map((n) => `${rel}/${n}`) : []
 }
 
+// String-aware: a "/*" inside a JSON string (the "@app/*" path aliases, "**/*.ts" globs) is not a comment.
 function jsonc(text) {
-  return JSON.parse(text.replace(/\/\*[\s\S]*?\*\/|(^|[^:"])\/\/.*$/gm, "$1").replace(/,(\s*[}\]])/g, "$1"))
+  let out = ""
+  let inString = false
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i]
+    const next = text[i + 1]
+    if (inString) {
+      out += c
+      if (c === "\\") out += text[++i]
+      else if (c === '"') inString = false
+    } else if (c === '"') {
+      inString = true
+      out += c
+    } else if (c === "/" && next === "/") {
+      while (i < text.length && text[i] !== "\n") i++
+      out += "\n"
+    } else if (c === "/" && next === "*") {
+      const end = text.indexOf("*/", i + 2)
+      i = end < 0 ? text.length : end + 1
+    } else out += c
+  }
+  return JSON.parse(out.replace(/,(\s*[}\]])/g, "$1"))
 }
 
 const importsOf = (text) => [...text.matchAll(/(?:\bfrom\s*|\bimport\s*\(?\s*)["']([^"']+)["']/g)].map((m) => ({ spec: m[1], index: m.index }))

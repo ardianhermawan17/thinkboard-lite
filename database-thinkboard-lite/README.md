@@ -11,7 +11,8 @@ supabase/migrations/        0001-0003 from the Full project, unchanged; 0004_lit
                             0005_storage_artifacts.sql is the `artifacts` bucket + its policy (task 003, DB-Q11)
 supabase/tests/             rls.sql + rls.test.mjs — the access-model proof (task 002)
 supabase/tests/seed/        seed.test.mjs — the seed and storage-policy checks (task 003)
-supabase/seed.sql           the local dev seed: one team, leader, two members, board/column/session, one pdf artifact
+supabase/seed.sql           the local dev seed: one team, leader, two members, board/column/session, one pdf artifact,
+                            and PLACEHOLDER llm_providers / llm_models (inactive, no real provider named; D-12 is open)
 supabase/seed/              upload-pdf.mjs — uploads a generated placeholder PDF as the seeded leader
 ```
 

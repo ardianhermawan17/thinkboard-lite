@@ -1,0 +1,31 @@
+{
+  "id": "004-task-frontend-scaffold",
+  "title": "The existing scaffold obeys the folder law, so no later task has to retrofit it",
+  "architecture": "frontend",
+  "secondary_architecture": [],
+  "created_at": "2026-09-19T05:06:34Z",
+  "status": "done",
+  "depends_on": ["000-task-architecture-contract"],
+  "plan_refs": [
+    {"doc": "06-whole-apps-task.md", "section": "PHASE C · 004"},
+    {"doc": "todo-task-000-split.md", "section": "§3 C9, §2 package E"},
+    {"doc": "04-frontend-folder-architecture.md", "section": "§2, §5.1, §10"},
+    {"doc": "03-frontend-architecture.md", "section": "§1 stack"},
+    {"doc": "todo-task-004-frontend-scaffold.md", "section": "§2 goals and gate, §3 decisions"}
+  ],
+  "goals": [
+    {"id": "g1", "description": "Conform the existing scaffold (C9): move app/, components/, lib/, hooks/ under src/; four aliases in tsconfig.json AND vitest.config.mts; spread eslint.architecture.mjs into the existing eslint.config.mjs", "plan_ref": "tasks 004 g1; split C9, g17", "status": "done"},
+    {"id": "g2", "description": "src/{app,features,shared} skeleton; components.json rebound to the three tiers (ffa §5.1)", "plan_ref": "tasks 004 g2; ffa §2, §5.1", "status": "done"},
+    {"id": "g3", "description": "Vitest (jsdom + fake-indexeddb) and Storybook + Playwright wired", "plan_ref": "tasks 004 g3; ffa §10", "status": "done"},
+    {"id": "g4", "description": "npm scripts: verify:arch = node scripts/verify-architecture.mjs, lint, typecheck, test, verify", "plan_ref": "tasks 004 g4; split g17", "status": "done"},
+    {"id": "g5", "description": "Serwist configured, with a note that it is disabled in dev under Turbopack", "plan_ref": "tasks 004 g5; spec §11 #9", "status": "done"},
+    {"id": "g6", "description": "verify:arch green on the real, scaffolded tree — moved here from task 000", "plan_ref": "split g18", "status": "done"}
+  ],
+  "phases": {
+    "analyze": {"file": "analyze.json", "status": "done"},
+    "code": {"file": "code.json", "status": "done"},
+    "test": {"file": "test.json", "status": "done"},
+    "validate": {"file": "validate.json", "status": "done"},
+    "result": {"file": "result.json", "status": "done"}
+  }
+}

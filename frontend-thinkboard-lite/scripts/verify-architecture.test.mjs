@@ -22,6 +22,23 @@ function withTree(files, blueprint, fn) {
 }
 const statusOf = (report, id) => report.rows.find((r) => r.id === id).status
 
+// task 004 regression: the "/*" in a path alias must not open a comment that the "*/" of a later "**/*.ts" closes
+test("I7 parses a real tsconfig: glob aliases, a globbed include, comments and a trailing comma", () => {
+  const tsconfig = `{
+    // path aliases: declared twice, always
+    "compilerOptions": {
+      "paths": {
+        "@app/*": ["./src/app/*"], /* block comment */
+        "@feature/*": ["./src/features/*"],
+        "@shared/*": ["./src/shared/*"],
+        "@public/*": ["./public/*"],
+      }
+    },
+    "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
+  }`
+  withTree({ "tsconfig.json": tsconfig }, null, (report) => assert.equal(statusOf(report, "I7"), "pass"))
+})
+
 // ── package B ─────────────────────────────────────────────────────────────
 test("g7: the real blueprint passes its self-check", () => {
   assert.deepEqual(selfCheck(bp, schema), [])

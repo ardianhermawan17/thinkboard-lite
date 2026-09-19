@@ -2,6 +2,11 @@
 
 Snapshot: 2026-09-19 · Branch: `claude/task-002` · ClickUp List: `1100340000052535` (Space `1100340000040153`)
 
+> **⚠ PENDING CLICKUP SYNC (2026-09-19):** task 003 is **done in the repo** (5/5 goals, `agent-history/003-task-types-and-seed/result.json`),
+> but ClickUp still shows it `in progress`: the ClickUp MCP **daily limit was reached (100/100 calls; resets in about 15 h)**.
+> To finish, in ClickUp: set [z8r3fdg7gr](https://app.clickup.com/t/z8r3fdg7gr) to `complete`, tick g1 and g3 in its description
+> (g3 = placeholder rows, D-12 still open), and add the summary comment. The counts below still describe ClickUp as it is now.
+
 **Master reference for every task:** [`06-whole-apps-task.md`](06-whole-apps-task.md) (heading `### NNN-task-<slug>`).
 **Parsed plan doc per task:** `todo-task-NNN-<slug>.md` (goals, gate, decisions, contract scaffolding).
 **Live state:** `agent-history/running-process.json` + `agent-thinking/tracking-todo.json`.
@@ -11,9 +16,9 @@ Statuses in the List: `to do` · `in progress` · `complete`. ClickUp hides `com
 
 | Status | Count | Tasks |
 |---|---|---|
-| complete | 3 | 000, 001, 002 |
-| in progress | 2 | 003 (partial: g2 g4 g5 done, g1 and g3 blocked), Housekeeping (pipeline itself is `idle`) |
-| to do | 21 | 004–024 (018 blocked on D-12, 024 conditional) |
+| complete | 4 | 000, 001, 002, 004 |
+| in progress | 2 | 003 (done in the repo, ClickUp sync pending), Housekeeping (pipeline itself is `idle`) |
+| to do | 20 | 005–024 (018 blocked on D-12, 024 conditional) |
 
 Critical path: 000 → 001 → 004 → 006 → 008 → 009 → 010 → 012. Highest risk: 010, then 007.
 
@@ -26,6 +31,7 @@ Critical path: 000 → 001 → 004 → 006 → 008 → 009 → 010 → 012. High
 | 000 | Architecture contract | [z8r3fdg7gn](https://app.clickup.com/t/z8r3fdg7gn) | 2026-09-18 | 18/18 | `000-task-architecture-contract` | `todo-task-000-split.md` | `agent-history/000-task-architecture-contract/` |
 | 001 | Supabase Lite migration | [z8r3fdg7gp](https://app.clickup.com/t/z8r3fdg7gp) | 2026-09-18 | 7/7 | `001-task-supabase-lite-migration` | `todo-task-001-supabase-lite-migration.md` | `agent-history/001-task-supabase-lite-migration/` |
 | 002 | RLS access proof | [z8r3fdg7gq](https://app.clickup.com/t/z8r3fdg7gq) | 2026-09-18 | 16/16 | `002-task-rls-access-proof` | `todo-task-002-rls-access-proof.md` | `agent-history/002-task-rls-access-proof/` |
+| 004 | Conform frontend scaffold | [z8r3fdg7gt](https://app.clickup.com/t/z8r3fdg7gt) | 2026-09-19 | 6/6 | `004-task-frontend-scaffold` | `todo-task-004-frontend-scaffold.md` | `agent-history/004-task-frontend-scaffold/` |
 
 ### 000 — Architecture contract (frontend, Phase A)
 Main goal: produce the machine-readable contract an agent generates from, so no file is ever created by inference.
@@ -59,13 +65,24 @@ Main goal: prove the access model in code (DB-1: RLS is the authorization layer)
 
 Gate passed (commit `c67991b`). Artifacts: `supabase/tests/rls.sql`, `rls.test.mjs`.
 
+### 004 — Conform frontend scaffold (frontend, Phase C)
+Main goal: the existing scaffold obeys the folder law, so no later task has to retrofit it.
+- [x] g1 scaffold moved under `src/`; four aliases in tsconfig AND vitest.config.mts; architecture lint spread in
+- [x] g2 `src/{app,features,shared}` skeleton; components.json rebound to the three tiers
+- [x] g3 Vitest (jsdom + fake-indexeddb) and Storybook + Playwright (story test in headless Chrome)
+- [x] g4 scripts verify:arch, lint, typecheck, test, verify
+- [x] g5 Serwist (`@serwist/next`), disabled in dev; a production build registers the worker
+- [x] g6 verify:arch green on the real tree (18/0) and exits 1 without `src/`
+
+Gate passed: `npm run verify` green on the real tree. Owner-visible: `build` is `next build --webpack`; ESLint 9; Vitest 4; a task-000 verifier parser bug fixed; a browserslist override (audit 0). Branch `claude/task-004`, not yet committed.
+
 ---
 
 ## IN PROGRESS
 
 | Item | ClickUp | Notes |
 |---|---|---|
-| 003 Types and seed (partial: g2 g4 g5 done; g1 blocked on 004, g3 on D-12) | [z8r3fdg7gr](https://app.clickup.com/t/z8r3fdg7gr) | migration `0005_storage_artifacts.sql`, `seed.sql`, `npm run db:seed`; `agent-history/003-task-types-and-seed/` (result: blocked); tests `test:seed` 6/6, `npm test` 17/17 |
+| 003 Types and seed (**DONE in the repo, 5/5; ClickUp sync pending**) | [z8r3fdg7gr](https://app.clickup.com/t/z8r3fdg7gr) | migration `0005_storage_artifacts.sql`, `seed.sql`, `npm run db:seed`; `agent-history/003-task-types-and-seed/` (result: blocked); tests `test:seed` 6/6, `npm test` 17/17 |
 | Housekeeping: merge task-002 PR, resolve owner decisions | [z8r3fdg7hf](https://app.clickup.com/t/z8r3fdg7hf) | PR for `claude/task-002`; uncommitted doc edits in tree; D-12; C6 sign-off; frontend gitlink; `000-task-example` numbering |
 
 ---
@@ -82,7 +99,7 @@ Each row: ClickUp task (full mini-goals as checklist inside), 06 section, plan d
 ### Phase C — Frontend foundation
 | ID | Task | ClickUp | Depends on | Blocks | Plan doc |
 |---|---|---|---|---|---|
-| 004 | Conform frontend scaffold (**ready now**) | [z8r3fdg7gt](https://app.clickup.com/t/z8r3fdg7gt) | 000 | 005, 006 | `todo-task-004-frontend-scaffold.md` |
+| 004 | Conform frontend scaffold (**done, see above**) | [z8r3fdg7gt](https://app.clickup.com/t/z8r3fdg7gt) | 000 | 005, 006 | `todo-task-004-frontend-scaffold.md` |
 | 005 | Design system | [z8r3fdg7gu](https://app.clickup.com/t/z8r3fdg7gu) | 004 | 008 | `todo-task-005-design-system.md` |
 | 006 | Entities kernel | [z8r3fdg7gv](https://app.clickup.com/t/z8r3fdg7gv) | 004 | 007, 008 | `todo-task-006-entities-kernel.md` |
 | 007 | Sync kernel | [z8r3fdg7gw](https://app.clickup.com/t/z8r3fdg7gw) | 006 | 015, 016 | `todo-task-007-sync-kernel.md` |
@@ -120,8 +137,8 @@ Each row: ClickUp task (full mini-goals as checklist inside), 06 section, plan d
 
 ## Open decisions / blockers
 
-- **D-12** — free-tier training terms vs Perhutani document sensitivity. Gates 018, provider choice and 003 g3 (held).
-- **003 g1** — generated types wait for 004's `src/`.
+- **D-12** — free-tier training terms vs Perhutani document sensitivity. Gates 018 and the provider choice; 003's g3 uses placeholder provider rows until it is answered.
+- **003** — finished in the repo; only the ClickUp sync is pending (see the banner at the top).
 - **C6** — human sign-off from the task-000 split (C7 already resolved: plan id = folder id).
 - Replace the `frontend-thinkboard-lite` gitlink in the root repo so its files are tracked (owner call).
 - `agent-history/000-task-example/` numbering (owner call).
