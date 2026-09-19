@@ -1,0 +1,31 @@
+{
+  "id": "006-task-entities-kernel",
+  "title": "A local database that is the app's only read surface, so every later feature is offline-capable by construction",
+  "architecture": "frontend",
+  "secondary_architecture": [],
+  "created_at": "2026-09-19T15:44:42Z",
+  "status": "done",
+  "recording": "slim: analyze.json + result.json; code, test and validate are one `work` phase evidenced by git and the tests (owner-approved 2026-09-19)",
+  "depends_on": ["004-task-frontend-scaffold"],
+  "plan_refs": [
+    {"doc": "06-whole-apps-task.md", "section": "PHASE C · 006"},
+    {"doc": "02-database-architecture.md", "section": "§6, §6.1"},
+    {"doc": "04-frontend-folder-architecture.md", "section": "§4.1, §12"},
+    {"doc": "03-frontend-architecture.md", "section": "§3, §4, §9"},
+    {"doc": "todo-task-000-split.md", "section": "§3 C1 C2, §5.3 F2 F7"},
+    {"doc": "todo-task-006-entities-kernel.md", "section": "§2 goals and gate, §3 decisions"}
+  ],
+  "goals": [
+    {"id": "g1", "description": "Dexie schema exactly as db §6.1 — seven tables incl. runs, the [artifactId+page] index, the _sync flag — namespaced thinkboard:{profileId}, deleted on sign-out", "plan_ref": "tasks 006 g1; db §6.1; split C1 C2", "status": "done"},
+    {"id": "g2", "description": "repository/ write surface — every write is row + outbox entry in ONE transaction; the row's _sync mirrors its op", "plan_ref": "tasks 006 g2; spec RULE-08; db §6.1", "status": "done"},
+    {"id": "g3", "description": "queries/ read surface — named live-query hooks, at least one per table (incl. use-run); useLiveQuery nowhere else", "plan_ref": "tasks 006 g3; ffa §4.1 I13 I23", "status": "done"},
+    {"id": "g4", "description": "utils/mappers.ts — toWire / toRow; notes ⇄ highlight_notes; _sync, seq and state never cross", "plan_ref": "tasks 006 g4; db §6.1", "status": "done"},
+    {"id": "g5", "description": "apply-remote.ts — writes without an outbox entry; skips rows whose _sync is not clean; keys deletes on record ?? old_record (F7); handles RETRACT", "plan_ref": "tasks 006 g5; db §6.1; split F7", "status": "done"},
+    {"id": "g6", "description": "Tests under fake-indexeddb: row-and-outbox atomicity; mapper key set against the column list", "plan_ref": "tasks 006 g6", "status": "done"}
+  ],
+  "phases": {
+    "analyze": {"file": "analyze.json", "status": "done"},
+    "work": {"file": null, "status": "done"},
+    "result": {"file": "result.json", "status": "done"}
+  }
+}

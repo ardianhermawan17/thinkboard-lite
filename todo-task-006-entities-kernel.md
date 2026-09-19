@@ -2,7 +2,7 @@
 doc_id: thinkboard-lite-task-006
 title: Task 006 — Entities kernel
 version: "1.0"
-status: proposed
+status: done — 6/6 goals (2026-09-19), see agent-history/006-task-entities-kernel/result.json
 updated: 2026-09-18
 task: "006"
 phase: "C — Frontend foundation"

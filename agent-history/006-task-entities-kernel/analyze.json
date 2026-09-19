@@ -1,0 +1,42 @@
+{
+  "task_id": "006-task-entities-kernel",
+  "phase": "analyze",
+  "started_at": "2026-09-19T15:44:42Z",
+  "completed_at": "2026-09-19T15:50:00Z",
+  "sources_read": [
+    {"doc": "todo-task-006-entities-kernel.md", "section": "full file"},
+    {"doc": "02-database-architecture.md", "section": "§6.1 the one Dexie schema, OutboxOp, remote-event table (INSERT/UPDATE/DELETE/RETRACT)"},
+    {"doc": "04-frontend-folder-architecture.md", "section": "§4.1 entities layout and the five rules; its sample schema is the OLD one (one-bit _dirty, no runs) and loses to 02 §6.1 by precedence"},
+    {"doc": "frontend-thinkboard-lite/architecture.blueprint.json", "section": "localFirst: db path, dbName thinkboard:{profileId}, dexieVersion 1, idStrategy uuidv7-client, tables + mirrors, rowFlag _sync, outbox, localOnlyFields, wireNames"},
+    {"doc": "frontend-thinkboard-lite/scripts/verify-architecture.mjs", "section": "I13 (active once db/thinkboard-db.ts exists; needs `db.<table>` text in queries/ for every Dexie table), I1, I2"},
+    {"doc": "frontend-thinkboard-lite/src/shared/types/domain/", "section": "generated snake_case row types this kernel maps to camelCase local rows"}
+  ],
+  "scope": "The Dexie kernel only: db/ (schema v1, per-profile name, delete on sign-out), types/ (camelCase row types derived from the generated domain types + _sync, OutboxOp), utils/ (uuidv7, mappers), repository/ (highlight, note, artifact repositories + apply-remote), queries/ (one live-query hook per Dexie table). No UI, no sync/push, no Redux, no Supabase (I21). Out of scope: draining the outbox, realtime, reconcile (task 007), and any feature component.",
+  "acceptance_criteria": [
+    {"goal_id": "g1", "text": "db opens as thinkboard:{profileId} with exactly the seven §6.1 stores and indexes (incl. [artifactId+page], _sync); deleteDb(profileId) removes it; schema test proves the store/index list."},
+    {"goal_id": "g2", "text": "Every repository write is one db.transaction('rw', row table, outbox): a throw mid-transaction leaves neither the row nor the op; the row's _sync mirrors its newest op (pending while queued)."},
+    {"goal_id": "g3", "text": "queries/ has a named hook per Dexie table (meta, artifacts, highlights, notes, miniConclusions, runs incl. use-run, outbox); useLiveQuery appears only there; verify:arch I13 passes."},
+    {"goal_id": "g4", "text": "toWire/toRow are inverse for every mirrored table; notes maps to highlight_notes; _sync, seq and state never appear in a wire payload; the key set equals the generated column list."},
+    {"goal_id": "g5", "text": "apply-remote writes no outbox entry; skips a row whose _sync is not clean; keys DELETE on record ?? old_record; RETRACT deletes another's row (and a retracted highlight's notes and mini-conclusion) but keeps my own."},
+    {"goal_id": "g6", "text": "Vitest under fake-indexeddb covers atomicity, the mapper key set against the column list, and the three apply-remote cases; npm run verify is green with I29 (dexie only in db/, repository/, queries/)."}
+  ],
+  "open_questions": [
+    "Q1 (defaulted: Dexie is the read model) — as planned.",
+    "DB-Q3 (defaulted: per-profile Dexie; OPFS wiped with it) — db name thinkboard:{profileId}; this task deletes the Dexie database on sign-out, OPFS wiping is the document/offline tasks'.",
+    "DB-Q12 (defaulted: non-mirrored tables pulled into Dexie meta, writes via outbox) — meta is a generic key/value table here; task 007 fills it.",
+    "C1 (resolved in split §3: seven tables) and C2 (resolved: compound index) — applied exactly.",
+    "ANSWERED 2026-09-19 (owner, recommendations accepted): install dexie and dexie-react-hooks; hand-write the uuidv7 generator (no library); slim recording for this task.",
+    "NEW (defaulted): local rows are camelCase because Dexie index names are camelCase ([artifactId+page], sessionId ...), while the generated domain types are snake_case. types/rows.ts DERIVES the local row types from the domain types with a key-remapping type plus _sync, instead of hand-copying columns; toRow/toWire are the only place the two meet.",
+    "NEW (defaulted): the plan doc and 04 disagree on the file name (utils/mappers.ts vs utils/normalizers.ts); the plan doc names mappers.ts for this task, so mappers.ts.",
+    "NEW (defaulted): the database is opened by openDb(profileId) and read through a small useDb() hook; each query hook does `const db = useDb()` and reads db.<table>, which is what I13 looks for.",
+    "NEW (defaulted): repositories exist for highlights, notes and artifacts as 04 lists; runs, miniConclusions and meta are written only by apply-remote (server-owned, no outbox).",
+    "NEW (defaulted): OutboxOp is exactly the 02 §6.1 shape; new ids are uuidv7 from utils/uuid7.ts (RULE-09)."
+  ],
+  "risks": [
+    "The bug that loses a note is a transaction scope missing the outbox table; only real fake-indexeddb tests catch it, so the throw-mid-transaction test is mandatory.",
+    "Dexie touches indexedDB at import: modules must be client-only and open lazily, or SSR/prerender breaks the production build.",
+    "I13 is a text match for `db.<table>` in queries/, so a hook that reads a table through another name would silently fail the check.",
+    "camelCase <-> snake_case drift: the generated domain types are the column list, so the mapper test reads them and fails when a migration adds a column.",
+    "Dexie's EntityTable typing and the branded ids from 003 must compose without casts spread everywhere."
+  ]
+}
