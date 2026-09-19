@@ -119,7 +119,7 @@ catches every planted violation under its own id and prints all 29 rows. "Green 
 - `g1` `supabase gen types typescript` → `shared/types/domain/*`, branded ids preserved.
 - `g2` Seed: one team, one leader, two members, one board/column/session, one PDF artifact.
 - `g3` Seed `llm_providers` / `llm_models` rows for the settings dropdown.
-- `g4` Storage bucket + policy for artifact PDFs; upload the seed document.
+- `g4` Storage bucket + policy for artifact PDFs; upload the seed document. *(As built: migration `0005_storage_artifacts.sql`; the local start script now includes storage-api.)*
 - `g5` A `db:seed` npm script that resets to this state in one command.
 
 **Gate** — a fresh checkout reaches a logged-in workspace with a real PDF in under five minutes.

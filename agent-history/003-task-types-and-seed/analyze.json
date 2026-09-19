@@ -1,0 +1,39 @@
+{
+  "task_id": "003-task-types-and-seed",
+  "phase": "analyze",
+  "started_at": "2026-09-19T03:16:24Z",
+  "completed_at": "2026-09-19T03:37:34Z",
+  "sources_read": [
+    {"doc": "06-whole-apps-task.md", "section": "PHASE B · 003"},
+    {"doc": "02-database-architecture.md", "section": "§2, §6, §10 DB-Q11"},
+    {"doc": "04-frontend-folder-architecture.md", "section": "§5 shared/types/domain, §12 I9 (via todo-task-003 §2)"},
+    {"doc": "todo-task-003-types-and-seed.md", "section": "full file"},
+    {"doc": "database-thinkboard-lite/", "section": "package.json scripts, supabase/config.toml, migrations/0001-0004, tests/rls.sql (fixture pattern: create_workspace RPC + postgres-side team_members insert)"}
+  ],
+  "scope": "Owner-confirmed 2026-09-19: goals g2, g4, g5 only. g1 ends `blocked` on 004's src/ (does not exist: frontend-thinkboard-lite/src is empty). g3 is held until D-12 is answered. Order: 003 partial first, then 004. In scope: supabase/seed.sql (team, leader, two members, board/column/session, one pdf artifact), the artifacts bucket + storage.objects policy, a generated placeholder PDF and its upload, the db:seed script, enabling storage-api in the start script. Out of scope: hand-editing generated types, any key in a seed row, creating src/, provider rows, real (Perhutani) document content.",
+  "acceptance_criteria": [
+    {"goal_id": "g1", "text": "Not attempted. Ends `blocked` with reason: needs 004's src/ skeleton (I9 folder law). Follow-up: finish after 004."},
+    {"goal_id": "g2", "text": "db:seed yields exactly: 1 team, 1 leader + 2 members (3 team_members), 1 board, 1 board_column, 1 session, 1 artifact kind=pdf; each of the three users can sign in with a local dev password."},
+    {"goal_id": "g3", "text": "Not attempted (held on D-12). Ends `blocked` with reason D-12 unanswered; no llm_providers/llm_models rows are seeded."},
+    {"goal_id": "g4", "text": "Bucket `artifacts` exists; object path artifacts/{sessionId}/{artifactId}.pdf; a team member can read the PDF, a non-member cannot; only the leader can write; the placeholder PDF is uploaded as the seeded leader, with no secret key."},
+    {"goal_id": "g5", "text": "One command (db:seed in database-thinkboard-lite/package.json) takes a fresh stack to the seeded state, and running it twice gives the same row counts."}
+  ],
+  "open_questions": [
+    "D-02 (defaulted: one `main` PDF + the leader's `note` copy) — one main PDF + note slot in the seed. Seed one artifact kind=pdf; the `note` copy is not seeded unless a later task needs it.",
+    "DB-Q2 (defaulted: = D-02) — = D-02.",
+    "DB-Q11 (defaulted: `artifacts/{sessionId}/{artifactId}.pdf`) — g4 storage path and policy; read = can_access_session(first segment), write = leader (02 §10).",
+    "D-12 (unanswered) — touches g3. Owner answered 2026-09-19: hold g3. No provider rows seeded.",
+    "NEW (raised, answered 2026-09-19): storage-api is excluded by the start script, so g4 cannot run. Owner: enable storage-api in database-thinkboard-lite/package.json start script.",
+    "NEW (raised, answered 2026-09-19): which PDF to upload. Owner: a generated placeholder PDF, no real document content.",
+    "NEW (defaulted, needs no answer): seed sign-in uses local-only dev passwords in seed.sql; they never leave the local stack and are not keys. Confirm with the owner if a different login method is wanted.",
+    "NEW (defaulted): db:seed is hosted in database-thinkboard-lite/package.json (the plan leaves the host as an analyze decision): `supabase db reset` applies seed.sql, then a node step uploads the PDF signed in as the seeded leader."
+  ],
+  "risks": [
+    "Writing into src/ before task 004 creates it would pre-empt the folder law — g1 waits.",
+    "Seeded provider rows look like a provider decision; D-12 is still unanswered — g3 is held, not placeholdered.",
+    "A seed script that uses a secret key breaks RULE-01's spirit — upload runs as the seeded leader under RLS instead.",
+    "Enabling storage-api makes the local stack heavier and may need imgproxy or config.toml [storage] settings; verify `supabase start` boots before relying on it.",
+    "Inserting into auth.users needs encrypted_password and an auth.identities row for email sign-in to work; the 0002 auth trigger must create profile_identities.",
+    "Touching start/db scripts must leave task 002's `npm test` green (56 checks) — re-run it."
+  ]
+}

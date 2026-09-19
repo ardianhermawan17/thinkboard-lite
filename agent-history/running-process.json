@@ -1,6 +1,6 @@
 {
 	"schema_version": "1.0",
-	"updated_at": "2026-09-18T23:22:19Z",
+	"updated_at": "2026-09-19T03:46:56Z",
 	"current_task_id": null,
 	"current_phase": "idle",
 	"history_path": null,
@@ -23,6 +23,12 @@
 			"architecture": "supabase",
 			"status": "done",
 			"title": "Prove the access model in code, because DB-1 makes RLS the authorization layer rather than a safety net"
+		},
+		{
+			"id": "003-task-types-and-seed",
+			"architecture": "supabase",
+			"status": "blocked",
+			"title": "The frontend can import generated types and log into a populated workspace"
 		}
 	]
 }

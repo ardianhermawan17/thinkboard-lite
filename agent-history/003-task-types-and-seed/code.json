@@ -1,0 +1,33 @@
+{
+  "task_id": "003-task-types-and-seed",
+  "phase": "code",
+  "started_at": "2026-09-19T03:37:34Z",
+  "completed_at": "2026-09-19T03:46:56Z",
+  "files_changed": [
+    {"path": "database-thinkboard-lite/supabase/migrations/0005_storage_artifacts.sql", "action": "created", "summary": "private `artifacts` bucket; artifact_object_session() parses the first path segment; four storage.objects policies: read = can_access_session, insert/update/delete = can_lead_session. Idempotent."},
+    {"path": "database-thinkboard-lite/supabase/seed.sql", "action": "created", "summary": "three users (leader, member-a, member-b @thinkboard.test, dev password) with identities; create_workspace() as the leader makes team/board/column/session; postgres adds the two members and one pdf artifact (slot main)"},
+    {"path": "database-thinkboard-lite/supabase/seed/upload-pdf.mjs", "action": "created", "summary": "no-dependency node script: signs in as the seeded leader, uploads a generated 3-page placeholder PDF to artifacts/{sessionId}/{artifactId}.pdf, writes storage_path and page_count"},
+    {"path": "database-thinkboard-lite/supabase/tests/seed/seed.test.mjs", "action": "created", "summary": "6 node:test checks: seed row counts, sign-in, no provider rows, member downloads the PDF over the storage API, storage policy read/write matrix, db:seed twice"},
+    {"path": "database-thinkboard-lite/package.json", "action": "modified", "summary": "start no longer excludes storage-api; new scripts db:seed and test:seed"},
+    {"path": "database-thinkboard-lite/README.md", "action": "modified", "summary": "layout and script table for 0005, seed, seed tests, db:seed, test:seed"},
+    {"path": "README.md", "action": "modified", "summary": "migrations 0001-0005 (two places)"},
+    {"path": "07-agent-working.md", "action": "modified", "summary": "migrations 0001-0005 in the layout"}
+  ],
+  "decisions": [
+    "Owner answers 2026-09-19: scope is g2, g4, g5 only; hold g3 (D-12 unanswered); 003 partial first, then 004; enable storage-api; generated placeholder PDF; the bucket and policy live in a new migration 0005_storage_artifacts.sql, not in seed.sql.",
+    "0004_lite.sql and 02 §8.1 are untouched (still byte-identical); the new migration is additive.",
+    "The PDF upload runs signed in as the seeded leader, so the storage policy (leader-write) authorises it and no secret key is used (RULE-01).",
+    "artifacts.storage_path holds the DB-Q11 string 'artifacts/{sessionId}/{artifactId}.pdf'; the bucket is its first segment and the object name inside the bucket is '{sessionId}/{artifactId}.pdf', which is why the policy reads the first path segment.",
+    "artifact_object_session() is plpgsql and returns null for a non-uuid segment, so a bad path is denied instead of raising a cast error.",
+    "db:seed is hosted in database-thinkboard-lite/package.json (an analyze decision the plan left open): supabase db reset applies migrations + seed.sql, then the node step uploads. Local login: leader@, member-a@, member-b@thinkboard.test, password 'password' (dev-only, defaulted).",
+    "The seed-twice test lives in its own folder (tests/seed/) and script (test:seed) because it resets the database and would break rls.test.mjs if run in parallel.",
+    "imgproxy stays excluded; storage-api booted without it."
+  ],
+  "commands_run": [
+    "npm run stop && npm run start (storage-api now included)",
+    "npm run db:seed (twice)",
+    "npm run test:seed",
+    "npm test (regression: task 002's RLS suite)",
+    "mutation: replace the 'artifacts read' policy with a bucket-only check, run the storage test, restore by re-applying 0005"
+  ]
+}
