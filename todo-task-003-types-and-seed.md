@@ -2,7 +2,7 @@
 doc_id: thinkboard-lite-task-003
 title: Task 003 — Types and seed
 version: "1.0"
-status: partial — g2 g4 g5 done (2026-09-19); g1 blocked on 004's src/, g3 held on D-12
+status: done — 5/5 goals (2026-09-19); g3 as placeholder rows, D-12 still unanswered; see agent-history/003-task-types-and-seed/
 updated: 2026-09-18
 task: "003"
 phase: "B — Data contract"
@@ -65,7 +65,7 @@ Every row goes into `analyze.json.open_questions`. An **unanswered** row stops t
 | D-02 | defaulted | one `main` PDF + the leader's `note` copy | one main PDF + note slot in the seed |
 | DB-Q2 | defaulted | = D-02 | = D-02 |
 | DB-Q11 | defaulted | `artifacts/{sessionId}/{artifactId}.pdf` | g4 storage path and policy |
-| D-12 | **unanswered** | — | g3 rows are placeholders, not a provider choice |
+| D-12 | **unanswered** | — | g3 rows are placeholders, not a provider choice. Owner ruled 2026-09-19 that placeholders are acceptable; that is not an answer to D-12, which still gates task 018 |
 
 ---
 

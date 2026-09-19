@@ -14,6 +14,7 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "test:scripts": "node --test \"scripts/*.test.mjs\"",
+    "gen:types": "node scripts/gen-domain-types.mjs",
     "verify:arch": "node scripts/verify-architecture.mjs",
     "verify": "npm run verify:arch && npm run lint && npm run typecheck && npm run test"
   },

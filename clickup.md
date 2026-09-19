@@ -2,6 +2,11 @@
 
 Snapshot: 2026-09-19 · Branch: `claude/task-002` · ClickUp List: `1100340000052535` (Space `1100340000040153`)
 
+> **⚠ PENDING CLICKUP SYNC (2026-09-19):** task 003 is **done in the repo** (5/5 goals, `agent-history/003-task-types-and-seed/result.json`),
+> but ClickUp still shows it `in progress`: the ClickUp MCP **daily limit was reached (100/100 calls; resets in about 15 h)**.
+> To finish, in ClickUp: set [z8r3fdg7gr](https://app.clickup.com/t/z8r3fdg7gr) to `complete`, tick g1 and g3 in its description
+> (g3 = placeholder rows, D-12 still open), and add the summary comment. The counts below still describe ClickUp as it is now.
+
 **Master reference for every task:** [`06-whole-apps-task.md`](06-whole-apps-task.md) (heading `### NNN-task-<slug>`).
 **Parsed plan doc per task:** `todo-task-NNN-<slug>.md` (goals, gate, decisions, contract scaffolding).
 **Live state:** `agent-history/running-process.json` + `agent-thinking/tracking-todo.json`.
@@ -12,7 +17,7 @@ Statuses in the List: `to do` · `in progress` · `complete`. ClickUp hides `com
 | Status | Count | Tasks |
 |---|---|---|
 | complete | 4 | 000, 001, 002, 004 |
-| in progress | 2 | 003 (partial: g2 g4 g5 done, g1 unblocked, g3 blocked on D-12), Housekeeping (pipeline itself is `idle`) |
+| in progress | 2 | 003 (done in the repo, ClickUp sync pending), Housekeeping (pipeline itself is `idle`) |
 | to do | 20 | 005–024 (018 blocked on D-12, 024 conditional) |
 
 Critical path: 000 → 001 → 004 → 006 → 008 → 009 → 010 → 012. Highest risk: 010, then 007.
@@ -77,7 +82,7 @@ Gate passed: `npm run verify` green on the real tree. Owner-visible: `build` is 
 
 | Item | ClickUp | Notes |
 |---|---|---|
-| 003 Types and seed (partial: g2 g4 g5 done; g1 unblocked by 004, g3 on D-12) | [z8r3fdg7gr](https://app.clickup.com/t/z8r3fdg7gr) | migration `0005_storage_artifacts.sql`, `seed.sql`, `npm run db:seed`; `agent-history/003-task-types-and-seed/` (result: blocked); tests `test:seed` 6/6, `npm test` 17/17 |
+| 003 Types and seed (**DONE in the repo, 5/5; ClickUp sync pending**) | [z8r3fdg7gr](https://app.clickup.com/t/z8r3fdg7gr) | migration `0005_storage_artifacts.sql`, `seed.sql`, `npm run db:seed`; `agent-history/003-task-types-and-seed/` (result: blocked); tests `test:seed` 6/6, `npm test` 17/17 |
 | Housekeeping: merge task-002 PR, resolve owner decisions | [z8r3fdg7hf](https://app.clickup.com/t/z8r3fdg7hf) | PR for `claude/task-002`; uncommitted doc edits in tree; D-12; C6 sign-off; frontend gitlink; `000-task-example` numbering |
 
 ---
@@ -132,8 +137,8 @@ Each row: ClickUp task (full mini-goals as checklist inside), 06 section, plan d
 
 ## Open decisions / blockers
 
-- **D-12** — free-tier training terms vs Perhutani document sensitivity. Gates 018, provider choice and 003 g3 (held).
-- **003 g1** — unblocked by 004's `src/`; reopen 003 to do it.
+- **D-12** — free-tier training terms vs Perhutani document sensitivity. Gates 018 and the provider choice; 003's g3 uses placeholder provider rows until it is answered.
+- **003** — finished in the repo; only the ClickUp sync is pending (see the banner at the top).
 - **C6** — human sign-off from the task-000 split (C7 already resolved: plan id = folder id).
 - Replace the `frontend-thinkboard-lite` gitlink in the root repo so its files are tracked (owner call).
 - `agent-history/000-task-example/` numbering (owner call).

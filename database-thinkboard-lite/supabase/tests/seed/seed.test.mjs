@@ -15,7 +15,8 @@ const snapshot = () => psql(`select concat_ws(',',
   (select count(*) from teams), (select count(*) from team_members), (select count(*) from team_members where role = 'leader'),
   (select count(*) from boards), (select count(*) from board_columns), (select count(*) from sessions),
   (select count(*) from artifacts where kind = 'pdf'), (select count(*) from auth.users where email like '%@thinkboard.test'),
-  (select count(*) from storage.objects where bucket_id = 'artifacts'))`)
+  (select count(*) from storage.objects where bucket_id = 'artifacts'),
+  (select count(*) from llm_providers), (select count(*) from llm_models))`)
 
 const status = JSON.parse(sh("npx", ["supabase", "status", "-o", "json"]).stdout.replace(/^[^{]*/, ""))
 const apikey = status.PUBLISHABLE_KEY ?? status.ANON_KEY
@@ -29,7 +30,7 @@ async function signIn(email) {
 }
 
 test("g2 the seed has exactly one team, leader + two members, board, column, session, pdf artifact, three users, one stored object", () => {
-  assert.equal(snapshot(), "1,3,1,1,1,1,1,3,1")
+  assert.equal(snapshot(), "1,3,1,1,1,1,1,3,1,2,2")
 })
 
 test("g2 all three seeded users can sign in, and the leader is the one leader", async () => {
@@ -37,8 +38,10 @@ test("g2 all three seeded users can sign in, and the leader is the one leader", 
   assert.equal(psql(`select i.email from team_members m join profile_identities i on i.profile_id = m.profile_id where m.role = 'leader'`), "leader@thinkboard.test")
 })
 
-test("g3 no llm_providers / llm_models rows are seeded (held on D-12)", () => {
-  assert.equal(psql(`select (select count(*) from llm_providers) + (select count(*) from llm_models)`), "0")
+test("g3 only placeholder providers and models are seeded: inactive, non-routable, D-12 pending, no real provider named", () => {
+  assert.equal(psql(`select count(*) from llm_providers where key like 'placeholder-%' and not is_active and base_url like '%.invalid' and label like '%D-12 pending%'`), "2")
+  assert.equal(psql(`select count(*) from llm_models where model_key = 'placeholder-model' and not is_active and label like '%D-12 pending%'`), "2")
+  assert.equal(psql(`select (select count(*) from llm_providers) + (select count(*) from llm_models)`), "4") // nothing else
 })
 
 test("g4 a member downloads the PDF through the storage API; it is the 3-page placeholder", async () => {

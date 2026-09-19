@@ -44,7 +44,9 @@ All 29 invariants, with how each is enforced: `../todo-task-000-split.md` §4.
 - Prettier: no semicolons, double quotes, 2 spaces, `trailingComma: es5`, Tailwind class sorting — `npm run format`.
 - shadcn style `radix-nova`; `cn()` comes from the `cn` package (shadcn's `clsx` + `tailwind-merge`
   replacement). After any `shadcn add`, check nothing domain-flavoured landed in the components alias.
-- Commands: `npm run dev | build | lint | typecheck | format | test | test:scripts | verify:arch | verify | storybook | build-storybook`.
+- Commands: `npm run dev | build | lint | typecheck | format | test | test:scripts | verify:arch | verify | storybook | build-storybook | gen:types`.
+  `gen:types` regenerates `src/shared/types/domain/*` from the local Supabase stack (it must be up); those files are
+  generated, so never hand-edit them: only `domain/common.ts` (the brands) is hand-written.
   `build` is `next build --webpack`: Serwist is a webpack plugin, so it is disabled in dev (Turbopack) and only a
   production build generates and registers the service worker.
 - `npm run test` runs Vitest in two projects: `unit` (jsdom, and `fake-indexeddb/auto` where a test needs IndexedDB) and

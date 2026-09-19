@@ -29,5 +29,34 @@
     "npm run test:seed",
     "npm test (regression: task 002's RLS suite)",
     "mutation: replace the 'artifacts read' policy with a bucket-only check, run the storage test, restore by re-applying 0005"
-  ]
+  ],
+  "round_2": {
+    "started_at": "2026-09-19T09:19:25Z",
+    "completed_at": "2026-09-19T09:26:24Z",
+    "files_changed": [
+      {"path": "frontend-thinkboard-lite/scripts/gen-domain-types.mjs", "action": "created", "summary": "plain Node ESM generator: parses `supabase gen types typescript` (rows, foreign keys, enums), brands id / foreign key / *_id / *_at columns from ./common, writes one kebab-case file per non-parked blueprint table; fails loudly on a missing table, unknown enum or unrecognised output"},
+      {"path": "frontend-thinkboard-lite/scripts/gen-domain-types.test.mjs", "action": "created", "summary": "5 node:test checks on a fixture that mirrors the real CLI output including the trailing Constants block"},
+      {"path": "frontend-thinkboard-lite/src/shared/types/domain/common.ts", "action": "created", "summary": "hand-written: UUID<Table>, ISODateString, Json (the only non-generated file in domain/)"},
+      {"path": "frontend-thinkboard-lite/src/shared/types/domain/<25 tables>.ts", "action": "created (generated)", "summary": "one file per non-parked blueprint table (22 active + 3 read-only), never hand-edited"},
+      {"path": "frontend-thinkboard-lite/package.json", "action": "modified", "summary": "script gen:types"},
+      {"path": "database-thinkboard-lite/supabase/seed.sql", "action": "modified", "summary": "g3: two placeholder llm_providers (placeholder-a, placeholder-b) and one placeholder llm_models each: inactive, https://placeholder.invalid, labelled D-12 pending"},
+      {"path": "database-thinkboard-lite/supabase/tests/seed/seed.test.mjs", "action": "modified", "summary": "the g3 test now asserts exactly the placeholder rows (was: zero rows); the count snapshot gains provider and model counts"}
+    ],
+    "decisions": [
+      "D-12 is still UNANSWERED. Owner ruled 2026-09-19 that g3 uses placeholder rows (no real provider named, inactive, no key). Task 018 stays gated on D-12.",
+      "Branch: claude/task-003b, cut from claude/task-004 after task 004 was committed (8a41428), as the owner chose.",
+      "Domain files are generated for the 25 non-parked blueprint tables; the 4 parked tables (messages, context_warnings, sources, point_sources) get none until they go live. Type names are PascalCase singulars; enum columns inline their literal union; common.ts holds UUID<Table>, ISODateString and Json.",
+      "A bug the tests missed was found by reading the generated output: the CLI prints a second Enums block inside `export const Constants` (array form) at the same indentation, and the parser re-entered it, turning enum columns into invalid TypeScript. Fixed by stopping at `export const`; the test fixture now mirrors the real output so it cannot return.",
+      "user_llm_keys.vault_secret_id is typed as a bare UUID: it is a reference to a Vault secret, never the secret (RULE-01); the type file holds no secret material.",
+      "llm_providers.key turned out to be citext, not an enum, so the placeholder keys name no provider and need no schema change."
+    ],
+    "commands_run": [
+      "node --test scripts/gen-domain-types.test.mjs (5/5)",
+      "npm run gen:types (wrote 25 files); re-run after the Constants fix",
+      "npx tsc --noEmit (clean); node scripts/verify-architecture.mjs (I9 pass, 18/0)",
+      "npm run db:seed (exit 0); psql check of the placeholder rows",
+      "npm run test:seed (6/6); npm test in database-thinkboard-lite (17/17, 56 RLS checks)",
+      "npm run verify (exit 0); npm run test:scripts (35/35); npm audit (0)"
+    ]
+  }
 }

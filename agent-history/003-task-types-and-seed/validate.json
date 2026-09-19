@@ -2,20 +2,23 @@
   "task_id": "003-task-types-and-seed",
   "phase": "validate",
   "goal_checks": [
-    {"goal_id": "g1", "status": "blocked", "notes": "Needs 004's src/ skeleton; frontend-thinkboard-lite/src does not exist yet, and writing into it would pre-empt the folder law. Owner-confirmed order: 003 partial, then 004. Resume after 004."},
+    {"goal_id": "g1", "status": "pass", "notes": "npm run gen:types generates src/shared/types/domain/<table>.ts for the 25 non-parked blueprint tables from the supabase CLI output; id, foreign-key and *_at columns are branded from ./common (UUID<Table>, ISODateString), enums are inlined as literal unions. Typecheck is clean and verify:arch I9 passes on all of them; the generator has 5 tests. Unblocked by task 004 (src/ exists)."},
     {"goal_id": "g2", "status": "pass", "notes": "seed.test.mjs: exactly one team, one leader + two members, one board/column/session, one pdf artifact, three users; all three sign in."},
-    {"goal_id": "g3", "status": "blocked", "notes": "D-12 (free-tier training terms vs document sensitivity) is unanswered and touches this goal; owner answered 'hold g3'. No llm_providers / llm_models rows are seeded (asserted as 0)."},
+    {"goal_id": "g3", "status": "pass", "notes": "Two PLACEHOLDER llm_providers and two llm_models are seeded (placeholder-a/b): inactive, host placeholder.invalid, labelled D-12 pending, no key, no real provider named. Owner ruled this on 2026-09-19. D-12 itself is still unanswered and still gates task 018; seeding twice gives identical counts."},
     {"goal_id": "g4", "status": "pass", "notes": "0005 creates the private artifacts bucket and four policies; the leader uploads the placeholder PDF; a member downloads it through the storage API; an outsider reads 0 rows and cannot write; a member cannot write. Mutation-tested."},
     {"goal_id": "g5", "status": "pass", "notes": "npm run db:seed takes the stack from any state to the seeded one; run twice, the row counts are identical."}
   ],
   "cross_check_against_plan": [
-    {"doc": "06-whole-apps-task.md", "section": "PHASE B · 003", "result": "g2, g4, g5 met; g1 and g3 are blocked with reasons. The gate ('a fresh checkout reaches a logged-in workspace with a real PDF in under five minutes') is met on the database side: one command, about 50 seconds; the workspace UI itself is task 008."},
+    {"doc": "06-whole-apps-task.md", "section": "PHASE B · 003", "result": "All five goals met (g1 and g3 in the 2026-09-19 follow-up; g3 as placeholder rows because D-12 is still unanswered). The gate ('a fresh checkout reaches a logged-in workspace with a real PDF in under five minutes') is met on the database side: one command, about 50 seconds; the workspace UI itself is task 008."},
     {"doc": "02-database-architecture.md", "section": "§2, §6, §10 DB-Q11", "result": "DB-Q11 default followed: path artifacts/{sessionId}/{artifactId}.pdf, read = can_access_session(first segment), write = leader. 0004 and §8.1 untouched."},
-    {"doc": "04-frontend-folder-architecture.md", "section": "§5 shared/types/domain, §12 I9", "result": "Not exercised: g1 is blocked. No file was written under frontend-thinkboard-lite/."}
+    {"doc": "04-frontend-folder-architecture.md", "section": "§5 shared/types/domain, §12 I9", "result": "g1 now exercised: domain/ holds common.ts plus 25 generated files (kebab-case, one per non-parked blueprint table), ids and timestamps branded, I9 passes (verify:arch 18/0)."}
   ],
   "signed_off": true,
   "issues_found": [
-    "g1 and g3 cannot pass yet, so the task closes blocked, not done. The plan's gate says 'logged-in workspace' — that needs 008; this task proves only the database side.",
-    "Placeholder PDF is hand-generated and text-only (ponytail note in upload-pdf.mjs); a later task that needs images or a real text layer to test against should supply a fixture."
+    "D-12 is still UNANSWERED. g3 passes only because the owner ruled on 2026-09-19 that placeholder rows (no real provider, inactive, no key) are acceptable; task 018 stays gated on D-12 and replaces these rows.",
+    "A generator bug the unit tests missed was caught by reading the output: the CLI repeats Enums as arrays in a trailing Constants block, which the parser re-entered. Fixed, and the fixture now mirrors the real output.",
+    "The generator regex-parses the CLI text: a CLI output-format change fails loudly (unknown shape, missing table, unknown enum) instead of producing wrong types. It needs the local stack up.",
+    "The 4 parked tables get no domain type until they go live; the type-name rule (PascalCase singular) and inlined enums are defaults recorded in analyze.json round_2.",
+    "The placeholder PDF from round 1 is still hand-generated and text-only (ponytail note in upload-pdf.mjs)."
   ]
 }

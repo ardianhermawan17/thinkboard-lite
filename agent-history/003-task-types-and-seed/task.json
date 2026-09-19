@@ -4,7 +4,7 @@
   "architecture": "supabase",
   "secondary_architecture": ["frontend"],
   "created_at": "2026-09-19T03:16:24Z",
-  "status": "blocked",
+  "status": "done",
   "depends_on": ["001-task-supabase-lite-migration"],
   "plan_refs": [
     {"doc": "06-whole-apps-task.md", "section": "PHASE B · 003"},
@@ -13,9 +13,9 @@
     {"doc": "todo-task-003-types-and-seed.md", "section": "§2 goals and gate, §3 decisions"}
   ],
   "goals": [
-    {"id": "g1", "description": "supabase gen types typescript → src/shared/types/domain/*, branded ids preserved (I9); needs 004's src/ skeleton — blocked until it exists", "plan_ref": "tasks 003 g1; ffa §5 I9", "status": "blocked"},
+    {"id": "g1", "description": "supabase gen types typescript → src/shared/types/domain/*, branded ids preserved (I9); needs 004's src/ skeleton — blocked until it exists", "plan_ref": "tasks 003 g1; ffa §5 I9", "status": "done"},
     {"id": "g2", "description": "Seed: one team, one leader, two members, one board / column / session, one PDF artifact", "plan_ref": "tasks 003 g2", "status": "done"},
-    {"id": "g3", "description": "Seed llm_providers / llm_models rows for the settings dropdown", "plan_ref": "tasks 003 g3", "status": "blocked"},
+    {"id": "g3", "description": "Seed llm_providers / llm_models rows for the settings dropdown", "plan_ref": "tasks 003 g3", "status": "done"},
     {"id": "g4", "description": "Storage bucket + policy for artifact PDFs at the DB-Q11 default path; upload the seed document", "plan_ref": "tasks 003 g4; db §10 DB-Q11", "status": "done"},
     {"id": "g5", "description": "A db:seed script that resets to this state in one command (which package.json hosts it is an analyze decision)", "plan_ref": "tasks 003 g5", "status": "done"}
   ],

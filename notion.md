@@ -1,6 +1,6 @@
 # ThinkBoard Lite — Work log and historical reference
 
-Period: 2026-09 (repo history through merge `1be047f` (PR #5), 2026-09-19, plus task 004 on branch `claude/task-004`, not yet committed) · Repo: `ardianhermawan17/thinkboard-lite` · Local: `thinkboard-lite-architecture`
+Period: 2026-09 (repo history through merge `1be047f` (PR #5), 2026-09-19, plus task 004, committed on `claude/task-004` (`8a41428`), and the task 003 follow-up on `claude/task-003b`, not yet committed) · Repo: `ardianhermawan17/thinkboard-lite` · Local: `thinkboard-lite-architecture`
 
 ## What ThinkBoard Lite is
 
@@ -19,7 +19,8 @@ This repo is the plan and the process; the app lives in `frontend-thinkboard-lit
 | `c67991b` | Task 002: RLS access model proven against the local Supabase stack |
 | `3f9086f` (PR #4) | Task 003 partial: migration `0005`, seed, `db:seed`; g1 and g3 blocked |
 | `95c470e` (PR #5) | The gate workflow and ClickUp/Notion sync diagram, `gate-workflow.html` |
-| (uncommitted, `claude/task-004`) | Task 004: the scaffold conformed to the folder law; `npm run verify` green |
+| `8a41428` (`claude/task-004`) | Task 004: the scaffold conformed to the folder law; `npm run verify` green |
+| (uncommitted, `claude/task-003b`) | Task 003 finished: generated domain types and placeholder provider rows |
 
 ## Completed tasks
 
@@ -32,8 +33,8 @@ Migrations `0001_initial`, `0002_auth_trigger`, `0003_grant_schema`, `0004_lite`
 ### 002 — RLS access proof (16/16 goals, closed 2026-09-18)
 `supabase/tests/rls.sql` and `rls.test.mjs` run against the local stack. DB-1 makes RLS the authorization layer, so this is the proof, not a safety net.
 
-### 003 — Types and seed (partial: 3/5 goals, task `blocked`, 2026-09-19)
-Done: g2 (seed: one team, leader + two members, board/column/session, one PDF artifact), g4 (private `artifacts` bucket + policy in the new migration `0005_storage_artifacts.sql`; a generated placeholder PDF uploaded as the seeded leader), g5 (`npm run db:seed`, fresh stack to seeded state in about 50 s, idempotent). Tests: `test:seed` 6/6, task 002's suite still 17/17 (56 checks), storage read policy mutation-tested. Blocked: g1 (generated types) on 004's `src/`; g3 (provider rows) on D-12.
+### 003 — Types and seed (5/5 goals, closed 2026-09-19 in two rounds)
+Done: g2 (seed: one team, leader + two members, board/column/session, one PDF artifact), g4 (private `artifacts` bucket + policy in the new migration `0005_storage_artifacts.sql`; a generated placeholder PDF uploaded as the seeded leader), g5 (`npm run db:seed`, fresh stack to seeded state in about 50 s, idempotent). Tests: `test:seed` 6/6, task 002's suite still 17/17 (56 checks), storage read policy mutation-tested. Round 2 (branch `claude/task-003b`): g1 generated domain types (`npm run gen:types`: 25 files plus a hand-written `common.ts`, ids and timestamps branded, I9 green) and g3 **placeholder** `llm_providers` / `llm_models` rows (inactive, `placeholder.invalid`, "D-12 pending", no key, no real provider named). **D-12 is still unanswered**; the placeholders decide nothing and task 018 stays gated on it.
 
 ### 004 — Conform the frontend scaffold (6/6 goals, closed 2026-09-19)
 The create-next-app scaffold moved under `src/{app,features,shared}` with the four aliases (`@app @feature @shared @public`) declared in both `tsconfig.json` and `vitest.config.mts`; the architecture lint rules are spread into ESLint; Vitest runs two projects (jsdom + fake-indexeddb unit tests, and Storybook story tests in headless Chrome via Playwright); Serwist (`@serwist/next`) is configured and a production build registers the worker. Gate: `npm run verify` green on the real tree (verify:arch 18/0, lint, typecheck, tests); verify:arch exits 1 without `src/`. Unblocks 003 g1, 005 and 006.
@@ -47,6 +48,8 @@ The create-next-app scaffold moved under `src/{app,features,shared}` with the fo
 - **Storage policy lives in a migration, not the seed** (2026-09-19, owner-approved): `0005_storage_artifacts.sql` ships with the schema; `0004` stays frozen. The bucket is private; read = session member, write = leader.
 - **The seed PDF upload runs as the seeded leader**, so RLS authorises it and no secret key is needed (RULE-01). The PDF is generated, never real (Perhutani) content.
 - **003 order** (2026-09-19, owner): 003 partial first, then 004; g3 held on D-12 (no placeholder provider rows).
+- **Placeholders are not a decision** (2026-09-19, owner): 003's g3 provider rows name no real provider, are inactive and hold no key. Only a human answer makes D-12 `confirmed`; a ruling that placeholders are acceptable does not.
+- **Domain types are generated, not written**: `npm run gen:types` reads `supabase gen types` and writes one file per non-parked blueprint table; `common.ts` (the brands) is the only hand-written file in `domain/`.
 - **`next build --webpack`** (2026-09-19): Serwist is a webpack plugin and Next 16 builds with Turbopack by default, which would silently generate no service worker. Dev stays on Turbopack with Serwist disabled; only a production build generates and registers the worker.
 - **ESLint 9, Vitest 4** (owner / dependency fit): ESLint 10 broke `eslint-config-next`; Vitest 5 needs a newer `@types/node` than the scaffold's `^20`. Revisit both when the Node types are bumped.
 - **The story test runs inside `npm run test` and `verify`** (owner choice); no standalone `playwright.config.ts` until a task needs end-to-end tests. It uses the installed Chrome.
@@ -56,6 +59,8 @@ The create-next-app scaffold moved under `src/{app,features,shared}` with the fo
 
 ## Lessons / gotchas
 
+- Read generated output, not only its tests: `supabase gen types` repeats `Enums` as arrays in a trailing `Constants` block at the same indentation; a parser that re-entered it produced invalid TypeScript, and the trimmed test fixture had hidden it. Make fixtures mirror the real output.
+- A daily MCP limit (ClickUp: 100 calls) can stop a sync mid-task: batch the calls, and when it hits, record the pending sync in `clickup.md` instead of claiming success.
 - A verifier that strips comments with a regex must be string-aware: the `/*` in `"@app/*"` opened a "comment" closed by the `*/` of a later `"**/*.ts"`, so task 000's verifier crashed on every real `tsconfig`. Its fixtures never covered a globbed `include`.
 - A dev-tool package can bring high-severity advisories in a build-time dependency (`@serwist/next` pins `browserslist` 4.28.6): run `npm audit` after every install and fix with a scoped `overrides` entry.
 - In PowerShell, `rd` is an alias of `Remove-Item` and aliases beat functions: a helper named `Rd` deleted two tracked files. Never name helpers after aliases; git restored them.
@@ -70,7 +75,7 @@ The create-next-app scaffold moved under `src/{app,features,shared}` with the fo
 
 ## Open follow-ups carried forward
 
-D-12 (gates 018 and 003 g3); C6 sign-off; gitlink for `frontend-thinkboard-lite`; example-folder numbering; add-member RPC in 008; 003 g1 (generated types) is unblocked by 004; nothing from task 004 is committed yet; drop the `browserslist` override when `@serwist/next` patches its pin; two lint warnings remain.
+D-12 (gates 018); C6 sign-off; gitlink for `frontend-thinkboard-lite`; example-folder numbering; add-member RPC in 008; D-12 is still open for task 018 (003's placeholder provider rows stand in); ClickUp shows 003 as `in progress` until its daily MCP limit resets (see `clickup.md`); the task 003 follow-up (`claude/task-003b`) is not committed yet; rerun `npm run gen:types` after any migration; drop the `browserslist` override when `@serwist/next` patches its pin; two lint warnings remain.
 
 ## Where things live
 

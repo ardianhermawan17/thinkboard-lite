@@ -1,6 +1,6 @@
 {
 	"schema_version": "1.0",
-	"updated_at": "2026-09-19T07:20:11Z",
+	"updated_at": "2026-09-19T09:30:27Z",
 	"current_task_id": null,
 	"current_phase": "idle",
 	"history_path": null,
@@ -27,7 +27,7 @@
 		{
 			"id": "003-task-types-and-seed",
 			"architecture": "supabase",
-			"status": "blocked",
+			"status": "done",
 			"title": "The frontend can import generated types and log into a populated workspace"
 		},
 		{
