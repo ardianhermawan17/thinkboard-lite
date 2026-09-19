@@ -56,7 +56,7 @@ thinkboard-lite-architecture/          # this repo — plan + process
       ...
   todo-task-NNN-<slug>.md              # the per-task plan an agent opens the folder from
   frontend-thinkboard-lite/            # the Next.js app; src/server/** is Lite's "backend" (git runs from this root)
-  database-thinkboard-lite/            # the Supabase project — supabase/migrations/0001-0004
+  database-thinkboard-lite/            # the Supabase project — supabase/migrations/0001-0005
 ```
 
 Rules:

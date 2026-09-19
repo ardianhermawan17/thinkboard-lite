@@ -2,7 +2,7 @@
 doc_id: thinkboard-lite-task-003
 title: Task 003 — Types and seed
 version: "1.0"
-status: proposed
+status: partial — g2 g4 g5 done (2026-09-19); g1 blocked on 004's src/, g3 held on D-12
 updated: 2026-09-18
 task: "003"
 phase: "B — Data contract"
@@ -73,8 +73,10 @@ Every row goes into `analyze.json.open_questions`. An **unanswered** row stops t
 
 ```
 frontend-thinkboard-lite/src/shared/types/domain/*.ts   # generated
-database-thinkboard-lite/supabase/seed.sql + storage policy
-db:seed script
+database-thinkboard-lite/supabase/seed.sql
+database-thinkboard-lite/supabase/migrations/0005_storage_artifacts.sql   # bucket + policy (owner-approved new migration)
+database-thinkboard-lite/supabase/seed/upload-pdf.mjs                     # placeholder PDF, uploaded as the seeded leader
+db:seed script                                                            # database-thinkboard-lite/package.json
 ```
 
 Placement follows `04-frontend-folder-architecture.md` §8; anything that does not fit is a question, not a new folder.

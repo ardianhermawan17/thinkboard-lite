@@ -1,0 +1,25 @@
+{
+  "task_id": "003-task-types-and-seed",
+  "phase": "result",
+  "closed_at": "2026-09-19T03:46:56Z",
+  "final_status": "blocked",
+  "goals_summary": {
+    "total": 5,
+    "done": 3,
+    "blocked": 2
+  },
+  "artifacts": [
+    "database-thinkboard-lite/supabase/migrations/0005_storage_artifacts.sql",
+    "database-thinkboard-lite/supabase/seed.sql",
+    "database-thinkboard-lite/supabase/seed/upload-pdf.mjs",
+    "database-thinkboard-lite/supabase/tests/seed/seed.test.mjs",
+    "database-thinkboard-lite/package.json",
+    "database-thinkboard-lite/README.md"
+  ],
+  "follow_up_tasks": [
+    "003 g1 (generated types): resume after 004-task-frontend-scaffold creates src/. This task stays open (blocked); reopen it at Gate 3 then.",
+    "003 g3 (llm_providers / llm_models rows): resume when D-12 is answered by the human. Until then no provider rows exist.",
+    "004-task-frontend-scaffold: next by the owner's order; ready now (depends only on 000).",
+    "008 / 009: 008 can log into the seeded workspace (leader@, member-a@, member-b@thinkboard.test / password) and 009 can render the seeded 3-page PDF once their other dependencies are done."
+  ]
+}

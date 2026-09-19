@@ -1,0 +1,6 @@
+{
+  "id": "003-todo-types-and-seed",
+  "name": "Types and seed",
+  "human_prompt": "1. Put task 000, 001, 002 to \"CLICKUP\" with status \"DONE\" and with comment is \"Main feature, what you done\"\n2. After that resume to working on TASK 003",
+  "translated_prompt_agent": "Follow the main gate in README.md. Task 003 per todo-task-003-types-and-seed.md, on branch claude/task-002.\n1. ClickUp 000, 001, 002 were already `complete`; a summary comment was added to each (done before opening 003).\n2. Scope confirmed by the owner: goals g2, g4, g5 only. g1 waits on 004's src/ (it ends `blocked`); g3 is held until D-12 is answered. Order: 003 partial first, then 004.\n3. Seed runs server/CLI side only, no key in a seed row. Storage path per DB-Q11 default: artifacts/{sessionId}/{artifactId}.pdf. Tests: seed twice gives the same row counts; storage policy allows member read and denies non-member read (test.json.summary.total > 0).\n4. The Lite stack (ports 553xx) must be up. No git write without an explicit yes (09-agent-limitation.md); root repo only."
+}

@@ -7,7 +7,7 @@ git). `CLAUDE.md` imports it; the numbered docs hold the detail it points to.
 ThinkBoard Lite is a shared PDF workspace: every highlight is a focus point, every focus point carries
 notes (typed or handwritten), and the workspace produces a private and a group conclusion — collaborative
 by default, still working with the network off. This repo is the **plan and the process**. The app is
-[`frontend-thinkboard-lite/`](frontend-thinkboard-lite/README.md); the Supabase project (migrations `0001`–`0004`) is
+[`frontend-thinkboard-lite/`](frontend-thinkboard-lite/README.md); the Supabase project (migrations `0001`–`0005`) is
 [`database-thinkboard-lite/`](database-thinkboard-lite/). Git runs from this repo's root only.
 
 ---
@@ -80,7 +80,33 @@ the phase starts.
    `in_progress`, and `result.json` says why.
 3. `running-process.json`: the row's status; `current_task_id: null`, `current_phase: "idle"`,
    `history_path: null`, `status: "idle"`.
-4. Report. **Any git write needs the user's explicit yes, every time** (§7).
+4. **Sync (ClickUp → Notion)** — follow [`notion-clickup-procedure-work.md`](notion-clickup-procedure-work.md):
+   read the task from **ClickUp** first, then report it on **Notion**. Skip only if the ClickUp/Notion MCP
+   tools are unavailable, and say so in the report.
+5. Report. **Any git write needs the user's explicit yes, every time** (§7).
+
+### After Gate 5 — ClickUp → Notion reporting
+
+The board and the log are mirrors of this repo, kept by one procedure:
+[`notion-clickup-procedure-work.md`](notion-clickup-procedure-work.md).
+
+```
+ ClickUp (live board)  ──read task──▶  agent  ──report──▶  Notion (history log)
+ List 1100340000052535                 checks it against    Thinkboard Lite ▸ Work log
+ to do / in progress / complete        running-process     (done, decisions, lessons)
+                                       + result.json
+```
+
+1. **Get the task from ClickUp** — `clickup_filter_tasks` (`include_closed: true`) / `clickup_get_task`. Task
+   names are `NNN <Title>`; the description carries the refs to `06-whole-apps-task.md` and the plan doc.
+2. **Reconcile** it with `agent-history/running-process.json` and the task's `result.json`. The repo wins on a
+   mismatch: fix ClickUp (status, ticked goals), never the other way round.
+3. **Report on Notion** — append the closed task, its commit, decisions and follow-ups to the work-log page.
+   Notion is history, not a task list; the live list stays in ClickUp.
+4. Regenerate [`clickup.md`](clickup.md) and [`notion.md`](notion.md) (repo-side snapshots). Writing them is
+   free; committing them needs the user's yes (§7).
+
+Never put secrets or Perhutani document content in either tool; reference file paths only.
 
 ---
 
@@ -141,6 +167,8 @@ other two. Plan id = folder id (`000`–`024`), and numbers are never reused.
 | 07 | [`07-agent-working.md`](07-agent-working.md) | the JSON contracts and phase rules behind Gates 3–5 | process |
 | 08 | [`08-agent-todo-intake.md`](08-agent-todo-intake.md) | the intake contract behind Gate 1 | process |
 | 09 | [`09-agent-limitation.md`](09-agent-limitation.md) | git limits, Human Mode | overrides everything |
+| — | [`notion-clickup-procedure-work.md`](notion-clickup-procedure-work.md) | how an agent reads tasks from ClickUp and reports them on Notion (MCP) | process (sync only) |
+| — | [`clickup.md`](clickup.md), [`notion.md`](notion.md) | board snapshot (done / ongoing / to do) and historical log | explanatory |
 | 10 | [`10-abstract-plan-superseded.md`](10-abstract-plan-superseded.md) | how the design got here | superseded by 01 |
 | — | `todo-task-NNN-<slug>.md` | one plan doc per task (§5) | its task's scope |
 
@@ -159,7 +187,7 @@ in `task_sequence` is *not opened*.
 | A | 000 architecture contract | [todo-task-000-split](todo-task-000-split.md) | frontend | — | **done** |
 | B | 001 Supabase Lite migration | [todo-task-001](todo-task-001-supabase-lite-migration.md) | supabase | 000 (pkg A) | **done** |
 | B | 002 RLS access proof | [todo-task-002](todo-task-002-rls-access-proof.md) | supabase | 001 | **done** |
-| B | 003 types and seed | [todo-task-003](todo-task-003-types-and-seed.md) | supabase | 001 | not opened |
+| B | 003 types and seed | [todo-task-003](todo-task-003-types-and-seed.md) | supabase | 001 | **partial** — g2 g4 g5 done; g1 blocked on 004, g3 on D-12 |
 | C | 004 conform the scaffold | [todo-task-004](todo-task-004-frontend-scaffold.md) | frontend | 000 | not opened |
 | C | 005 design system | [todo-task-005](todo-task-005-design-system.md) | frontend | 004 | not opened |
 | C | 006 entities kernel | [todo-task-006](todo-task-006-entities-kernel.md) | frontend | 004 | not opened |
@@ -189,11 +217,14 @@ Critical path = the demoable slice:  000 → 001 → 004 → 006 → 008 → 009
 
 ---
 
-## 6. Where things stand — 2026-09-18
+## 6. Where things stand — 2026-09-19
 
 - **Done:** 000 (architecture contract), 001 (`0004_lite.sql` in `database-thinkboard-lite/`) and 002 (the RLS proof:
   56 checks in `database-thinkboard-lite/supabase/tests/`, each policy mutation-tested).
-- **Next:** 003 (types and seed, needs 004's `src/` for its types goal) and 004 (conform the scaffold); 008 also needs 005 and 006.
+- **Partial:** 003 (types and seed) — g2 seed, g4 storage (`0005_storage_artifacts.sql`) and g5 `npm run db:seed` are done
+  and tested; **g1** (generated types) waits for 004's `src/`, **g3** (provider rows) waits for D-12. The task is `blocked`
+  and reopens at Gate 3 when either is unblocked.
+- **Next:** 004 (conform the scaffold), which unblocks 003 g1; 008 also needs 005 and 006.
 - **Waiting on a human:**
   - **D-12** — free-tier training terms vs document sensitivity. Blocks 018, and ink transcription in 024.
   - **Q7** — the 45-minute Bahasa Indonesia handwriting test. Decides 024, and the blueprint's `ink-pad`.
@@ -232,7 +263,7 @@ todo-task-NNN-<slug>.md   one plan doc per task (§5)
 agent-thinking/           intake: todo/NNN-todo-<slug>/contract.json + tracking-todo.json
 agent-history/            execution: NNN-task-<slug>/ + running-process.json
 frontend-thinkboard-lite/ the Next.js app — own CLAUDE.md and AGENTS.md
-database-thinkboard-lite/ the Supabase project — migrations 0001-0004, tests, its own README
+database-thinkboard-lite/ the Supabase project — migrations 0001-0005, seed, tests, its own README
 backend-thinkboard-lite/  (later) the Go backend — a sibling of database-thinkboard-lite/, not created yet
 claude-artifact/ old/     archived snapshots — git-ignored, never edited
 ```

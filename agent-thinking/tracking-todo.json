@@ -1,6 +1,6 @@
 {
 	"schema_version": "1.0",
-	"updated_at": "2026-09-18T23:22:19Z",
+	"updated_at": "2026-09-19T03:46:56Z",
 	"tracked_todos": [
 		{
 			"id": "000-todo-architecture-contract",
@@ -25,6 +25,14 @@
 			"todo_path": "agent-thinking/todo/002-todo-rls-access-proof/contract.json",
 			"agent_history": "agent-history/002-task-rls-access-proof",
 			"status": "done"
+		},
+		{
+			"id": "003-todo-types-and-seed",
+			"name": "Types and seed",
+			"goal": "The frontend can import generated types and log into a populated workspace.",
+			"todo_path": "agent-thinking/todo/003-todo-types-and-seed/contract.json",
+			"agent_history": "agent-history/003-task-types-and-seed",
+			"status": "in_progress"
 		}
 	]
 }

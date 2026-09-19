@@ -1,0 +1,21 @@
+{
+  "task_id": "003-task-types-and-seed",
+  "phase": "test",
+  "test_files": [
+    "database-thinkboard-lite/supabase/tests/seed/seed.test.mjs"
+  ],
+  "commands_run": [
+    {"command": "npm run db:seed", "result": "reset applied 0001-0005 and seed.sql; upload-pdf.mjs printed 'seeded PDF uploaded: artifacts/{sessionId}/{artifactId}.pdf'"},
+    {"command": "npm run test:seed", "result": "6 tests, 6 pass: counts 1,3,1,1,1,1,1,3,1; three users sign in; 0 provider rows; member downloads a %PDF with /Count 3; policy matrix member_read 1 / member_write denied / outsider_read 0 / outsider_write denied / leader_read 1 / leader_write allowed; db:seed a second time gives identical counts"},
+    {"command": "npm test", "result": "regression, task 002 suite after 0005 and the seed: 17 tests, 17 pass (56 SQL checks)"},
+    {"command": "mutation: 'artifacts read' policy replaced by a bucket-only check", "result": "storage policy test red: outsider_read '1', expected '0'"},
+    {"command": "restore: re-apply 0005_storage_artifacts.sql", "result": "applied with no error (idempotent) and the storage policy test is green again"}
+  ],
+  "summary": {
+    "total": 6,
+    "passed": 6,
+    "failed": 0,
+    "skipped": 0
+  },
+  "coverage_notes": "6 node tests wrap a policy matrix of 6 read/write assertions plus row-count, sign-in, download and reseed checks, all against the real local stack (the storage policy is exercised as role authenticated with request.jwt.claims, and the PDF download through the real storage API). Every negative check has a positive twin. Mutation shows the read policy test is not vacuous. Not covered: the insert/update/delete policies beyond insert (update and delete share the leader predicate but are not separately exercised), and g1/g3 (blocked)."
+}
