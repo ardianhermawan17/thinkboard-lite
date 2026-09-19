@@ -19,7 +19,10 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"]
+      "@app/*": ["./src/app/*"],
+      "@feature/*": ["./src/features/*"],
+      "@shared/*": ["./src/shared/*"],
+      "@public/*": ["./public/*"]
     }
   },
   "include": [

@@ -1,6 +1,6 @@
 {
 	"schema_version": "1.0",
-	"updated_at": "2026-09-19T03:46:56Z",
+	"updated_at": "2026-09-19T07:20:11Z",
 	"current_task_id": null,
 	"current_phase": "idle",
 	"history_path": null,
@@ -29,6 +29,12 @@
 			"architecture": "supabase",
 			"status": "blocked",
 			"title": "The frontend can import generated types and log into a populated workspace"
+		},
+		{
+			"id": "004-task-frontend-scaffold",
+			"architecture": "frontend",
+			"status": "done",
+			"title": "The existing scaffold obeys the folder law, so no later task has to retrofit it"
 		}
 	]
 }

@@ -1,0 +1,30 @@
+{
+  "task_id": "004-task-frontend-scaffold",
+  "phase": "result",
+  "closed_at": "2026-09-19T07:20:11Z",
+  "final_status": "done",
+  "goals_summary": {
+    "total": 6,
+    "done": 6,
+    "blocked": 0
+  },
+  "artifacts": [
+    "frontend-thinkboard-lite/src/{app,features,shared}/ (scaffold moved under src/)",
+    "frontend-thinkboard-lite/src/app/sw.ts",
+    "frontend-thinkboard-lite/next.config.ts",
+    "frontend-thinkboard-lite/vitest.config.mts",
+    "frontend-thinkboard-lite/.storybook/{main.ts,preview.ts}",
+    "frontend-thinkboard-lite/src/shared/components/ui/button.stories.tsx",
+    "frontend-thinkboard-lite/src/shared/{lib/utils.test.ts,lib/fake-indexeddb.test.ts,components/ui/button.test.tsx}",
+    "frontend-thinkboard-lite/{tsconfig.json,components.json,eslint.config.mjs,package.json,.gitignore}",
+    "frontend-thinkboard-lite/scripts/verify-architecture.{mjs,test.mjs} (parser fix + regression test)"
+  ],
+  "follow_up_tasks": [
+    "003-task-types-and-seed: g1 (generated types into src/shared/types/domain) is now unblocked because src/ exists. Reopen 003 at Gate 3 for g1; g3 stays held on D-12.",
+    "005-task-design-system and 006-task-entities-kernel: unblocked by 004. 006 creates the first real src/features context, which replaces src/features/.gitkeep.",
+    "Owner-visible: the build script is `next build --webpack` so Serwist can generate the worker; dev stays on Turbopack. Revisit if Serwist gains Turbopack support in @serwist/next.",
+    "Housekeeping: remove the browserslist overrides entry when @serwist/next ships a patched pin; bump @types/node to 22+ and then Vitest to 5; clear the two lint warnings (anonymous default export in eslint.architecture.mjs, unused Geist import in layout.tsx).",
+    "Add a standalone playwright.config.ts when a task needs end-to-end tests; the story project runs on the installed Chrome only, so add Playwright's own browser install and a CI Chrome when CI exists.",
+    "Task 016 (offline and export) owns Serwist runtime caching; sw.ts currently uses the default cache only."
+  ]
+}

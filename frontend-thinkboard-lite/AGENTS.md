@@ -187,5 +187,5 @@ node scripts/verify-architecture.mjs --fixtures
 node --test "scripts/*.test.mjs"
 ```
 
-The first prints all 29 invariants and exits 1 on any failure; until task 004 creates `src/`, it fails by
-design. Task 004 wires these as `npm run verify:arch` and `npm run verify`.
+The first prints all 29 invariants and exits 1 on any failure; with no `src/` it fails by design. Task 004 wired
+these as `npm run verify:arch` and `npm run verify`.

@@ -1,0 +1,31 @@
+{
+  "task_id": "004-task-frontend-scaffold",
+  "phase": "test",
+  "started_at": "2026-09-19T07:19:25Z",
+  "completed_at": "2026-09-19T07:20:11Z",
+  "test_files": [
+    "frontend-thinkboard-lite/src/shared/lib/utils.test.ts",
+    "frontend-thinkboard-lite/src/shared/components/ui/button.test.tsx",
+    "frontend-thinkboard-lite/src/shared/lib/fake-indexeddb.test.ts",
+    "frontend-thinkboard-lite/src/shared/components/ui/button.stories.tsx",
+    "frontend-thinkboard-lite/scripts/verify-architecture.test.mjs",
+    "frontend-thinkboard-lite/scripts/eslint-architecture.test.mjs"
+  ],
+  "commands_run": [
+    {"command": "npm run test", "result": "vitest, 2 projects: 4 files, 4 tests, 4 pass. unit (jsdom): cn through the @shared alias, Button renders an accessible button, IndexedDB round trip on fake-indexeddb. stories (headless Chrome via Playwright): Button Default."},
+    {"command": "npm run test:scripts", "result": "30 tests, 30 pass, including the new regression test that a real tsconfig (glob aliases, a globbed include, comments, a trailing comma) passes I7; the old parser throws on that input."},
+    {"command": "npm run verify", "result": "exit 0: verify:arch 18 pass / 0 fail, lint 0 errors (2 warnings), typecheck clean, vitest 4/4. Also exit 0 with a generated public/sw.js present, after the eslint ignore."},
+    {"command": "node scripts/verify-architecture.mjs --root <temp dir without src/>", "result": "exit 1: 18 fail ('src/ not found - an absent tree is a failure, not an empty pass'); with the real src/ the same command exits 0 with 18 pass."},
+    {"command": "npm run build (next build --webpack)", "result": "exit 0: the (serwist) step bundles the worker, public/sw.js is written (42 KB), TypeScript passes."},
+    {"command": "next start -p 3457 + Playwright (Chrome channel) navigator.serviceWorker.ready", "result": "registration found: scope http://localhost:3457/, script /sw.js. This is the proof that a production build registers the service worker (g5)."},
+    {"command": "storybook build -o <OS temp dir>", "result": "completed, 15 output files, nothing left in the repo."},
+    {"command": "npm audit", "result": "0 vulnerabilities (after pinning browserslist 4.29.0 for @serwist/next)."}
+  ],
+  "summary": {
+    "total": 34,
+    "passed": 34,
+    "failed": 0,
+    "skipped": 0
+  },
+  "coverage_notes": "34 automated tests (4 vitest across two projects, 30 script tests) plus four one-off checks against the real tree: the src-missing proof for verify:arch, the webpack production build, the service-worker registration in real Chrome, and the Storybook build. Every environment named by g3 has a test that runs green: jsdom, fake-indexeddb, and a story in Chrome. Not covered: the story test is Chrome only (no cross-browser); Serwist runtime caching behaviour beyond registration (task 016 owns offline mode); 'a mutation would turn the story test red' was not run for the story project (its result is the same Vitest exit code the unit tests already prove for failures)."
+}
