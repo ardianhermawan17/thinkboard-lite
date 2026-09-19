@@ -2,10 +2,12 @@
 
 Snapshot: 2026-09-19 · Branch: `claude/task-002` · ClickUp List: `1100340000052535` (Space `1100340000040153`)
 
-> **⚠ PENDING CLICKUP SYNC (2026-09-19):** task 003 is **done in the repo** (5/5 goals, `agent-history/003-task-types-and-seed/result.json`),
-> but ClickUp still shows it `in progress`: the ClickUp MCP **daily limit was reached (100/100 calls; resets in about 15 h)**.
-> To finish, in ClickUp: set [z8r3fdg7gr](https://app.clickup.com/t/z8r3fdg7gr) to `complete`, tick g1 and g3 in its description
-> (g3 = placeholder rows, D-12 still open), and add the summary comment. The counts below still describe ClickUp as it is now.
+> **⚠ PENDING CLICKUP SYNC (2026-09-19):** tasks **003** (5/5 goals, `agent-history/003-task-types-and-seed/result.json`) and **006**
+> (6/6 goals, `agent-history/006-task-entities-kernel/result.json`) are **done in the repo**, but ClickUp still shows 003 `in progress`
+> and 006 `to do`: the ClickUp MCP **daily limit was reached (100/100 calls)**. To finish, in ClickUp:
+> set [z8r3fdg7gr](https://app.clickup.com/t/z8r3fdg7gr) (003) and [z8r3fdg7gv](https://app.clickup.com/t/z8r3fdg7gv) (006) to `complete`,
+> tick their goals (003 g3 = placeholder rows, D-12 still open), and add one summary comment each.
+> The counts below still describe ClickUp as it is now; the `notion.md` snapshot is not refreshed for 006 (slim recording).
 
 **Master reference for every task:** [`06-whole-apps-task.md`](06-whole-apps-task.md) (heading `### NNN-task-<slug>`).
 **Parsed plan doc per task:** `todo-task-NNN-<slug>.md` (goals, gate, decisions, contract scaffolding).

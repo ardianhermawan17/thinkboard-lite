@@ -1,0 +1,40 @@
+{
+  "task_id": "006-task-entities-kernel",
+  "phase": "result",
+  "recording": "slim (owner-approved 2026-09-19): analyze.json + this file; code, test and validate were one work phase, evidenced by git and the tests",
+  "closed_at": "2026-09-19T17:20:00Z",
+  "final_status": "done",
+  "goals_summary": { "total": 6, "done": 6, "blocked": 0 },
+  "goal_evidence": {
+    "g1": "db/migrations.ts is 02 §6.1 byte for byte (test compares it); seven stores, [artifactId+page], autoincrement outbox; per-profile name thinkboard:{profileId}; deleteDb(profileId) on sign-out (db test: 3).",
+    "g2": "repository/write.ts: row + outbox entry in one db.transaction whose scope names the outbox; _sync mirrors pending. Mutation check: dropping the outbox from the scope turns 5 of 6 repository tests red.",
+    "g3": "queries/: one hook per Dexie table (meta, artifacts, highlights, notes, miniConclusions, runs, outbox); verify:arch I13 passes; live-query test (2) proves a repository write appears without a refetch.",
+    "g4": "utils/mappers.ts toWire/toRow/toRunRow; notes <-> highlight_notes; _sync, seq, state never cross; the key set is compared with the GENERATED column list of four tables (mappers test).",
+    "g5": "repository/apply-remote.ts: no outbox echo (its transaction scope leaves the outbox out, so an accidental write throws); skips non-clean rows; DELETE keyed on record ?? old_record; RETRACT keeps my own; cascades a highlight's notes and mini-conclusion (apply-remote test: 7).",
+    "g6": "34 unit tests total (29 new: schema 3, uuid7 3, mappers 8, repository 6, apply-remote 7, queries 2) under fake-indexeddb; npm run verify exit 0 with I13 pass and dexie only in db/, repository/, queries/ (I29 via lint)."
+  },
+  "decisions": [
+    "Local rows are camelCase (Dexie index names are) and DERIVED from the generated domain types with a key-remapping type plus _sync, so a new column arrives with npm run gen:types and the mapper test fails until they agree.",
+    "The branded ids from task 003 caught 9 real mistakes at typecheck (plain string ids passed to typed Dexie keys); every repository and hook parameter is now the branded id type, no casts spread around.",
+    "OutboxOp.table widened to highlights | notes | artifacts (02 §6.1 says it widens); recorded as defaulted.",
+    "uuidv7 is hand-written (RFC 9562), no library, with a ponytail note: random within one millisecond, not ordered.",
+    "useDb() returns the open db (no re-render on a profile switch); the shell remounts on sign-in/out (task 008). ponytail note in db/index.ts.",
+    "Repositories: highlights (insert, update, delete, promote), notes, artifacts; runs, miniConclusions and meta are written only by apply-remote (server-owned).",
+    "mappers.ts (plan doc) over normalizers.ts (04); 04's sample Dexie schema is the old one and lost to 02 §6.1 by precedence."
+  ],
+  "verification": [
+    "npm run verify: exit 0 (verify:arch 18 pass / 0 fail with I13 pass, lint 0 errors, typecheck clean, vitest 11 files / 34 tests)",
+    "npm run test:scripts: 35/35; npm audit: 0 vulnerabilities",
+    "mutation: outbox removed from the transaction scope -> 5 of 6 repository tests red; reverted, all green"
+  ],
+  "not_covered": [
+    "The production build does not exercise the kernel yet: no route imports it, so Next never compiles it. The SSR risk (Dexie touches indexedDB at import) is handled by lazy openDb and 'use client', and is proven by the first task that imports it (008).",
+    "Reads from the runs and meta stores are covered by types and the I13 check, not by their own hook tests (use-run, use-meta are one line each)."
+  ],
+  "follow_up_tasks": [
+    "007 (sync kernel): drains the outbox this task fills (coalesce, backoff, push with wireTable), maps realtime payloads into RemoteEvent, fills meta and runs, and sets _sync clean on confirmation.",
+    "008 (auth and workspace shell): calls openDb(profileId) after sign-in and deleteDb on sign-out, and remounts the tree.",
+    "Housekeeping: the anon role can execute the create_workspace / transfer_leadership RPCs (review finding, MEDIUM, not exploitable); revoke in a small migration with a test.",
+    "ClickUp: 003 and 006 are done in the repo but the ClickUp MCP daily limit blocked the sync; see the banner in clickup.md."
+  ]
+}

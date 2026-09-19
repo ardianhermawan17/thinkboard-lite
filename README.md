@@ -190,7 +190,7 @@ in `task_sequence` is *not opened*.
 | B | 003 types and seed | [todo-task-003](todo-task-003-types-and-seed.md) | supabase | 001 | **done** — g3 as placeholder rows; D-12 still open |
 | C | 004 conform the scaffold | [todo-task-004](todo-task-004-frontend-scaffold.md) | frontend | 000 | **done** |
 | C | 005 design system | [todo-task-005](todo-task-005-design-system.md) | frontend | 004 | not opened |
-| C | 006 entities kernel | [todo-task-006](todo-task-006-entities-kernel.md) | frontend | 004 | not opened |
+| C | 006 entities kernel | [todo-task-006](todo-task-006-entities-kernel.md) | frontend | 004 | **done** |
 | C | 007 sync kernel | [todo-task-007](todo-task-007-sync-kernel.md) | frontend | 006 | not opened |
 | D | 008 auth + workspace shell | [todo-task-008](todo-task-008-auth-and-workspace-shell.md) | frontend | 002 003 005 006 | not opened |
 | D | 009 PDF canvas | [todo-task-009](todo-task-009-pdf-canvas.md) | frontend | 003 008 | not opened |
@@ -227,7 +227,11 @@ Critical path = the demoable slice:  000 → 001 → 004 → 006 → 008 → 009
   generated domain types (`npm run gen:types` → `src/shared/types/domain/`, ids and timestamps branded, I9 green) and
   the settings-dropdown rows. **Those provider rows are placeholders** (inactive, `placeholder.invalid`, "D-12 pending",
   no key, no real provider named): D-12 is still unanswered, and the placeholders decide nothing.
-- **Next:** 005 (design system) and 006 (entities kernel), both unblocked by 004; 008 also needs them.
+- **Also done:** 006 (entities kernel) — the Dexie mirror under `src/features/entities/`: the seven-table schema per profile,
+  repositories that write the row and its outbox entry in one transaction, `apply-remote`, and one live-query hook per table
+  (34 tests under fake-indexeddb; a mutation of the transaction scope turns 5 of 6 repository tests red). Recorded slim:
+  `analyze.json` + `result.json` only.
+- **Next:** 005 (design system) and 007 (sync kernel, needs 006), both unblocked; 008 (auth and workspace shell) then needs only 005.
 - **Waiting on a human:**
   - **D-12** — free-tier training terms vs document sensitivity. Blocks 018, and ink transcription in 024. 003's
     placeholder provider rows stand in until it is answered.
