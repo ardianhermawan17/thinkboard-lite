@@ -1,4 +1,5 @@
 import { createTransform } from "redux-persist"
+import autoMergeLevel2 from "redux-persist/lib/stateReconciler/autoMergeLevel2"
 import createWebStorage from "redux-persist/lib/storage/createWebStorage"
 
 type Slice = Record<string, unknown>
@@ -23,7 +24,10 @@ export const persistConfig = {
   key: "thinkboard",
   storage: typeof window === "undefined" ? noopStorage : createWebStorage("local"),
   // Slices only, never entities and never a reducerPath (I12); each context adds its slice here (03 §5.3 point 2).
-  // Empty until 008 (session, workspace), 009 (viewport) and 007 (sync) ship theirs.
-  whitelist: [] as string[],
+  // `workspace` since 008, `sync` (its phase only) since 007; 009 adds viewport.
+  whitelist: ["workspace", "sync"],
   transforms: [stripUi],
+  // stripUi persists a slice WITHOUT its `ui`; the default reconciler would replace the whole slice on rehydrate and
+  // leave `ui` undefined (a reload crashed the first real slice). Level 2 merges each persisted slice into its initial state.
+  stateReconciler: autoMergeLevel2,
 }

@@ -1,0 +1,48 @@
+{
+  "task_id": "007-task-sync-kernel",
+  "phase": "result",
+  "recording": "slim (owner-approved 2026-09-19): analyze.json + this file; code, test and validate were one work phase, evidenced by git and the tests",
+  "closed_at": "2026-09-20T05:30:00Z",
+  "final_status": "done",
+  "goals_summary": { "total": 7, "done": 7, "blocked": 0 },
+  "goal_evidence": {
+    "g1": "features/sync/outbox/push.ts (dependency-injected drain) over new entities/repository/outbox-repository.ts (nextQueuedOp = lowest seq still `queued`, confirmOp, parkOp, bumpAttempts). Strict seq order; an op leaves the outbox only on confirmation; a 4xx parks the op and the drain carries on (F1); ops of the same row and the notes of a parked highlight park with it. push.test.ts 7/7 (order, F1 skip, parked parent, 503 retry lands once, network failure, 401 refresh once then park, abort). Live: a write the server refuses parks once and the one behind it lands (real RLS).",
+    "g2": "entities/utils/coalesce.ts + enqueueOp inside writeRow's transaction: at most one queued op per row (insert+update = one insert, update+update = one update, insert+delete vanish, update+delete = one delete). outbox/backoff.ts classifies (0/408/429/5xx transient, 401 auth, other 4xx permanent) and backs off 0.5 s..30 s with jitter; a parked row's `_sync` becomes `failed` (F2). Mutation: dropping the parked-parent rule turns its test red.",
+    "g3": "realtime/channel.ts: setAuth() before either topic subscribes and again on every TOKEN_REFRESHED (I22), both topics private, INSERT/UPDATE/DELETE/RETRACT, a dropped socket asks the engine to reconnect. realtime/handlers.ts: 40 events in a burst reach applyRemoteBatch as ONE batch (F5); entities apply-remote gained applyRemoteBatch (one Dexie transaction). channel.test.ts 4/4, handlers.test.ts 3/3; mutation removing the refresh setAuth turns the I22 test red. Live: a real Realtime INSERT and DELETE arrive.",
+    "g4": "reconcile/manifest-diff.ts: pure diffManifest (pending rows never refetched or deleted, RULE-13) and reconcile with one paginated manifest per client-written mirror, highlights AND notes (F8); `gone` is computed only when the fetched rows equal the server's exact count and the page cap was not hit (F3). bootstrap/bootstrap-workspace.ts: paginated, one batch per page, the bootstrapped: flag written last, an interrupted run resumes without duplicates. middleware/engine.ts runSyncCycle: bootstrap -> push -> pull -> resubscribe, and a transient push stops before any pull. manifest-diff.test.ts 7/7, bootstrap 3/3, engine 5/5; mutations: removing the completeness guard and pulling before pushing each turn their test red. Live: a missing row comes back and a server-deleted row leaves Dexie.",
+    "g5": "stores/sync-slice.ts (phase collaboration|offline durable; syncing, pendingCount, lastSyncedAt, syncError under ui), selectors, middleware/sync-listener.ts registered from store.ts (4-point edit: reducer, whitelist [workspace, sync], listener registered once). The listener reacts to workspace/workspaceOpened, to a phase change (offline -> collaboration is the reconnect sequence; going offline closes the sockets) and to the outbox growing; every step is a dispatched action. sync-listener.test.ts 4/4 against the real store. features/sync/components/sync-status-pill replaces 008's own label.",
+    "g6": "Failing-then-passing tests for every listed behaviour: seq order, coalescing (entities repository + coalesce cases), 4xx parking, failed-head skip, reconnect order, delete detection, capped manifest, paginated bootstrap resume. Four mutations each turned exactly their test red and were restored. 91 tests pass in verify; 10 more run against the live stack when the env is set.",
+    "g7": "bootstrap/pull-meta.ts pulls teams, the roster (with profiles), the session row, both personas, llm_providers, llm_models and memory_entries (without the embedding) into Dexie meta; META keys moved to entities/utils/meta-keys.ts. 008's direct writes now ride the outbox: transferLeadership is an rpc op, persona saves are insert/update ops (tables team_members, team_personas, user_personas; OutboxOp widened), each with an optimistic meta update in one transaction; the pull runs AFTER the drain and again after a confirmed non-mirrored write. Live (real RLS): a transfer changes the roster at once, exactly one leader remains once sent, the old leader's transfer parks, a member's team-persona write parks, the leader's lands, a second active personal persona parks."
+  },
+  "decisions": [
+    "DEFAULTS TAKEN, owner said 'use your default': transfer_leadership and the persona saves became outbox ops; create_workspace stays online-only (it needs the new session id to navigate; offline create is undefined in the docs); 008's one-shot pull and its own pill were replaced; sign-out refuses while ops are unsynced; g1-g4 timeboxed (they went green without needing the PowerSync escape hatch, so Q10 stays hand-rolled).",
+    "BASE BRANCH: origin/master had task 005 (PR #8) but not 008, so claude/task-007 is stacked on claude/task-008. The 007 PR should follow 008's.",
+    "DOC vs CODE (defaulted): 05 §2 sketches Dexie access and Supabase calls inside features/sync with a `_dirty` bit; 006 implemented `_sync` (clean|pending|failed, F2) and I29 keeps Dexie inside entities/. So the engine reads and writes Dexie only through entities/repository (outbox-repository, reconcile-repository, applyRemoteBatch, putMeta/getMeta) and calls Supabase through getSupabase() (I21 restricts importing the package, not using the client).",
+    "COALESCING LIVES IN ENTITIES, not features/sync/outbox/coalesce.ts as the plan doc lists: it must run inside writeRow's own transaction (RULE-08) and entities may import nothing from a context. The behaviour is the plan's; only the file's home differs. Existing repository tests were updated to state the new rule and one test was added (create then delete before any push sends nothing).",
+    "OutboxOp widened as 02 §6.1 allows: RemoteOnlyTable = team_members | team_personas | user_personas, and fn also transfer_leadership.",
+    "sync.phase is driven by the browser's online/offline events for now; 016 puts the user's toggle on it.",
+    "The live realtime test runs in the node test environment: jsdom's WebSocket is not a working Realtime client (the same code delivers in Node and in Chrome).",
+    "parkOp returns the parked ops with their new state and lastError (it returned the stale rows first); found while debugging the live g4 test, whose failing step was actually a test that did not pass the existing persona id the way the app does."
+  ],
+  "verification": [
+    "npm run verify: exit 0 (verify:arch 18 pass / 0 fail; lint 0 errors, the same 2 old warnings; tsc clean; vitest 23 files, 91 tests pass, 10 live-stack tests skipped without env)",
+    "live-stack tests with NEXT_PUBLIC_SUPABASE_URL / _PUBLISHABLE_KEY set: sync-engine.live.test.ts 4/4 (three offline writes land once, a refused write parks without stalling the next, reconcile finds a missing row and a server delete, real Realtime INSERT and DELETE) and workspace-remote.test.ts 7/7 (g1-g4 and g7 under real RLS)",
+    "npm run build (webpack) with the stack env: exit 0; production build driven in real Chrome by two contexts (leader and member-a) plus a Node third device: 13/13 PASS: both browsers Synced on the seeded workspace, a server-written group row appears in BOTH browsers, a private row reaches only its owner, going offline flips the pill to Offline, an offline persona save shows 'Offline, 1 to sync' and nothing reaches the server, reconnect returns Synced and the write landed exactly once, a remote delete removes the row from both, 0 unexpected console errors; screenshot inspected",
+    "mutation checks: removing the F3 completeness guard, the F1 parked-parent rule, the I22 setAuth on TOKEN_REFRESHED, and pulling before pushing each turned exactly the intended test red; all restored",
+    "npm audit: 0 vulnerabilities"
+  ],
+  "not_covered": [
+    "The 409 rule of the failure matrix (a stale `version` on a note keeps the local text as a SECOND note instead of parking) is not implemented: it belongs with notes (012). Today a 409 parks like any other 4xx.",
+    "A parked op has no retry or discard UI, so it blocks sign-out; clearing site data is the way out. A small settings action belongs with 016.",
+    "The roster shows raw profile ids for teammates: RLS lets a user read only their own profile, so the `profiles(...)` embed is empty for others (seen in the Chrome screenshot). It needs a policy or a definer view; housekeeping migration.",
+    "The two-browser gate used a Node client as the writing device, because highlights have no UI until 010; it exercises the same server, Realtime and both browsers' engines. A browser-to-browser highlight write is 010's test.",
+    "OPFS / the PDF blob channel (05 §2.6 row 5) and presence (015, live: topic) are out of scope.",
+    "No Storybook story for sync-status-pill (the pill is a one-line presentation of the slice and outbox counters; its labels are exercised in the Chrome pass)."
+  ],
+  "follow_up_tasks": [
+    "008's PR then 007's: claude/task-007 is stacked on claude/task-008.",
+    "Housekeeping migration (MEDIUM): revoke EXECUTE on create_workspace and transfer_leadership from anon; let teammates read each other's profile name (roster shows ids today); adding members to a team needs its own definer RPC.",
+    "009 (PDF canvas) is unblocked (needs 003 and 008); 015 (presence) and 016 (offline + export, the mode switch on sync.phase, a discard/retry action for parked ops) are unblocked by 007.",
+    "012: the 409 keep-as-second-note rule."
+  ]
+}

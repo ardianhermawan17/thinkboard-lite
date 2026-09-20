@@ -2,6 +2,7 @@ import type { Table } from "dexie"
 import { getDb } from "../db"
 import type { OutboxOp, OutboxTable, SyncFlag } from "../types"
 import { toWire } from "../utils/mappers"
+import { enqueueOp } from "./outbox-repository"
 
 export interface WriteOptions {
   fn?: OutboxOp["fn"] // only for op = "rpc"
@@ -27,14 +28,12 @@ export async function writeRow(
     if (op === "delete") await rows.delete(row.id)
     else await rows.put({ ...row, _sync: "pending" })
     await opts.inTx?.()
-    await db.outbox.add({
+    await enqueueOp(db, {
       rowId: row.id,
       table,
       op,
       fn: opts.fn,
       payload: opts.payload ?? (op === "delete" ? { id: row.id } : toWire(row)),
-      state: "queued",
-      attempts: 0,
     })
   })
 }

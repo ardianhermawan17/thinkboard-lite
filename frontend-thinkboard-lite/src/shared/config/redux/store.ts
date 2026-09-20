@@ -1,5 +1,8 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit"
 import { FLUSH, PAUSE, PERSIST, PURGE, REGISTER, REHYDRATE, persistReducer } from "redux-persist"
+import { registerSyncListeners } from "@feature/sync/middleware/sync-listener"
+import { syncReducer } from "@feature/sync/stores/sync-slice"
+import { workspaceReducer } from "@feature/workspace/stores/workspace-slice"
 import { listenerMiddleware } from "./listener"
 import { persistConfig } from "./persist"
 
@@ -9,8 +12,11 @@ import { persistConfig } from "./persist"
 //   3. .concat()        the api middleware
 //   4. .prepend()       listenerMiddleware.middleware, once (already done below)
 
-// 1. `guard` only keeps combineReducers from warning about an empty object; delete it when the first real slice lands.
-const rootReducer = combineReducers({ guard: (state: null = null) => state })
+// 1. rootReducer: each context adds its slice here (session and workspace arrive together as `workspace` in 008).
+const rootReducer = combineReducers({ workspace: workspaceReducer, sync: syncReducer })
+
+// 4b. every listener registers on the one middleware: the sync engine (007) reacts to workspaceOpened, phaseChanged and the outbox
+registerSyncListeners()
 
 export const makeStore = () =>
   configureStore({

@@ -42,20 +42,21 @@ describe("repository writes (g2): the row and its outbox entry are one transacti
 
   it("ATOMICITY: the same holds for an update, the previous row survives untouched", async () => {
     const row = await hl()
-    vi.spyOn(db.outbox, "add").mockRejectedValueOnce(new Error("boom"))
+    vi.spyOn(db.outbox, "update").mockRejectedValueOnce(new Error("boom")) // an update merges into the queued insert (RULE-11)
     await expect(updateHighlight(row.id, { text: "changed" })).rejects.toThrow("boom")
     expect((await db.highlights.get(row.id))?.text).toBe("quoted text")
     expect(await db.outbox.count()).toBe(1)
   })
 
-  it("keeps ops in seq order and bumps a note's version on every write", async () => {
+  it("keeps ops in seq order, bumps a note's version on every write, and folds the edit into its queued insert (RULE-11)", async () => {
     const h = await hl()
     const n = await insertNote({ highlightId: h.id, profileId: ME, content: "a" })
     const n2 = await updateNote(n.id, { content: "b" })
     expect(n2.version).toBe(2)
     expect((await db.notes.get(n.id))?.content).toBe("b")
     const ops = await db.outbox.orderBy("seq").toArray()
-    expect(ops.map((o) => `${o.table}:${o.op}`)).toEqual(["highlights:insert", "notes:insert", "notes:update"])
+    expect(ops.map((o) => `${o.table}:${o.op}`)).toEqual(["highlights:insert", "notes:insert"]) // the update merged into the insert
+    expect(ops[1].payload).toMatchObject({ content: "b", version: 2 })
     expect(ops[1].table).toBe("notes") // the Dexie name; the push maps it to highlight_notes
   })
 
@@ -63,6 +64,7 @@ describe("repository writes (g2): the row and its outbox entry are one transacti
     const h = await hl()
     await insertNote({ highlightId: h.id, profileId: ME })
     await db.miniConclusions.put({ highlightId: h.id } as never)
+    await db.outbox.clear() // the earlier ops were already pushed; otherwise the delete would cancel the queued insert
     await deleteHighlight(h.id)
     expect(await db.highlights.count()).toBe(0)
     expect(await db.notes.count()).toBe(0)
@@ -84,5 +86,11 @@ describe("repository writes (g2): the row and its outbox entry are one transacti
       fn: "promote_highlight",
       payload: { p_highlight: h.id, p_note: mine.id },
     })
+  })
+
+  it("a highlight created and deleted before any push sends nothing (RULE-11)", async () => {
+    const h = await hl()
+    await deleteHighlight(h.id)
+    expect(await db.outbox.count()).toBe(0)
   })
 })

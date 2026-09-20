@@ -2,7 +2,7 @@
 doc_id: thinkboard-lite-task-008
 title: Task 008 — Auth and workspace shell
 version: "1.0"
-status: proposed
+status: done — 6/6 goals (2026-09-20), see agent-history/008-task-auth-and-workspace-shell/result.json
 updated: 2026-09-18
 task: "008"
 phase: "D — Frontend features"

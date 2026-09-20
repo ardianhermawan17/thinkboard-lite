@@ -1,0 +1,39 @@
+{
+  "task_id": "008-task-auth-and-workspace-shell",
+  "phase": "analyze",
+  "started_at": "2026-09-20T00:10:00Z",
+  "completed_at": "2026-09-20T00:25:00Z",
+  "sources_read": [
+    {"doc": "todo-task-008-auth-and-workspace-shell.md", "section": "full file"},
+    {"doc": "02-database-architecture.md", "section": "§6 (meta row: teams/team_members), §10 DB-Q6 and DB-Q12, §11 DB-F13"},
+    {"doc": "database-thinkboard-lite/supabase/migrations/0001_initial.sql", "section": "profiles, teams, team_members (team_members_one_leader), user_personas (active-per-owner index), sessions"},
+    {"doc": "database-thinkboard-lite/supabase/migrations/0004_lite.sql", "section": "create_workspace(p_name, p_title, p_goal) -> session id; transfer_leadership(p_team, p_to_profile)"},
+    {"doc": "04-frontend-folder-architecture.md", "section": "§9 import direction law; features/workspace holds app-header and auth-guard"}
+  ],
+  "scope": "Auth (Supabase, publishable key, cached session), workspace create, members list and leadership transfer, persona editors, the one-screen shell and its client-only route. Out of scope: the outbox drain / sync engine (007), the create-workspace command endpoint (017), adding members to a team, revoking anon EXECUTE on the definer RPCs, the PDF canvas (009), any server-side fetch in a page.tsx, any secret key in the client, any device branch outside useBreakpoint.",
+  "acceptance_criteria": [
+    {"goal_id": "g1", "text": "Airplane mode: reopen the app, land in the last workspace; sign in and sign out work against the local stack with the publishable key."},
+    {"goal_id": "g2", "text": "create_workspace returns a session id and the creator is the leader; a failed create leaves no partial rows."},
+    {"goal_id": "g3", "text": "Members list shows the team; after transfer_leadership exactly one leader remains (team_members_one_leader)."},
+    {"goal_id": "g4", "text": "Team persona editable by the leader only, personal persona by its owner; a second active personal persona is rejected by user_personas_one_active_per_owner."},
+    {"goal_id": "g5", "text": "WorkspaceShell has document area, right rail, header with sync pill, mode switch and theme switch; app-header and auth-guard live in features/workspace; no shell component imports another context's internals (verify:arch)."},
+    {"goal_id": "g6", "text": "The workspace page.tsx contains only the dynamic import with ssr:false."}
+  ],
+  "open_questions": [
+    "D-04 (defaulted: one active persona per person) — g4.",
+    "D-09 (defaulted: leadership transfers, by the leader or the creator) — g3. NOTE: transfer_leadership in 0004 allows only the current leader (is_team_leader), not the creator; the creator is the leader at creation, so the two coincide until a transfer happens.",
+    "DB-Q6 (defaulted: create_workspace definer RPC; creator is leader) — g2. The RPC is confirmed in 0004 with the signature create_workspace(p_name, p_title, p_goal).",
+    "DB-Q12 (defaulted: non-mirrored tables pulled into Dexie meta; writes via outbox) — members and teams read from meta.",
+    "RAISED 2026-09-20, answered 'go with this order' (defaults taken): 017's endpoint is not built yet; 008 calls create_workspace directly (online) and 017 will wrap the same RPC; the anon EXECUTE revoke on the definer RPCs is a separate follow-up task; adding members to a team is a follow-up.",
+    "ANSWERED 2026-09-20 (owner, recommended option): creator is leader; picking = transfer_leadership. Original: g2 says 'the creator picks the leader', but create_workspace makes the creator the leader and takes no leader argument. Proposed default: the creator is the leader at creation; 'picking' is transfer_leadership to an existing member afterwards (g3).",
+    "ANSWERED 2026-09-20 (owner, recommended option): one-shot pull into Dexie meta now, 007 replaces it. Original: DB-Q12 says the sync engine (007) pulls teams and team_members into Dexie meta, but 007 is not built. Proposed default: 008 reads them online with supabase-js after sign-in and writes them to Dexie meta (a small one-shot pull, replaced by 007's engine); offline reopen then reads the cached meta.",
+    "ANSWERED 2026-09-20 (owner, recommended option): install @supabase/supabase-js and run npm audit. Original: g1 needs @supabase/supabase-js, the first network dependency; it is not named in any doc's package list. Proposed default: install it (it is the documented Supabase client per RULE-14 and the publishable-key rule) and check npm audit."
+  ],
+  "risks": [
+    "Workspace create before task 017 exists (see the raised row above).",
+    "Reading teams / members live breaks RULE-07 — they come from Dexie meta (DB-Q12).",
+    "The session must never persist a token in a slice that redux-persist stores unstripped; supabase-js keeps its own session storage, the slice holds only the profile id and workspace pointer.",
+    "SSR: the store is now imported by the layout, so auth code must stay behind the client-only route (g6).",
+    "Real RLS: the gate test signs in as the seeded users on the 553xx stack; the stack must be running."
+  ]
+}

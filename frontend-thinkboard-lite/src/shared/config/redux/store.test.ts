@@ -1,4 +1,5 @@
 import { createAction } from "@reduxjs/toolkit"
+import { persistStore } from "redux-persist"
 import { afterEach, describe, expect, it, vi } from "vitest"
 import { listenerMiddleware, startAppListening } from "./listener"
 import { persistConfig, stripUi } from "./persist"
@@ -23,12 +24,12 @@ describe("stripUi (g5)", () => {
 })
 
 describe("the store seam (g5, 03 §5.3)", () => {
-  it("persists slices only: an empty whitelist and stripUi registered, never entities or a reducerPath (I12, I16)", () => {
-    expect(persistConfig.whitelist).toEqual([])
+  it("persists slices only: only the workspace and sync slices whitelisted and stripUi registered, never entities or a reducerPath (I12, I16)", () => {
+    expect(persistConfig.whitelist).toEqual(["workspace", "sync"])
     expect(persistConfig.transforms).toContain(stripUi)
   })
 
-  it("builds without a warning even though no slice exists yet (the guard reducer)", () => {
+  it("builds without a console warning", () => {
     const error = vi.spyOn(console, "error").mockImplementation(() => {})
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {})
     makeStore()
@@ -43,5 +44,14 @@ describe("the store seam (g5, 03 §5.3)", () => {
     startAppListening({ actionCreator: ping, effect: seen })
     makeStore().dispatch(ping())
     await vi.waitFor(() => expect(seen).toHaveBeenCalledTimes(1))
+  })
+
+  it("rehydrates a persisted slice with its ui restored from the initial state (a reload once crashed on ui undefined)", async () => {
+    // exactly what stripUi writes: the slice without `ui`
+    localStorage.setItem("persist:thinkboard", JSON.stringify({ workspace: JSON.stringify({ profileId: "p1", teamId: null, sessionId: "s1", mode: "planning" }) }))
+    const store = makeStore()
+    await new Promise<void>((resolve) => persistStore(store, null, resolve))
+    expect(store.getState().workspace).toMatchObject({ profileId: "p1", sessionId: "s1", ui: { error: null } })
+    localStorage.clear()
   })
 })
