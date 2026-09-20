@@ -1,0 +1,32 @@
+{
+  "id": "007-task-sync-kernel",
+  "title": "Local writes reach Supabase and remote changes reach Dexie, so the app is correct online and offline before any feature depends on it",
+  "architecture": "frontend",
+  "secondary_architecture": [],
+  "created_at": "2026-09-20T03:00:00Z",
+  "status": "done",
+  "recording": "slim: analyze.json + result.json; code, test and validate are one `work` phase evidenced by git and the tests (owner-approved 2026-09-19)",
+  "depends_on": ["006-task-entities-kernel"],
+  "plan_refs": [
+    {"doc": "06-whole-apps-task.md", "section": "PHASE C · 007, §4"},
+    {"doc": "05-frontend-sync-handwriting.md", "section": "§2"},
+    {"doc": "02-database-architecture.md", "section": "§6.1, §10"},
+    {"doc": "todo-task-000-split.md", "section": "§5.1, §5.3 F1-F8"},
+    {"doc": "03-frontend-architecture.md", "section": "§4, §6.4"},
+    {"doc": "todo-task-007-sync-kernel.md", "section": "§2 goals and gate, §3 decisions"}
+  ],
+  "goals": [
+    {"id": "g1", "description": "outbox/push.ts — drain in strict seq order, upsert on id, delete the op only on confirmation; head selection skips state='failed', and ops behind a parked parent park with it (F1)", "plan_ref": "tasks 007 g1; split F1", "status": "done"},
+    {"id": "g2", "description": "outbox/coalesce.ts — ≤1 pending update per row; backoff.ts — 5xx/network retry, 4xx park as failed; row _sync follows (F2)", "plan_ref": "tasks 007 g2; spec RULE-11 RULE-12; split F2", "status": "done"},
+    {"id": "g3", "description": "realtime/channel.ts — setAuth() before subscribe and on every refresh (I22); both topics; handlers → applyRemote incl. RETRACT; bursts applied in one transaction (F5)", "plan_ref": "tasks 007 g3; split F5 F7; db §6.1", "status": "done"},
+    {"id": "g4", "description": "reconcile/manifest-diff.ts — push → pull → resubscribe; paginated manifests for highlights AND highlight_notes; never compute gone from a capped page (F3, F8)", "plan_ref": "tasks 007 g4; split F3 F8", "status": "done"},
+    {"id": "g5", "description": "sync-slice + status selectors; the listener registered in store.ts (4-point edit)", "plan_ref": "tasks 007 g5; fa §5.3, §6.4", "status": "done"},
+    {"id": "g6", "description": "Tests: seq order, coalescing, 4xx parking, failed-head skip, reconnect order, delete detection, capped manifest", "plan_ref": "tasks 007 g6", "status": "done"},
+    {"id": "g7", "description": "Pull non-mirrored tables (teams, team_members, memory_entries, llm_*) into Dexie meta on workspace open; their writes go through the outbox (DB-Q12 default)", "plan_ref": "db §10 DB-Q12; split G1", "status": "done"}
+  ],
+  "phases": {
+    "analyze": {"file": "analyze.json", "status": "done"},
+    "work": {"file": null, "status": "done"},
+    "result": {"file": "result.json", "status": "done"}
+  }
+}

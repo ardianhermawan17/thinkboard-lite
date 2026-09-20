@@ -1,8 +1,8 @@
 # ThinkBoard Lite — ClickUp task board
 
-Snapshot: 2026-09-20 · Branch: `claude/task-008` · ClickUp List: `1100340000052535` (Space `1100340000040153`)
+Snapshot: 2026-09-20 · Branch: `claude/task-007` · ClickUp List: `1100340000052535` (Space `1100340000040153`)
 
-> **Synced 2026-09-20:** 003, 005, 006 and 008 are `complete` in ClickUp (comments added). The `notion.md` snapshot is not refreshed for 006 and 005 (slim recording: one Notion entry per task on the work-log page).
+> **Synced 2026-09-20:** 003, 005, 006, 007 and 008 are `complete` in ClickUp (comments added). The `notion.md` snapshot is not refreshed for 006 and 005 (slim recording: one Notion entry per task on the work-log page).
 
 **Master reference for every task:** [`06-whole-apps-task.md`](06-whole-apps-task.md) (heading `### NNN-task-<slug>`).
 **Parsed plan doc per task:** `todo-task-NNN-<slug>.md` (goals, gate, decisions, contract scaffolding).
@@ -13,9 +13,9 @@ Statuses in the List: `to do` · `in progress` · `complete`. ClickUp hides `com
 
 | Status | Count | Tasks |
 |---|---|---|
-| complete | 8 | 000, 001, 002, 003, 004, 005, 006, 008 |
+| complete | 9 | 000, 001, 002, 003, 004, 005, 006, 007, 008 |
 | in progress | 1 | Housekeeping (pipeline itself is `idle`) |
-| to do | 16 | 007, 009–024 (018 blocked on D-12, 024 conditional) |
+| to do | 15 | 009–024 (018 blocked on D-12, 024 conditional) |
 
 Critical path: 000 → 001 → 004 → 006 → 008 → 009 → 010 → 012. Highest risk: 010, then 007.
 

@@ -2,7 +2,7 @@
 doc_id: thinkboard-lite-task-007
 title: Task 007 — Sync kernel
 version: "1.0"
-status: proposed
+status: done — 7/7 goals (2026-09-20), see agent-history/007-task-sync-kernel/result.json
 updated: 2026-09-18
 task: "007"
 phase: "C — Frontend foundation"

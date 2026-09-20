@@ -1,0 +1,45 @@
+{
+  "task_id": "007-task-sync-kernel",
+  "phase": "analyze",
+  "started_at": "2026-09-20T03:00:00Z",
+  "completed_at": "2026-09-20T03:20:00Z",
+  "sources_read": [
+    {"doc": "todo-task-007-sync-kernel.md", "section": "full file"},
+    {"doc": "05-frontend-sync-handwriting.md", "section": "§2.1 bootstrap, §2.2 push (four properties), §2.3 pull (three rules), §2.4 reconcile, §2.5 reconnect order, §2.6 failure matrix"},
+    {"doc": "todo-task-000-split.md", "section": "§5.3 F1 (parked op stalls the outbox), F2 (row flag needs three states), F3 (unpaginated manifest deletes rows), F5 (burst applied in one transaction), F7 (remote delete has only old_record), F8 (manifest per client-written table)"},
+    {"doc": "03-frontend-architecture.md", "section": "§6.4 the sync engine as listener middleware"},
+    {"doc": "02-database-architecture.md", "section": "§10 DB-Q3, DB-Q9, DB-Q12"},
+    {"doc": "database-thinkboard-lite/supabase/migrations/0004_lite.sql", "section": "broadcast triggers: ws:{sessionId} public rows, user:{profileId} private rows, RETRACT, NULL-topic guard (F4)"},
+    {"doc": "frontend-thinkboard-lite/src/features/entities/{repository/apply-remote.ts,repository/write.ts,types/outbox.ts,utils/mappers.ts}", "section": "existing kernel: applyRemote(event, myProfileId) with F7/RETRACT handled, writeRow, OutboxOp state queued|failed, _sync clean|pending|failed"},
+    {"doc": "frontend-thinkboard-lite/architecture.blueprint.json", "section": "listeners: sync listens on workspaceOpened, outboxQueued, modeChanged, remoteChangeReceived"}
+  ],
+  "scope": "The sync engine: outbox push, coalesce and backoff, realtime channel, manifest reconcile and paginated bootstrap, the sync slice and selectors, the listener middleware, the sync-status-pill, the meta pull of non-mirrored tables, and moving 008's direct writes (transfer, personas) and its one-shot pull onto the engine. Out of scope: presence/cursors (015, live: topic), the mode-switch UI and export (016), the create-workspace command endpoint (017), the OPFS blob channel, feature UIs, and any supabase-js import outside shared/lib/supabase.ts and realtime/channel.ts (I21).",
+  "acceptance_criteria": [
+    {"goal_id": "g1", "text": "A parked op never stalls the ops queued behind it; ops behind a parked parent park with it."},
+    {"goal_id": "g2", "text": "At most one pending update per row; a 403 parks once and surfaces (row _sync = failed); a 503 or network error retries with backoff."},
+    {"goal_id": "g3", "text": "setAuth() runs before subscribe and after every token refresh; 40 events in a burst cause one Dexie transaction; a remote delete and a RETRACT land."},
+    {"goal_id": "g4", "text": "Reconnect runs push, then pull, then resubscribe; a manifest that hits the page cap deletes nothing; highlights and notes each have a paginated manifest; an interrupted bootstrap resumes."},
+    {"goal_id": "g5", "text": "Every sync step is a dispatched action; the listener is prepended once in store.ts; the sync slice is whitelisted and its ui stripped."},
+    {"goal_id": "g6", "text": "Each listed behaviour has a failing-then-passing test (seq order, coalescing, 4xx parking, failed-head skip, reconnect order, delete detection, capped manifest, paginated bootstrap resume) and test totals > 0."},
+    {"goal_id": "g7", "text": "Teams, roster, personas and the session row reach Dexie meta through the engine; no component reads them over the network; transfer and persona saves are outbox ops."}
+  ],
+  "open_questions": [
+    "Q3 (defaulted: sync is listener middleware) — the engine is createListenerMiddleware, registered in store.ts.",
+    "Q10 (defaulted: hand-rolled sync; PowerSync escape hatch keyed to behaviour) — hand-rolled; the escape hatch is raised to the human before adding anything if the reconnect-order tests will not go green.",
+    "DB-Q3 (defaulted: per-profile Dexie; OPFS wiped with it) — one database per profile (already true from 006).",
+    "DB-Q12 (defaulted: non-mirrored tables pulled into Dexie meta; writes via outbox) — g7.",
+    "DB-Q9 (defaulted: separate live:{sessionId} topic) — presence and cursors are NOT on ws: — 015 adds live:.",
+    "RAISED 2026-09-20, answered 'use your default': transfer_leadership and the persona saves become outbox ops; create_workspace stays online-only (it needs the new session id to navigate and offline create is undefined in the docs); 008's one-shot pull and its own pill are replaced by the engine and sync-status-pill; sign-out refuses while ops are queued; g1-g4 are timeboxed.",
+    "RAISED 2026-09-20, answered by default: origin/master has PR #8 (task 005) only, task 008 (149e6b7) is not merged; 007 is cut from claude/task-008 (stacked) so 008's code is underneath it.",
+    "NEW (defaulted, doc vs code): 05 §2 sketches push/reconcile with `_dirty` and calls supabase from inside features/sync; 006 implemented `_sync` (clean|pending|failed, F2) and I29 keeps Dexie inside entities/. The engine therefore reads and writes Dexie only through new entities/repository functions (outbox-repository.ts), and calls Supabase through getSupabase() from shared/lib/supabase.ts (I21 restricts importing the package, not calling the client).",
+    "NEW (defaulted): OutboxTable widens beyond highlights|notes|artifacts and OutboxOp.fn beyond promote_highlight, as 02 §6.1 allows (\"widens if DB-Q12 routes other client writes through the outbox\"): tables team_personas and user_personas, and rpc fn transfer_leadership. Recorded here; 006's types are extended, not replaced."
+  ],
+  "risks": [
+    "One of the two tasks most likely to overrun (tasks §4): timebox g1-g4, then report.",
+    "Honest size is 800-1200 lines with tests (split §5.1).",
+    "Missing setAuth() after a token refresh stops delivery silently about an hour in (I22): a test refreshes the token and asserts events still arrive.",
+    "Pull before push overwrites unsent local rows (RULE-13): the reconnect order is a listener test.",
+    "Realtime broadcast needs the Lite stack's realtime service and private-channel authorization; if the local stack does not deliver, the two-browser gate cannot run and that is reported, not worked around.",
+    "Replacing 008's pull and pill can break the working shell: re-run 008's gate test and Chrome pass after the swap."
+  ]
+}

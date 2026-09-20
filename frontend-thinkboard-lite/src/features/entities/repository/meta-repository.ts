@@ -7,3 +7,7 @@ import { getDb } from "../db"
 export async function putMeta(key: string, value: unknown): Promise<void> {
   await getDb().meta.put({ key, value })
 }
+
+export async function getMeta(key: string): Promise<unknown> {
+  return (await getDb().meta.get(key))?.value
+}

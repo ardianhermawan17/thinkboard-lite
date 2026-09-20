@@ -5,13 +5,16 @@
  */
 export type OutboxTable = "highlights" | "notes" | "artifacts"
 
+/** Writes with no Dexie table of their own: the row lives in `meta` (DB-Q12), the op carries the write (task 007, defaulted). */
+export type RemoteOnlyTable = "team_members" | "team_personas" | "user_personas"
+
 /** 02 §6.1. `seq` is the autoincrement drain order (RULE-10); `payload` is toWire() output, never a local row. */
 export interface OutboxOp {
   seq: number
   rowId: string // uuidv7, client-generated (RULE-09)
-  table: OutboxTable // the Dexie name; the push maps it with wireTable()
+  table: OutboxTable | RemoteOnlyTable // the Dexie name; the push maps it with wireTable()
   op: "insert" | "update" | "delete" | "rpc"
-  fn?: "promote_highlight" // only when op = "rpc"
+  fn?: "promote_highlight" | "transfer_leadership" // only when op = "rpc"
   payload: Record<string, unknown>
   state: "queued" | "failed" // failed = parked 4xx (RULE-12); the drain skips it
   attempts: number

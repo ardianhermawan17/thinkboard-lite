@@ -1,11 +1,11 @@
 "use client"
 
-import { useMeta } from "@feature/entities"
+import { META, useMeta } from "@feature/entities"
 import { useAppDispatch, useAppSelector } from "@shared/config/redux/hooks"
 import { selectProfileId, selectTeamId } from "../../selectors/workspace-selectors"
 import { failed } from "../../stores/workspace-slice"
 import type { MemberMeta } from "../../types/meta"
-import { META, transferLeadership } from "../../utils/workspace-remote"
+import { transferLeadership } from "../../utils/workspace-remote"
 
 export function useMembers() {
   const dispatch = useAppDispatch()
@@ -18,7 +18,7 @@ export function useMembers() {
   async function makeLeader(profileId: string) {
     if (!teamId) return
     try {
-      await transferLeadership(teamId, profileId)
+      await transferLeadership(teamId, profileId, members)
     } catch (e) {
       dispatch(failed(e instanceof Error ? e.message : "Transfer failed"))
     }

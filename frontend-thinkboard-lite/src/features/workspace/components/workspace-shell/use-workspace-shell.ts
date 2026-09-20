@@ -2,14 +2,14 @@
 
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { useMeta } from "@feature/entities"
+import { META, useMeta } from "@feature/entities"
 import { useAppDispatch, useAppSelector } from "@shared/config/redux/hooks"
 import { selectError, selectProfileId, selectSessionId, selectTeamId } from "../../selectors/workspace-selectors"
 import { failed, workspaceOpened } from "../../stores/workspace-slice"
 import type { SessionMeta } from "../../types/meta"
-import { META, createWorkspace, pullWorkspaceMeta, teamOfSession } from "../../utils/workspace-remote"
+import { createWorkspace, teamOfSession } from "../../utils/workspace-remote"
 
-/** `/w` lands in the last workspace (RULE-14) or offers create; `/w/[id]` opens that workspace and refreshes its meta when online. */
+/** `/w` lands in the last workspace (RULE-14) or offers create; `/w/[id]` opens that workspace, which starts the sync engine. */
 export function useWorkspaceShell(workspaceId?: string) {
   const dispatch = useAppDispatch()
   const router = useRouter()
@@ -30,10 +30,9 @@ export function useWorkspaceShell(workspaceId?: string) {
     void (async () => {
       try {
         const team = cached || (await teamOfSession(workspaceId))
-        dispatch(workspaceOpened({ teamId: team, sessionId: workspaceId }))
-        await pullWorkspaceMeta(team, workspaceId, profileId)
+        dispatch(workspaceOpened({ teamId: team, sessionId: workspaceId })) // the sync engine reacts: bootstrap, push, pull, subscribe
       } catch (e) {
-        // offline (or a slow network) with a cached workspace: the meta already in Dexie stays; a first open must say why it failed
+        // offline with a cached workspace the ids are already in the store; a first open must say why it failed
         if (!cached) dispatch(failed(e instanceof Error ? e.message : "Could not open the workspace"))
       }
     })()

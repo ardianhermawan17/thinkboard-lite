@@ -1,6 +1,6 @@
 {
 	"schema_version": "1.0",
-	"updated_at": "2026-09-20T02:10:00Z",
+	"updated_at": "2026-09-20T05:30:00Z",
 	"tracked_todos": [
 		{
 			"id": "000-todo-architecture-contract",
@@ -64,6 +64,14 @@
 			"goal": "A user signs in and opens a workspace with a leader, a persona and a goal.",
 			"todo_path": "agent-thinking/todo/008-todo-auth-and-workspace-shell/contract.json",
 			"agent_history": "agent-history/008-task-auth-and-workspace-shell",
+			"status": "done"
+		},
+		{
+			"id": "007-todo-sync-kernel",
+			"name": "Sync kernel",
+			"goal": "Local writes reach Supabase and remote changes reach Dexie, so the app is correct online and offline before any feature depends on it.",
+			"todo_path": "agent-thinking/todo/007-todo-sync-kernel/contract.json",
+			"agent_history": "agent-history/007-task-sync-kernel",
 			"status": "done"
 		}
 	]

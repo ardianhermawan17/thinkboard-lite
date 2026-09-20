@@ -24,8 +24,8 @@ describe("stripUi (g5)", () => {
 })
 
 describe("the store seam (g5, 03 §5.3)", () => {
-  it("persists slices only: only the workspace slice whitelisted and stripUi registered, never entities or a reducerPath (I12, I16)", () => {
-    expect(persistConfig.whitelist).toEqual(["workspace"])
+  it("persists slices only: only the workspace and sync slices whitelisted and stripUi registered, never entities or a reducerPath (I12, I16)", () => {
+    expect(persistConfig.whitelist).toEqual(["workspace", "sync"])
     expect(persistConfig.transforms).toContain(stripUi)
   })
 

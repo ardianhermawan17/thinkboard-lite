@@ -1,6 +1,6 @@
 {
 	"schema_version": "1.0",
-	"updated_at": "2026-09-20T02:10:00Z",
+	"updated_at": "2026-09-20T05:30:00Z",
 	"current_task_id": null,
 	"current_phase": "idle",
 	"history_path": null,
@@ -53,6 +53,12 @@
 			"architecture": "frontend",
 			"status": "done",
 			"title": "A user signs in and opens a workspace with a leader, a persona and a goal"
+		},
+		{
+			"id": "007-task-sync-kernel",
+			"architecture": "frontend",
+			"status": "done",
+			"title": "Local writes reach Supabase and remote changes reach Dexie, so the app is correct online and offline before any feature depends on it"
 		}
 	]
 }

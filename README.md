@@ -191,7 +191,7 @@ in `task_sequence` is *not opened*.
 | C | 004 conform the scaffold | [todo-task-004](todo-task-004-frontend-scaffold.md) | frontend | 000 | **done** |
 | C | 005 design system | [todo-task-005](todo-task-005-design-system.md) | frontend | 004 | **done** |
 | C | 006 entities kernel | [todo-task-006](todo-task-006-entities-kernel.md) | frontend | 004 | **done** |
-| C | 007 sync kernel | [todo-task-007](todo-task-007-sync-kernel.md) | frontend | 006 | not opened |
+| C | 007 sync kernel | [todo-task-007](todo-task-007-sync-kernel.md) | frontend | 006 | **done** |
 | D | 008 auth + workspace shell | [todo-task-008](todo-task-008-auth-and-workspace-shell.md) | frontend | 002 003 005 006 | **done** |
 | D | 009 PDF canvas | [todo-task-009](todo-task-009-pdf-canvas.md) | frontend | 003 008 | not opened |
 | D | 010 text highlight | [todo-task-010](todo-task-010-text-highlight.md) | frontend | 009 | not opened |
@@ -241,7 +241,14 @@ Critical path = the demoable slice:  000 → 001 → 004 → 006 → 008 → 009
   switches; right rail) behind a client-only `/w` route. Gate test 5/5 under real RLS against the seeded stack; a production build
   passed a real-Chrome pass including an offline reopen. That pass found and fixed a reload crash at the persist seam
   (`autoMergeLevel2`). Writes are direct and online until 007 and 017 exist. Recorded slim.
-- **Next:** 009 (PDF canvas) is unblocked and on the critical path; 007 (sync kernel) is independent and can run beside it.
+- **Also done:** 007 (sync kernel) — outbox push (strict seq order, a 4xx parks without stalling the queue, one queued op per row),
+  the realtime channel (setAuth before subscribe and on every refresh, bursts applied in one transaction), the paginated
+  manifest reconcile and bootstrap, the `sync` slice, the listener middleware (push, then pull, then resubscribe) and the
+  sync-status-pill. The writes of 008 now ride the outbox. Gate: a live-stack test under real RLS plus a two-browser Chrome pass
+  (a shared row reaches both, a private row only its owner, an offline write lands once); four mutations each turned their
+  test red. Recorded slim; stacked on 008.
+- **Next:** 009 (PDF canvas) is unblocked and on the critical path; 015 (presence) and 016 (offline + export) are unblocked by 007.
+  Open housekeeping: revoke anon EXECUTE on the definer RPCs, and let teammates read the profile names of their team.
 - **Waiting on a human:**
   - **D-12** — free-tier training terms vs document sensitivity. Blocks 018, and ink transcription in 024. 003's
     placeholder provider rows stand in until it is answered.
