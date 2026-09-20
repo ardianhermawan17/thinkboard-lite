@@ -1,6 +1,6 @@
 {
 	"schema_version": "1.0",
-	"updated_at": "2026-09-19T17:20:00Z",
+	"updated_at": "2026-09-19T23:58:04Z",
 	"tracked_todos": [
 		{
 			"id": "000-todo-architecture-contract",
@@ -48,6 +48,14 @@
 			"goal": "A local database that is the app's only read surface, so every later feature is offline-capable by construction.",
 			"todo_path": "agent-thinking/todo/006-todo-entities-kernel/contract.json",
 			"agent_history": "agent-history/006-task-entities-kernel",
+			"status": "done"
+		},
+		{
+			"id": "005-todo-design-system",
+			"name": "Design system",
+			"goal": "Atoms, theme and the provider tree exist, so every later component composes rather than invents.",
+			"todo_path": "agent-thinking/todo/005-todo-design-system/contract.json",
+			"agent_history": "agent-history/005-task-design-system",
 			"status": "done"
 		}
 	]

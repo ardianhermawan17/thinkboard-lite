@@ -1,0 +1,28 @@
+{
+  "id": "005-task-design-system",
+  "title": "Atoms, theme and the provider tree exist, so every later component composes rather than invents",
+  "architecture": "frontend",
+  "secondary_architecture": [],
+  "created_at": "2026-09-19T23:42:29Z",
+  "status": "done",
+  "recording": "slim: analyze.json + result.json; code, test and validate are one `work` phase evidenced by git and the tests (owner-approved 2026-09-19)",
+  "depends_on": ["004-task-frontend-scaffold"],
+  "plan_refs": [
+    {"doc": "06-whole-apps-task.md", "section": "PHASE C · 005"},
+    {"doc": "03-frontend-architecture.md", "section": "§5, §7, §8"},
+    {"doc": "04-frontend-folder-architecture.md", "section": "§3.3, §5, §5.1"},
+    {"doc": "todo-task-005-design-system.md", "section": "§2 goals and gate, §3 decisions"}
+  ],
+  "goals": [
+    {"id": "g1", "description": "shadcn add the atom set: button, input, textarea, sheet, dialog, tabs, card, skeleton, sonner, tooltip, switch", "plan_ref": "tasks 005 g1", "status": "done"},
+    {"id": "g2", "description": "globals.css theme tokens; highlight colours as tokens for light AND dark (keep hue, drop alpha)", "plan_ref": "tasks 005 g2; spec §5.3", "status": "done"},
+    {"id": "g3", "description": "LibraryProvider in the fixed order Redux → PersistGate → Shadcn → Theme → Tooltip; Toaster mounted once", "plan_ref": "tasks 005 g3; ffa §3.3", "status": "done"},
+    {"id": "g4", "description": "useBreakpoint() in shared/hooks — the only source of device branching", "plan_ref": "tasks 005 g4; fa §7", "status": "done"},
+    {"id": "g5", "description": "stripUi persist transform + persistConfig + listenerMiddleware registered — the 4-point store edit", "plan_ref": "tasks 005 g5; fa §5.2, §5.3", "status": "done"}
+  ],
+  "phases": {
+    "analyze": {"file": "analyze.json", "status": "done"},
+    "work": {"file": null, "status": "done"},
+    "result": {"file": "result.json", "status": "done"}
+  }
+}

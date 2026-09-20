@@ -2,7 +2,7 @@
 doc_id: thinkboard-lite-task-005
 title: Task 005 — Design system
 version: "1.0"
-status: proposed
+status: done — 5/5 goals (2026-09-19), see agent-history/005-task-design-system/result.json
 updated: 2026-09-18
 task: "005"
 phase: "C — Frontend foundation"

@@ -1,0 +1,41 @@
+{
+  "task_id": "005-task-design-system",
+  "phase": "analyze",
+  "started_at": "2026-09-19T23:42:29Z",
+  "completed_at": "2026-09-19T23:52:00Z",
+  "sources_read": [
+    {"doc": "todo-task-005-design-system.md", "section": "full file"},
+    {"doc": "03-frontend-architecture.md", "section": "§5.1 slices, §5.2 persistence (whitelist, stripUi, I16), §5.3 the 4-point store edit, §7 devices (breakpoints)"},
+    {"doc": "04-frontend-folder-architecture.md", "section": "§3.3 layout composition order, §5.1 three tiers + components.json sample"},
+    {"doc": "01-thinkboard-lite-spec.md", "section": "§5.3 highlight colours: keep the hue, drop the alpha in dark mode (no palette is listed)"},
+    {"doc": "frontend-thinkboard-lite/scripts/verify-architecture.mjs", "section": "I5, I11, I12, I16 (persist/store checks; active once src/shared/config/redux/store.ts exists)"},
+    {"doc": "shadcn CLI 4.21 (dry runs)", "section": "`shadcn info` and `shadcn add <atoms> --dry-run --view`: file placement, dependencies, import specifiers"}
+  ],
+  "scope": "The design-system foundation only: the 10 missing shadcn atoms in src/shared/components/ui, highlight tokens in globals.css, the store seam (stripUi, persistConfig, listener middleware, typed hooks) with NO slices, LibraryProvider and its three provider folders, useBreakpoint. Out of scope: any slice (session, workspace, viewport, sync), the AuthGuard/AppHeader shell (008), any feature component, Konva colours (009/022), any Zustand or TanStack Query.",
+  "acceptance_criteria": [
+    {"goal_id": "g1", "text": "input, textarea, sheet, dialog, tabs, card, skeleton, sonner, tooltip, switch exist under src/shared/components/ui (button already does); nothing lands in template/ or canvas/; every import resolves through the tsconfig aliases; cn comes from the `cn` package."},
+    {"goal_id": "g2", "text": "globals.css defines --highlight-{yellow,green,blue,rose} for light and dark, one hue each, alpha lower in dark, mapped for Tailwind; no hex colour under src/shared/components."},
+    {"goal_id": "g3", "text": "LibraryProvider composes Redux > PersistGate > Shadcn > Theme > Tooltip in that order, mounts <Toaster /> once, and layout.tsx uses it; the provider tree renders in light and dark."},
+    {"goal_id": "g4", "text": "useBreakpoint() returns mobile below 768, tablet 768-1279, desktop from 1280 (tests at 767/768 and 1279/1280) and is the only device branch; SSR-safe."},
+    {"goal_id": "g5", "text": "stripUi drops every slice's ui key; persistConfig has transforms [stripUi] and an empty whitelist; the listener middleware is prepended once; typed useAppSelector/useAppDispatch exist; verify:arch I5/I11/I12/I16 pass."}
+  ],
+  "open_questions": [
+    "Q6 (defaulted: breakpoint hook + sheet early, mobile layout last) — useBreakpoint ships now; the mobile layout is a later pass.",
+    "D-11 (defaulted: tablet authors, desktop analyses, mobile reads + writes notes; no ink on mobile) — the three device classes are mobile < 768, tablet 768-1279, desktop >= 1280 (03 §7).",
+    "C8 (resolved in split §3) — Redux Toolkit + redux-persist; no Zustand, no TanStack Query.",
+    "ANSWERED 2026-09-19 (owner, plan approved): the store seam is EMPTY (whitelist [], no slices; session/workspace/viewport/sync arrive with 008/009/007 through the 4-point edit) with a guard so an empty root reducer does not warn.",
+    "ANSWERED 2026-09-19: highlight tokens are yellow, green, blue, rose (defaulted palette: the spec lists none), one hue each, the same hue in both themes, lower alpha in dark.",
+    "ANSWERED 2026-09-19: install @reduxjs/toolkit, react-redux, redux-persist and sonner; shadcn add generates the atoms; PR #7 merged first (it was); slim recording.",
+    "FINDING (doc vs tool, resolved, recorded): 04 §5.1 shows components.json aliases as filesystem paths (src/shared/components/ui). The shadcn CLI PLACES files correctly from them but writes cross-atom imports with the same string: sheet.tsx and dialog.tsx would import Button from \"src/shared/components/ui/button\", which TypeScript cannot resolve. components.json therefore uses the import aliases (@shared/components/ui, @shared/lib/utils, ...); the 04 §5.1 sample is corrected in the same change. This also fixes a latent flaw in task 004's g2.",
+    "NEW (defaulted): ShadcnProvider is Radix's DirectionProvider (dir=\"ltr\"), because components.json sets rtl: true and generates direction-aware classes; the app's language (Bahasa Indonesia) is left-to-right.",
+    "NEW (defaulted): the scaffold's theme-provider moves from shared/components/template/ to shared/providers/theme-provider/ (plan doc §4 places it there); layout.tsx imports LibraryProvider from shared/providers.",
+    "NEW (defaulted): the persist storage is localStorage in the browser and a no-op storage on the server, so nothing touches window at import (SSR)."
+  ],
+  "risks": [
+    "Persist/Redux at the layout level can break SSR or hydration; a webpack production build proves it.",
+    "Empty root reducer: Redux warns, and I16 may fail on a whitelist that names no slice; solved by an empty whitelist plus a guard reducer, checked by verify:arch.",
+    "shadcn add rewrites globals.css or components.json on some atoms: diff both after each add; the dry run showed 10 new files and 3 dependencies only.",
+    "The persist whitelist growing an entities or reducerPath entry (I12).",
+    "Konva will not inherit the tokens; tasks 009/022 pass colours explicitly."
+  ]
+}
