@@ -189,7 +189,7 @@ in `task_sequence` is *not opened*.
 | B | 002 RLS access proof | [todo-task-002](todo-task-002-rls-access-proof.md) | supabase | 001 | **done** |
 | B | 003 types and seed | [todo-task-003](todo-task-003-types-and-seed.md) | supabase | 001 | **done** — g3 as placeholder rows; D-12 still open |
 | C | 004 conform the scaffold | [todo-task-004](todo-task-004-frontend-scaffold.md) | frontend | 000 | **done** |
-| C | 005 design system | [todo-task-005](todo-task-005-design-system.md) | frontend | 004 | not opened |
+| C | 005 design system | [todo-task-005](todo-task-005-design-system.md) | frontend | 004 | **done** |
 | C | 006 entities kernel | [todo-task-006](todo-task-006-entities-kernel.md) | frontend | 004 | **done** |
 | C | 007 sync kernel | [todo-task-007](todo-task-007-sync-kernel.md) | frontend | 006 | not opened |
 | D | 008 auth + workspace shell | [todo-task-008](todo-task-008-auth-and-workspace-shell.md) | frontend | 002 003 005 006 | not opened |
@@ -231,7 +231,13 @@ Critical path = the demoable slice:  000 → 001 → 004 → 006 → 008 → 009
   repositories that write the row and its outbox entry in one transaction, `apply-remote`, and one live-query hook per table
   (34 tests under fake-indexeddb; a mutation of the transaction scope turns 5 of 6 repository tests red). Recorded slim:
   `analyze.json` + `result.json` only.
-- **Next:** 005 (design system) and 007 (sync kernel, needs 006), both unblocked; 008 (auth and workspace shell) then needs only 005.
+- **Also done:** 005 (design system) — the 10 remaining shadcn atoms, highlight colour tokens for light and dark, the store seam
+  (`stripUi`, persist config, listener middleware, typed hooks; **no slices yet**), `LibraryProvider` in the fixed order,
+  and `useBreakpoint`. A production build boots in Chrome in both themes with no console errors; `npm run verify` is
+  green with I5/I11/I12/I16 now live. It also corrected `components.json` to import aliases (the old form broke `sheet` and
+  `dialog`). Recorded slim.
+- **Next:** 008 (auth and workspace shell) is now unblocked (it needed 005 and 006) and is on the critical path; 007 (sync kernel)
+  is independent and can run beside it.
 - **Waiting on a human:**
   - **D-12** — free-tier training terms vs document sensitivity. Blocks 018, and ink transcription in 024. 003's
     placeholder provider rows stand in until it is answered.

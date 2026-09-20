@@ -378,14 +378,19 @@ src/shared/
 ```jsonc
 {
 	"aliases": {
-		"ui": "src/shared/components/ui",
-		"components": "src/shared/components/template",
-		"lib": "src/shared/lib",
-		"utils": "src/shared/lib/utils",
-		"hooks": "src/shared/hooks",
+		"ui": "@shared/components/ui",
+		"components": "@shared/components/template",
+		"lib": "@shared/lib",
+		"utils": "@shared/lib/utils",
+		"hooks": "@shared/hooks",
 	},
 }
 ```
+
+> The values are **import aliases** (from `tsconfig.json`), not filesystem paths. The CLI places files by resolving
+> them, but also copies the string into the imports it writes between atoms (`sheet` and `dialog` import `Button`):
+> `src/shared/components/ui/button` does not resolve in TypeScript, `@shared/components/ui/button` does
+> (task 005 finding, corrects the earlier sample).
 
 > ⚠️ `shadcn add` writes multi-part blocks to the `components` alias — i.e. into `template/`. After every
 > CLI run, verify nothing domain-flavoured landed there, and that nothing landed in `canvas/`.

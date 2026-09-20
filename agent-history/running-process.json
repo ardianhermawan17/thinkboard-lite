@@ -1,6 +1,6 @@
 {
 	"schema_version": "1.0",
-	"updated_at": "2026-09-19T17:20:00Z",
+	"updated_at": "2026-09-19T23:58:04Z",
 	"current_task_id": null,
 	"current_phase": "idle",
 	"history_path": null,
@@ -41,6 +41,12 @@
 			"architecture": "frontend",
 			"status": "done",
 			"title": "A local database that is the app's only read surface, so every later feature is offline-capable by construction"
+		},
+		{
+			"id": "005-task-design-system",
+			"architecture": "frontend",
+			"status": "done",
+			"title": "Atoms, theme and the provider tree exist, so every later component composes rather than invents"
 		}
 	]
 }

@@ -1,7 +1,7 @@
 import { Geist, Geist_Mono, IBM_Plex_Sans } from "next/font/google"
 
 import "./globals.css"
-import { ThemeProvider } from "@shared/components/template/theme-provider"
+import { LibraryProvider } from "@shared/providers"
 import { cn } from "@shared/lib/utils";
 
 const ibmPlexSans = IBM_Plex_Sans({subsets:['latin'],variable:'--font-sans'})
@@ -23,7 +23,7 @@ export default function RootLayout({
       className={cn("antialiased", fontMono.variable, "font-sans", ibmPlexSans.variable)}
     >
       <body>
-        <ThemeProvider>{children}</ThemeProvider>
+        <LibraryProvider>{children}</LibraryProvider>
       </body>
     </html>
   )
