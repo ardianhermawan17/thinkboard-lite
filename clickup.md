@@ -1,14 +1,8 @@
 # ThinkBoard Lite — ClickUp task board
 
-Snapshot: 2026-09-19 · Branch: `claude/task-002` · ClickUp List: `1100340000052535` (Space `1100340000040153`)
+Snapshot: 2026-09-20 · Branch: `claude/task-008` · ClickUp List: `1100340000052535` (Space `1100340000040153`)
 
-> **⚠ PENDING CLICKUP SYNC (2026-09-19):** tasks **003** (5/5 goals, `agent-history/003-task-types-and-seed/result.json`) and **006**
-> (6/6 goals, `agent-history/006-task-entities-kernel/result.json`) and **005** (5/5 goals, `agent-history/005-task-design-system/result.json`)
-> are **done in the repo**, but ClickUp still shows 003 `in progress` and 005/006 `to do`:
-> the ClickUp MCP **daily limit was reached (100/100 calls)**. To finish, in ClickUp:
-> set [z8r3fdg7gr](https://app.clickup.com/t/z8r3fdg7gr) (003), [z8r3fdg7gu](https://app.clickup.com/t/z8r3fdg7gu) (005) and [z8r3fdg7gv](https://app.clickup.com/t/z8r3fdg7gv) (006) to `complete`,
-> tick their goals (003 g3 = placeholder rows, D-12 still open), and add one summary comment each.
-> The counts below still describe ClickUp as it is now; the `notion.md` snapshot is not refreshed for 006 (slim recording).
+> **Synced 2026-09-20:** 003, 005, 006 and 008 are `complete` in ClickUp (comments added). The `notion.md` snapshot is not refreshed for 006 and 005 (slim recording: one Notion entry per task on the work-log page).
 
 **Master reference for every task:** [`06-whole-apps-task.md`](06-whole-apps-task.md) (heading `### NNN-task-<slug>`).
 **Parsed plan doc per task:** `todo-task-NNN-<slug>.md` (goals, gate, decisions, contract scaffolding).
@@ -19,9 +13,9 @@ Statuses in the List: `to do` · `in progress` · `complete`. ClickUp hides `com
 
 | Status | Count | Tasks |
 |---|---|---|
-| complete | 4 | 000, 001, 002, 004 |
-| in progress | 2 | 003 (done in the repo, ClickUp sync pending), Housekeeping (pipeline itself is `idle`) |
-| to do | 20 | 005–024 (018 blocked on D-12, 024 conditional) |
+| complete | 8 | 000, 001, 002, 003, 004, 005, 006, 008 |
+| in progress | 1 | Housekeeping (pipeline itself is `idle`) |
+| to do | 16 | 007, 009–024 (018 blocked on D-12, 024 conditional) |
 
 Critical path: 000 → 001 → 004 → 006 → 008 → 009 → 010 → 012. Highest risk: 010, then 007.
 
@@ -85,7 +79,7 @@ Gate passed: `npm run verify` green on the real tree. Owner-visible: `build` is 
 
 | Item | ClickUp | Notes |
 |---|---|---|
-| 003 Types and seed (**DONE in the repo, 5/5; ClickUp sync pending**) | [z8r3fdg7gr](https://app.clickup.com/t/z8r3fdg7gr) | migration `0005_storage_artifacts.sql`, `seed.sql`, `npm run db:seed`; `agent-history/003-task-types-and-seed/` (result: blocked); tests `test:seed` 6/6, `npm test` 17/17 |
+| 003 Types and seed (**DONE, 5/5**) | [z8r3fdg7gr](https://app.clickup.com/t/z8r3fdg7gr) | migration `0005_storage_artifacts.sql`, `seed.sql`, `npm run db:seed`; `agent-history/003-task-types-and-seed/` (result: blocked); tests `test:seed` 6/6, `npm test` 17/17 |
 | Housekeeping: merge task-002 PR, resolve owner decisions | [z8r3fdg7hf](https://app.clickup.com/t/z8r3fdg7hf) | PR for `claude/task-002`; uncommitted doc edits in tree; D-12; C6 sign-off; frontend gitlink; `000-task-example` numbering |
 
 ---
@@ -141,7 +135,7 @@ Each row: ClickUp task (full mini-goals as checklist inside), 06 section, plan d
 ## Open decisions / blockers
 
 - **D-12** — free-tier training terms vs Perhutani document sensitivity. Gates 018 and the provider choice; 003's g3 uses placeholder provider rows until it is answered.
-- **003** — finished in the repo; only the ClickUp sync is pending (see the banner at the top).
+- **003** — done; D-12 is still open, the provider rows are placeholders.
 - **C6** — human sign-off from the task-000 split (C7 already resolved: plan id = folder id).
 - Replace the `frontend-thinkboard-lite` gitlink in the root repo so its files are tracked (owner call).
 - `agent-history/000-task-example/` numbering (owner call).

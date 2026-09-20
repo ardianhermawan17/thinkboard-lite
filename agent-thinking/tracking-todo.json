@@ -1,6 +1,6 @@
 {
 	"schema_version": "1.0",
-	"updated_at": "2026-09-19T23:58:04Z",
+	"updated_at": "2026-09-20T02:10:00Z",
 	"tracked_todos": [
 		{
 			"id": "000-todo-architecture-contract",
@@ -56,6 +56,14 @@
 			"goal": "Atoms, theme and the provider tree exist, so every later component composes rather than invents.",
 			"todo_path": "agent-thinking/todo/005-todo-design-system/contract.json",
 			"agent_history": "agent-history/005-task-design-system",
+			"status": "done"
+		},
+		{
+			"id": "008-todo-auth-and-workspace-shell",
+			"name": "Auth and workspace shell",
+			"goal": "A user signs in and opens a workspace with a leader, a persona and a goal.",
+			"todo_path": "agent-thinking/todo/008-todo-auth-and-workspace-shell/contract.json",
+			"agent_history": "agent-history/008-task-auth-and-workspace-shell",
 			"status": "done"
 		}
 	]

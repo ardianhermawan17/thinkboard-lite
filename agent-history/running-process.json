@@ -1,6 +1,6 @@
 {
 	"schema_version": "1.0",
-	"updated_at": "2026-09-19T23:58:04Z",
+	"updated_at": "2026-09-20T02:10:00Z",
 	"current_task_id": null,
 	"current_phase": "idle",
 	"history_path": null,
@@ -47,6 +47,12 @@
 			"architecture": "frontend",
 			"status": "done",
 			"title": "Atoms, theme and the provider tree exist, so every later component composes rather than invents"
+		},
+		{
+			"id": "008-task-auth-and-workspace-shell",
+			"architecture": "frontend",
+			"status": "done",
+			"title": "A user signs in and opens a workspace with a leader, a persona and a goal"
 		}
 	]
 }
