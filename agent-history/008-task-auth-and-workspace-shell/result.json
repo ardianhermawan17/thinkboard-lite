@@ -1,0 +1,47 @@
+{
+  "task_id": "008-task-auth-and-workspace-shell",
+  "phase": "result",
+  "recording": "slim (owner-approved 2026-09-19): analyze.json + this file; code, test and validate were one work phase, evidenced by git and the tests",
+  "closed_at": "2026-09-20T02:10:00Z",
+  "final_status": "done",
+  "goals_summary": { "total": 6, "done": 6, "blocked": 0 },
+  "goal_evidence": {
+    "g1": "shared/lib/supabase.ts (publishable key only, lazy client) + workspace-remote signIn/signOut/hasSession; supabase-js keeps the session in localStorage, so reopen needs no token round trip. Gate test: session cached, sign-out removes it. Real Chrome: with every request to the Supabase API aborted, reloading /w redirects to the last workspace and shows the cached title; sign-out returns to the sign-in form and /w no longer lands in the old workspace.",
+    "g2": "create_workspace called from workspace-remote (online; 017's endpoint will wrap the same RPC). Gate test under real RLS: the creator is the only member and the leader; a create with a null name throws and the teams count is unchanged (no partial rows). Real Chrome: the create form lands on /w/<sessionId>.",
+    "g3": "Members container reads the roster from Dexie meta; transferLeadership calls the definer RPC and re-pulls. Gate test: after a transfer exactly one leader remains (the new one), the old leader can no longer transfer ('only the leader'), and the new leader hands it back so the seed is restored.",
+    "g4": "PersonaEditor: team persona (leader only, form disabled for others) and personal persona. Gate test: a member's team-persona write is rejected by RLS, the leader's succeeds, and a second active personal persona is rejected by the unique index; the UI updates an existing persona instead of inserting. Real Chrome: a saved personal persona came back after the pull.",
+    "g5": "features/workspace/components/{workspace-shell,app-header,auth-guard,members,persona-editor}: document area, right rail (Members | Personas), header with sync pill (Offline / n pending / Sync failed / Synced), mode switch, theme switch, sign-out. verify:arch 18/0 (I1, I2, I4 included). Real Chrome: dark class toggles, Visualize tab activates, sync pill reads Synced; dark screenshot inspected.",
+    "g6": "src/app/w/page.tsx and src/app/w/[workspaceId]/page.tsx are 'use client' files that only dynamic-import the shell with ssr:false; the page HTML served for /w contains no session data. The build lists /w as static and /w/[workspaceId] as dynamic."
+  },
+  "decisions": [
+    "DEFAULT TAKEN, owner said 'go with this order': create_workspace, transfer and persona writes call Supabase directly and online for now, because the sync engine (007) and the command endpoints (017) do not exist; the calls live in features/workspace/utils/workspace-remote.ts, the only file in the context that talks to Supabase (through shared/lib/supabase.ts). 007/017 turn them into outbox rpc ops without changing any reader.",
+    "ANSWERED, owner: the creator is the leader at creation; 'picking a leader' is transfer_leadership to an existing member.",
+    "ANSWERED, owner: teams, roster, session and personas are pulled once into Dexie meta (DB-Q12) with putMeta (new entities/repository/meta-repository.ts, the only Dexie access outside db/queries/repository); 007's engine replaces the pull.",
+    "ANSWERED, owner: @supabase/supabase-js installed; npm audit 0.",
+    "The workspace slice is one slice named `workspace` (profile id, team id, session id, mode, ui.error); the action names workspaceOpened and modeChanged match the blueprint's listener list. Only ids are stored (I11); the store edit whitelisted it (I12) and ui is stripped (I16).",
+    "BUG FOUND BY THE REAL-CHROME PASS AND FIXED AT THE SEAM: stripUi persists a slice without `ui`, and redux-persist's default reconciler replaced the whole slice on rehydrate, so state.workspace.ui was undefined and a reload crashed with 'Cannot read properties of undefined (reading error)'. persist.ts now uses autoMergeLevel2 (each persisted slice merges into its initial state), which fixes it for every future slice. A regression test in store.test.ts turns red without the line (mutation-checked). This closes the 'first slice must add a rehydration test' item 005 left in not_covered.",
+    "No /auth route: AuthGuard shows the sign-in form in place on /w and /w/[id], so a separate page adds nothing today (the plan doc's §4 lists it). Add it if a distinct sign-in URL is wanted.",
+    "The mode switch changes the persisted slice only; it does not write sessions.default_mode (a later task decides where the mode lives on the server).",
+    "Sign-out deletes the profile's Dexie database (F6). ponytail: safe now because nothing is unsynced; once 007's outbox exists it must warn or refuse while ops are queued."
+  ],
+  "verification": [
+    "npm run verify: exit 0 (verify:arch 18 pass / 0 fail incl. I1, I2, I4, I5, I11, I12, I16; lint 0 errors; tsc clean; vitest 16 files pass, 57 tests, 5 live-stack tests skipped without env)",
+    "gate test src/features/workspace/utils/workspace-remote.test.ts against the seeded stack under real RLS: 5/5 with NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY set (skips itself in verify)",
+    "npm run build (webpack) with the stack env: exit 0; production build booted in real Chrome via Playwright: sign in, create, land on the shell, roster, sync pill, theme and mode switches, personal persona save, offline reopen (Supabase API blocked), sign-out: 13/13 PASS, 0 console or page errors; dark screenshot inspected",
+    "mutation: removing stateReconciler from persist.ts turns the new rehydration test red; restored",
+    "npm audit: 0 vulnerabilities after adding @supabase/supabase-js"
+  ],
+  "not_covered": [
+    "No Storybook stories or component tests for the five containers (the gate test and the real-Chrome pass cover the behaviour); add them with 022 if the design pass wants them.",
+    "Offline reopen was proven by blocking the Supabase API on a page served from the network; a full airplane-mode reload with the service worker serving the shell is 016's scope.",
+    "The Members list shows the profile name or email only when RLS lets teammates read profiles; the seeded users showed as 'Leader', so the embed works, but a policy audit of profiles for teammates belongs with the anon-EXECUTE housekeeping.",
+    "The workspace persona is not linked to the session (sessions.team_persona_id / user_persona_id are untouched): the pipeline tasks decide when a persona is bound."
+  ],
+  "follow_up_tasks": [
+    "009 (PDF canvas): mounts in the shell's document area; needs only 003 and 008.",
+    "007 (sync kernel): replaces the one-shot meta pull and turns create/transfer/persona writes into outbox rpc ops; sign-out must then guard against queued ops.",
+    "Housekeeping (MEDIUM, from the 001-003 review): revoke EXECUTE on create_workspace and transfer_leadership from anon (a migration with a test).",
+    "Raised in the plan doc, still open: adding members to a team needs its own definer RPC (the roster of a new workspace is one person, so leadership transfer is only exercisable on the seeded team).",
+    "Optional: an /auth route, if a distinct sign-in URL is wanted."
+  ]
+}

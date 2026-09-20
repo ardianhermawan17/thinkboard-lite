@@ -192,7 +192,7 @@ in `task_sequence` is *not opened*.
 | C | 005 design system | [todo-task-005](todo-task-005-design-system.md) | frontend | 004 | **done** |
 | C | 006 entities kernel | [todo-task-006](todo-task-006-entities-kernel.md) | frontend | 004 | **done** |
 | C | 007 sync kernel | [todo-task-007](todo-task-007-sync-kernel.md) | frontend | 006 | not opened |
-| D | 008 auth + workspace shell | [todo-task-008](todo-task-008-auth-and-workspace-shell.md) | frontend | 002 003 005 006 | not opened |
+| D | 008 auth + workspace shell | [todo-task-008](todo-task-008-auth-and-workspace-shell.md) | frontend | 002 003 005 006 | **done** |
 | D | 009 PDF canvas | [todo-task-009](todo-task-009-pdf-canvas.md) | frontend | 003 008 | not opened |
 | D | 010 text highlight | [todo-task-010](todo-task-010-text-highlight.md) | frontend | 009 | not opened |
 | D | 011 region highlight + OCR | [todo-task-011](todo-task-011-region-highlight-and-ocr.md) | frontend | 009 | not opened |
@@ -217,7 +217,7 @@ Critical path = the demoable slice:  000 → 001 → 004 → 006 → 008 → 009
 
 ---
 
-## 6. Where things stand — 2026-09-19
+## 6. Where things stand — 2026-09-20
 
 - **Done:** 000 (architecture contract), 001 (`0004_lite.sql` in `database-thinkboard-lite/`), 002 (the RLS proof:
   56 checks in `database-thinkboard-lite/supabase/tests/`, each policy mutation-tested) and 004 (the scaffold conformed
@@ -236,8 +236,12 @@ Critical path = the demoable slice:  000 → 001 → 004 → 006 → 008 → 009
   and `useBreakpoint`. A production build boots in Chrome in both themes with no console errors; `npm run verify` is
   green with I5/I11/I12/I16 now live. It also corrected `components.json` to import aliases (the old form broke `sheet` and
   `dialog`). Recorded slim.
-- **Next:** 008 (auth and workspace shell) is now unblocked (it needed 005 and 006) and is on the critical path; 007 (sync kernel)
-  is independent and can run beside it.
+- **Also done:** 008 (auth and workspace shell) — Supabase sign-in with a cached session, the `workspace` slice, workspace create and
+  leadership transfer through the definer RPCs, the two persona editors, and the shell (header with sync pill, mode and theme
+  switches; right rail) behind a client-only `/w` route. Gate test 5/5 under real RLS against the seeded stack; a production build
+  passed a real-Chrome pass including an offline reopen. That pass found and fixed a reload crash at the persist seam
+  (`autoMergeLevel2`). Writes are direct and online until 007 and 017 exist. Recorded slim.
+- **Next:** 009 (PDF canvas) is unblocked and on the critical path; 007 (sync kernel) is independent and can run beside it.
 - **Waiting on a human:**
   - **D-12** — free-tier training terms vs document sensitivity. Blocks 018, and ink transcription in 024. 003's
     placeholder provider rows stand in until it is answered.

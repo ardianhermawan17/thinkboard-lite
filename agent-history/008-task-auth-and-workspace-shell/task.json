@@ -1,0 +1,30 @@
+{
+  "id": "008-task-auth-and-workspace-shell",
+  "title": "A user signs in and opens a workspace with a leader, a persona and a goal",
+  "architecture": "frontend",
+  "secondary_architecture": [],
+  "created_at": "2026-09-20T00:10:00Z",
+  "status": "done",
+  "recording": "slim: analyze.json + result.json; code, test and validate are one `work` phase evidenced by git and the tests (owner-approved 2026-09-19)",
+  "depends_on": ["002-task-rls-access-proof", "003-task-types-and-seed", "005-task-design-system", "006-task-entities-kernel"],
+  "plan_refs": [
+    {"doc": "06-whole-apps-task.md", "section": "PHASE D · 008"},
+    {"doc": "01-thinkboard-lite-spec.md", "section": "§2, §4.3, RULE-14, §10"},
+    {"doc": "02-database-architecture.md", "section": "§3, §10"},
+    {"doc": "04-frontend-folder-architecture.md", "section": "§3, §9"},
+    {"doc": "todo-task-008-auth-and-workspace-shell.md", "section": "§2 goals and gate, §3 decisions"}
+  ],
+  "goals": [
+    {"id": "g1", "description": "Supabase auth sign in / out with the publishable key; session cached locally so offline open needs no token refresh", "plan_ref": "tasks 008 g1; spec RULE-14", "status": "done"},
+    {"id": "g2", "description": "Workspace create: team + board + column + session in one transaction via create_workspace (DB-Q6); the creator picks the leader", "plan_ref": "tasks 008 g2; db §10 DB-Q6", "status": "done"},
+    {"id": "g3", "description": "Members list; leadership transfer", "plan_ref": "tasks 008 g3; spec D-09", "status": "done"},
+    {"id": "g4", "description": "Workspace persona (leader) and personal persona (self) editors; one active persona per person", "plan_ref": "tasks 008 g4; spec D-04", "status": "done"},
+    {"id": "g5", "description": "WorkspaceShell — document area, right rail, header with sync pill, mode switch, theme switch; app-header and auth-guard live in features/workspace", "plan_ref": "tasks 008 g5; ffa §9", "status": "done"},
+    {"id": "g6", "description": "The workspace route is a client component loaded ssr:false; no SSR data dependency", "plan_ref": "tasks 008 g6; ffa §3.1", "status": "done"}
+  ],
+  "phases": {
+    "analyze": {"file": "analyze.json", "status": "done"},
+    "work": {"file": null, "status": "done"},
+    "result": {"file": "result.json", "status": "done"}
+  }
+}
