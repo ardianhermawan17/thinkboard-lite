@@ -73,6 +73,14 @@
 			"todo_path": "agent-thinking/todo/007-todo-sync-kernel/contract.json",
 			"agent_history": "agent-history/007-task-sync-kernel",
 			"status": "done"
+		},
+		{
+			"id": "009-todo-pdf-canvas",
+			"name": "PDF canvas",
+			"goal": "The workspace PDF renders, pans and zooms smoothly on a tablet.",
+			"todo_path": "agent-thinking/todo/009-todo-pdf-canvas/contract.json",
+			"agent_history": "agent-history/009-task-pdf-canvas",
+			"status": "done"
 		}
 	]
 }

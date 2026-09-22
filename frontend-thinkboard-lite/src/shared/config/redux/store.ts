@@ -1,5 +1,6 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit"
 import { FLUSH, PAUSE, PERSIST, PURGE, REGISTER, REHYDRATE, persistReducer } from "redux-persist"
+import { viewportReducer } from "@feature/document/stores/viewport-slice"
 import { registerSyncListeners } from "@feature/sync/middleware/sync-listener"
 import { syncReducer } from "@feature/sync/stores/sync-slice"
 import { workspaceReducer } from "@feature/workspace/stores/workspace-slice"
@@ -13,7 +14,7 @@ import { persistConfig } from "./persist"
 //   4. .prepend()       listenerMiddleware.middleware, once (already done below)
 
 // 1. rootReducer: each context adds its slice here (session and workspace arrive together as `workspace` in 008).
-const rootReducer = combineReducers({ workspace: workspaceReducer, sync: syncReducer })
+const rootReducer = combineReducers({ workspace: workspaceReducer, sync: syncReducer, viewport: viewportReducer })
 
 // 4b. every listener registers on the one middleware: the sync engine (007) reacts to workspaceOpened, phaseChanged and the outbox
 registerSyncListeners()

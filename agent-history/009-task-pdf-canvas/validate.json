@@ -1,0 +1,22 @@
+{
+  "task_id": "009-task-pdf-canvas",
+  "phase": "validate",
+  "goal_checks": [
+    {"goal_id": "g1", "status": "pass", "notes": "Second open reads OPFS with no network — proven by opfs.test.ts and pdf.test.ts (getOrFetch calls the network fetcher once, then reads cache). Keyed per profile, per the confirmed NEW-1 answer."},
+    {"goal_id": "g2", "status": "pass", "notes": "pageWindow never returns more than 3 pages across a 30-page document at any cursor (page-window.test.ts, exhaustive over all 30 cursors); document-viewer.test.tsx confirms it renders exactly that window, centred on the cursor."},
+    {"goal_id": "g3", "status": "pass", "notes": "page-stage leaf has z0 canvas, z1 text layer (PDF.js's own TextLayer, real DOM spans), z2 empty Konva Stage host (hasPainter: false, matches the blueprint). Verified by typecheck against pdfjs-dist's types and the leaf's own tests; a real browser render of z1's selectability was not exercised (jsdom cannot run pdf.js's canvas/worker path) — noted in test.json as not covered."},
+    {"goal_id": "g4", "status": "pass", "notes": "Viewport slice (zoom/page/rotation) plus a Pointer-Events pinch/pan gesture in use-page-stage.ts: committed zoom only reaches Redux on the last pointer's pointerup, in-flight scale is a DOM transform via ref. Proven at the unit level (viewport-slice.test.ts, use-page-stage.test.ts); real touch/pen hardware was not exercised."},
+    {"goal_id": "g5", "status": "pass", "notes": "Exact round trip at 3 zooms x 4 rotations, plus a float-tolerance case at an arbitrary zoom (geometry.test.ts, 19 tests)."}
+  ],
+  "cross_check_against_plan": [
+    {"doc": "06-whole-apps-task.md", "section": "PHASE D · 009", "result": "g1-g5 match verbatim; Blocks 010, 011 — neither started, so nothing here is out of their scope."},
+    {"doc": "03-frontend-architecture.md", "section": "§6.1, §6.2, §7", "result": "z0-z3 order followed; page windowing at ±1 page (§6.2); Pointer Events only, no mouse-only path (§7)."},
+    {"doc": "01-thinkboard-lite-spec.md", "section": "§5.3, §5.4", "result": "§5.3 storage tiers followed (OPFS for bytes, keyed per profile per the confirmed decision); navigator.storage.persist() called on load. §5.4 not yet touched by this task's code (capture/import is 010/011's scope)."},
+    {"doc": "04-frontend-folder-architecture.md", "section": "§5.2, §11", "result": "canvas leaf shape followed (no *.painter.ts, since hasPainter:false); hazard 7 (200 live Stages) mitigated by g2; hazard 5 (viewport pixels) mitigated by routing all coordinates through shared/utils/geometry."}
+  ],
+  "signed_off": true,
+  "issues_found": [
+    "The task's overall Gate — a 30-page PDF at 60 fps, memory flat, ON THE PILOT TABLET — is not a per-goal check and is NOT verifiable from this session: Q8 (the real tablet mix) is still unanswered, per the human's 2026-09-21 decision to open the task and defer this gate. It stays open in result.json as a follow-up, not silently marked pass.",
+    "No page-stage.stories.tsx / Chrome story test was added — the plan's test list (§5) names geometry, windowing, and OPFS, not a Storybook story; a real-browser check of z1 selectability and pdfjs rendering is a natural follow-up before 010 starts capturing from z1."
+  ]
+}

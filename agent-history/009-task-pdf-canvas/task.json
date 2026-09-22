@@ -1,0 +1,30 @@
+{
+  "id": "009-task-pdf-canvas",
+  "title": "The workspace PDF renders, pans and zooms smoothly on a tablet",
+  "architecture": "frontend",
+  "secondary_architecture": [],
+  "created_at": "2026-09-21T00:00:00Z",
+  "status": "done",
+  "depends_on": ["003-task-types-and-seed", "008-task-auth-and-workspace-shell"],
+  "plan_refs": [
+    {"doc": "06-whole-apps-task.md", "section": "PHASE D · 009"},
+    {"doc": "03-frontend-architecture.md", "section": "§6.1, §6.2, §7"},
+    {"doc": "01-thinkboard-lite-spec.md", "section": "§5.3, §5.4"},
+    {"doc": "04-frontend-folder-architecture.md", "section": "§5.2, §11"},
+    {"doc": "todo-task-009-pdf-canvas.md", "section": "§2 goals and gate, §3 decisions"}
+  ],
+  "goals": [
+    {"id": "g1", "description": "shared/lib/pdf.ts seam; download from Storage once, cache bytes in OPFS (keyed per profile, F6); navigator.storage.persist()", "plan_ref": "tasks 009 g1; spec §5.3; split F6", "status": "pending"},
+    {"id": "g2", "description": "Page windowing: render ±1 page, unmount Konva Stages outside the window", "plan_ref": "tasks 009 g2; fa §6.2", "status": "pending"},
+    {"id": "g3", "description": "page-stage canvas leaf — z0 PDF canvas, z1 text layer, z2 Konva Stage, z3 DOM overlay", "plan_ref": "tasks 009 g3; fa §6.1", "status": "pending"},
+    {"id": "g4", "description": "Viewport slice: zoom, page cursor, rotation; pinch-zoom and two-finger pan via Pointer Events", "plan_ref": "tasks 009 g4; fa §7", "status": "pending"},
+    {"id": "g5", "description": "shared/utils/geometry.ts — normalize / denormalize page-relative rects, with tests", "plan_ref": "tasks 009 g5; spec RULE-17", "status": "pending"}
+  ],
+  "phases": {
+    "analyze": {"file": "analyze.json", "status": "done"},
+    "code": {"file": "code.json", "status": "done"},
+    "test": {"file": "test.json", "status": "done"},
+    "validate": {"file": "validate.json", "status": "done"},
+    "result": {"file": "result.json", "status": "done"}
+  }
+}
