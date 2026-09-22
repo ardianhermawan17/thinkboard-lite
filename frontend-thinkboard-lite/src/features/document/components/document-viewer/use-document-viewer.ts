@@ -54,6 +54,8 @@ export function useDocumentViewer(sessionId: UUID<"sessions">): DocumentViewerSt
 
   return {
     doc: shownDoc,
+    artifactId: pdfArtifact?.id ?? null,
+    profileId,
     error,
     pages: pageWindow(page, pageCount),
     zoom,

@@ -1,0 +1,35 @@
+{
+  "task_id": "010-task-text-highlight",
+  "phase": "analyze",
+  "started_at": "2026-09-22T09:20:00Z",
+  "completed_at": "2026-09-22T09:35:00Z",
+  "sources_read": [
+    {"doc": "06-whole-apps-task.md", "section": "PHASE D · 010 (lines 223-233)"},
+    {"doc": "01-thinkboard-lite-spec.md", "section": "§5.4 Capture, input and import (highlight capture, two layers per page); §5.6 Export and traceability (slug format h-p{page:02}-{order:02}-{6}); RULE-16, RULE-17"},
+    {"doc": "02-database-architecture.md", "section": "§4.2 bbox carries all geometry deliberately"},
+    {"doc": "03-frontend-architecture.md", "section": "§6.1 The canvas tier (painter contract, I17-I19)"},
+    {"doc": "04-frontend-folder-architecture.md", "section": "§5.2 canvas leaf shape (from task 009's read)"},
+    {"doc": "todo-task-010-text-highlight.md", "section": "full file"},
+    {"doc": "frontend-thinkboard-lite/src/features/entities/repository/highlight-repository.ts", "section": "insertHighlight() -- already exists"},
+    {"doc": "frontend-thinkboard-lite/src/features/entities/queries/use-highlights-for-page.ts", "section": "already exists, keyed [artifactId+page]"},
+    {"doc": "frontend-thinkboard-lite/src/shared/types/domain/highlights.ts", "section": "bbox: Json | null; slug/text/page/weight/confidence/extraction fields"}
+  ],
+  "scope": "Text-layer highlight capture (Selection/Range over the PDF.js text layer), slug generation, persistence through the existing insertHighlight() repository call, and a highlight-layer canvas leaf that draws stored highlights from the live query. Out of scope: editing highlight geometry in place (RULE-16); capturing text from the Konva layer; region/OCR highlights (011); notes (012).",
+  "acceptance_criteria": [
+    {"goal_id": "g1", "text": "Rects leaving capture are 0-1 page-relative."},
+    {"goal_id": "g2", "text": "Same text and rect always give the same slug."},
+    {"goal_id": "g3", "text": "Row and outbox op land together."},
+    {"goal_id": "g4", "text": "Drawing goes through the painter only (I17)."},
+    {"goal_id": "g5", "text": "Automated test at three zoom levels and after rotation."}
+  ],
+  "open_questions": [
+    "NEW-1 (defaulted) -- The slug format h-p{page:02}-{order:02}-{6} (spec 5.6) does not define how `order` is computed, and spec 5.6 requires it to be deterministic so re-importing the same document dedupes. Insertion order is not deterministic across sessions (two different sessions could create the same two highlights in a different order). Default taken: `order` is the 1-based reading-order rank (sort by rect.y, then rect.x) among the highlights already known to exist on that page at creation time, computed from the local live query, not from a counter. This is a technical default at the implementation-detail level, not a product decision, so it is recorded here rather than escalated; flag for review if group/leader-import (011, 021) later needs a different ordering rule.",
+    "NEW-2 (naming, resolved from existing code, not escalated) -- The plan doc's g3 says `repository.createHighlight()`; the entities kernel (task 006/007) already ships `insertHighlight()` with the same shape (extraction defaults to 'text_layer', layer forced to 'individual', writes row+outbox in one transaction). This task calls the existing function rather than adding a second one with a different name."
+  ],
+  "risks": [
+    "The most likely task to overrun (tasks §4): coordinates across zoom, rotation and re-render. Mitigated by reusing shared/utils/geometry.ts unchanged from task 009 rather than adding new coordinate math beyond the one new client-rect -> normalized-rect conversion.",
+    "Viewport pixels in bbox -- the bug that appears weeks later on another tablet (db §4.2). Mitigated by never storing a client rect; only the normalized rect crosses into insertHighlight().",
+    "highlights.bbox is a loosely typed generated Json column -- a local Bbox type plus a runtime shape check at the write boundary catches a malformed value before it reaches the repository.",
+    "Multi-line text selections produce multiple client rects per highlight -- flattened into one highlight with several rects in bbox.rects, per spec 5.4's QuadPoints precedent for leader import (011) even though 011 itself is out of scope here."
+  ]
+}

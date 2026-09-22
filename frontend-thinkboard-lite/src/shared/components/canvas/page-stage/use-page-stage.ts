@@ -13,7 +13,7 @@ const clamp = (n: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, n
  * leaf hook is presentational): the gesture is applied as a CSS transform on `gestureRef` while it is live, and
  * `onZoomCommit` is the only thing that ever reaches the store, once, when the last finger lifts.
  */
-export function usePageStage({ doc, pageNumber, zoom, rotation, onZoomCommit }: PageStageProps) {
+export function usePageStage({ doc, pageNumber, zoom, rotation, onZoomCommit, onTextLayerRendered }: PageStageProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const textLayerRef = useRef<HTMLDivElement>(null)
   const gestureRef = useRef<HTMLDivElement>(null)
@@ -33,12 +33,14 @@ export function usePageStage({ doc, pageNumber, zoom, rotation, onZoomCommit }: 
       setPageSize(size)
       textLayer.replaceChildren()
       await renderTextLayer(doc, pageNumber, textLayer, zoom)
+      if (cancelled) return
+      onTextLayerRendered?.(textLayer, size)
     }
     void paint()
     return () => {
       cancelled = true
     }
-  }, [doc, pageNumber, zoom, rotation])
+  }, [doc, pageNumber, zoom, rotation, onTextLayerRendered])
 
   const applyTransform = useCallback((scale: number, dx: number, dy: number) => {
     if (gestureRef.current) gestureRef.current.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`

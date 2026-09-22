@@ -23,7 +23,7 @@ export default defineConfig({
       {
         // jsdom for slices, hooks and DOM components; a test that needs IndexedDB imports "fake-indexeddb/auto".
         extends: true,
-        test: { name: "unit", environment: "jsdom", include: ["src/**/*.test.{ts,tsx}"] },
+        test: { name: "unit", environment: "jsdom", include: ["src/**/*.test.{ts,tsx}"], setupFiles: [at("./vitest.setup.ts")] },
       },
       {
         // Every story is a test, run in headless Chrome through Playwright (ffa §10). The installed Chrome is used,

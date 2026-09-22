@@ -1,0 +1,22 @@
+{
+  "task_id": "010-task-text-highlight",
+  "phase": "validate",
+  "goal_checks": [
+    {"goal_id": "g1", "status": "pass", "notes": "Rects leaving capture are 0-1 page-relative -- selection-to-rects.ts routes every client rect through shared/utils/geometry's normalizeRect, unit-tested including the 'measures against the text-layer container, not the browser viewport' case."},
+    {"goal_id": "g2", "status": "pass", "notes": "Same text and rect always give the same slug -- slug.test.ts. The order-determinism gap the plan doc left open (analyze.json NEW-1) is resolved with reading-order rank, itself unit-tested (reading-order.test.ts)."},
+    {"goal_id": "g3", "status": "pass", "notes": "Row and outbox op land together -- insertHighlight() (task 006/007) already writes both in one Dexie transaction; this task calls it, adds no new write path."},
+    {"goal_id": "g4", "status": "pass", "notes": "Drawing goes through the painter only -- highlight-layer.painter.ts is the sole file constructing Konva.Rect / calling batchDraw, enforced by eslint.architecture.mjs (I17), which stayed green throughout."},
+    {"goal_id": "g5", "status": "pass", "notes": "Automated test at three zoom levels and after rotation -- use-highlight-layer.test.ts's dedicated g5 test, exhaustive over 3 zooms x 4 rotations, recovers the exact stored rect after a denormalize/renormalize round trip."}
+  ],
+  "cross_check_against_plan": [
+    {"doc": "06-whole-apps-task.md", "section": "PHASE D · 010, §4", "result": "g1-g5 match verbatim; Blocks 012, 013, 021 -- none started, nothing here reaches into their scope."},
+    {"doc": "01-thinkboard-lite-spec.md", "section": "§5.4, §5.6, RULE-16/17", "result": "Two layers per page followed (text layer capture only, RULE-16 respected -- no in-place geometry edit exists in this code, only insert). Slug format h-p{page:02}-{order:02}-{6} matches exactly. RULE-17: only normalized rects ever cross into insertHighlight()."},
+    {"doc": "02-database-architecture.md", "section": "§4.2", "result": "bbox stored as {page, rects, color, tool}, normalized 0-1, no viewport pixels -- matches the schema note exactly; a local Bbox type + isBbox runtime guard sit at the one write/read boundary."},
+    {"doc": "03-frontend-architecture.md", "section": "§6.1", "result": "Followed, with one correction: the plan doc did not anticipate that the page+highlight composition crosses the document/highlight context boundary (I3). Resolved by moving composition into features/highlight and adding a renderPage injection slot to document-viewer, documented in code.json."}
+  ],
+  "signed_off": true,
+  "issues_found": [
+    "No page-stage/highlighted-page Storybook/Chrome story exercising a real pdfjs+Konva render was added -- jsdom cannot run that path (same gap task 009 recorded), and the plan doc's own §5 test list does not name one for this task.",
+    "document-viewer's new renderPage slot and highlighted-page are not wired into any app route -- task 009 already left DocumentViewer itself unmounted; closing that remains open for whichever task actually ships the workspace document view."
+  ]
+}

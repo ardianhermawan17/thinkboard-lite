@@ -1,0 +1,36 @@
+{
+  "task_id": "010-task-text-highlight",
+  "phase": "result",
+  "final_status": "done",
+  "goals_summary": {
+    "total": 5,
+    "pass": 5,
+    "blocked": 0,
+    "detail": "g1 selection capture pass; g2 deterministic slug pass; g3 repository write pass (reused insertHighlight()); g4 highlight-layer + painter pass; g5 zoom-then-reload pass. Recomputed from task.json goals[] and validate.json goal_checks -- all five 'pending' -> 'pass'."
+  },
+  "artifacts": [
+    "src/shared/lib/slug.ts (+test)",
+    "src/features/highlight/types/bbox.ts",
+    "src/features/highlight/utils/selection-to-rects.ts (+test), reading-order.ts (+test)",
+    "src/features/highlight/components/text-highlight-capture/ (+test)",
+    "src/shared/components/canvas/highlight-layer/ (leaf + painter, +test each)",
+    "src/features/highlight/components/highlighted-page/ (+test) -- the cross-context composition",
+    "src/shared/components/canvas/page-stage/ (extended: onTextLayerRendered, children slot)",
+    "src/features/document/components/document-viewer/ (extended: renderPage slot, exposed artifactId/profileId)",
+    "vitest.setup.ts (new) + vitest.config.mts (wired) -- canvas-2D-context stub for jsdom, reusable by 011/012/024"
+  ],
+  "verify": "npm run verify green: verify:arch 18 pass/0 fail, lint 0 errors (2 pre-existing warnings), typecheck clean, vitest 180 passed/10 skipped.",
+  "decisions_recap": [
+    "Reused insertHighlight() (task 006/007) rather than adding a differently-named repository function.",
+    "Slug order = reading-order rank (y then x) among the page's existing highlights, not insertion order, so re-importing a document dedupes (spec 5.6).",
+    "Architecture correction: page+highlight composition moved from features/document into features/highlight (the context that owns 'layers' per the blueprint), with document-viewer gaining a renderPage injection slot instead of a forbidden features/document -> features/highlight import (I3).",
+    "Highlight fill colour resolves the design system's --highlight-yellow token at the highlight context boundary (Konva doesn't inherit CSS variables); no per-highlight colour semantics exist yet.",
+    "Added a reusable jsdom canvas-2D stub (vitest.setup.ts, no new dependency) after discovering even a bare Konva.Rect construction needs a real canvas context that jsdom doesn't provide."
+  ],
+  "follow_up_tasks": [
+    "Wire DocumentViewer + HighlightedPage into an actual app route (src/app/w/[workspaceId]/...) -- task 009 already left DocumentViewer unmounted, and this task adds HighlightedPage in the same unmounted state. Whichever task first ships the real workspace document view should compose them via document-viewer's renderPage prop.",
+    "A Storybook/Chrome story exercising a real pdfjs + Konva render of a captured highlight, since jsdom cannot run that path (mirrors task 009's own open follow-up).",
+    "Highlight colour semantics (individual vs shared vs per-author) are undefined; 012/013 will likely need to assign one, at which point the single hard-coded --highlight-yellow default in highlighted-page should become a real mapping.",
+    "The 409 keep-as-second-note rule mentioned in task 007's own follow-ups still applies once notes attach to these highlights (012)."
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "task_id": "010-task-text-highlight",
+  "phase": "code",
+  "started_at": "2026-09-22T09:35:00Z",
+  "completed_at": "2026-09-22T14:00:00Z",
+  "files_changed": [
+    "src/shared/lib/slug.ts", "src/shared/lib/slug.test.ts",
+    "src/features/highlight/types/bbox.ts",
+    "src/features/highlight/utils/{selection-to-rects,reading-order}.ts (+test each)",
+    "src/features/highlight/components/text-highlight-capture/{text-highlight-capture.tsx,use-text-highlight-capture.ts,use-text-highlight-capture.test.ts,types.ts,index.ts}",
+    "src/shared/components/canvas/highlight-layer/{highlight-layer.tsx,use-highlight-layer.ts,highlight-layer.painter.ts,types.ts,index.ts} (+test each)",
+    "src/features/highlight/components/highlighted-page/{highlighted-page.tsx,use-highlighted-page.ts,types.ts,index.ts} (+test each)",
+    "src/shared/components/canvas/page-stage/{types.ts,use-page-stage.ts,page-stage.tsx} (extended: onTextLayerRendered, children slot)",
+    "src/features/document/components/document-viewer/{types.ts,document-viewer.tsx,use-document-viewer.ts} (extended: renderPage injection slot, exposed artifactId/profileId)",
+    "vitest.config.mts", "vitest.setup.ts (new)"
+  ],
+  "decisions": [
+    "g3 calls the existing insertHighlight() repository function (task 006/007) rather than adding a differently-named createHighlight() the plan doc's prose suggested; no new write path.",
+    "Slug order (analyze.json NEW-1): reading-order rank by (y, then x) among the page's existing highlights, computed from the live query at capture time -- not an insertion counter -- so re-importing the same document dedupes per spec 5.6.",
+    "Architecture correction found mid-build: a first draft placed the page+highlight composition under features/document, which would have made features/document import @feature/highlight -- forbidden by I3 (a feature may import only @feature/entities and @feature/sync from another feature). Moved the composition to features/highlight/components/highlighted-page/ (the blueprint's 'highlight' context owns 'capture, layers, promotion, import'), and gave document-viewer a `renderPage` injection prop instead of a direct import, so document and highlight never import each other. Neither context is wired into an app route yet (task 009 already left that gap; not this task's scope to close).",
+    "page-stage (task 009) extended with two backward-compatible optional props: onTextLayerRendered (hands the real z1 DOM node + size to a features-level container, since a canvas leaf cannot call a feature's own capture logic itself) and children (the z2 Stage's content slot, defaulting to an empty Layer when omitted).",
+    "Highlight fill colour: Konva doesn't inherit CSS variables (a note already in globals.css from task 005/009). highlighted-page resolves --highlight-yellow via getComputedStyle once and passes the resolved string down; no per-highlight colour semantics (individual vs shared, or per-author) are defined anywhere yet, so every task-010 highlight paints in that one default token. Flagged as a likely follow-up for 012/013.",
+    "Added vitest.setup.ts: a minimal in-repo stub of CanvasRenderingContext2D (no new dependency), because jsdom has no real 2D canvas context and even constructing a bare Konva.Rect touches one (a hit-testing colour lookup). Scoped to the 'unit' project only, and guarded for the project's Node-environment tests (sync-engine.live.test.ts), which have no HTMLCanvasElement at all. This unblocks every future Konva-leaf test (011, 012, 024), not just this task's.",
+    "Design-token guard (shared/components/tokens.test.ts) rejects raw hex under shared/components/**; test fixtures there use plain CSS colour keywords, and the real highlight colour is resolved from the design system's token in features/highlight (outside that guard's scope), never a literal hex."
+  ],
+  "commands_run": [
+    "npx vitest run --project unit <touched files> (iteratively)",
+    "npm run typecheck",
+    "npm run verify"
+  ]
+}

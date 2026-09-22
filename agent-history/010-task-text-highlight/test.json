@@ -1,0 +1,33 @@
+{
+  "task_id": "010-task-text-highlight",
+  "phase": "test",
+  "started_at": "2026-09-22T14:00:00Z",
+  "completed_at": "2026-09-22T14:10:00Z",
+  "test_files": [
+    "src/shared/lib/slug.test.ts",
+    "src/features/highlight/utils/selection-to-rects.test.ts",
+    "src/features/highlight/utils/reading-order.test.ts",
+    "src/features/highlight/components/text-highlight-capture/use-text-highlight-capture.test.ts",
+    "src/shared/components/canvas/highlight-layer/highlight-layer.painter.test.ts",
+    "src/shared/components/canvas/highlight-layer/use-highlight-layer.test.ts",
+    "src/features/highlight/components/highlighted-page/use-highlighted-page.test.ts",
+    "src/features/highlight/components/highlighted-page/highlighted-page.test.tsx"
+  ],
+  "commands": ["npm run verify"],
+  "results": {
+    "verify_arch": "18 pass, 0 fail, 10 skipped, 1 void",
+    "lint": "0 errors, 2 warnings (both pre-existing, outside this task's files)",
+    "typecheck": "clean",
+    "vitest": "39 test files passed, 2 skipped; 180 tests passed, 10 skipped"
+  },
+  "summary": { "total": 190, "passed": 180, "failed": 0, "skipped": 10 },
+  "plan_doc_5_checklist": [
+    {"item": "zoom-then-reload", "covered_by": "use-highlight-layer.test.ts 'g5: a highlight stored once lands on the same content at three zoom levels and after rotation' -- exhaustive over 3 zooms x 4 rotations, denormalize-then-renormalize recovers the exact stored rect"},
+    {"item": "slug determinism", "covered_by": "slug.test.ts -- 7 tests: same input -> same slug, text/rect/page/order changes each change the slug, sub-quantization jitter does not"},
+    {"item": "painter-only imperative Konva", "covered_by": "highlight-layer.painter.test.ts is the only file that constructs Konva.Rect / calls layer.add/batchDraw; enforced repo-wide by eslint.architecture.mjs (I17), which stayed green"}
+  ],
+  "not_covered": [
+    "A real pdfjs/Konva render pass in a browser exercising the full highlight capture -> draw loop end to end (selecting real text in a real PDF and seeing a mark appear). jsdom cannot run pdf.js's canvas/worker path (same limitation task 009 recorded). No page-stage/highlighted-page Storybook story was added; the plan doc's own test list (§5) does not name one for this task.",
+    "document-viewer's new `renderPage` injection slot and highlighted-page's composition are unit-tested in isolation, but neither is wired into a real app route yet -- task 009 already left DocumentViewer unmounted, and closing that gap is not this task's stated scope."
+  ]
+}

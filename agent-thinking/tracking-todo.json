@@ -81,6 +81,14 @@
 			"todo_path": "agent-thinking/todo/009-todo-pdf-canvas/contract.json",
 			"agent_history": "agent-history/009-task-pdf-canvas",
 			"status": "done"
+		},
+		{
+			"id": "010-todo-text-highlight",
+			"name": "Text highlight",
+			"goal": "Selecting text on the PDF creates a persisted, exact-text focus point.",
+			"todo_path": "agent-thinking/todo/010-todo-text-highlight/contract.json",
+			"agent_history": "agent-history/010-task-text-highlight",
+			"status": "done"
 		}
 	]
 }

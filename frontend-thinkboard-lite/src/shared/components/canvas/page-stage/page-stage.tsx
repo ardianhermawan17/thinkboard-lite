@@ -9,13 +9,14 @@ import type { PageStageProps } from "./types"
  * z2 Konva Stage host, empty until task 010/011 draw into it, per canvasLeaves[page-stage].hasPainter: false.
  * z3 DOM overlay is added by the container that mounts this leaf (chips, note pins), not here.
  */
-export function PageStage({ doc, pageNumber, zoom, rotation, onZoomCommit }: PageStageProps) {
+export function PageStage({ doc, pageNumber, zoom, rotation, onZoomCommit, onTextLayerRendered, children }: PageStageProps) {
   const { canvasRef, textLayerRef, gestureRef, pageSize, onPointerDown, onPointerMove, onPointerUp } = usePageStage({
     doc,
     pageNumber,
     zoom,
     rotation,
     onZoomCommit,
+    onTextLayerRendered,
   })
 
   return (
@@ -36,7 +37,7 @@ export function PageStage({ doc, pageNumber, zoom, rotation, onZoomCommit }: Pag
         {/* z2 — host only; highlight-layer (010) and marquee (011) draw into it */}
         {pageSize.width > 0 && (
           <Stage width={pageSize.width} height={pageSize.height} className="absolute inset-0">
-            <Layer />
+            {children ?? <Layer />}
           </Stage>
         )}
       </div>

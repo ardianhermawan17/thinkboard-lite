@@ -1,0 +1,30 @@
+{
+  "id": "010-task-text-highlight",
+  "title": "Selecting text on the PDF creates a persisted, exact-text focus point",
+  "architecture": "frontend",
+  "secondary_architecture": [],
+  "created_at": "2026-09-22T00:00:00Z",
+  "status": "done",
+  "depends_on": ["009-task-pdf-canvas"],
+  "plan_refs": [
+    {"doc": "06-whole-apps-task.md", "section": "PHASE D · 010, §4"},
+    {"doc": "01-thinkboard-lite-spec.md", "section": "§5.4, §5.6, RULE-16/17"},
+    {"doc": "02-database-architecture.md", "section": "§4.2"},
+    {"doc": "03-frontend-architecture.md", "section": "§6.1"},
+    {"doc": "todo-task-010-text-highlight.md", "section": "§2 goals and gate, §3 decisions"}
+  ],
+  "goals": [
+    {"id": "g1", "description": "Selection/Range capture over the PDF.js text layer → client rects → normalized rects", "plan_ref": "tasks 010 g1; spec §5.4", "status": "pending"},
+    {"id": "g2", "description": "Slug generation h-pNN-NN-xxxxxx, deterministic from text + quantized rect", "plan_ref": "tasks 010 g2; spec §5.6", "status": "pending"},
+    {"id": "g3", "description": "repository.createHighlight() with extraction='text_layer', confidence=1.0, layer='individual'", "plan_ref": "tasks 010 g3", "status": "pending"},
+    {"id": "g4", "description": "highlight-layer canvas leaf draws stored highlights from the live query", "plan_ref": "tasks 010 g4; ffa §5.2", "status": "pending"},
+    {"id": "g5", "description": "Zoom-then-reload test: marks land in the same place", "plan_ref": "tasks 010 g5; spec RULE-17", "status": "pending"}
+  ],
+  "phases": {
+    "analyze": {"file": "analyze.json", "status": "done"},
+    "code": {"file": "code.json", "status": "done"},
+    "test": {"file": "test.json", "status": "done"},
+    "validate": {"file": "validate.json", "status": "done"},
+    "result": {"file": "result.json", "status": "done"}
+  }
+}
