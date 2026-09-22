@@ -1,0 +1,34 @@
+{
+  "task_id": "009-task-pdf-canvas",
+  "phase": "test",
+  "started_at": "2026-09-22T09:00:00Z",
+  "completed_at": "2026-09-22T09:10:00Z",
+  "test_files": [
+    "src/shared/utils/geometry.test.ts",
+    "src/shared/utils/page-window.test.ts",
+    "src/shared/utils/pointer-gesture.test.ts",
+    "src/shared/lib/opfs.test.ts",
+    "src/shared/lib/pdf.test.ts",
+    "src/shared/components/canvas/page-stage/use-page-stage.test.ts",
+    "src/features/document/stores/viewport-slice.test.ts",
+    "src/features/document/components/document-viewer/document-viewer.test.tsx",
+    "src/shared/config/redux/store.test.ts (updated pin: viewport now in the persist whitelist)"
+  ],
+  "commands": ["npm run verify"],
+  "results": {
+    "verify_arch": "18 pass, 0 fail, 10 skipped, 1 void",
+    "lint": "0 errors, 2 warnings (both pre-existing, outside this task's files)",
+    "typecheck": "clean",
+    "vitest": "31 test files passed, 2 skipped (stories not run in this pass' unit project); 144 tests passed, 10 skipped"
+  },
+  "summary": { "total": 154, "passed": 144, "failed": 0, "skipped": 10 },
+  "plan_doc_5_checklist": [
+    {"item": "geometry round trip", "covered_by": "geometry.test.ts — 19 tests, 3 zooms x 4 rotations exact + float-tolerance case"},
+    {"item": "windowing mount count", "covered_by": "page-window.test.ts (never exceeds 3 across a 30-page document, all cursors) + document-viewer.test.tsx (renders exactly the ±1 window, centred on the cursor)"},
+    {"item": "OPFS cache hit / eviction re-fetch", "covered_by": "opfs.test.ts — hit after write, second open never calls network, re-fetches after simulated eviction, per-profile isolation, cache-failure fallback"}
+  ],
+  "not_covered": [
+    "A real pdfjs-dist render/text-layer pass in a browser — jsdom cannot run pdf.js's canvas/worker path. renderPage/renderTextLayer are typechecked against pdfjs-dist's types but not exercised end to end. Plan doc did not ask for a page-stage.stories.tsx; none was added.",
+    "The 60 fps / flat-memory gate on the real tablet mix (Q8) — cannot be measured without the device."
+  ]
+}

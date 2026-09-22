@@ -1,6 +1,6 @@
 {
 	"schema_version": "1.0",
-	"updated_at": "2026-09-20T05:30:00Z",
+	"updated_at": "2026-09-22T09:15:00Z",
 	"current_task_id": null,
 	"current_phase": "idle",
 	"history_path": null,
@@ -59,6 +59,12 @@
 			"architecture": "frontend",
 			"status": "done",
 			"title": "Local writes reach Supabase and remote changes reach Dexie, so the app is correct online and offline before any feature depends on it"
+		},
+		{
+			"id": "009-task-pdf-canvas",
+			"architecture": "frontend",
+			"status": "done",
+			"title": "The workspace PDF renders, pans and zooms smoothly on a tablet"
 		}
 	]
 }

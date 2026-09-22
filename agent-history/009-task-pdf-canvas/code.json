@@ -1,0 +1,38 @@
+{
+  "task_id": "009-task-pdf-canvas",
+  "phase": "code",
+  "started_at": "2026-09-21T00:30:00Z",
+  "completed_at": "2026-09-22T09:00:00Z",
+  "files_changed": [
+    "src/shared/utils/geometry.ts", "src/shared/utils/geometry.test.ts",
+    "src/shared/utils/page-window.ts", "src/shared/utils/page-window.test.ts",
+    "src/shared/utils/pointer-gesture.ts", "src/shared/utils/pointer-gesture.test.ts",
+    "src/shared/utils/zoom-bounds.ts",
+    "src/shared/lib/opfs.ts", "src/shared/lib/opfs.test.ts",
+    "src/shared/lib/pdf.ts", "src/shared/lib/pdf.test.ts",
+    "src/shared/components/canvas/page-stage/{page-stage.tsx,use-page-stage.ts,use-page-stage.test.ts,types.ts,index.ts}",
+    "src/features/document/stores/viewport-slice.ts", "src/features/document/stores/viewport-slice.test.ts",
+    "src/features/document/selectors/viewport-selectors.ts",
+    "src/features/document/types/redux.ts",
+    "src/features/document/components/document-viewer/{document-viewer.tsx,use-document-viewer.ts,document-viewer.test.tsx,types.ts,index.ts}",
+    "src/shared/config/redux/store.ts", "src/shared/config/redux/store.test.ts",
+    "src/shared/config/redux/persist.ts",
+    "package.json", "package-lock.json"
+  ],
+  "decisions": [
+    "NEW-1 (analyze.json): OPFS keyed per profile, following plan g1 over the task-000 split's F6 wording; 016 g6 still wipes it on sign out.",
+    "NEW-2 (analyze.json): installed pdfjs-dist ^6.3.289 and konva ^10.6.0 at latest; pinned react-konva to ^19.2.3 (not latest 19.3.0) because that version's peer range is react@^19.3.0 and the project pins react@19.2.8. No peer forced, React left unchanged. npm audit: 0 vulnerabilities.",
+    "Zoom bounds (0.5-4) are a default the docs do not pin; moved to shared/utils/zoom-bounds.ts (not a features/ import) so both the viewport slice and the page-stage leaf read the same constant without an I3 layering violation. Flagged for a check against the pilot tablet once Q8 is answered.",
+    "Committed zoom lives in the viewport slice (persisted); a pinch/pan gesture in flight is DOM-transient, applied as a CSS transform via a ref inside use-page-stage.ts, and only the final scale reaches Redux on the last pointer's pointerup — never through React state, per 03 §5.",
+    "page-stage has hasPainter: false in the blueprint; z2 is an empty Konva Stage/Layer host only. No *.painter.ts was added for this task — highlight-layer (010) and marquee (011) will draw into this Stage.",
+    "shared/lib/pdf.ts also owns the Storage download (downloadArtifact) and the per-profile OPFS load (loadArtifactBytes), keeping pdfjs-dist and the cache behind one seam per the placement tree.",
+    "document-viewer.tsx dynamic-imports the page-stage leaf with ssr: false (Next 16 lazy-loading guide), since react-konva touches window at import."
+  ],
+  "commands_run": [
+    "npm install pdfjs-dist konva react-konva@19.2.3",
+    "npm audit --omit=dev",
+    "npx vitest run --project unit <touched files>  (iteratively)",
+    "npm run typecheck",
+    "npm run verify"
+  ]
+}

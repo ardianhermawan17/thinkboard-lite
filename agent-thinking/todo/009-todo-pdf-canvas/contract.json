@@ -1,0 +1,6 @@
+{
+  "id": "009-todo-pdf-canvas",
+  "name": "PDF canvas",
+  "human_prompt": "continue to open 009",
+  "translated_prompt_agent": "Follow the main gate in README.md. Task 009 per todo-task-009-pdf-canvas.md.\n1. Goals g1-g5: shared/lib/pdf.ts seam with OPFS byte cache keyed per profile and navigator.storage.persist(); page windowing of +-1 page; the page-stage canvas leaf (z0 PDF canvas, z1 text layer, z2 Konva Stage, z3 DOM overlay); the viewport slice (zoom, page cursor, rotation, pinch and two-finger pan via Pointer Events); shared/utils/geometry.ts normalize/denormalize with tests.\n2. Gate 2 passed: 003 and 008 are done. Q4 and D-10 are defaulted and go into analyze.json open_questions. Q8 (real tablet mix) is unanswered; the human chose on 2026-09-21 to open the task now and defer the 60 fps gate check on the real tablet. Q8 stays an open question and the measured-on-device gate stays blocked until it is answered.\n3. Suggested order: geometry (g5), pdf + opfs (g1), viewport slice (g4), page-stage leaf (g3), windowing (g2), tests, verify.\n4. No git write without an explicit yes; never master."
+}

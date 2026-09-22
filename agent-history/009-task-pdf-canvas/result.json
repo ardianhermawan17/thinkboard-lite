@@ -1,0 +1,31 @@
+{
+  "task_id": "009-task-pdf-canvas",
+  "phase": "result",
+  "final_status": "done",
+  "goals_summary": {
+    "total": 5,
+    "pass": 5,
+    "blocked": 0,
+    "detail": "g1 OPFS cache (per-profile) pass; g2 ±1 windowing pass; g3 page-stage 4-layer leaf pass; g4 viewport slice + pinch/pan gesture pass; g5 geometry round trip pass. Recomputed from task.json goals[] and validate.json goal_checks — all five 'pending' -> 'pass'."
+  },
+  "artifacts": [
+    "src/shared/utils/geometry.ts (+test)", "src/shared/utils/page-window.ts (+test)", "src/shared/utils/pointer-gesture.ts (+test)", "src/shared/utils/zoom-bounds.ts",
+    "src/shared/lib/opfs.ts (+test)", "src/shared/lib/pdf.ts (+test)",
+    "src/shared/components/canvas/page-stage/ (leaf: page-stage.tsx, use-page-stage.ts +test, types.ts, index.ts)",
+    "src/features/document/stores/viewport-slice.ts (+test), selectors/viewport-selectors.ts, types/redux.ts",
+    "src/features/document/components/document-viewer/ (container: document-viewer.tsx, use-document-viewer.ts, +test, types.ts, index.ts)",
+    "store.ts / persist.ts (4-point store edit: viewport added to rootReducer and the persist whitelist)",
+    "package.json / package-lock.json (pdfjs-dist ^6.3.289, konva ^10.6.0, react-konva ^19.2.3)"
+  ],
+  "verify": "npm run verify green: verify:arch 18 pass/0 fail, lint 0 errors (2 pre-existing warnings), typecheck clean, vitest 144 passed/10 skipped.",
+  "decisions_recap": [
+    "OPFS cache keyed per profile (human-confirmed 2026-09-21, overriding the plan/F6 wording mismatch).",
+    "react-konva pinned to 19.2.3 to match the project's React 19.2.8 (human-confirmed to install all three deps).",
+    "Zoom bounds 0.5-4 are an undocumented default in shared/utils/zoom-bounds.ts, flagged for a check once Q8 names the pilot tablet."
+  ],
+  "follow_up_tasks": [
+    "On-device gate check: once Q8 (real tablet mix) is answered, run a 30-page PDF scroll on the actual pilot tablet and confirm 60 fps / flat memory. This is the plan doc's task-level Gate, distinct from the five goals, and was explicitly deferred by the human on 2026-09-21 to open this task now.",
+    "Add a page-stage.stories.tsx Chrome story test (the project's stories Vitest project) exercising a real pdfjs render and text-layer pass, and confirming z1's text is actually selectable above the canvas — jsdom cannot run pdf.js's worker/canvas path, so this task's tests stop at the typechecked API boundary.",
+    "Re-check the zoom bounds (0.5-4) against the real tablet mix once Q8 is answered; they are an undocumented default."
+  ]
+}

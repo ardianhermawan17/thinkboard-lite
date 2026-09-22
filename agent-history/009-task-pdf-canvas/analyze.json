@@ -1,0 +1,43 @@
+{
+  "task_id": "009-task-pdf-canvas",
+  "phase": "analyze",
+  "started_at": "2026-09-21T00:00:00Z",
+  "completed_at": "2026-09-21T00:30:00Z",
+  "sources_read": [
+    {"doc": "06-whole-apps-task.md", "section": "PHASE D · 009 (lines 209-221)"},
+    {"doc": "03-frontend-architecture.md", "section": "§6.1 canvas tier (I17-I19), §6.2 PDF and virtualization, §7 Devices"},
+    {"doc": "01-thinkboard-lite-spec.md", "section": "§5.3 Local-first and offline (storage tiers, OPFS, persist())"},
+    {"doc": "04-frontend-folder-architecture.md", "section": "§5.2 canvas leaf shape, §11 hazards 5 and 7, §12 invariants I17-I20 and I24-I25"},
+    {"doc": "todo-task-000-split.md", "section": "F6 (OPFS is not namespaced per profile), DB-Q3"},
+    {"doc": "todo-task-009-pdf-canvas.md", "section": "full file"},
+    {"doc": "frontend-thinkboard-lite/architecture.blueprint.json", "section": "contexts.document, canvasLeaves.page-stage, dexie.blobStore"},
+    {"doc": "frontend-thinkboard-lite/package.json", "section": "dependencies"}
+  ],
+  "sources_not_yet_read": [
+    {"doc": "01-thinkboard-lite-spec.md", "section": "§5.4 Capture, input and import (cited by plan_refs; read before code)"},
+    {"doc": "frontend-thinkboard-lite/node_modules/next/dist/docs/", "section": "client-only / dynamic import guidance for Next 16 (README §7 says read first; needed before the page-stage and pdfjs worker code)"}
+  ],
+  "scope": "PDF load (shared/lib/pdf.ts), OPFS byte cache (shared/lib/opfs.ts) with navigator.storage.persist(), page windowing of +-1 page, the page-stage canvas leaf (z0 canvas, z1 text layer, z2 Konva Stage host, z3 DOM overlay), the viewport slice (zoom, page cursor, rotation, pinch and two-finger pan through Pointer Events) in features/document, and shared/utils/geometry.ts with tests. Out of scope: putting the page inside a Konva scene (text would become pixels); storing viewport pixels anywhere; highlight capture (010) and region drawing (011); clearing OPFS on sign out (016 g6).",
+  "acceptance_criteria": [
+    {"goal_id": "g1", "text": "Second open reads OPFS with no network."},
+    {"goal_id": "g2", "text": "A 30-page document never has more than three Stages mounted."},
+    {"goal_id": "g3", "text": "Text in z1 is selectable above the canvas."},
+    {"goal_id": "g4", "text": "Pinch and pan work with touch and pen."},
+    {"goal_id": "g5", "text": "Round trip at three zooms and four rotations is exact."}
+  ],
+  "open_questions": [
+    "Q4 (defaulted: canvas leaves are a third shared tier) — page-stage is a shared canvas leaf under shared/components/canvas/page-stage/. Matches blueprint canvasLeaves[page-stage], hasPainter false.",
+    "D-10 (defaulted: group document not cached offline) — the leader's note copy is not cached by default; g1 caches only the member's own artifact bytes.",
+    "Q8 (UNANSWERED) — the 60 fps / flat-memory gate is measured on the real tablet mix. Human chose on 2026-09-21 to open the task and defer this gate: g1-g5 are built and unit-tested, the on-device gate check stays blocked until Q8 is answered.",
+    "NEW-1 (raised, unanswered) — plan g1 says the OPFS cache is 'keyed per profile, F6', but todo-task-000-split.md F6 says the PDF cache is keyed by storage_path in origin-scoped OPFS and is NOT namespaced per profile, with the fix (wipe OPFS on sign out) carried to 016 g6. Two sources disagree on whether 009 keys by profile. ANSWERED 2026-09-21 by the human: key per profile (follow plan g1); 016 g6 still wipes OPFS on sign out.",
+    "NEW-2 (raised, unanswered) — pdfjs-dist, konva and react-konva are named by 03 §6.1/§6.2 but are not in frontend-thinkboard-lite/package.json. Adding dependencies is a change the plan does not list under files; ANSWERED 2026-09-21 by the human: install all three after an audit check."
+  ],
+  "risks": [
+    "200 live Stages is an out-of-memory crash that looks like a Konva bug (hazard 7) — the +-1 window in g2 is the mitigation; acceptance is at most three Stages mounted.",
+    "react-konva touches window at import — every file under shared/components/canvas/ begins with 'use client' (I24), and the canvas must load client-only.",
+    "OPFS eviction — re-fetch and notice (v2 §2.6); navigator.storage.persist() is called on first offline open (spec §5.3).",
+    "I17-I19: no imperative Konva outside *.painter.ts; page-stage has hasPainter false in the blueprint, so any batchDraw need is a question, not a new painter. Coordinates leaving canvas code pass through shared/utils/geometry (I19).",
+    "I20: no motion import under shared/components/canvas/**.",
+    "The 60 fps gate cannot be verified without the real tablet (Q8); passing unit tests and a desktop check would not prove it."
+  ]
+}
