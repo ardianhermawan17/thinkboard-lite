@@ -1,6 +1,6 @@
 {
 	"schema_version": "1.0",
-	"updated_at": "2026-09-20T05:30:00Z",
+	"updated_at": "2026-09-25T00:00:00Z",
 	"tracked_todos": [
 		{
 			"id": "000-todo-architecture-contract",
@@ -88,6 +88,22 @@
 			"goal": "Selecting text on the PDF creates a persisted, exact-text focus point.",
 			"todo_path": "agent-thinking/todo/010-todo-text-highlight/contract.json",
 			"agent_history": "agent-history/010-task-text-highlight",
+			"status": "done"
+		},
+		{
+			"id": "012-todo-notes-and-handwriting",
+			"name": "Notes and handwriting",
+			"goal": "A focus point can carry a note, typed or handwritten, and handwriting produces text with no model and no network.",
+			"todo_path": "agent-thinking/todo/012-todo-notes-and-handwriting/contract.json",
+			"agent_history": "agent-history/012-task-notes-and-handwriting",
+			"status": "in_progress"
+		},
+		{
+			"id": "011-todo-region-highlight-and-ocr",
+			"name": "Region highlight and OCR",
+			"goal": "Pages with no text layer can still be marked, with confidence-gated OCR text.",
+			"todo_path": "agent-thinking/todo/011-todo-region-highlight-and-ocr/contract.json",
+			"agent_history": "agent-history/011-task-region-highlight-and-ocr",
 			"status": "done"
 		}
 	]

@@ -1,0 +1,35 @@
+{
+  "task_id": "012-task-notes-and-handwriting",
+  "phase": "analyze",
+  "started_at": "2026-09-23T00:05:00Z",
+  "completed_at": "2026-09-23T00:20:00Z",
+  "sources_read": [
+    {"doc": "06-whole-apps-task.md", "section": "PHASE D · 012"},
+    {"doc": "05-frontend-sync-handwriting.md", "section": "§3, §4, §6"},
+    {"doc": "todo-task-000-split.md", "section": "§4 I26-I28, §6"},
+    {"doc": "02-database-architecture.md", "section": "§4, §8.1"},
+    {"doc": "todo-task-012-notes-and-handwriting.md", "section": "full file"},
+    {"doc": "04-frontend-folder-architecture.md", "section": "§8 placement tree"}
+  ],
+  "scope": "The note editor (typed + handwriting tabs), the handwriting textarea, the writing-check capability detector, autosave (keyboard input_mode only), the I27 story test. Out of scope: contenteditable/Tiptap/Slate/ProseMirror/Lexical, any model call on the save path (I28), the ink pad (024).",
+  "acceptance_criteria": [
+    {"goal_id": "g1", "text": "Switching tabs never loses text."},
+    {"goal_id": "g2", "text": "I26 passes."},
+    {"goal_id": "g3", "text": "Nothing interactive overlaps the textarea + 16px."},
+    {"goal_id": "g4", "text": "BLOCKED: the check runs once per device — detector built, but no per-device result can be recorded without a real device pass (Q7/Q9)."},
+    {"goal_id": "g5", "text": "PARTIAL: typing a paragraph yields one pending update via keyboard input_mode; stylus_os value withheld pending C6 sign-off."},
+    {"goal_id": "g6", "text": "BLOCKED: requires three real pilot users on real tablets in Indonesian (Q7/Q8/Q9) — cannot be performed by an agent."},
+    {"goal_id": "g7", "text": "The story test fails if a Stage overlaps the open sheet."}
+  ],
+  "open_questions": [
+    "Q7 (unanswered: run the 45-minute device test) — blocks g4, g6, and the task Gate. Cannot be resolved by an agent; requires a human running the test on real hardware.",
+    "Q8 (unanswered: the real tablet mix) — blocks g6 in the same way.",
+    "Q9 (unanswered: assume a pen; verify) — blocks g4, g6 in the same way.",
+    "C6 (awaiting human sign-off: input_mode three-value enum) — blocks the stylus_os branch of g5; keyboard branch proceeds using the existing input_mode field shape from 02-database-architecture.md §8.1 without inventing the stylus_os value."
+  ],
+  "risks": [
+    "Scribble does not list Bahasa Indonesia (v2 §3.4) — the single biggest risk in handwriting, unresolved until g6 runs.",
+    "A lazily mounted textarea misses the pen-down (v2 §3.3 #4) — mitigated by mounting the textarea eagerly (not lazily) inside the handwriting tab.",
+    "An LLM call on the save path (I28) — mitigated by keeping the note-editor save path a direct repository write, same shape as insertHighlight() in task 010."
+  ]
+}

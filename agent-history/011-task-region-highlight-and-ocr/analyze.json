@@ -1,0 +1,38 @@
+{
+  "task_id": "011-task-region-highlight-and-ocr",
+  "phase": "analyze",
+  "started_at": "2026-09-25T00:00:00Z",
+  "completed_at": "2026-09-25T00:30:00Z",
+  "sources_read": [
+    {"doc": "README.md", "section": "§1 gates 0-5, §2 how an agent thinks, §6 where things stand, §7 hard limits"},
+    {"doc": "06-whole-apps-task.md", "section": "PHASE D · 009, 011, 016"},
+    {"doc": "01-thinkboard-lite-spec.md", "section": "§5.4 capture, input and import; RULE-17, RULE-19"},
+    {"doc": "02-database-architecture.md", "section": "§4.2 highlights (bbox Json, extraction, confidence OCR gate at 0.70), §8.1"},
+    {"doc": "03-frontend-architecture.md", "section": "§6.1 the canvas tier (I17/I18/I19, live stroke, marquee), §7 devices (Pointer Events, pointerType pen, touch-action), §8 library seams"},
+    {"doc": "04-frontend-folder-architecture.md", "section": "§5.2 shared/components/canvas in detail (marquee leaf, painter contract), §10 testing & Storybook colocation, §11 hazards"},
+    {"doc": "todo-task-000-split.md", "section": "§4 invariants I17-I20 and I25, §4.1 open decisions"},
+    {"doc": "todo-task-011-region-highlight-and-ocr.md", "section": "full file"},
+    {"doc": "frontend-thinkboard-lite/AGENTS.md", "section": "§1 import direction, §2 placement tree, §4 leaf kinds, §6 escalation"},
+    {"doc": "frontend-thinkboard-lite/architecture.blueprint.json", "section": "canvasLeaves (marquee active hasPainter:true), openQuestions Q5/Q8/Q9"}
+  ],
+  "scope": "The region/freehand capture leaf and its painter, Pointer-Event stylus handling with palm rejection, the cropped lazy OCR seam, the 0.70 confidence gate, and the canvas-leaf stories (Default, Empty, ManyStrokes >=200 points, DarkTheme). Out of scope: rasterizing ink for Tesseract; OCR of a whole page; the leader-import review screen (021); the ink pad (024); colour-mask detection (021 rung 2).",
+  "acceptance_criteria": [
+    {"goal_id": "g1", "text": "I17 and I18 pass: imperative Konva (batchDraw / new Konva.* / getLayer) appears only in the painter, and the painter imports no @feature/* and no @shared/config/*."},
+    {"goal_id": "g2", "text": "Scrolling works whenever no draw tool is active: touch-action is toggled to none only while a draw tool is armed, and pointerType==='pen' palm rejection ignores touch while the pen is active; both are unit-testable."},
+    {"goal_id": "g3", "text": "No whole-page OCR call exists: shared/lib/ocr.ts only accepts a cropped CanvasImageSource plus a pixel crop rect, and is imported lazily."},
+    {"goal_id": "g4", "text": "A 0.69 OCR confidence is excluded from result input; 0.70 is the inclusive boundary of confidence."},
+    {"goal_id": "g5", "text": "Both the ManyStrokes (>=200 points) and DarkTheme stories render in the 'stories' story-test run alongside Default and Empty."}
+  ],
+  "open_questions": [
+    "Q5 (defaulted: Storybook stories for canvas leaves, fixture strokes) — g5 follows the default: Default, Empty, ManyStrokes, DarkTheme.",
+    "Q8 (unanswered: the real tablet mix) — does not change the code, only the on-device gate measurement (60 fps with 200 points). Implemented against the documented default; the hardware pass is deferred as a follow-up, exactly as task 009's gate check was.",
+    "Q9 (unanswered: assume a pen; verify) — g2 implements the documented default ('assume a pen; finger must still work') with Pointer Events and pointerType==='pen'; the human still has to verify the real fleet.",
+    "NEW-1: the plan's §4 says 'marquee + freehand ink leaves' (plural) and §2 g1 says 'marquee + freehand ink leaves', but the blueprint's canvasLeaves lists exactly one active leaf, `marquee` (04 §5.2 also lists only marquee). No separate freehand-ink leaf exists, so both tools (rectangle marquee and freehand lasso) live inside the one `marquee` leaf. Recorded as a decision, not a silent pick; if a second leaf was intended, the blueprint must gain it first."
+  ],
+  "risks": [
+    "Stroke points in React state drop frames (fa §3) — mitigated by keeping the in-flight stroke in a ref and drawing it from the painter's rAF loop; only the committed stroke touches state.",
+    "motion on a Konva node (I20) — no motion import under shared/components/canvas/**; the marquee leaf animates nothing.",
+    "OCR on handwriting is weak (spec §5.4: never rasterize ink for Tesseract; on-line recognition beats OCR) — the 0.70 gate marks a weak crop needs-correction and excludes it from any Result, protecting the Result, not the note.",
+    "Tesseract downloads worker + traineddata at first use; the seam must be lazy and must fail soft (return an empty, below-gate result) so a page with no text layer still saves a mark offline."
+  ]
+}

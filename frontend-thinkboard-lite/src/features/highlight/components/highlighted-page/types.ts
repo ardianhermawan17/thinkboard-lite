@@ -1,4 +1,5 @@
 import type { ArtifactRow } from "@feature/entities/types"
+import type { MarqueeTool } from "@shared/components/canvas/marquee"
 import type { PdfDocument } from "@shared/lib/pdf"
 import type { Rotation } from "@shared/utils/geometry"
 
@@ -15,4 +16,6 @@ export type HighlightedPageProps = {
   zoom: number
   rotation: Rotation
   onZoomCommit: (zoom: number) => void
+  /** 011: which region tool is armed, or `null`. A future toolbar supplies it; default disarmed. */
+  tool?: MarqueeTool | null
 }

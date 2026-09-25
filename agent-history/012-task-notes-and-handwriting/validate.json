@@ -1,0 +1,24 @@
+{
+  "task_id": "012-task-notes-and-handwriting",
+  "phase": "validate",
+  "goal_checks": [
+    { "goal_id": "g1", "status": "pass", "notes": "note-editor.test.tsx: switching Ketik -> Tulis tangan preserves the typed text (one shared content field)." },
+    { "goal_id": "g2", "status": "pass", "notes": "Handwriting tab is a plain <textarea> (spellCheck false, ruled-paper styling, ~16px padding, no contenteditable); verify:arch I26 passes." },
+    { "goal_id": "g3", "status": "pass", "notes": "note-sheet.test.tsx: SheetContent portals outside the page-stage subtree with bg-popover (opaque); PageStage.interactive=false yields pointer-events-none. Composition into a real document-view route is a follow-up (010 already deferred that wiring)." },
+    { "goal_id": "g4", "status": "blocked", "notes": "Q7/Q9 unanswered (todo-task-012-notes-and-handwriting.md §3): the per-device recorded result requires a real device and human. The detector and one-time-per-device meta check are built (writing-check), but no real result exists to record." },
+    { "goal_id": "g5", "status": "blocked", "notes": "Keyboard branch pass: use-note-editor.test.ts proves a whole paragraph of keystrokes coalesces into one write (800ms debounce). Blocked as a whole because the stylus_os branch is withheld pending C6 sign-off — the goal as written ('input_mode records keyboard / stylus_os') is not fully met." },
+    { "goal_id": "g6", "status": "blocked", "notes": "Q7/Q8/Q9 unanswered — three real pilot users on real tablets writing real Indonesian is outside what an agent can perform. Nothing in validate.json records a device-test outcome; task 024's existence stays undecided." },
+    { "goal_id": "g7", "status": "blocked", "notes": "The I27 invariant is proven by a Vitest/RTL unit test (page-stage.test.tsx, note-sheet.test.tsx), not the plan doc's literal 'named Playwright story test' — no play()-function pattern exists anywhere in this codebase to mirror yet, and a real Konva Stage render needs a browser canvas (same limitation task 010 already recorded as a follow-up for highlighted-page). The invariant itself is proven; the literal test form is not." }
+  ],
+  "cross_check_against_plan": [
+    { "doc": "06-whole-apps-task.md", "section": "PHASE D · 012", "result": "matches — frontend, depends on 010" },
+    { "doc": "05-frontend-sync-handwriting.md", "section": "§3, §4, §6", "result": "Tier A (OS stylus-to-text into a plain textarea) implemented as the only tier; Tier B/C (ink) correctly out of scope (024)" },
+    { "doc": "todo-task-000-split.md", "section": "§4 I26-I28, §6", "result": "I26 enforced by eslint.architecture.mjs (pass); I27 covered by unit test, not yet the story test; I28 holds — no model call anywhere in features/notes/**" },
+    { "doc": "02-database-architecture.md", "section": "§4, §8.1", "result": "note writes reuse the existing highlight_notes shape (note-repository.ts, task 006/007); input_mode written stays within the schema's existing enum, no new column invented" }
+  ],
+  "signed_off": false,
+  "issues_found": [
+    "g4 and g6 cannot be signed off by an agent — they require a human running the 45-minute device test (Q7) on the real pilot tablet mix (Q8) in Bahasa Indonesia (Q9). Raised to the human, not defaulted.",
+    "g7's contract literally asks for 'a named Playwright story test'; delivered as a Vitest/RTL unit test instead, since no Storybook play()-function precedent exists in this codebase to build on. Flagged as a follow-up, not silently substituted."
+  ]
+}

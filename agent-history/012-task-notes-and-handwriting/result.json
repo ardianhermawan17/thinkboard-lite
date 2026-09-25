@@ -1,0 +1,33 @@
+{
+  "task_id": "012-task-notes-and-handwriting",
+  "phase": "result",
+  "final_status": "blocked",
+  "goals_summary": {
+    "total": 7,
+    "pass": 3,
+    "blocked": 4,
+    "detail": "g1 note-editor two tabs pass; g2 handwriting textarea (I26) pass; g3 stacking-context/opaque-bg/pointer-events composition pass. g5 blocked: keyboard autosave path proven, stylus_os branch withheld (C6). g4, g6 blocked: Q7/Q8/Q9 (device test on real pilot tablets, Bahasa Indonesia) cannot be run by an agent. g7 blocked: the I27 invariant is proven but not by the literal 'named Playwright story test' the contract asks for. Recomputed from task.json goals[] and validate.json goal_checks."
+  },
+  "artifacts": [
+    "src/shared/lib/handwriting.ts (+test) — detectHandwritingSupport(), watchForPen()",
+    "src/features/notes/components/note-editor/ (+test, +hook test)",
+    "src/features/notes/components/writing-check/ (+hook test)",
+    "src/features/notes/components/note-sheet/ (+test)",
+    "src/shared/components/canvas/page-stage/{types,page-stage}.tsx (+test) — extended: interactive prop"
+  ],
+  "verify": "npm run verify green: verify:arch 18 pass/0 fail, lint 0 errors (2 pre-existing warnings), typecheck clean, vitest 193 passed/10 skipped.",
+  "decisions_recap": [
+    "input_mode stays 'keyboard' on every write; 'stylus_os' exists in the generated schema type but is never written, since C6 is still awaiting human sign-off.",
+    "writing-check records a local capability read (pen seen or not, this session) into meta.handwriting — explicit scaffolding, not the real g6 pilot result, which needs three humans on real tablets.",
+    "PageStage gained an 'interactive' prop instead of features/notes reaching into its internals, so the painter/geometry boundary (I17-I19) stays untouched.",
+    "I27's contract literally asks for a Playwright story test; delivered as a Vitest/RTL unit test since no play()-function precedent exists anywhere in this codebase and a real Konva Stage render needs a browser canvas — the same limitation task 010 already recorded as a follow-up.",
+    "No Redux slice added: note-editor's only state (debounce timer, created note id) is hook-local, not session/durable UI/domain-row state (I11)."
+  ],
+  "follow_up_tasks": [
+    "Run the real g6 device test: three pilot users, their own tablets, writing real Indonesian, in Bahasa Indonesia (Q7/Q8/Q9). This is a human task, not an agent one. Its outcome decides whether task 024 (ink fallback) exists at all.",
+    "Once C6 (input_mode three-value enum) gets human sign-off, wire the stylus_os value into use-note-editor.ts's autosave call — currently every write is hardcoded to 'keyboard'.",
+    "Wire NoteSheet + PageStage into the real document-view route (src/app/w/[workspaceId]/...), passing interactive={!open} from whatever container tracks which highlight's note sheet is open — task 009 and 010 both already left this composition unmounted; 012 continues that pattern rather than inventing a container ahead of the route that needs it.",
+    "Establish a real Storybook play()-function pattern in this codebase (there is currently exactly one .stories.tsx and it has no play()), then give g7 its literal named Playwright story test — a Chrome-rendered Konva Stage + open note sheet, asserting no pointer-events:auto element overlaps the textarea + 16px.",
+    "Once g6 runs: if Bahasa accuracy is unusable on the dominant tablet (iPad), 05 §3.4's mitigation #2 (a per-note language toggle routing 'id' to Tier B) becomes real scope, not documentation."
+  ]
+}

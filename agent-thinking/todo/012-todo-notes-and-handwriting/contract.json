@@ -1,0 +1,9 @@
+{
+  "id": "012-todo-notes-and-handwriting",
+  "name": "Notes and handwriting",
+  "human_prompt": "continue to open task-012. Don't forget to review it and update in the Obsidian",
+  "translated_prompt_agent": "Open agent-history/012-task-notes-and-handwriting per README.md Gate 3, using todo-task-012-notes-and-handwriting.md §7 scaffolding. Q7/Q8/Q9 (device test) and C6 (input_mode enum) are unanswered per §3 — g4, g6 and the task Gate stay blocked until a human runs the real device test; g1/g2/g3/g7 and the keyboard path of g5 can proceed. After the code/test/validate phases close, review the result and update the Obsidian vault via the wiki-ingest flow.",
+  "todo_path": "agent-thinking/todo/012-todo-notes-and-handwriting/contract.json",
+  "agent_history": "agent-history/012-task-notes-and-handwriting",
+  "status": "in_progress"
+}

@@ -1,0 +1,32 @@
+{
+  "id": "012-task-notes-and-handwriting",
+  "title": "A focus point can carry a note, typed or handwritten, and handwriting produces text with no model and no network",
+  "architecture": "frontend",
+  "secondary_architecture": [],
+  "created_at": "2026-09-23T00:00:00Z",
+  "status": "blocked",
+  "depends_on": ["010-task-text-highlight"],
+  "plan_refs": [
+    {"doc": "06-whole-apps-task.md", "section": "PHASE D · 012"},
+    {"doc": "05-frontend-sync-handwriting.md", "section": "§3, §4, §6"},
+    {"doc": "todo-task-000-split.md", "section": "§4 I26-I28, §6"},
+    {"doc": "02-database-architecture.md", "section": "§4, §8.1"},
+    {"doc": "todo-task-012-notes-and-handwriting.md", "section": "§2 goals and gate, §3 decisions"}
+  ],
+  "goals": [
+    {"id": "g1", "description": "note-editor with two tabs — Ketik and Tulis tangan — both writing the same content field", "plan_ref": "tasks 012 g1; v2 §3.6", "status": "pass"},
+    {"id": "g2", "description": "The handwriting tab is a plain <textarea> styled as ruled paper: ≥20px, line-height ≈2.4, spellCheck={false}, ~16px clear padding, no contenteditable, no rich-text library", "plan_ref": "tasks 012 g2; v2 §3.3 I26", "status": "pass"},
+    {"id": "g3", "description": "Layout: the note sheet has its own stacking context and an opaque background; the Konva Stage beneath is pointer-events:none while it is open", "plan_ref": "tasks 012 g3; v2 §3.3 I27", "status": "pass"},
+    {"id": "g4", "description": "writing-check — a one-time practice box per device; result in meta.handwriting (os / unavailable); per-platform enable instructions", "plan_ref": "tasks 012 g4", "status": "blocked"},
+    {"id": "g5", "description": "Autosave debounced 800 ms, coalesced into one outbox op; input_mode records keyboard / stylus_os", "plan_ref": "tasks 012 g5; db §8.1", "status": "blocked"},
+    {"id": "g6", "description": "Run the device test (v2 §3.4) on the pilot's real tablets, in Indonesian; record the result in validate.json", "plan_ref": "tasks 012 g6; v2 §3.4", "status": "blocked"},
+    {"id": "g7", "description": "I27 as a named Playwright story test — the invariant task 000 deferred here", "plan_ref": "split §4 I27", "status": "blocked"}
+  ],
+  "phases": {
+    "analyze": {"file": "analyze.json", "status": "done"},
+    "code": {"file": "code.json", "status": "done"},
+    "test": {"file": "test.json", "status": "done"},
+    "validate": {"file": "validate.json", "status": "done"},
+    "result": {"file": "result.json", "status": "done"}
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "task_id": "011-task-region-highlight-and-ocr",
+  "phase": "test",
+  "test_files": [
+    "src/shared/utils/stylus.test.ts",
+    "src/shared/lib/ocr.test.ts",
+    "src/features/highlight/utils/confidence-gate.test.ts",
+    "src/shared/components/canvas/marquee/marquee.painter.test.ts",
+    "src/shared/components/canvas/marquee/use-marquee.test.ts",
+    "src/shared/components/canvas/marquee/marquee.test.tsx",
+    "src/shared/components/canvas/marquee/marquee.stories.tsx",
+    "src/shared/components/canvas/page-stage/page-stage.test.tsx",
+    "src/shared/components/canvas/page-stage/use-page-stage.test.ts",
+    "src/features/highlight/components/region-highlight-capture/use-region-highlight-capture.test.ts",
+    "src/features/highlight/components/highlighted-page/highlighted-page.test.tsx",
+    "src/features/highlight/components/highlighted-page/use-highlighted-page.test.ts"
+  ],
+  "commands_run": [
+    {"command": "npx vitest run --project unit <touched files>", "result": "11 files, 45 tests, all passed"},
+    {"command": "npm run verify:arch", "result": "18 pass, 0 fail, 10 skipped, 1 void — I24 covers the canvas fixtures, I25 sees marquee.painter.ts"},
+    {"command": "npm run lint", "result": "0 errors, 2 pre-existing warnings (eslint.architecture.mjs anonymous default; layout.tsx unused Geist)"},
+    {"command": "npm run typecheck", "result": "clean"},
+    {"command": "npm run test", "result": "53 test files passed / 2 skipped (55); 231 tests passed / 10 skipped (241); marquee stories Default/Empty/ManyStrokes/DarkTheme 4/4 in headless Chrome"},
+    {"command": "npm run build", "result": "production build succeeded — Next 16.3.4 (webpack), Serwist worker bundled, all routes generated"}
+  ],
+  "summary": {"total": 241, "passed": 231, "failed": 0, "skipped": 10},
+  "coverage_notes": "g1 is covered by marquee.painter.test.ts (add/commit/clear/dispose) and use-marquee.test.ts's painter-lifecycle case; I17/I18 are enforced by verify:arch + eslint on the real tree. g2 is covered by stylus.test.ts (palm rejection, Q9 default), use-marquee.test.ts (swallow-while-armed, cancel clears, disarmed no-op) and page-stage.test.tsx (touch-action none only while drawing). g3 is covered by ocr.test.ts (crop geometry, 0-100 -> 0-1 normalization, lazy single worker, fail-soft). g4 is covered by confidence-gate.test.ts (0.69 excluded, 0.70 inclusive, null excluded, text-layer always eligible) and use-region-highlight-capture.test.ts (a below-gate mark still writes with its raw confidence). g5 is the stories project, which runs every story in real headless Chrome. The 10 skipped tests are the pre-existing live-stack suites (sync-engine.live, workspace-remote) that need the local Supabase stack up. Nothing in this task touches a pipeline-stage transition or RLS."
+}

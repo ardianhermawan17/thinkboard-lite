@@ -1,0 +1,18 @@
+{
+  "task_id": "012-task-notes-and-handwriting",
+  "phase": "test",
+  "test_files": [
+    "src/shared/lib/handwriting.test.ts",
+    "src/features/notes/components/note-editor/use-note-editor.test.ts",
+    "src/features/notes/components/note-editor/note-editor.test.tsx",
+    "src/features/notes/components/writing-check/use-writing-check.test.ts",
+    "src/features/notes/components/note-sheet/note-sheet.test.tsx",
+    "src/shared/components/canvas/page-stage/page-stage.test.tsx"
+  ],
+  "commands": [
+    { "cmd": "npx vitest run src/shared/lib/handwriting.test.ts src/features/notes src/shared/components/canvas/page-stage/page-stage.test.tsx --project unit", "result": "13 passed" },
+    { "cmd": "npm run verify", "result": "verify:arch 18 pass / 0 fail / 10 skipped / 1 void; lint 0 errors (2 pre-existing warnings); typecheck clean; vitest 193 passed / 10 skipped" }
+  ],
+  "summary": { "total": 13, "pass": 13, "fail": 0 },
+  "notes": "I26 lint (eslint.architecture.mjs) and I28 grep both already pass per verify-architecture.mjs's own report (skipped there only because they're enforced by the lint config / human review gate, not because they weren't checked). I27's coverage here is a Vitest/RTL unit test, not the named Playwright story test the plan doc's g7 literally asks for — see code.json decisions and result.json follow_up_tasks."
+}

@@ -9,7 +9,7 @@ import type { PageStageProps } from "./types"
  * z2 Konva Stage host, empty until task 010/011 draw into it, per canvasLeaves[page-stage].hasPainter: false.
  * z3 DOM overlay is added by the container that mounts this leaf (chips, note pins), not here.
  */
-export function PageStage({ doc, pageNumber, zoom, rotation, onZoomCommit, onTextLayerRendered, children }: PageStageProps) {
+export function PageStage({ doc, pageNumber, zoom, rotation, onZoomCommit, onTextLayerRendered, onCanvasRendered, children, interactive = true, drawing = false }: PageStageProps) {
   const { canvasRef, textLayerRef, gestureRef, pageSize, onPointerDown, onPointerMove, onPointerUp } = usePageStage({
     doc,
     pageNumber,
@@ -17,13 +17,18 @@ export function PageStage({ doc, pageNumber, zoom, rotation, onZoomCommit, onTex
     rotation,
     onZoomCommit,
     onTextLayerRendered,
+    onCanvasRendered,
   })
 
   return (
     <div
       data-testid="page-stage"
       data-page={pageNumber}
-      className="relative touch-none select-none"
+      data-interactive={interactive}
+      data-drawing={drawing}
+      // g2 / 03 §7: touch-action is `none` only while a draw tool is armed (or the stage is inert behind a
+      // note sheet), so a disarmed page keeps native pan/scroll instead of fighting every stroke.
+      className={`relative select-none ${interactive ? "" : "pointer-events-none"} ${drawing || !interactive ? "touch-none" : "touch-pan-x touch-pan-y"}`}
       onPointerDown={(e) => onPointerDown(e.pointerId, e.clientX, e.clientY)}
       onPointerMove={(e) => onPointerMove(e.pointerId, e.clientX, e.clientY)}
       onPointerUp={(e) => onPointerUp(e.pointerId)}

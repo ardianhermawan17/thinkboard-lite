@@ -1,0 +1,30 @@
+{
+  "id": "011-task-region-highlight-and-ocr",
+  "title": "Pages with no text layer can still be marked, with confidence-gated OCR text",
+  "architecture": "frontend",
+  "secondary_architecture": [],
+  "created_at": "2026-09-25T00:00:00Z",
+  "status": "done",
+  "depends_on": ["009-task-pdf-canvas"],
+  "plan_refs": [
+    {"doc": "06-whole-apps-task.md", "section": "PHASE D · 011"},
+    {"doc": "01-thinkboard-lite-spec.md", "section": "§5.4, RULE-19"},
+    {"doc": "03-frontend-architecture.md", "section": "§6.1, §7"},
+    {"doc": "04-frontend-folder-architecture.md", "section": "§5.2, §10"},
+    {"doc": "todo-task-011-region-highlight-and-ocr.md", "section": "§2 goals and gate, §3 decisions"}
+  ],
+  "goals": [
+    {"id": "g1", "description": "marquee + freehand ink leaves with a *.painter.ts — refs, rAF, batchDraw; the only imperative Konva files", "plan_ref": "tasks 011 g1; fa §6.1", "status": "done"},
+    {"id": "g2", "description": "Stylus: Pointer Events, pointerType==='pen' palm rejection, touch-action:none only while a draw tool is active", "plan_ref": "tasks 011 g2; fa §7", "status": "done"},
+    {"id": "g3", "description": "shared/lib/ocr.ts — Tesseract in a Worker, lazy, on the cropped rect only", "plan_ref": "tasks 011 g3; spec RULE-19", "status": "done"},
+    {"id": "g4", "description": "Confidence gate at 0.70: below it the highlight is needs-correction and excluded from any Result until a human accepts it", "plan_ref": "tasks 011 g4", "status": "done"},
+    {"id": "g5", "description": "Storybook stories incl. ManyStrokes (≥200 points) and DarkTheme", "plan_ref": "tasks 011 g5; ffa §10", "status": "done"}
+  ],
+  "phases": {
+    "analyze": {"file": "analyze.json", "status": "done"},
+    "code": {"file": "code.json", "status": "done"},
+    "test": {"file": "test.json", "status": "done"},
+    "validate": {"file": "validate.json", "status": "done"},
+    "result": {"file": "result.json", "status": "done"}
+  }
+}

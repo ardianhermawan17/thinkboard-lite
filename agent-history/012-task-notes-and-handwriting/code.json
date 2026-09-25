@@ -1,0 +1,19 @@
+{
+  "task_id": "012-task-notes-and-handwriting",
+  "phase": "code",
+  "files_changed": [
+    "src/shared/lib/handwriting.ts (+test) — capability detector: detectHandwritingSupport(), watchForPen()",
+    "src/features/notes/components/note-editor/ (+test, +hook test) — g1/g2/g5(keyboard): two-tab editor, one content field, 800ms coalesced autosave via insertNote/updateNote",
+    "src/features/notes/components/writing-check/ (+hook test) — g4 scaffold: reads/writes meta.handwriting, no per-device pilot result recorded (blocked)",
+    "src/features/notes/components/note-sheet/ (+test) — g3/I27 composition: Sheet (own stacking context, opaque bg-popover) + NoteEditor + WritingCheck",
+    "src/shared/components/canvas/page-stage/{types,page-stage}.tsx (+test) — extended: interactive prop (default true), pointer-events-none + data-interactive when false"
+  ],
+  "decisions": [
+    "input_mode stays 'keyboard' on every write; the schema's 'stylus_os' value exists (highlight-notes.ts) but is never written, since C6 is still awaiting human sign-off (plan doc §3) — writing it now would be inventing an answer.",
+    "writing-check records a local capability read (pen seen this session or not) into meta.handwriting, not the real g6 pilot result — that needs three humans on real tablets writing Indonesian, which an agent cannot produce. Kept as explicit scaffolding, not claimed as g4/g6 complete.",
+    "PageStage gained an 'interactive' prop rather than notes/** reaching into page-stage's internals, keeping the painter/geometry boundary (I17-I19) untouched; the composing document-view container (still unmounted per task 010's follow-up) is expected to pass interactive={!noteSheetOpen}.",
+    "I27's story test is a Vitest/RTL unit test (page-stage.test.tsx, note-sheet.test.tsx) asserting the pointer-events-none class and the SheetContent portal/opaque-bg, not a Storybook+Chrome Playwright story — no play-function pattern exists anywhere in the codebase yet to mirror (only one existing .stories.tsx, with no play()), and a real Konva Stage render needs a browser canvas the same way task 010 already deferred for highlighted-page. Recorded as a follow-up, consistent with that precedent.",
+    "No Redux slice added: note-editor's only state (the debounce timer, the created note id) is local to the hook: nothing here is session state, durable UI state, or a domain row (I11), so a slice would violate the folder law's 'no unrequested abstraction' guidance."
+  ],
+  "commands_run": ["npm run test -- src/shared/lib/handwriting.test.ts src/features/notes src/shared/components/canvas/page-stage/page-stage.test.tsx", "npm run verify"]
+}

@@ -1,0 +1,43 @@
+{
+  "task_id": "011-task-region-highlight-and-ocr",
+  "phase": "result",
+  "closed_at": "2026-09-25T02:20:00Z",
+  "final_status": "done",
+  "goals_summary": {
+    "total": 5,
+    "done": 5,
+    "blocked": 0,
+    "detail": "g1 marquee leaf + painter (rect and freehand) pass; g2 Pointer-Event stylus handling with palm rejection and conditional capture/touch-action pass; g3 lazy cropped Tesseract seam pass; g4 0.70 confidence gate pass; g5 Default/Empty/ManyStrokes/DarkTheme stories pass. Recomputed from task.json goals[] and validate.json goal_checks — all five 'pending' -> 'done', none blocked."
+  },
+  "artifacts": [
+    "src/shared/components/canvas/marquee/ (leaf: marquee.tsx, use-marquee.ts, marquee.painter.ts, types.ts, index.ts, tests, stories, __mocks__/strokes.ts)",
+    "src/shared/utils/stylus.ts (+test) — pointer policy: pen/mouse capture, palm rejection, Q9 finger default",
+    "src/shared/lib/ocr.ts (+test) — lazy cropped Tesseract in a Worker, fail-soft, 0-1 confidence",
+    "src/features/highlight/utils/confidence-gate.ts (+test) — the derived 0.70 gate (needsCorrection/isResultEligible)",
+    "src/features/highlight/components/region-highlight-capture/ (container: crop -> OCR -> slug -> insertHighlight)",
+    "src/features/highlight/types/bbox.ts — Bbox.tool widened to text_layer | rect | freehand",
+    "src/features/highlight/components/highlighted-page/ — composes RegionHighlightCapture into the page Stage",
+    "src/shared/components/canvas/page-stage/ — drawing/onCanvasRendered props; touch-action now 03 §7-correct",
+    "package.json / package-lock.json — tesseract.js ^7"
+  ],
+  "verify": "npm run verify green: verify:arch 18 pass/0 fail (I24/I25 now exercise the marquee fixtures/painter), lint 0 errors (2 pre-existing warnings), typecheck clean, vitest 231 passed/10 skipped (241, incl. 4 marquee stories in headless Chrome). npm run build succeeded (Next 16.3.4 webpack + Serwist).",
+  "decisions_recap": [
+    "Both region tools live in the one `marquee` leaf because the blueprint and 04 §5.2 list only that leaf (NEW-1); no invented structure.",
+    "The confidence gate is a derived predicate, not a column: extraction='ocr' with confidence < 0.70 is needs-correction; a below-gate mark still writes so the user keeps it, and 020 excludes it from Result input via isResultEligible().",
+    "OCR is fail-soft and crop-only; Tesseract confidence is normalized 0-100 -> 0-1 at the seam so the gate is one number.",
+    "PageStage touch-action corrected to 03 §7 (none only while drawing, else touch-pan-x pan-y), overriding 009's global touch-none.",
+    "PageStage gained onCanvasRendered (mirrors 010's onTextLayerRendered) so a features container can crop z0 without a canvas leaf importing @feature/* (I3).",
+    "The stored bbox colour stays null (highlight-layer resolves the token, as in 010); only the live stroke takes a colour.",
+    "A disarmed, fixture-free Marquee renders nothing: g2's 'scrolling works' is structural, not a runtime check.",
+    "tesseract.js ^7 was added (the plan names Tesseract); npm audit reported 0 vulnerabilities."
+  ],
+  "follow_up_tasks": [
+    "Human on-device gate (Q8/Q9): run the 60 fps / 200-point ink check and a scanned-page OCR check on the real pilot tablet mix, in Bahasa Indonesia, and record the result — the plan's task-level Gate, deliberately deferred the way 009's was.",
+    "Wire a draw-tool control into the document-view route so RegionHighlightCapture's `tool` prop is actually set: no container arms it yet, the same route-wiring gap 009/010/012 all left open.",
+    "Give 021 (leader import) its rung 1 (real PDF /Highlight annotations + QuadPoints -> text items, zero OCR) reusing this task's crop/recognize seam for rung 3; do not start from OCR.",
+    "Result engine 020 must filter input with isResultEligible()/needsCorrection() so below-gate region marks are excluded until accepted.",
+    "Add the human accept/correct affordance the gate implies (a below-gate mark is excluded but not yet reviewable); likely lands with 013's sheets or a small dedicated task.",
+    "Bundle Tesseract's worker + ind/eng traineddata for a truly offline first OCR; today the first call needs the CDN (fail-soft until then).",
+    "Consider whether `marquee` should gain the freehand tool's own blueprint entry if a future task wants them as distinct leaves (recorded conflict, not resolved here)."
+  ]
+}

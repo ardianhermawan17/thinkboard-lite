@@ -193,10 +193,10 @@ in `task_sequence` is *not opened*.
 | C | 006 entities kernel | [todo-task-006](todo-task-006-entities-kernel.md) | frontend | 004 | **done** |
 | C | 007 sync kernel | [todo-task-007](todo-task-007-sync-kernel.md) | frontend | 006 | **done** |
 | D | 008 auth + workspace shell | [todo-task-008](todo-task-008-auth-and-workspace-shell.md) | frontend | 002 003 005 006 | **done** |
-| D | 009 PDF canvas | [todo-task-009](todo-task-009-pdf-canvas.md) | frontend | 003 008 | not opened |
-| D | 010 text highlight | [todo-task-010](todo-task-010-text-highlight.md) | frontend | 009 | not opened |
-| D | 011 region highlight + OCR | [todo-task-011](todo-task-011-region-highlight-and-ocr.md) | frontend | 009 | not opened |
-| D | 012 notes + handwriting | [todo-task-012](todo-task-012-notes-and-handwriting.md) | frontend | 010 | not opened |
+| D | 009 PDF canvas | [todo-task-009](todo-task-009-pdf-canvas.md) | frontend | 003 008 | **done** |
+| D | 010 text highlight | [todo-task-010](todo-task-010-text-highlight.md) | frontend | 009 | **done** |
+| D | 011 region highlight + OCR | [todo-task-011](todo-task-011-region-highlight-and-ocr.md) | frontend | 009 | **done** |
+| D | 012 notes + handwriting | [todo-task-012](todo-task-012-notes-and-handwriting.md) | frontend | 010 | **blocked** (3/7) |
 | D | 013 sheets + promotion | [todo-task-013](todo-task-013-sheets-and-promotion.md) | frontend | 010 012 | not opened |
 | D | 014 result UI against a stub | [todo-task-014](todo-task-014-result-ui-against-stub.md) | frontend | 013 | not opened |
 | D | 015 realtime presence | [todo-task-015](todo-task-015-realtime-presence.md) | frontend | 007 | not opened |
@@ -217,7 +217,7 @@ Critical path = the demoable slice:  000 → 001 → 004 → 006 → 008 → 009
 
 ---
 
-## 6. Where things stand — 2026-09-20
+## 6. Where things stand — 2026-09-25
 
 - **Done:** 000 (architecture contract), 001 (`0004_lite.sql` in `database-thinkboard-lite/`), 002 (the RLS proof:
   56 checks in `database-thinkboard-lite/supabase/tests/`, each policy mutation-tested) and 004 (the scaffold conformed
@@ -247,7 +247,17 @@ Critical path = the demoable slice:  000 → 001 → 004 → 006 → 008 → 009
   sync-status-pill. The writes of 008 now ride the outbox. Gate: a live-stack test under real RLS plus a two-browser Chrome pass
   (a shared row reaches both, a private row only its owner, an offline write lands once); four mutations each turned their
   test red. Recorded slim; stacked on 008.
-- **Next:** 009 (PDF canvas) is unblocked and on the critical path; 015 (presence) and 016 (offline + export) are unblocked by 007.
+- **Also done:** 009 (PDF canvas) — OPFS cache per profile, ±1 page windowing, the `page-stage` leaf, the viewport slice with Pointer-Events pinch/pan, and
+  `geometry.ts`; `npm run verify` green (180 tests). Q8's on-device 60 fps check is a follow-up.
+- **Also done:** 010 (text highlight) — Selection/Range capture over the text layer, the deterministic `h-pNN-NN-xxxxxx` slug, `highlight-layer` + painter, a
+  zoom-then-reload test, and a reusable jsdom canvas-2D stub. `npm run verify` green (180 tests).
+- **Also done:** 011 (region highlight + OCR) — the `marquee` canvas leaf + painter (rectangle and freehand), Pointer-Event stylus handling with palm
+  rejection, `shared/lib/ocr.ts` (lazy, cropped Tesseract, fail-soft), the derived 0.70 confidence gate, and four Chrome stories including ManyStrokes
+  (220 points). `npm run verify` green (231 tests) and a production build ok; added `tesseract.js ^7`. Its own on-device 60 fps / 200-point Gate waits on Q8/Q9.
+- **Closed blocked:** 012 (notes + handwriting) — the note editor, the ruled-paper handwriting `<textarea>` (I26) and the I27 composition pass; Q7/Q8/Q9,
+  C6 and g7's literal Playwright shape remain. It keeps 013/014 blocked.
+- **Next:** 013 needs 012 (blocked); 021 (leader import) is now unblocked by 010 + 011; 015 (presence) and 016 (offline + export) are unblocked by 007.
+  015 must first resolve its plan doc's `0005_live_topic.sql` against the already-shipped `0005_storage_artifacts.sql`.
   Open housekeeping: revoke anon EXECUTE on the definer RPCs, and let teammates read the profile names of their team.
 - **Waiting on a human:**
   - **D-12** — free-tier training terms vs document sensitivity. Blocks 018, and ink transcription in 024. 003's
