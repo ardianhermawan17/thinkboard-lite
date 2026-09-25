@@ -1,0 +1,41 @@
+{
+  "task_id": "021-task-leader-import",
+  "phase": "analyze",
+  "started_at": "2026-09-25T07:00:00Z",
+  "completed_at": "2026-09-25T07:25:00Z",
+  "sources_read": [
+    {"doc": "README.md", "section": "§1 gates 0-5, §2 how an agent thinks, §5 task map, §7 hard limits"},
+    {"doc": "06-whole-apps-task.md", "section": "PHASE E · 021, §2 dependency graph"},
+    {"doc": "01-thinkboard-lite-spec.md", "section": "§5.4 the import ladder (rungs 1-3, the colour-mask thresholds, the review screen, group highlights), RULE-19 (OCR last, crops only), §5.6 (the slug's three homes)"},
+    {"doc": "02-database-architecture.md", "section": "§4.2 highlights (bbox Json, extraction, layer), §8.1 (layer='group' is leader-write, RULE-04)"},
+    {"doc": "todo-task-000-split.md", "section": "§5.3 F5 (leader import fans out one batch, not ~80)"},
+    {"doc": "todo-task-021-leader-import.md", "section": "full file"},
+    {"doc": "frontend-thinkboard-lite/src/shared/lib/ocr.ts", "section": "011's cropped, fail-soft Tesseract seam the scan rung reuses"},
+    {"doc": "frontend-thinkboard-lite/src/features/highlight/utils/confidence-gate.ts", "section": "011's 0.70 gate (needsCorrection/isResultEligible)"},
+    {"doc": "frontend-thinkboard-lite/src/features/highlight/utils/selection-to-rects.ts", "section": "010's text-layer geometry the intersect path mirrors"},
+    {"doc": "frontend-thinkboard-lite/src/features/entities/repository/write.ts", "section": "the single-row writeRow transaction RULE-08; g5 needs a batch variant"},
+    {"doc": "frontend-thinkboard-lite/src/features/entities/repository/highlight-repository.ts", "section": "insertHighlight — the shape the batch reuses"},
+    {"doc": "frontend-thinkboard-lite/src/shared/components/canvas/marquee/", "section": "011's leaf/painter convention the import review does not need (no canvas leaf here)"}
+  ],
+  "scope": "The three-rung import ladder (annotations, colour mask + text-layer intersect, scan + OCR), the review screen with checkboxes and editable text, and the batch commit of accepted regions as group highlights. Out of scope: commit without review, OCR of a page that has a text layer, and the server-side broadcast batching (F5's fan-out is 001/007's trigger, already done).",
+  "acceptance_criteria": [
+    {"goal_id": "g1", "text": "An annotation-imported region has exact text and zero OCR calls: regionsFromAnnotations never touches the OCR seam."},
+    {"goal_id": "g2", "text": "A flattened highlight with a text layer yields exact text: the mask finds the box and textItemBoxes/intersect fill the text without OCR."},
+    {"goal_id": "g3", "text": "OCR runs on crops only: the scan rung crops each mask box and calls 011's recognizeRegion (which crops again to its own rect); the 0.70 gate marks below-gate regions needs-correction."},
+    {"goal_id": "g4", "text": "Nothing commits without review: the review model starts every region unselected (or selected but unconfirmed) and the commit only writes confirmed rows."},
+    {"goal_id": "g5", "text": "A 40-region import writes in one Dexie transaction per client, not 80: insertHighlights calls writeRows once."}
+  ],
+  "open_questions": [
+    "D-02 (defaulted: one main PDF + the leader's note copy) — the import targets the note-slot artifact; raised, not re-decided.",
+    "RULE-19 (standing: OCR is last and crops only) — rung 3 is the only path to the OCR seam.",
+    "NEW-1: spec §5.4 says the colour mask 'runs in a Worker' but the 021 plan's g2 does not repeat it. The mask is a pure module now (testable, deterministic); moving it into a Worker is a perf follow-up with no behaviour change. Recorded, not silently dropped.",
+    "NEW-2: g5's 'one batch that teammates apply in one transaction (F5)' is two things: the client writes all accepted rows in one Dexie transaction (new writeRows/insertHighlights), and the server fans the change out as one broadcast (001's trigger, task 007). Only the first is 021's; the second already exists.",
+    "NEW-3: rung 1's exact text needs a text layer. With text items present it intersects; with none it stores the annotation's own /Contents (or empty) at confidence 1.0, so the mark is kept and the review screen can fill it. Raised because the plan does not spell out the no-text-layer case."
+  ],
+  "risks": [
+    "The colour mask fires on charts, logos and coloured table headers — mitigated by the mandatory review screen (spec §5.4).",
+    "PDF annotation rectangles are bottom-left, Y-up; skipping convertToViewportRectangle mirrors every mark — mitigated by converting every quad through the supplied viewport and testing the Y flip.",
+    "A group highlight is leader-write (RULE-04); a non-leader import would park on a 4xx. The import is the leader's act; the UI is not exposed to members.",
+    "F5: 40 accepted regions must not fan out 80 messages — the client commit is one transaction and one outbox op per row, and the server trigger batches; verified for the client half by a transaction-count test."
+  ]
+}

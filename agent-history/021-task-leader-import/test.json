@@ -1,0 +1,22 @@
+{
+  "task_id": "021-task-leader-import",
+  "phase": "test",
+  "test_files": [
+    "src/features/highlight/utils/annotation-quads.test.ts",
+    "src/features/highlight/utils/text-in-region.test.ts",
+    "src/features/highlight/utils/colour-mask.test.ts",
+    "src/features/highlight/utils/import-ladder.test.ts",
+    "src/features/highlight/components/import-review/use-import-review.test.ts",
+    "src/features/entities/repository/highlight-repository.import.test.ts"
+  ],
+  "commands_run": [
+    {"command": "npx vitest run --project unit (touched files)", "result": "6 files, 21 tests, all passed"},
+    {"command": "npm run verify:arch", "result": "18 pass, 0 fail, 10 skipped, 1 void"},
+    {"command": "npm run lint", "result": "0 errors, 2 pre-existing warnings"},
+    {"command": "npm run typecheck", "result": "clean"},
+    {"command": "npm run test", "result": "68 test files passed / 2 skipped (70); 305 tests passed / 10 skipped (315)"},
+    {"command": "npm run build", "result": "production build succeeded; the four API routes remain dynamic"}
+  ],
+  "summary": {"total": 315, "passed": 305, "failed": 0, "skipped": 10},
+  "coverage_notes": "g1 is covered by annotation-quads.test.ts (multi-quad flatten, non-highlight ignored, rect fallback, rotation) and import-ladder.test.ts's rung 1 (exact text from the layer, extraction text_layer, no OCR). g2 is covered by colour-mask.test.ts (bands, connected box, speck dropped, line merge) and import-ladder.test.ts's rung 2 (mask box + exact text). g3 is covered by import-ladder.test.ts's rung 3 (the mask box is cropped and handed to the injected recognizer; the raw confidence is kept). g4 is covered by use-import-review.test.ts (every row starts unselected, nothing commits unaccepted, edited text is written, a below-gate row is flagged). g5 is covered by highlight-repository.import.test.ts: 40 group highlights and 40 outbox ops land in a single Dexie transaction (spy: one call to db.transaction). The 10 skipped are the pre-existing live-stack suites. The real-Acrobat-PDF fixture gate is deferred as a human/fixture follow-up; the parser is exercised with faithful annotation objects."
+}

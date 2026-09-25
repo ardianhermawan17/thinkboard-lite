@@ -1,0 +1,40 @@
+{
+  "task_id": "021-task-leader-import",
+  "phase": "code",
+  "started_at": "2026-09-25T07:25:00Z",
+  "completed_at": "2026-09-25T08:10:00Z",
+  "files_changed": [
+    {"path": "src/features/highlight/utils/annotation-quads.ts", "action": "created", "summary": "Rung 1: Highlight -> QuadPoints -> convertToViewportRectangle, quads flattened into one region with several normalized rects (g1)."},
+    {"path": "src/features/highlight/utils/text-in-region.ts", "action": "created", "summary": "The exact-text intersect (normalizeTextBoxes + intersectText) shared by rungs 1 and 2 (g1/g2)."},
+    {"path": "src/features/highlight/utils/colour-mask.ts", "action": "created", "summary": "HSV highlighter mask, connected components with the spec's minimums, line-box merge (g2/g3)."},
+    {"path": "src/features/highlight/utils/import-ladder.ts", "action": "created", "summary": "annotationCandidates / flattenedCandidates / scanCandidates — the three rungs, rung 3 reusing 011's cropped OCR (g1/g2/g3)."},
+    {"path": "src/features/highlight/components/import-review/types.ts", "action": "created", "summary": "Review item/props."},
+    {"path": "src/features/highlight/components/import-review/use-import-review.ts", "action": "created", "summary": "Derived review rows, none selected, below-gate flagged; accept writes selected rows as group highlights in one call (g4/g5)."},
+    {"path": "src/features/highlight/components/import-review/import-review.tsx", "action": "created", "summary": "The review screen: per-region checkbox + editable text + Import N regions (g4)."},
+    {"path": "src/features/highlight/components/import-review/index.ts", "action": "created", "summary": "Barrel."},
+    {"path": "src/features/entities/repository/write.ts", "action": "modified", "summary": "Added writeRows: N rows and their N outbox ops in ONE Dexie transaction (F5)."},
+    {"path": "src/features/entities/repository/highlight-repository.ts", "action": "modified", "summary": "Widened NewHighlight with an optional layer (group import) and added insertHighlights (one batch transaction) (g5)."},
+    {"path": "src/features/highlight/utils/annotation-quads.test.ts", "action": "created", "summary": "4 tests: multi-quad flatten, non-highlight ignored, rect fallback, rotation."},
+    {"path": "src/features/highlight/utils/text-in-region.test.ts", "action": "created", "summary": "4 tests: reading-order join, no overlap, two lines, normalization."},
+    {"path": "src/features/highlight/utils/colour-mask.test.ts", "action": "created", "summary": "4 tests: HSV bands, connected box, speck dropped, line merge."},
+    {"path": "src/features/highlight/utils/import-ladder.test.ts", "action": "created", "summary": "3 tests: rung 1 exact/no-OCR, rung 2 mask+exact text, rung 3 crop+confidence."},
+    {"path": "src/features/highlight/components/import-review/use-import-review.test.ts", "action": "created", "summary": "4 tests: none selected, nothing unaccepted commits, one batch call with group rows, edited text written."},
+    {"path": "src/features/entities/repository/highlight-repository.import.test.ts", "action": "created", "summary": "2 tests: 40 rows + 40 outbox ops in ONE transaction; empty import is a no-op."}
+  ],
+  "decisions": [
+    "The three rungs are pure functions (annotation-quads, colour-mask, text-in-region) composed by import-ladder; only rung 3 touches the async OCR seam, and it is 011's cropped recognizeRegion. rung 1 and rung 2 never import OCR, so 'exact text and zero OCR calls' is structural.",
+    "Rung 1 flattens every 8-number quad into one rect and keeps them in ONE region — a multi-line annotation is one focus point, not several. A malformed/no-QuadPoints annotation falls back to its own rect rather than being dropped.",
+    "Exact text is intersected in page-normalized space: pdfjs text boxes and region rects must share a space (RULE-17), so normalizeTextBoxes is applied first.",
+    "The colour mask is a pure module now; spec §5.4 suggests a Worker, which is a perf move, not a behaviour change (analyze.json NEW-1). The mask thresholds and the <8px-tall/<20px-wide drop and the >60% line merge are the spec's values.",
+    "group highlights: NewHighlight gained an optional layer, defaulting to individual; the import passes layer='group'. RULE-04 is enforced by RLS (a member's import would park), and the review screen is the leader's.",
+    "The review screen derives its rows from candidates with the reviewer's overrides in state (no seed effect) — the lint rule react-hooks/set-state-in-effect rejected the effect form, and the derived form is simpler.",
+    "F5's client half is one writeRows transaction; the server fan-out is 001's trigger and 007's channel, untouched.",
+    "The stored bbox colour stays null (resolved at render, as in 010/011); imported rects use tool 'rect'."
+  ],
+  "commands_run": [
+    "npm run typecheck",
+    "npx vitest run --project unit (touched files)",
+    "npm run verify",
+    "npm run build"
+  ]
+}

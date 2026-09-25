@@ -37,3 +37,20 @@ export async function writeRow(
     })
   })
 }
+
+/**
+ * The batch form of `writeRow` (F5): N rows and their N outbox entries in ONE transaction, so a 40-region
+ * import is one local commit, not 40. Same RULE-08 invariant — row plus outbox op, all or nothing.
+ */
+export async function writeRows(table: OutboxTable, op: OutboxOp["op"], rows: { id: string; _sync?: SyncFlag }[], opts: WriteOptions = {}): Promise<void> {
+  if (rows.length === 0) return
+  const db = getDb()
+  const store = db.table(table)
+  await db.transaction("rw", [store, db.outbox, ...(opts.also ?? [])], async () => {
+    for (const row of rows) {
+      await store.put({ ...row, _sync: "pending" })
+      await enqueueOp(db, { rowId: row.id, table, op, fn: opts.fn, payload: opts.payload ?? toWire(row) })
+    }
+    await opts.inTx?.()
+  })
+}

@@ -1,0 +1,8 @@
+{
+  "schema_version": "1.0",
+  "id": "021-todo-leader-import",
+  "name": "Leader import",
+  "goal": "A leader drops in an already-highlighted PDF and every mark becomes a group focus point with a note and a slug.",
+  "human_prompt": "Commit + push. Continue next task",
+  "translated_prompt_agent": "Continue the backlog after task 017 by executing the next unblocked task, 021-task-leader-import (frontend, secondary backend; depends on 010 and 011, both done), per todo-task-021-leader-import.md and the main gate, writing every phase file into agent-history/021-task-leader-import/. Concretely: (1) g1 rung 1 — page.getAnnotations() -> subtype Highlight -> QuadPoints -> convertToViewportRectangle(), multi-line quads flattened into one region with several normalized rects, exact text from the text layer and zero OCR; (2) g2 rung 2 — an HSV colour mask + connected components for a flattened highlight, intersected with text-layer items for exact text; (3) g3 rung 3 — the same mask, crop, Tesseract (011's shared/lib/ocr.ts) and the 0.70 confidence gate; (4) g4 a review screen before commit with per-region checkboxes and editable text; (5) g5 each accepted region -> layer='group' highlight + empty note + slug, written in ONE Dexie transaction per client (F5). Keep the group-leader rule in RLS (only a leader imports), run npm run verify green, and close validate/result honestly, deferring only the real-Acrobat-PDF fixture gate."
+}

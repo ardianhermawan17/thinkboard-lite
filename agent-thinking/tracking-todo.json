@@ -1,6 +1,6 @@
 {
 	"schema_version": "1.0",
-	"updated_at": "2026-09-25T05:00:00Z",
+	"updated_at": "2026-09-25T07:00:00Z",
 	"tracked_todos": [
 		{
 			"id": "000-todo-architecture-contract",
@@ -120,6 +120,14 @@
 			"goal": "The four server endpoints exist with real auth and no business logic in the route layer.",
 			"todo_path": "agent-thinking/todo/017-todo-command-endpoints/contract.json",
 			"agent_history": "agent-history/017-task-command-endpoints",
+			"status": "done"
+		},
+		{
+			"id": "021-todo-leader-import",
+			"name": "Leader import",
+			"goal": "A leader drops in an already-highlighted PDF and every mark becomes a group focus point with a note and a slug.",
+			"todo_path": "agent-thinking/todo/021-todo-leader-import/contract.json",
+			"agent_history": "agent-history/021-task-leader-import",
 			"status": "done"
 		}
 	]

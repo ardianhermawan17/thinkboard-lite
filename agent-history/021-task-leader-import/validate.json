@@ -1,0 +1,25 @@
+{
+  "task_id": "021-task-leader-import",
+  "phase": "validate",
+  "goal_checks": [
+    {"goal_id": "g1", "status": "pass", "notes": "regionsFromAnnotations reads subtype==='Highlight', flattens every QuadPoints quad into a rect and normalizes it through the supplied viewport's convertToViewportRectangle; a multi-quad annotation is one region with several rects. annotationCandidates fills exact text from the text layer and never imports the OCR seam. annotation-quads.test.ts and import-ladder.test.ts pin the geometry, the Y flip and zero OCR. The 'real Acrobat PDF' fidelity is the deferred human/fixture check, not the parser."},
+    {"goal_id": "g2", "status": "pass", "notes": "maskFromRgba + connectedBoxes + mergeLineBoxes find a flattened highlight by its ink (HSV bands, S>0.35/V>0.55, drop <8px tall/<20px wide, merge >60% vertical overlap); flattenedCandidates intersects the found box with the text-layer items for exact text. colour-mask.test.ts and import-ladder.test.ts pin it; no OCR is on this path."},
+    {"goal_id": "g3", "status": "pass", "notes": "scanCandidates runs the same mask, then crops each box and calls the injected recognizer (011's recognizeRegion by default, which crops again to its own rect — RULE-19: crops only) and keeps the raw confidence. import-ladder.test.ts proves the crop passed to the recognizer and the confidence; the 0.70 gate is 011's derived predicate, surfaced per row by the review."},
+    {"goal_id": "g4", "status": "pass", "notes": "ImportReview renders every region with a checkbox and an editable textarea and commits only the checked rows; the rows are derived from candidates with the reviewer's overrides in state, none selected by default. use-import-review.test.ts proves nothing commits unaccepted, the selected rows commit, and an edit is written. A below-gate row is labelled 'needs correction'."},
+    {"goal_id": "g5", "status": "pass", "notes": "accept writes the accepted regions in ONE insertHighlights call; insertHighlights uses the new writeRows, which puts N rows and their N outbox ops in one Dexie transaction. highlight-repository.import.test.ts spies on db.transaction and proves exactly one call for 40 highlights, with 40 rows and 40 outbox ops. The accepted rows are layer='group' (RULE-04; RLS enforces leader-only)."}
+  ],
+  "cross_check_against_plan": [
+    {"doc": "06-whole-apps-task.md", "section": "PHASE E · 021, §2", "result": "matches — frontend (secondary backend), depends on 010 + 011 (both done); the five mini-goals map to g1-g5; it blocks nothing."},
+    {"doc": "01-thinkboard-lite-spec.md", "section": "§5.4", "result": "matches — rung 1 first (annotations), rung 2 flattened (colour mask + text items), rung 3 scan (crop + Tesseract, confidence-gated); the review screen is mandatory before commit; each region becomes a layer='group' highlight with a slug; RULE-19 (OCR last, crops only) holds."},
+    {"doc": "todo-task-000-split.md", "section": "§5.3 F5", "result": "matches for the client half — the import is one Dexie transaction, not 80; the server fan-out is 001's trigger / 007's channel and is untouched."},
+    {"doc": "02-database-architecture.md", "section": "§4.2, §8.1", "result": "matches — highlights.bbox carries the rects (tool 'rect'), extraction is text_layer|ocr, confidence holds the raw OCR value, layer='group' is leader-write; no schema change."}
+  ],
+  "signed_off": true,
+  "issues_found": [
+    "The task Gate ('an Acrobat-annotated PDF imports with exact text and zero OCR calls') needs a real annotated PDF fixture; the parser is exercised with faithful annotation objects and the zero-OCR property is structural (rungs 1/2 never import the OCR seam). The end-to-end fixture run is a follow-up.",
+    "The colour mask is a pure module; spec §5.4 suggests it runs in a Worker. Moving it is a perf follow-up with no behaviour change (analyze.json NEW-1).",
+    "Rung 1's exact text needs a text layer: with none it keeps the annotation's /Contents (or empty) at confidence 1.0, so the mark survives and the review can fill it (analyze.json NEW-3).",
+    "The import has no UI entry point wired to a route yet: ImportReview takes candidates as a prop, and the document-view route that would host it still does not exist (the same route gap 009-016 recorded). The ladder and the review are ready for it.",
+    "The mask expects an already-rendered raster; the container that rasterizes a page at the right scale (and runs the mask off the main thread) is the wiring follow-up."
+  ]
+}

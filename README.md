@@ -205,7 +205,7 @@ in `task_sequence` is *not opened*.
 | E | 018 LLM adapter | [todo-task-018](todo-task-018-llm-adapter.md) | backend | 017 | **blocked on D-12** |
 | E | 019 mini-conclusion | [todo-task-019](todo-task-019-mini-conclusion.md) | backend | 018 | not opened |
 | E | 020 result engine | [todo-task-020](todo-task-020-result-engine.md) | backend | 014 018 019 | not opened |
-| E | 021 leader import | [todo-task-021](todo-task-021-leader-import.md) | frontend | 010 011 | not opened |
+| E | 021 leader import | [todo-task-021](todo-task-021-leader-import.md) | frontend | 010 011 | **done** |
 | F | 022 responsive, motion, theme | [todo-task-022](todo-task-022-responsive-motion-theme.md) | frontend | — (after 008–013) | not opened |
 | F | 023 pilot hardening | [todo-task-023](todo-task-023-pilot-hardening.md) | backend | 015 016 020 022 | not opened |
 | F | 024 ink fallback | [todo-task-024](todo-task-024-ink-fallback.md) | frontend | 012 | **conditional on 012 g6** |
@@ -263,8 +263,11 @@ Critical path = the demoable slice:  000 → 001 → 004 → 006 → 008 → 009
 - **Also done:** 017 (command endpoints) — the four `/api/v1` routes (dynamic) with `requestContext` running every request under the caller's JWT, no
   secret key, and the `src/server/` skeleton (db/pipeline/stages/memory/llm) that mirrors the future Go packages; a member's group run is 403. No new
   dependency; `npm run verify` green (284 tests) and the four routes build.
-- **Next:** 013 needs 012 (blocked); 021 (leader import) is unblocked by 010 + 011; 019 waits on 018 (blocked on D-12); 015 (presence) is unblocked by 007
-  but must first resolve its plan doc's `0005_live_topic.sql` against the already-shipped `0005_storage_artifacts.sql`.
+- **Also done:** 021 (leader import) — the three-rung ladder (Highlight annotations with flattened QuadPoints; HSV colour mask + text-layer intersect;
+  scan crop + Tesseract), the review screen with per-region checkboxes and editable text, and the accepted regions written as `layer='group'` highlights in
+  ONE Dexie transaction. `npm run verify` green (305 tests), production build ok; no new dependency.
+- **Next:** 013 needs 012 (blocked); 019 waits on 018 (blocked on D-12); 015 (presence) is unblocked by 007 but must first resolve its plan doc's
+  `0005_live_topic.sql` against the already-shipped `0005_storage_artifacts.sql`.
   Open housekeeping: revoke anon EXECUTE on the definer RPCs, and let teammates read the profile names of their team.
 - **Waiting on a human:**
   - **D-12** — free-tier training terms vs document sensitivity. Blocks 018, and ink transcription in 024. 003's

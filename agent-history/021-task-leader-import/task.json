@@ -1,0 +1,29 @@
+{
+  "id": "021-task-leader-import",
+  "title": "A leader drops in an already-highlighted PDF and every mark becomes a group focus point with a note and a slug",
+  "architecture": "frontend",
+  "secondary_architecture": ["backend"],
+  "created_at": "2026-09-25T07:00:00Z",
+  "status": "done",
+  "depends_on": ["010-task-text-highlight", "011-task-region-highlight-and-ocr"],
+  "plan_refs": [
+    {"doc": "06-whole-apps-task.md", "section": "PHASE E · 021, §2"},
+    {"doc": "01-thinkboard-lite-spec.md", "section": "§5.4"},
+    {"doc": "todo-task-000-split.md", "section": "§5.3 F5"},
+    {"doc": "todo-task-021-leader-import.md", "section": "§2 goals and gate, §3 decisions"}
+  ],
+  "goals": [
+    {"id": "g1", "description": "Rung 1 first: page.getAnnotations() → subtype==='Highlight' → QuadPoints → convertToViewportRectangle(); multi-line quads flatten into one highlight with several rects", "plan_ref": "tasks 021 g1; spec §5.4", "status": "done"},
+    {"id": "g2", "description": "Rung 2: flattened highlights — HSV colour mask, connected components, intersect with text-layer items for exact text", "plan_ref": "tasks 021 g2", "status": "done"},
+    {"id": "g3", "description": "Rung 3: scans — same mask, crop, Tesseract, confidence gate", "plan_ref": "tasks 021 g3; spec RULE-19", "status": "done"},
+    {"id": "g4", "description": "Review screen before commit — checkboxes and editable OCR text", "plan_ref": "tasks 021 g4", "status": "done"},
+    {"id": "g5", "description": "Each accepted region → layer='group' highlight + empty note + slug, in one batch that teammates apply in one transaction (F5)", "plan_ref": "tasks 021 g5; split F5", "status": "done"}
+  ],
+  "phases": {
+    "analyze": {"file": "analyze.json", "status": "done"},
+    "code": {"file": "code.json", "status": "done"},
+    "test": {"file": "test.json", "status": "done"},
+    "validate": {"file": "validate.json", "status": "done"},
+    "result": {"file": "result.json", "status": "done"}
+  }
+}

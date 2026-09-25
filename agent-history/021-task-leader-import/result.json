@@ -1,0 +1,38 @@
+{
+  "task_id": "021-task-leader-import",
+  "phase": "result",
+  "closed_at": "2026-09-25T08:20:00Z",
+  "final_status": "done",
+  "goals_summary": {
+    "total": 5,
+    "done": 5,
+    "blocked": 0,
+    "detail": "g1 rung 1 annotation import (flattened quads, exact text, zero OCR) pass; g2 rung 2 flattened highlight (HSV mask + text intersect) pass; g3 rung 3 scan (crop + Tesseract + raw confidence) pass; g4 the review screen before commit pass; g5 accepted regions written as group highlights in one Dexie transaction pass. Recomputed from task.json goals[] and validate.json goal_checks — all five 'pending' -> 'done', none blocked."
+  },
+  "artifacts": [
+    "src/features/highlight/utils/annotation-quads.ts (+test) — rung 1",
+    "src/features/highlight/utils/colour-mask.ts (+test) — rungs 2/3 mask",
+    "src/features/highlight/utils/text-in-region.ts (+test) — exact-text intersect",
+    "src/features/highlight/utils/import-ladder.ts (+test) — the three rungs",
+    "src/features/highlight/components/import-review/ (types, use-import-review (+test), import-review.tsx, index) — g4",
+    "src/features/entities/repository/write.ts — writeRows batch (F5)",
+    "src/features/entities/repository/highlight-repository.ts — insertHighlights + layer (g5); (+highlight-repository.import.test.ts)"
+  ],
+  "verify": "npm run verify green: verify:arch 18 pass/0 fail, lint 0 errors (2 pre-existing warnings), typecheck clean, vitest 305 passed/10 skipped (315). npm run build succeeded (the four API routes remain dynamic). No new dependency; npm audit 0 vulnerabilities.",
+  "decisions_recap": [
+    "Rungs 1 and 2 never import the OCR seam, so 'exact text and zero OCR calls' is structural, not tested-in only.",
+    "A multi-quad annotation is ONE region with several rects; a malformed/no-QuadPoints annotation falls back to its rect rather than being dropped.",
+    "Exact text is intersected in page-normalized space (normalizeTextBoxes first).",
+    "The colour mask is a pure module (Worker is a perf follow-up); its thresholds, minimums and line merge are the spec's.",
+    "group highlights via an optional layer on NewHighlight (default individual); the import passes group and RLS enforces leader-only (RULE-04).",
+    "The review derives its rows from candidates with overrides in state (no seed effect); nothing commits unaccepted.",
+    "F5 client half is one writeRows transaction; the server fan-out is 001/007, untouched."
+  ],
+  "follow_up_tasks": [
+    "Run the plan's Gate with a real Acrobat-annotated PDF fixture against the parser and the review (a human/fixture task; the zero-OCR property is already structural).",
+    "Wire an import entry point into the document-view route: rasterize the page, choose the rung, run the mask (ideally in a Worker), and render ImportReview — the route that 009-016 all left unmounted.",
+    "Move the colour mask into a Worker once a page raster exists (spec §5.4's suggestion; pure today).",
+    "021's server side: the leader import fans out as ONE broadcast (F5); 001's trigger and 007's channel already batch, so confirm it under a 40-highlight import when the live stack is in the loop.",
+    "Reuse the same review model for 013's promotion flow if the UX overlaps."
+  ]
+}

@@ -2,10 +2,10 @@ import type { ISODateString, UUID } from "@shared/types/domain/common"
 import { getDb } from "../db"
 import type { HighlightRow, NoteRow } from "../types"
 import { uuidv7 } from "../utils/uuid7"
-import { writeRow } from "./write"
+import { writeRow, writeRows } from "./write"
 
 export type NewHighlight = Pick<HighlightRow, "artifactId" | "profileId" | "text"> &
-  Partial<Pick<HighlightRow, "page" | "bbox" | "confidence" | "extraction" | "slug" | "weight">>
+  Partial<Pick<HighlightRow, "page" | "bbox" | "confidence" | "extraction" | "slug" | "weight" | "layer">>
 
 const now = () => new Date().toISOString() as ISODateString
 
@@ -15,10 +15,10 @@ async function current(id: HighlightRow["id"]): Promise<HighlightRow> {
   return row
 }
 
-/** A new highlight is private (layer individual): only the leader writes the group layer, through the server. */
-export async function insertHighlight(input: NewHighlight): Promise<HighlightRow> {
-  // defaults are the Postgres column defaults, so the local row equals what the server will store
-  const row: HighlightRow = {
+// defaults are the Postgres column defaults, so the local row equals what the server will store. Layer defaults
+// to private (individual); the leader's import (021) passes layer='group' explicitly.
+function buildHighlightRow(input: NewHighlight): HighlightRow {
+  return {
     page: null,
     bbox: null,
     confidence: null,
@@ -27,14 +27,26 @@ export async function insertHighlight(input: NewHighlight): Promise<HighlightRow
     weight: 1,
     ...input,
     id: uuidv7() as UUID<"highlights">,
-    layer: "individual",
+    layer: input.layer ?? "individual",
     sharedAt: null,
     createdAt: now(),
     updatedAt: now(),
     _sync: "pending",
   }
+}
+
+/** A new highlight is private unless a leader imports group marks: only the leader writes the group layer (RULE-04). */
+export async function insertHighlight(input: NewHighlight): Promise<HighlightRow> {
+  const row = buildHighlightRow(input)
   await writeRow("highlights", "insert", row)
   return row
+}
+
+/** F5: a whole import commits in ONE Dexie transaction — 40 regions are one local write, not 40. */
+export async function insertHighlights(inputs: NewHighlight[]): Promise<HighlightRow[]> {
+  const rows = inputs.map(buildHighlightRow)
+  await writeRows("highlights", "insert", rows)
+  return rows
 }
 
 // ponytail: read, then write; a second write between the two would be lost locally. Single-user local writes make
