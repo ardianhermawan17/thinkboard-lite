@@ -11,6 +11,8 @@ vi.mock("@feature/document/components/document-viewer", () => ({
 vi.mock("@feature/highlight/components/highlighted-page", () => ({
   HighlightedPage: (props: { pageNumber: number; tool: unknown }) => <div data-testid="highlighted-page" data-page={props.pageNumber} data-tool={String(props.tool)} />,
 }))
+// 026: the note panel reads the shared workspace context, which the app composition does not provide in this unit test.
+vi.mock("@feature/notes/components/note-panel", () => ({ NotePanel: () => <div data-testid="note-panel" /> }))
 
 import { WorkspaceDocument } from "./workspace-document"
 

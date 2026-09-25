@@ -1,0 +1,20 @@
+{
+  "task_id": "026-task-workspace-context",
+  "phase": "test",
+  "test_files": [
+    "src/shared/providers/workspace-provider/workspace-provider.test.tsx",
+    "src/features/notes/components/note-panel/use-note-panel.test.ts",
+    "src/features/notes/components/note-panel/note-panel.test.tsx",
+    "src/app/w/[workspaceId]/workspace-document.test.tsx"
+  ],
+  "commands_run": [
+    {"command": "npx vitest run --project unit (touched files)", "result": "4 files, 10 tests passed"},
+    {"command": "npm run verify:arch", "result": "18 pass, 0 fail, 10 skipped, 1 void"},
+    {"command": "npm run lint", "result": "0 errors, 2 pre-existing warnings"},
+    {"command": "npm run typecheck", "result": "clean"},
+    {"command": "npm run test", "result": "78 test files passed / 2 skipped (80); 331 tests passed / 10 skipped (341)"},
+    {"command": "npm run build", "result": "production build succeeded"}
+  ],
+  "summary": {"total": 341, "passed": 331, "failed": 0, "skipped": 10},
+  "coverage_notes": "g1 is covered by workspace-provider.test.tsx (the hook returns profileId/sessionId inside the provider and throws outside one). g2's shape is exercised indirectly by use-note-panel.test.ts, which mocks the session query and maps its rows; the query itself mirrors use-artifacts-for-session's IndexedDB pattern (no separate harness needed). g3 is covered by use-note-panel.test.ts (list mapping, select/clear, the caller's note preferred over a teammate's) and note-panel.test.tsx (the list renders, a click selects, the sheet appears when selected, and the empty state invites a first highlight). g4 is covered by workspace-document.test.tsx (the composition still renders, with the note panel mocked because the unit test provides no context) plus verify:arch's I4 (no store hook under src/app). The 10 skipped are the pre-existing live-stack suites."
+}

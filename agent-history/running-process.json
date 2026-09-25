@@ -1,6 +1,6 @@
 {
 	"schema_version": "1.0",
-	"updated_at": "2026-09-25T11:55:00Z",
+	"updated_at": "2026-09-25T13:10:00Z",
 	"current_task_id": null,
 	"current_phase": "idle",
 	"history_path": null,
@@ -113,6 +113,12 @@
 			"architecture": "frontend",
 			"status": "done",
 			"title": "The workspace document view is mounted, so built highlight and capture surfaces are user-visible"
+		},
+		{
+			"id": "026-task-workspace-context",
+			"architecture": "frontend",
+			"status": "done",
+			"title": "A shared workspace context hands profileId/sessionId to any feature, and the note panel mounts the note sheet"
 		}
 	]
 }

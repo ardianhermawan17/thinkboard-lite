@@ -1,0 +1,23 @@
+{
+  "task_id": "026-task-workspace-context",
+  "phase": "validate",
+  "goal_checks": [
+    {"goal_id": "g1", "status": "pass", "notes": "WorkspaceProvider/useWorkspaceContext live in shared/providers/workspace-provider (I3-safe); the context object is defined there too. The workspace shell wraps its body in the provider, passing the profileId/sessionId it already resolves. workspace-provider.test.tsx proves the value inside and a throw outside."},
+    {"goal_id": "g2", "status": "pass", "notes": "use-highlights-for-session returns every highlight across the session's artifacts (resolving artifact ids from the artifacts table then filtering highlights, since there is no plain artifactId index) and [] when the session has no artifact. It is exported from the queries barrel and consumed by the note panel; use-note-panel.test.ts exercises it through a mock."},
+    {"goal_id": "g3", "status": "pass", "notes": "NotePanel lists the session's highlights (page, layer, text) and opens 012's NoteSheet for the selected one; profileId comes from the shared workspace context, not a feature import (I3) or an app store hook (I4). use-note-panel.test.ts pins the selection, clearing, and author-first note choice; note-panel.test.tsx pins the render and the sheet."},
+    {"goal_id": "g4", "status": "pass", "notes": "src/app/w/[workspaceId]/workspace-document.tsx renders the note panel in an aside beside the document; verify:arch's I4 scan still finds no useAppSelector/useAppDispatch under src/app, and the composition test still passes (with the panel mocked for the contextless unit test)."}
+  ],
+  "cross_check_against_plan": [
+    {"doc": "06-whole-apps-task.md", "section": "PHASE G · 026", "result": "matches — frontend; the four mini-goals map to g1-g4; it unblocks the remaining mounts and blocks nothing."},
+    {"doc": "04-frontend-folder-architecture.md", "section": "§5, §9", "result": "matches — the seam is in shared/ (shared->features forbidden, respected); features/notes imports only shared + entities; the app route composes without store hooks."},
+    {"doc": "task-review-2026-09-25.md", "section": "the remaining-mount layering question", "result": "matches the recommended resolution 1 (a shared workspace context), implemented and consumed."}
+  ],
+  "signed_off": true,
+  "issues_found": [
+    "The task Gate (a seeded workspace in a browser: the panel lists highlights and a note saves) needs the local stack and is deferred like the other browser gates; the seam and the panel are unit-proven.",
+    "012 and 015 are still open for their hardware/live goals; 026 consumes NoteSheet without depending on them, which is recorded, not hidden.",
+    "The session-wide highlights read filters the table (no artifactId index). If a workspace ever holds thousands of highlights, add an index in a new Dexie version rather than widen the scan.",
+    "The note panel is hidden below `md` (D-11 device parity); its mobile placement is 022's.",
+    "The same context now enables mounting 015's cursors and 021's import review; those remain follow-ups."
+  ]
+}

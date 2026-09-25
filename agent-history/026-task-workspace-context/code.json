@@ -1,0 +1,37 @@
+{
+  "task_id": "026-task-workspace-context",
+  "phase": "code",
+  "started_at": "2026-09-25T12:15:00Z",
+  "completed_at": "2026-09-25T13:00:00Z",
+  "files_changed": [
+    {"path": "06-whole-apps-task.md", "action": "modified", "summary": "Added PHASE G · 026-task-workspace-context."},
+    {"path": "todo-task-026-workspace-context.md", "action": "created", "summary": "Plan doc for the seam and its first consumer."},
+    {"path": "src/shared/providers/workspace-provider/types.ts", "action": "created", "summary": "WorkspaceContextValue (profileId, sessionId)."},
+    {"path": "src/shared/providers/workspace-provider/workspace-context.ts", "action": "created", "summary": "The context object, defined in shared/ so both sides can agree (I3/I4 safe) (g1)."},
+    {"path": "src/shared/providers/workspace-provider/workspace-provider.tsx", "action": "created", "summary": "The provider component (g1)."},
+    {"path": "src/shared/providers/workspace-provider/use-workspace-context.ts", "action": "created", "summary": "Consumer hook; throws outside a provider (g1)."},
+    {"path": "src/shared/providers/workspace-provider/index.ts", "action": "created", "summary": "Barrel."},
+    {"path": "src/shared/providers/workspace-provider/workspace-provider.test.tsx", "action": "created", "summary": "2 tests: value inside, throw outside."},
+    {"path": "src/features/entities/queries/use-highlights-for-session.ts", "action": "created", "summary": "Every highlight across a session's artifacts (g2)."},
+    {"path": "src/features/entities/queries/index.ts", "action": "modified", "summary": "Export the session query."},
+    {"path": "src/features/notes/components/note-panel/types.ts", "action": "created", "summary": "NotePanelItem/State."},
+    {"path": "src/features/notes/components/note-panel/use-note-panel.ts", "action": "created", "summary": "Lists session highlights, owns selection, picks the author's note; profileId from the context (g3)."},
+    {"path": "src/features/notes/components/note-panel/note-panel.tsx", "action": "created", "summary": "The notes rail; opens NoteSheet for the selected highlight (g3)."},
+    {"path": "src/features/notes/components/note-panel/index.ts", "action": "created", "summary": "Barrel."},
+    {"path": "src/features/notes/components/note-panel/use-note-panel.test.ts", "action": "created", "summary": "3 tests: list, select/clear, author's note preferred."},
+    {"path": "src/features/notes/components/note-panel/note-panel.test.tsx", "action": "created", "summary": "3 tests: list + select, sheet opens, empty state."},
+    {"path": "src/features/workspace/components/workspace-shell/use-workspace-shell.ts", "action": "modified", "summary": "Returns profileId/sessionId for the provider."},
+    {"path": "src/features/workspace/components/workspace-shell/workspace-shell.tsx", "action": "modified", "summary": "Wraps the shell body in WorkspaceProvider, above the injected document view (g1/g4)."},
+    {"path": "src/app/w/[workspaceId]/workspace-document.tsx", "action": "modified", "summary": "Renders the NotePanel beside the document (g4)."},
+    {"path": "src/app/w/[workspaceId]/workspace-document.test.tsx", "action": "modified", "summary": "Mock the NotePanel (it needs the context, which this unit test does not provide)."}
+  ],
+  "decisions": [
+    "The context is defined in shared/providers, not features/workspace, because a feature may not import another feature (I3) and src/app may not read the store (I4); this is the seam the remaining mounts need (the review's recommended resolution 1).",
+    "The workspace shell provides profileId/sessionId from values it already resolves, so the context adds no second source for them (one home per fact).",
+    "The note panel lists the session's highlights instead of making highlight marks clickable: listening marks would fight z1 text selection (010 chose listening:false for that reason).",
+    "use-highlights-for-session filters the table because highlights has no plain artifactId index (db/migrations.ts); a workspace's highlight set is small, and this avoids a schema bump.",
+    "The panel picks the caller's own note first (that is what the editor writes) and falls back to a teammate's on a group highlight.",
+    "012/015 remain open only for hardware/live goals; 026 consumes their built components without depending on or closing those goals (analyze.json open_questions)."
+  ],
+  "commands_run": ["npm run typecheck", "npx vitest run --project unit (touched files)", "npm run verify", "npm run build"]
+}

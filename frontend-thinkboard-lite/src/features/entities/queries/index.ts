@@ -1,5 +1,6 @@
 export * from "./use-artifacts-for-session"
 export * from "./use-highlights-for-page"
+export * from "./use-highlights-for-session"
 export * from "./use-meta"
 export * from "./use-mini-conclusion-for-highlight"
 export * from "./use-notes-for-highlight"

@@ -1,0 +1,35 @@
+{
+  "task_id": "026-task-workspace-context",
+  "phase": "result",
+  "closed_at": "2026-09-25T13:10:00Z",
+  "final_status": "done",
+  "goals_summary": {
+    "total": 4,
+    "done": 4,
+    "blocked": 0,
+    "detail": "g1 the shared workspace context pass; g2 the session-wide highlights read pass; g3 the note panel that opens the note sheet pass; g4 the panel's mount in the app composition pass. Recomputed from task.json goals[] and validate.json goal_checks — all four 'pending' -> 'done', none blocked."
+  },
+  "artifacts": [
+    "src/shared/providers/workspace-provider/ (+ test) — the seam (WorkspaceProvider/useWorkspaceContext)",
+    "src/features/entities/queries/use-highlights-for-session.ts — the session-wide read",
+    "src/features/notes/components/note-panel/ (+ tests) — lists highlights, opens 012's NoteSheet",
+    "src/features/workspace/components/workspace-shell/{use-,}workspace-shell — provides the context",
+    "src/app/w/[workspaceId]/workspace-document.tsx — renders the panel beside the document",
+    "06-whole-apps-task.md (PHASE G · 026), todo-task-026-workspace-context.md"
+  ],
+  "verify": "npm run verify green: verify:arch 18 pass/0 fail (I4 still clean under src/app), lint 0 errors (2 pre-existing warnings), typecheck clean, vitest 331 passed/10 skipped (341). npm run build succeeded. No new dependency.",
+  "decisions_recap": [
+    "The context is in shared/providers so both provider (features/workspace) and consumers (features/notes) can agree without a feature→feature import.",
+    "The shell provides profileId/sessionId it already resolves; no second source.",
+    "The note panel lists highlights rather than making marks clickable (protects z1 text selection).",
+    "The session read filters the table (no artifactId index); a schema bump is deferred until scale demands it.",
+    "012's component is consumed while 012 stays open for its hardware goals."
+  ],
+  "follow_up_tasks": [
+    "Run the live Gate: a seeded workspace lists its highlights and the author saves a note.",
+    "Mount 015's PeerCursors + LeaderDrawing using the same context (publishCursors from the pointer stream).",
+    "Mount 021's import entry point (choose a PDF, run a rung, show ImportReview).",
+    "Add 016's export control: it needs the session-wide reads now in place plus the main artifact's bytes.",
+    "Consider adding an artifactId index to highlights in a new Dexie version if the session read ever runs over thousands of rows."
+  ]
+}

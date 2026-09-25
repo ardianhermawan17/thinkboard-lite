@@ -49,5 +49,7 @@ export function useWorkspaceShell(workspaceId?: string) {
     }
   }
 
-  return { landing: !workspaceId, redirecting: !workspaceId && Boolean(sessionId), error, session, create }
+  // profileId/sessionId are exposed so the shell can provide the shared workspace context (026) above the
+  // injected document view; the values already live here, so the context adds no second source.
+  return { landing: !workspaceId, redirecting: !workspaceId && Boolean(sessionId), error, session, create, profileId, sessionId }
 }

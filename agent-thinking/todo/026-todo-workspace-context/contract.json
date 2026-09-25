@@ -1,0 +1,8 @@
+{
+  "schema_version": "1.0",
+  "id": "026-todo-workspace-context",
+  "name": "Workspace context and the note panel",
+  "goal": "A shared workspace context hands profileId/sessionId to any feature, and the note panel mounts the note sheet.",
+  "human_prompt": "Yes continue",
+  "translated_prompt_agent": "Act on the layering question recorded in task-review-2026-09-25.md by opening task 026 (PHASE G — Integration): a shared WorkspaceProvider/useWorkspaceContext in shared/providers supplying profileId/sessionId, provided by the workspace shell; a session-wide highlights read in entities/queries; a note-panel container in features/notes that lists the session's highlights and opens 012's NoteSheet for the selected one, reading profileId from the context (never a feature→feature import, I3, nor a store hook under src/app, I4); and render the panel beside the document in the app composition. Keep npm run verify green, write every phase file into agent-history/026-task-workspace-context/, and close validate/result honestly."
+}

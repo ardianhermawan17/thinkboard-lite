@@ -1,0 +1,27 @@
+{
+  "id": "026-task-workspace-context",
+  "title": "A shared workspace context hands profileId/sessionId to any feature, and the note panel mounts the note sheet",
+  "architecture": "frontend",
+  "secondary_architecture": [],
+  "created_at": "2026-09-25T12:00:00Z",
+  "status": "done",
+  "depends_on": ["025-task-wire-document-view"],
+  "plan_refs": [
+    {"doc": "06-whole-apps-task.md", "section": "PHASE G · 026"},
+    {"doc": "04-frontend-folder-architecture.md", "section": "§5, §9"},
+    {"doc": "todo-task-026-workspace-context.md", "section": "§2, §3"}
+  ],
+  "goals": [
+    {"id": "g1", "description": "a shared WorkspaceProvider/useWorkspaceContext (profileId, sessionId) provided by the workspace shell", "plan_ref": "tasks 026 g1", "status": "done"},
+    {"id": "g2", "description": "use-highlights-for-session in entities/queries", "plan_ref": "tasks 026 g2", "status": "done"},
+    {"id": "g3", "description": "a note-panel container listing the session's highlights and opening 012's NoteSheet for the selected one, profileId from the context", "plan_ref": "tasks 026 g3", "status": "done"},
+    {"id": "g4", "description": "the app document composition renders the note panel beside the document", "plan_ref": "tasks 026 g4", "status": "done"}
+  ],
+  "phases": {
+    "analyze": {"file": "analyze.json", "status": "done"},
+    "code": {"file": "code.json", "status": "done"},
+    "test": {"file": "test.json", "status": "done"},
+    "validate": {"file": "validate.json", "status": "done"},
+    "result": {"file": "result.json", "status": "done"}
+  }
+}

@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { DocumentViewer } from "@feature/document/components/document-viewer"
 import { HighlightedPage } from "@feature/highlight/components/highlighted-page"
+import { NotePanel } from "@feature/notes/components/note-panel"
 import type { MarqueeTool } from "@shared/components/canvas/marquee"
 import { Button } from "@shared/components/ui/button"
 import type { UUID } from "@shared/types/domain/common"
@@ -31,24 +32,30 @@ export function WorkspaceDocument({ sessionId }: { sessionId: string }) {
           </Button>
         ))}
       </div>
-      <div className="min-h-0 flex-1 overflow-hidden">
-        <DocumentViewer
-          sessionId={sessionId as UUID<"sessions">}
-          renderPage={({ doc, artifactId, profileId, pageNumber, zoom, rotation, onZoomCommit }) =>
-            artifactId && profileId ? (
-              <HighlightedPage
-                doc={doc}
-                artifactId={artifactId}
-                profileId={profileId}
-                pageNumber={pageNumber}
-                zoom={zoom}
-                rotation={rotation}
-                onZoomCommit={onZoomCommit}
-                tool={tool}
-              />
-            ) : null
-          }
-        />
+      <div className="flex min-h-0 flex-1">
+        <div className="min-h-0 min-w-0 flex-1 overflow-hidden">
+          <DocumentViewer
+            sessionId={sessionId as UUID<"sessions">}
+            renderPage={({ doc, artifactId, profileId, pageNumber, zoom, rotation, onZoomCommit }) =>
+              artifactId && profileId ? (
+                <HighlightedPage
+                  doc={doc}
+                  artifactId={artifactId}
+                  profileId={profileId}
+                  pageNumber={pageNumber}
+                  zoom={zoom}
+                  rotation={rotation}
+                  onZoomCommit={onZoomCommit}
+                  tool={tool}
+                />
+              ) : null
+            }
+          />
+        </div>
+        {/* 026: the notes rail reads profileId from the shared workspace context, so it mounts here (I3/I4 safe). */}
+        <aside className="hidden w-72 shrink-0 md:block">
+          <NotePanel />
+        </aside>
       </div>
     </div>
   )

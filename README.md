@@ -210,6 +210,7 @@ in `task_sequence` is *not opened*.
 | F | 023 pilot hardening | [todo-task-023](todo-task-023-pilot-hardening.md) | backend | 015 016 020 022 | not opened |
 | F | 024 ink fallback | [todo-task-024](todo-task-024-ink-fallback.md) | frontend | 012 | **conditional on 012 g6** |
 | G | 025 wire the document view | [todo-task-025](todo-task-025-wire-document-view.md) | frontend | 009 010 011 | **done** |
+| G | 026 workspace context + note panel | [todo-task-026](todo-task-026-workspace-context.md) | frontend | 025 | **done** |
 
 ```
 Critical path = the demoable slice:  000 → 001 → 004 → 006 → 008 → 009 → 010 → 012
@@ -273,9 +274,12 @@ Critical path = the demoable slice:  000 → 001 → 004 → 006 → 008 → 009
 - **Also done:** 025 (wire the document view) — a new PHASE G integration task that closes the top finding of `task-review-2026-09-25.md`: `/w/[workspaceId]`
   now mounts `DocumentViewer` + `HighlightedPage` at the app route (I3/I4 respected) with a region-tool control, so the built slice is visible.
   `npm run verify` green (323 tests), production build ok; no new dependency. (`06-whole-apps-task.md`'s backlog is now 26 tasks.)
+- **Also done:** 026 (workspace context and the note panel) — a shared `WorkspaceProvider`/`useWorkspaceContext` (the review's recommended layering fix), a
+  session-wide highlights read, and a note panel that lists the session's highlights and opens 012's `NoteSheet`. The same seam now enables mounting 015's
+  cursors and 021's import review. `npm run verify` green (331 tests), production build ok; no new dependency. (`06-whole-apps-task.md`'s backlog is now 27.)
 - **Next:** nothing is unblocked by dependencies. 013/014/022 wait on 012 (human device test, Q7); 019/020 wait on 018 (D-12); 023 waits on 015/016/020/022.
-  The next real progress is a human action — run 012's device test, answer D-12, run 015's two-browser test — or mounting the remaining surfaces (012's note
-  sheet, 015's cursors, 021's import entry point) into the now-live document view.
+  The next real progress is a human action — run 012's device test, answer D-12, run 015's two-browser test — or continuing the integration: mounting 015's
+  cursors and 021's import review against the workspace context, then 016's export control.
   Open housekeeping: revoke anon EXECUTE on the definer RPCs, and let teammates read the profile names of their team.
 - **Waiting on a human:**
   - **D-12** — free-tier training terms vs document sensitivity. Blocks 018, and ink transcription in 024. 003's

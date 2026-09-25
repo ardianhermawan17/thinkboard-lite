@@ -1,0 +1,36 @@
+{
+  "task_id": "026-task-workspace-context",
+  "phase": "analyze",
+  "started_at": "2026-09-25T12:00:00Z",
+  "completed_at": "2026-09-25T12:15:00Z",
+  "sources_read": [
+    {"doc": "README.md", "section": "§5 task map, §7 hard limits (I3, I4)"},
+    {"doc": "06-whole-apps-task.md", "section": "PHASE G · 026"},
+    {"doc": "todo-task-026-workspace-context.md", "section": "full file"},
+    {"doc": "04-frontend-folder-architecture.md", "section": "§5 shared tier, §9 import direction law"},
+    {"doc": "task-review-2026-09-25.md", "section": "the remaining-mount layering question and its three resolutions"},
+    {"doc": "frontend-thinkboard-lite/src/features/notes/components/note-sheet/{note-sheet.tsx,types.ts}", "section": "the built sheet's props (highlightId, profileId, note, open, onOpenChange)"},
+    {"doc": "frontend-thinkboard-lite/src/features/entities/db/migrations.ts", "section": "the Dexie indexes — no plain artifactId index, so a session-wide read filters"},
+    {"doc": "frontend-thinkboard-lite/src/features/workspace/components/workspace-shell/use-workspace-shell.ts", "section": "it already resolves profileId/sessionId"},
+    {"doc": "frontend-thinkboard-lite/src/shared/providers/providers.tsx", "section": "the provider tree the shared context composes with"}
+  ],
+  "scope": "A shared workspace context (profileId/sessionId) in shared/providers, provided by the workspace shell; a session-wide highlights read; a note-panel container that lists a session's highlights and opens 012's note sheet for the selected one; and the panel's mount in the app document composition. Out of scope: mounting cursors or the import review (the same context enables them next); any schema change.",
+  "acceptance_criteria": [
+    {"goal_id": "g1", "text": "useWorkspaceContext throws outside a provider and returns profileId/sessionId inside one; the value is defined in shared/ (no feature→feature import)."},
+    {"goal_id": "g2", "text": "use-highlights-for-session returns every highlight across the session's artifacts, and [] when the session has no artifact."},
+    {"goal_id": "g3", "text": "The note panel lists the session's highlights and, on selecting one, opens NoteSheet with the caller's note."},
+    {"goal_id": "g4", "text": "The app document composition renders the note panel; no store hook under src/app (I4) and no feature→feature import (I3)."}
+  ],
+  "open_questions": [
+    "012 and 015 remain open only for hardware/live goals, but their components (NoteSheet, PeerCursors) are built and tested. 026 consumes the components; it does not depend on or close the blocked goals. Raised, not silently assumed.",
+    "D-11 (defaulted: tablet authors, desktop analyses) — the panel is an authoring affordance; its mobile placement waits for 022.",
+    "Q11 (defaulted: dock >=1280, overlay below) — the note sheet already owns its docking; the panel sits beside the document and does not change that.",
+    "The context is a small, typed seam; if a future task needs more session fields (team id, mode), it extends the value rather than adding a second context."
+  ],
+  "risks": [
+    "A context defined in features/workspace could not be imported by features/notes (I3); it is defined in shared/providers instead.",
+    "A direct read of the workspace slice from features/notes would duplicate a selector fact; the context keeps one home.",
+    "highlights has no plain artifactId index, so the session-wide read filters the table; the set is small (hundreds) and this avoids a schema bump.",
+    "The note panel's list is a UI affordance that also sidesteps the text-selection conflict a clickable highlight mark would create."
+  ]
+}

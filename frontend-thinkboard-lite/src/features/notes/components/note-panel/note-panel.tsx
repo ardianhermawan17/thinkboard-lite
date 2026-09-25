@@ -1,0 +1,35 @@
+"use client"
+
+import type { UUID } from "@shared/types/domain/common"
+import { useWorkspaceContext } from "@shared/providers/workspace-provider"
+import { NoteSheet } from "../note-sheet"
+import { useNotePanel } from "./use-note-panel"
+
+/** g3: the notes rail beside the document. A container leaf — its hook owns the selection; it renders no state. */
+export function NotePanel() {
+  const { profileId } = useWorkspaceContext()
+  const { items, selectedId, note, open, select, onOpenChange } = useNotePanel()
+
+  return (
+    <div data-testid="note-panel" className="flex h-full min-h-0 flex-col border-l">
+      <h3 className="border-b px-3 py-2 text-sm font-medium">Notes</h3>
+      {items.length === 0 ? (
+        <p className="p-3 text-xs text-muted-foreground">Select text or draw a region on the page to add a highlight and a note.</p>
+      ) : (
+        <ul className="flex min-h-0 flex-col overflow-auto">
+          {items.map((item) => (
+            <li key={item.id}>
+              <button type="button" onClick={() => select(item.id)} className="w-full px-3 py-2 text-left text-xs hover:bg-muted">
+                <span className="text-muted-foreground">
+                  p.{item.page ?? "?"} · {item.layer}
+                </span>
+                <span className="block truncate">{item.text || "(no text)"}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      {selectedId && profileId && <NoteSheet highlightId={selectedId} profileId={profileId as UUID<"profiles">} note={note} open={open} onOpenChange={onOpenChange} />}
+    </div>
+  )
+}

@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react"
 import { OfflineBanner } from "@feature/sync/components/offline-banner"
+import { WorkspaceProvider } from "@shared/providers/workspace-provider"
 import { AuthGuard } from "../auth-guard"
 import { AppHeader } from "../app-header"
 import { Members } from "../members"
@@ -15,7 +16,7 @@ import { Textarea } from "@shared/components/ui/textarea"
 import { useWorkspaceShell } from "./use-workspace-shell"
 
 function Body({ workspaceId, children }: { workspaceId?: string; children?: ReactNode }) {
-  const { landing, redirecting, error, session, create } = useWorkspaceShell(workspaceId)
+  const { landing, redirecting, error, session, create, profileId, sessionId } = useWorkspaceShell(workspaceId)
 
   if (redirecting) return <Skeleton className="h-svh w-full" />
 
@@ -47,10 +48,11 @@ function Body({ workspaceId, children }: { workspaceId?: string; children?: Reac
   }
 
   return (
-    <div className="flex min-h-svh flex-col">
-      <AppHeader />
-      <OfflineBanner />
-      <div className="flex min-h-0 flex-1">
+    <WorkspaceProvider profileId={profileId} sessionId={sessionId}>
+      <div className="flex min-h-svh flex-col">
+        <AppHeader />
+        <OfflineBanner />
+        <div className="flex min-h-0 flex-1">
         {/* the document area: the app route injects the composed document view (025); a feature may not import
             document/highlight itself (I3), so this stays a slot. */}
         <main className="flex min-h-0 min-w-0 flex-1 flex-col">
@@ -82,7 +84,8 @@ function Body({ workspaceId, children }: { workspaceId?: string; children?: Reac
           </Tabs>
         </aside>
       </div>
-    </div>
+      </div>
+    </WorkspaceProvider>
   )
 }
 

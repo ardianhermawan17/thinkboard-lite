@@ -459,6 +459,21 @@ catches every planted violation under its own id and prints all 29 rows. "Green 
 **Gate** — with a seeded workspace, `/w/<sessionId>` shows the PDF; selecting text persists a highlight; a region tool persists one.
 **Blocks** — —; it makes 009-012/015/021 user-visible.
 
+### `026-task-workspace-context` · `frontend`
+
+**Main-goal —** A shared workspace context supplies `profileId`/`sessionId` to any feature, so the note, presence and import surfaces can mount without a feature→feature import (I3) or a store hook under `src/app` (I4). Its first consumer is 012's note sheet.
+
+**Why it exists** — raising the layering question in `task-review-2026-09-25.md` showed no allowed component can hand `profileId` to `features/notes`/`features/presence`; this is the seam all three remaining mounts need.
+
+**Mini-goals**
+- `g1` a shared `WorkspaceProvider`/`useWorkspaceContext` in `shared/providers`, provided by the workspace shell.
+- `g2` a session-wide highlights read in `entities/queries` (`use-highlights-for-session`).
+- `g3` a `note-panel` container in `features/notes` that lists the session's highlights and opens the note sheet for the selected one, reading `profileId` from the context.
+- `g4` the app-level document composition renders the note panel beside the document.
+
+**Gate** — with a seeded workspace, `/w/<id>` lists the highlights and opening one lets the author write a note.
+**Blocks** — —; it unblocks mounting 012's sheet, 015's cursors and 021's import review.
+
 ---
 
 ## 2. Dependency graph
