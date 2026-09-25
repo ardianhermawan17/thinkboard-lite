@@ -101,8 +101,8 @@ and runs the live suites" step would convert these into confidence rather than o
 - `02-database-architecture.md` §10 DB-Q9 and 015 g6 now agree only because the migration was renamed.
 
 ### 3.5 Housekeeping still outstanding
-- Revoke `anon` EXECUTE on the definer RPCs (`0003_grant_schema.sql` still uses `anon`/`service_role` names).
-- Let teammates read their team's profile names.
+- ~~Revoke `anon` EXECUTE on the definer RPCs (`0003_grant_schema.sql` still uses `anon`/`service_role` names).~~ **Done** — task 030 (`0007_revoke_anon_execute.sql`); the live RLS run is pending.
+- ~~Let teammates read their team's profile names.~~ **Done** — task 030 (`0008_team_profile_names.sql`); the live RLS run is pending.
 - `003`'s provider rows are placeholders; keep them out of any "provider is configured" assumption.
 - The Obsidian vault (`thinkboard-lite-architecture/`) and the `graphify-out/` trees are untracked; decide whether
   they should be versioned.
@@ -139,7 +139,7 @@ The top finding above — the route-wiring gap — was fixed immediately: **task
 **PHASE G — Integration** and closed the same day. `/w/[workspaceId]` now mounts `DocumentViewer` +
 `HighlightedPage` at the app route (I3/I4 respected) with a region-tool control, so the built slice is visible.
 
-Effect on this review's snapshot: the backlog is now **30 tasks**; **20 done** (000–011, 016, 017, 021, 025, 026, 027, 028, 029),
+Effect on this review's snapshot: the backlog is now **31 tasks**; **21 done** (000–011, 016, 017, 021, 025–030),
 3 blocked (012, 015, 018), 1 conditional (024), 6 not started (013, 014, 019, 020, 022, 023). Nothing else in
 the review changes — the remaining blockers are still human/hardware decisions, and the per-phase
 recommendations stand.

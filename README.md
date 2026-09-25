@@ -214,6 +214,7 @@ in `task_sequence` is *not opened*.
 | G | 027 export the workspace bundle | [todo-task-027](todo-task-027-export-bundle.md) | frontend | 016 026 | **done** |
 | G | 028 presence rail | [todo-task-028](todo-task-028-presence-rail.md) | frontend | 015 026 | **done** |
 | G | 029 re-import review | [todo-task-029](todo-task-029-reimport-review.md) | frontend | 016 026 | **done** |
+| G | 030 database housekeeping | [todo-task-030](todo-task-030-db-housekeeping.md) | supabase | 001 002 | **done** (live RLS run pending) |
 
 ```
 Critical path = the demoable slice:  000 → 001 → 004 → 006 → 008 → 009 → 010 → 012
@@ -288,10 +289,13 @@ Critical path = the demoable slice:  000 → 001 → 004 → 006 → 008 → 009
 - **Also done:** 029 (re-import review) — 016's `planReimport` is mounted in the notes rail: paste a `notes.md`, see the matched/unanchored/orphan/missing
   counts, and apply the matched updates without duplicates. `npm run verify` green (350 tests), production build ok; no new dependency.
   (`06-whole-apps-task.md`'s backlog is now 30 tasks.)
+- **Also done:** 030 (database housekeeping) — `0007` revokes EXECUTE on the definer RPCs from PUBLIC and `anon` (granting `authenticated`), and `0008` lets a
+  teammate read a co-member's profile name; `rls.sql` gained the g17/g18 checks. The task's own live RLS run is pending (no local stack here); the repo gate
+  stays green. (`06-whole-apps-task.md`'s backlog is now 31 tasks.)
 - **Next:** nothing is unblocked by dependencies. 013/014/022 wait on 012 (human device test, Q7); 019/020 wait on 018 (D-12); 023 waits on 015/016/020/022.
-  The next real progress is a human action — run 012's device test, answer D-12, run 015's two-browser test — or continuing the integration: painting peer
-  cursors and mounting 021's import review.
-  Open housekeeping: revoke anon EXECUTE on the definer RPCs, and let teammates read the profile names of their team.
+  The next real progress is a human action — run 012's device test, answer D-12, run 015's two-browser test, or run 030's live RLS suite — or continuing the
+  integration: painting peer cursors and mounting 021's import review.
+  Housekeeping: both carried items are done (030); the live RLS run for them is pending.
 - **Waiting on a human:**
   - **D-12** — free-tier training terms vs document sensitivity. Blocks 018, and ink transcription in 024. 003's
     placeholder provider rows stand in until it is answered.

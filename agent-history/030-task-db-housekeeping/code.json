@@ -1,0 +1,21 @@
+{
+  "task_id": "030-task-db-housekeeping",
+  "phase": "code",
+  "started_at": "2026-09-26T04:15:00Z",
+  "completed_at": "2026-09-26T04:40:00Z",
+  "files_changed": [
+    {"path": "06-whole-apps-task.md", "action": "modified", "summary": "Added PHASE G · 030-task-db-housekeeping."},
+    {"path": "todo-task-030-db-housekeeping.md", "action": "created", "summary": "Plan doc."},
+    {"path": "database-thinkboard-lite/supabase/migrations/0007_revoke_anon_execute.sql", "action": "created", "summary": "Revoke public-schema EXECUTE from PUBLIC and anon, grant authenticated, set the default (g1)."},
+    {"path": "database-thinkboard-lite/supabase/migrations/0008_team_profile_names.sql", "action": "created", "summary": "A permissive co-member SELECT policy on profiles (g2)."},
+    {"path": "database-thinkboard-lite/supabase/tests/rls.sql", "action": "modified", "summary": "Added tb_test.anon() and the g17/g18 checks (g3)."}
+  ],
+  "decisions": [
+    "EXECUTE is revoked from PUBLIC (Supabase's default) as well as anon, then granted to authenticated; revoking only from anon would leave the PUBLIC grant in force.",
+    "Default privileges are set for future public-schema functions, so a later migration cannot silently reopen the front door.",
+    "The profiles policy joins team_members on a shared team (both rows exist and are visible to a member under the roster policy), so it grants co-membership only — never a global read.",
+    "The changes are additive: no schema/column/function-body change, so 02 §8.1 stays the source of truth.",
+    "The checks follow the existing tb_test harness and run under the live RLS suite (npm test in database-thinkboard-lite); this environment has no stack, so that run is deferred."
+  ],
+  "commands_run": ["npm run verify (frontend; unaffected — confirms the repo gate stays green)"]
+}

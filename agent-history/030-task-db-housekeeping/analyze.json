@@ -1,0 +1,33 @@
+{
+  "task_id": "030-task-db-housekeeping",
+  "phase": "analyze",
+  "started_at": "2026-09-26T04:00:00Z",
+  "completed_at": "2026-09-26T04:15:00Z",
+  "sources_read": [
+    {"doc": "README.md", "section": "§6 housekeeping, §7 hard limits (RULE-01)"},
+    {"doc": "06-whole-apps-task.md", "section": "PHASE G · 030"},
+    {"doc": "02-database-architecture.md", "section": "§8.1 (RLS is the authorization layer, DB-1)"},
+    {"doc": "task-review-2026-09-25.md", "section": "§3.5 housekeeping"},
+    {"doc": "database-thinkboard-lite/supabase/migrations/0001_initial.sql", "section": "profiles RLS ('own profile'), the definer helpers (current_profile_id, is_team_member, is_team_leader, can_access_session)"},
+    {"doc": "database-thinkboard-lite/supabase/migrations/0004_lite.sql", "section": "the Lite definer RPCs (can_lead_session, promote_highlight, create_workspace, transfer_leadership) and the broadcast triggers"},
+    {"doc": "database-thinkboard-lite/supabase/tests/rls.sql", "section": "the harness (tb_test helpers) and the check style the new g17/g18 follow"},
+    {"doc": "database-thinkboard-lite/README.md", "section": "how the DB test suite runs (npm test, live stack)"}
+  ],
+  "scope": "Two additive migrations (grants and one profiles policy) and their checks in the live RLS suite. Out of scope: any schema/column change, the function bodies, and the seed.",
+  "acceptance_criteria": [
+    {"goal_id": "g1", "text": "Anon is denied on create_workspace; authenticated is allowed, and the policy helpers stay callable (the suite proves it)."},
+    {"goal_id": "g2", "text": "A teammate reads a co-member's profile; an outsider does not; the owner's own-profile policy is untouched."},
+    {"goal_id": "g3", "text": "rls.sql gains the g17/g18 checks in the existing harness style."},
+    {"goal_id": "g4", "text": "README §6 and the task review mark the two items done."}
+  ],
+  "open_questions": [
+    "The changes are additive: no column or function body changes, so 02 §8.1 (the schema's source of truth) does not move.",
+    "Supabase grants EXECUTE to PUBLIC by default; the fix revokes from PUBLIC and anon and grants authenticated, plus the default privileges for later functions. This is the mechanism DB-Q/DB-1 imply, not a new decision.",
+    "The live RLS suite is the gate; it needs Docker and the local stack, so its run is recorded as the task's test and deferred in this environment."
+  ],
+  "risks": [
+    "Revoking EXECUTE from PUBLIC removes it from authenticated too; the explicit grant restores it, and the suite verifies the policy helpers still work.",
+    "A profiles policy that checked membership naively could leak other teams; the policy joins on a shared team_members row.",
+    "The default-privileges statements only affect future functions; existing ones are covered by the revoke/grant above."
+  ]
+}

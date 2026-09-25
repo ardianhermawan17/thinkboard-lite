@@ -1,6 +1,6 @@
 {
 	"schema_version": "1.0",
-	"updated_at": "2026-09-26T03:00:00Z",
+	"updated_at": "2026-09-26T04:50:00Z",
 	"tracked_todos": [
 		{
 			"id": "000-todo-architecture-contract",
@@ -176,6 +176,14 @@
 			"goal": "A member can paste an exported notes.md and re-import it without duplicates.",
 			"todo_path": "agent-thinking/todo/029-todo-reimport-review/contract.json",
 			"agent_history": "agent-history/029-task-reimport-review",
+			"status": "done"
+		},
+		{
+			"id": "030-todo-db-housekeeping",
+			"name": "Database housekeeping",
+			"goal": "Anon cannot call the definer RPCs, and a teammate can read a co-member's name.",
+			"todo_path": "agent-thinking/todo/030-todo-db-housekeeping/contract.json",
+			"agent_history": "agent-history/030-task-db-housekeeping",
 			"status": "done"
 		}
 	]

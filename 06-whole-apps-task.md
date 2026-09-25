@@ -517,6 +517,20 @@ catches every planted violation under its own id and prints all 29 rows. "Green 
 
 **Gate** — export → edit the prose → paste back → apply updates the note and adds none.
 
+### `030-task-db-housekeeping` · `supabase`
+
+**Main-goal —** Close the two database items the review carried: an unauthenticated `anon` role must not be able to call the definer RPCs, and a teammate must be able to read a co-member's profile name.
+
+**Why it exists** — both are recorded housekeeping (task review §3.5, README §6): `anon` inherits EXECUTE on the definer RPCs from PUBLIC, and `profiles`' own-only policy hides the roster's names.
+
+**Mini-goals**
+- `g1` `0007_revoke_anon_execute.sql` — revoke EXECUTE on public-schema functions from PUBLIC and `anon`, grant `authenticated`, and set the same default for later functions.
+- `g2` `0008_team_profile_names.sql` — a permissive SELECT policy on `profiles` for co-members.
+- `g3` `rls.sql` gains the proof: anon denied, authenticated allowed; a teammate reads a co-member, an outsider does not.
+- `g4` the housekeeping items are marked done in the docs.
+
+**Gate —** the live RLS suite passes with the two new checks.
+
 ---
 
 ## 2. Dependency graph

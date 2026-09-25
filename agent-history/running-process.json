@@ -1,6 +1,6 @@
 {
 	"schema_version": "1.0",
-	"updated_at": "2026-09-26T03:55:00Z",
+	"updated_at": "2026-09-26T04:50:00Z",
 	"current_task_id": null,
 	"current_phase": "idle",
 	"history_path": null,
@@ -137,6 +137,12 @@
 			"architecture": "frontend",
 			"status": "done",
 			"title": "A member can paste an exported notes.md and re-import it without duplicates"
+		},
+		{
+			"id": "030-task-db-housekeeping",
+			"architecture": "supabase",
+			"status": "done",
+			"title": "Anon cannot call the definer RPCs, and a teammate can read a co-member's name"
 		}
 	]
 }

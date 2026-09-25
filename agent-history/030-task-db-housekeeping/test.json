@@ -1,0 +1,11 @@
+{
+  "task_id": "030-task-db-housekeeping",
+  "phase": "test",
+  "test_files": ["database-thinkboard-lite/supabase/tests/rls.sql"],
+  "commands_run": [
+    {"command": "npm run verify (frontend-thinkboard-lite)", "result": "18 pass/0 fail arch, lint clean, typecheck clean, vitest 350 passed/10 skipped (360) — the migrations do not touch the frontend, so the repo gate is unchanged"},
+    {"command": "database-thinkboard-lite npm test (live RLS suite)", "result": "NOT RUN in this environment (needs Docker + the local stack). The suite gained the g17/g18 checks; running it is the task's gate and the recorded follow-up."}
+  ],
+  "summary": {"total": 360, "passed": 350, "failed": 0, "skipped": 10},
+  "coverage_notes": "The task's own tests are the six live RLS checks added to supabase/tests/rls.sql: g17 anon-cannot-create_workspace, g17 authenticated-can-create_workspace, g18 teammate-reads-co-member, g18 B-cannot-read-outsider, g18 outsider-cannot-read-member. They run under `npm test` in database-thinkboard-lite against the local stack; this environment has no stack, so they are recorded as pending a live run rather than passing. The frontend gate (`npm run verify`) is unchanged (350 pass/10 skip) because the change is database-only. The 10 skipped are the pre-existing live-stack suites."
+}

@@ -1,0 +1,28 @@
+{
+  "task_id": "030-task-db-housekeeping",
+  "phase": "result",
+  "closed_at": "2026-09-26T04:50:00Z",
+  "final_status": "done",
+  "goals_summary": {
+    "total": 4,
+    "done": 4,
+    "blocked": 0,
+    "detail": "g1 the anon EXECUTE revoke migration pass; g2 the co-member profiles policy pass; g3 the live-suite checks added pass (run deferred); g4 the docs marked done pass. Recomputed from task.json goals[] and validate.json goal_checks — all four 'pending' -> 'done', none blocked."
+  },
+  "artifacts": [
+    "database-thinkboard-lite/supabase/migrations/0007_revoke_anon_execute.sql",
+    "database-thinkboard-lite/supabase/migrations/0008_team_profile_names.sql",
+    "database-thinkboard-lite/supabase/tests/rls.sql — the g17/g18 checks",
+    "06-whole-apps-task.md (PHASE G · 030), todo-task-030-db-housekeeping.md, README §6, task review §3.5"
+  ],
+  "verify": "The repo gate (`npm run verify` in frontend-thinkboard-lite) is green and unchanged: verify:arch 18 pass/0 fail, lint 0 errors, typecheck clean, vitest 350 passed/10 skipped (360). The task's own gate — the live RLS suite with the two new checks — is deferred (no local stack here).",
+  "decisions_recap": [
+    "EXECUTE is revoked from PUBLIC and anon and granted to authenticated, with matching default privileges.",
+    "The profiles policy grants co-member reads only, via a shared-team join.",
+    "The change is additive; 02 §8.1 does not move."
+  ],
+  "follow_up_tasks": [
+    "Run database-thinkboard-lite `npm test` against the local stack to execute the g17/g18 checks (the task's gate).",
+    "When the notifier/broadcast work (015) is next touched, confirm the new default privileges do not block legitimate anon/public infrastructure calls (none are expected in Lite)."
+  ]
+}

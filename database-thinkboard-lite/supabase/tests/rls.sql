@@ -18,6 +18,11 @@ create function tb_test.p(k text) returns uuid language sql stable security defi
   select profile_id from profile_identities where auth_user_id = tb_test.g('u' || $1) $$;
 
 create function tb_test.root() returns void language plpgsql as $$ begin execute 'reset role'; end $$;
+create function tb_test.anon() returns void language plpgsql as $$
+begin
+  execute 'reset role'; execute 'set local role anon';
+  perform set_config('request.jwt.claims', '', true);
+end $$;
 create function tb_test.be(k text) returns void language plpgsql as $$
 begin
   execute 'reset role'; execute 'set local role authenticated';
@@ -249,6 +254,19 @@ select tb_test.be('L');
 select tb_test.ok('g16 the former leader can no longer transfer', tb_test.errs(format('select transfer_leadership(%L, %L)', tb_test.g('team'), tb_test.p('B'))));
 select set_config('request.jwt.claims', json_build_object('sub', gen_random_uuid(), 'role', 'authenticated')::text, true);
 select tb_test.ok('g16 an unknown user cannot create a workspace', tb_test.errs('select create_workspace(''n'', ''t'', ''g'')'));
+
+-- ═══ g17 · housekeeping: anon cannot call the definer RPCs (0007_revoke_anon_execute) ═══
+select tb_test.anon();
+select tb_test.ok('g17 anon cannot execute create_workspace', tb_test.errs('select create_workspace(''n'', ''t'', ''g'')'));
+select tb_test.be('L');
+select tb_test.ok('g17 authenticated can still execute create_workspace', (select create_workspace('Keep', 'Keep', 'g') is not null));
+
+-- ═══ g18 · housekeeping: teammates read each other's profile, outsiders do not (0008_team_profile_names) ═══
+select tb_test.be('B');
+select tb_test.ok('g18 a teammate can read a co-member''s profile', (select count(*) from profiles where id = tb_test.p('A')) = 1);
+select tb_test.ok('g18 B still cannot read an outsider''s profile', (select count(*) from profiles where id = tb_test.p('X')) = 0);
+select tb_test.be('X');
+select tb_test.ok('g18 an outsider cannot read a member''s profile', (select count(*) from profiles where id = tb_test.p('A')) = 0);
 
 -- ═══ report ═══
 select tb_test.root();

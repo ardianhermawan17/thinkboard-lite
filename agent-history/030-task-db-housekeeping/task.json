@@ -1,0 +1,28 @@
+{
+  "id": "030-task-db-housekeeping",
+  "title": "Anon cannot call the definer RPCs, and a teammate can read a co-member's name",
+  "architecture": "supabase",
+  "secondary_architecture": [],
+  "created_at": "2026-09-26T04:00:00Z",
+  "status": "done",
+  "depends_on": ["001-task-supabase-lite-migration", "002-task-rls-access-proof"],
+  "plan_refs": [
+    {"doc": "06-whole-apps-task.md", "section": "PHASE G · 030"},
+    {"doc": "02-database-architecture.md", "section": "§8.1"},
+    {"doc": "task-review-2026-09-25.md", "section": "§3.5 housekeeping"},
+    {"doc": "todo-task-030-db-housekeeping.md", "section": "§2, §3"}
+  ],
+  "goals": [
+    {"id": "g1", "description": "0007 revokes EXECUTE on public functions from PUBLIC and anon, grants authenticated, and sets the default", "plan_ref": "tasks 030 g1; RULE-01", "status": "done"},
+    {"id": "g2", "description": "0008 adds a permissive co-member SELECT policy on profiles", "plan_ref": "tasks 030 g2", "status": "done"},
+    {"id": "g3", "description": "rls.sql proves g1 and g2", "plan_ref": "tasks 030 g3", "status": "done"},
+    {"id": "g4", "description": "the docs mark the housekeeping items done", "plan_ref": "tasks 030 g4", "status": "done"}
+  ],
+  "phases": {
+    "analyze": {"file": "analyze.json", "status": "done"},
+    "code": {"file": "code.json", "status": "done"},
+    "test": {"file": "test.json", "status": "done"},
+    "validate": {"file": "validate.json", "status": "done"},
+    "result": {"file": "result.json", "status": "done"}
+  }
+}

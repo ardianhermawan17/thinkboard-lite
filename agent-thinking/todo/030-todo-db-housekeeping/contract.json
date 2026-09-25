@@ -1,0 +1,8 @@
+{
+  "schema_version": "1.0",
+  "id": "030-todo-db-housekeeping",
+  "name": "Database housekeeping",
+  "goal": "Anon cannot call the definer RPCs, and a teammate can read a co-member's name.",
+  "human_prompt": "yes, and continue the next 3 task. Make sure to do work->testing->review",
+  "translated_prompt_agent": "Continue the integration after 029. Task 030 (supabase): write 0007_revoke_anon_execute.sql (revoke EXECUTE on public-schema functions from PUBLIC and anon, grant authenticated, set the default) and 0008_team_profile_names.sql (a permissive co-member SELECT policy on profiles); add the g17/g18 proof to supabase/tests/rls.sql; mark the two housekeeping items done in README §6 and the task review; write all six phase files; note the live RLS run as the gate; close validate/result."
+}
