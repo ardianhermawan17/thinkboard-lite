@@ -142,5 +142,31 @@ The top finding above — the route-wiring gap — was fixed immediately: **task
 Effect on this review's snapshot: the backlog is now **26 tasks**; **16 done** (000–011, 016, 017, 021, 025),
 3 blocked (012, 015, 018), 1 conditional (024), 6 not started (013, 014, 019, 020, 022, 023). Nothing else in
 the review changes — the remaining blockers are still human/hardware decisions, and the per-phase
-recommendations stand (mounting 012's note sheet, 015's cursors and 021's import entry point into the new view
-is now possible before those blockers clear).
+recommendations stand.
+
+### The next integration step hits a real layering question (raised, not guessed)
+
+Mounting **012's note sheet** (the most user-visible next surface) needs a `profileId` for the note editor.
+Today no allowed component can supply it:
+
+- `NoteSheet`/`NoteEditor` live in `features/notes`; 012's `NoteSheet` takes `profileId` as a prop.
+- **I3** lets a feature import only `@feature/entities` and `@feature/sync`, so `features/notes` may not import
+  `features/workspace`'s `selectProfileId`.
+- **I4** forbids `useAppSelector`/`useAppDispatch` under `src/app/`, so the app route that composes the view may
+  not read the store either.
+
+The same knot applies to 015's `PeerCursors`/`LeaderDrawing` (they need `profileId` + `sessionId`) and to 021's
+import entry point. It is the *actual* reason these mounts were deferred, more than the missing route.
+
+Three clean resolutions, for a human to choose (this is a boundary decision, not a code detail):
+
+1. **A shared workspace context** — `features/workspace` provides a `profileId`/`sessionId` context defined in
+   `shared/`; `features/notes` and `features/presence` consume it via `useContext` (no feature→feature import).
+   *Recommended*: no rule bends, and it is the seam the next three mounts all need.
+2. **A neutral profile selector** — move `selectProfileId` to a place both features may import (checked against
+   the folder law) and read it from `features/notes`.
+3. **Lift it through `renderPage`** — the viewer already passes `profileId` in its page args; a small reporter
+   component inside `renderPage` lifts it to the app-level composition. Works, but adds render-time machinery.
+
+Recommendation: adopt (1) as a small enabling task, then mount the note sheet, cursors and the import entry point
+against it.
