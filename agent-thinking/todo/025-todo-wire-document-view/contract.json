@@ -1,0 +1,8 @@
+{
+  "schema_version": "1.0",
+  "id": "025-todo-wire-document-view",
+  "name": "Wire the document view",
+  "goal": "The workspace document view is mounted, so built highlight and capture surfaces are user-visible.",
+  "human_prompt": "yes",
+  "translated_prompt_agent": "Act on the top finding of task-review-2026-09-25.md: open a new task 025 (Phase G — Integration) that mounts the document view so the components built by 009/010/011/012/015/021 stop being invisible. Concretely: (1) add the task to 06-whole-apps-task.md and write todo-task-025-wire-document-view.md; (2) give WorkspaceShell an injected-children slot in its main area (features/workspace may not import document/highlight, I3); (3) add an app-level client component at src/app/w/[workspaceId]/workspace-document.tsx that composes DocumentViewer with HighlightedPage through its renderPage slot and holds only the armed-tool UI state (no store hook under src/app, I4); (4) a region-tool control (off / rectangle / freehand) that arms the marquee; (5) a composition test with mocks; (6) keep npm run verify green, write every phase file into agent-history/025-task-wire-document-view/, and close validate/result honestly, deferring only the live-seeded browser pass."
+}

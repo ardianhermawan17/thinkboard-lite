@@ -130,3 +130,17 @@ blocked to actionable; nothing in the codebase is currently the bottleneck.
 
 Sources: `agent-history/running-process.json`, `agent-thinking/tracking-todo.json`,
 `agent-history/<NNN-task-*/result.json`, `README.md` §5–§6, `06-whole-apps-task.md`.
+
+---
+
+## Postscript (same day, after this review)
+
+The top finding above — the route-wiring gap — was fixed immediately: **task 025** was opened as a new
+**PHASE G — Integration** and closed the same day. `/w/[workspaceId]` now mounts `DocumentViewer` +
+`HighlightedPage` at the app route (I3/I4 respected) with a region-tool control, so the built slice is visible.
+
+Effect on this review's snapshot: the backlog is now **26 tasks**; **16 done** (000–011, 016, 017, 021, 025),
+3 blocked (012, 015, 018), 1 conditional (024), 6 not started (013, 014, 019, 020, 022, 023). Nothing else in
+the review changes — the remaining blockers are still human/hardware decisions, and the per-phase
+recommendations stand (mounting 012's note sheet, 015's cursors and 021's import entry point into the new view
+is now possible before those blockers clear).

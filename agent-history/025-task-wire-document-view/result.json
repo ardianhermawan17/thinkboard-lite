@@ -1,0 +1,33 @@
+{
+  "task_id": "025-task-wire-document-view",
+  "phase": "result",
+  "closed_at": "2026-09-25T11:55:00Z",
+  "final_status": "done",
+  "goals_summary": {
+    "total": 4,
+    "done": 4,
+    "blocked": 0,
+    "detail": "g1 the shell renders an injected document view pass; g2 the app-level DocumentViewer + HighlightedPage composition with no store hook pass; g3 the region-tool control arms the marquee pass; g4 the composition test pass. Recomputed from task.json goals[] and validate.json goal_checks — all four 'pending' -> 'done', none blocked."
+  },
+  "artifacts": [
+    "src/app/w/[workspaceId]/workspace-document.tsx (+ test) — the document/highlight composition point",
+    "src/app/w/[workspaceId]/page.tsx — passes the composition into the shell",
+    "src/features/workspace/components/workspace-shell/workspace-shell.tsx — the injected-children slot",
+    "06-whole-apps-task.md (PHASE G · 025), todo-task-025-wire-document-view.md"
+  ],
+  "verify": "npm run verify green: verify:arch 18 pass/0 fail, lint 0 errors (2 pre-existing warnings), typecheck clean, vitest 323 passed/10 skipped (333). npm run build succeeded; /w/[workspaceId] remains a dynamic route. No new dependency.",
+  "decisions_recap": [
+    "025 is a new task (PHASE G — Integration): the route-wiring gap was not covered by 000-024.",
+    "The composition is app-level (I3); the app component holds only the armed-tool state (I4).",
+    "WorkspaceShell gained an injected-children slot rather than importing document/highlight.",
+    "DocumentViewer already resolves the PDF and viewport, so no new query/slice was added.",
+    "renderPage guards nullable artifactId/profileId."
+  ],
+  "follow_up_tasks": [
+    "Run the live Gate: a seeded workspace in a browser shows the PDF; a text selection persists a highlight; a region tool persists one.",
+    "Mount 012's NoteSheet (click a highlight -> open its note) inside this view.",
+    "Mount 015's PeerCursors into the page Stage and LeaderDrawing in the header, and publish cursors from the page-stage pointer stream.",
+    "Mount 021's import entry point (choose a PDF, run a rung, show ImportReview) in this view.",
+    "Add the export control (016's bundle) to this view once a session-wide rows query exists."
+  ]
+}

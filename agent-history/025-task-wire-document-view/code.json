@@ -1,0 +1,23 @@
+{
+  "task_id": "025-task-wire-document-view",
+  "phase": "code",
+  "started_at": "2026-09-25T11:15:00Z",
+  "completed_at": "2026-09-25T11:45:00Z",
+  "files_changed": [
+    {"path": "06-whole-apps-task.md", "action": "modified", "summary": "Added PHASE G — Integration with 025-task-wire-document-view (Gate 1: an ask no task covered)."},
+    {"path": "todo-task-025-wire-document-view.md", "action": "created", "summary": "The task's plan doc (§2 goals/gate, §3 decisions, §7 contract scaffolding)."},
+    {"path": "src/features/workspace/components/workspace-shell/workspace-shell.tsx", "action": "modified", "summary": "WorkspaceShell/Body accept injected children and render them in the main area, falling back to the placeholder (g1)."},
+    {"path": "src/app/w/[workspaceId]/workspace-document.tsx", "action": "created", "summary": "App-level composition of DocumentViewer + HighlightedPage through renderPage, with the region-tool state (g2/g3); no store hook (I4)."},
+    {"path": "src/app/w/[workspaceId]/page.tsx", "action": "modified", "summary": "The route passes the composed WorkspaceDocument into WorkspaceShell as children."},
+    {"path": "src/app/w/[workspaceId]/workspace-document.test.tsx", "action": "created", "summary": "2 composition tests (mocked viewer/page): page args flow, tool arms/disarms (g4)."}
+  ],
+  "decisions": [
+    "New task: the route-wiring gap was not covered by 000-024, so per README Gate 1 it was added to 06 as 025 (PHASE G — Integration) and given a plan doc first (analyze.json NEW-1).",
+    "The composition lives at the app route because a feature may import only entities/sync from another feature (I3); the app component uses no store selector or dispatch (I4) and holds only the armed-tool useState.",
+    "WorkspaceShell gains an injected-children slot instead of importing document/highlight itself — the shell stays in its layer.",
+    "The viewer already resolves the session's main PDF and the viewport, so no new query or slice was added; DocumentViewer's renderPage supplies every page arg.",
+    "renderPage guards the nullable artifactId/profileId (the shell can render before the artifact loads) by returning null for that page.",
+    "The region-tool control is three buttons (Select / Rectangle / Freehand) mapped to MarqueeTool | null; it is authoring UI and its mobile placement waits for 022 (D-11)."
+  ],
+  "commands_run": ["npm run typecheck", "npx vitest run --project unit (touched files)", "npm run verify", "npm run build"]
+}

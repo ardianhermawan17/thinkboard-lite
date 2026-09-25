@@ -1,0 +1,15 @@
+{
+  "task_id": "025-task-wire-document-view",
+  "phase": "test",
+  "test_files": ["src/app/w/[workspaceId]/workspace-document.test.tsx"],
+  "commands_run": [
+    {"command": "npx vitest run --project unit (touched files)", "result": "3 files, 7 tests passed"},
+    {"command": "npm run verify:arch", "result": "18 pass, 0 fail, 10 skipped, 1 void (I4 finds no store hook under src/app)"},
+    {"command": "npm run lint", "result": "0 errors, 2 pre-existing warnings"},
+    {"command": "npm run typecheck", "result": "clean"},
+    {"command": "npm run test", "result": "75 test files passed / 2 skipped (77); 323 tests passed / 10 skipped (333)"},
+    {"command": "npm run build", "result": "production build succeeded; /w/[workspaceId] still builds as a dynamic route"}
+  ],
+  "summary": {"total": 333, "passed": 323, "failed": 0, "skipped": 10},
+  "coverage_notes": "g1/g2/g4 are covered by workspace-document.test.tsx: with DocumentViewer and HighlightedPage mocked, it asserts the viewer receives the session id, HighlightedPage receives the page args (page 3) and the composition runs through renderPage. g3 is covered by the second test: Rectangle arms tool 'rect', Freehand 'freehand', Select disarms to 'null'. verify:arch's I4 confirms no useAppSelector/useAppDispatch under src/app. The live Gate (a seeded workspace in a browser: the PDF renders, a text selection and a region persist) needs the local stack and is deferred like the other browser gates. The 10 skipped are the pre-existing live-stack suites."
+}

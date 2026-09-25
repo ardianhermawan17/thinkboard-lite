@@ -209,6 +209,7 @@ in `task_sequence` is *not opened*.
 | F | 022 responsive, motion, theme | [todo-task-022](todo-task-022-responsive-motion-theme.md) | frontend | — (after 008–013) | not opened |
 | F | 023 pilot hardening | [todo-task-023](todo-task-023-pilot-hardening.md) | backend | 015 016 020 022 | not opened |
 | F | 024 ink fallback | [todo-task-024](todo-task-024-ink-fallback.md) | frontend | 012 | **conditional on 012 g6** |
+| G | 025 wire the document view | [todo-task-025](todo-task-025-wire-document-view.md) | frontend | 009 010 011 | **done** |
 
 ```
 Critical path = the demoable slice:  000 → 001 → 004 → 006 → 008 → 009 → 010 → 012
@@ -269,9 +270,12 @@ Critical path = the demoable slice:  000 → 001 → 004 → 006 → 008 → 009
 - **Closed blocked:** 015 (realtime presence) — presence, the ref/paint `peer-cursors` leaf with a ~20 Hz movement-only throttle, the "Leader is drawing"
   indicator and `0006_live_topic.sql` (a members-only `live:{sessionId}` topic; `ws:`/`user:` stay database-sent only). g5, the two-browser latency
   measurement, needs the live stack and two browsers. `npm run verify` green (321 tests), production build ok; no new dependency.
+- **Also done:** 025 (wire the document view) — a new PHASE G integration task that closes the top finding of `task-review-2026-09-25.md`: `/w/[workspaceId]`
+  now mounts `DocumentViewer` + `HighlightedPage` at the app route (I3/I4 respected) with a region-tool control, so the built slice is visible.
+  `npm run verify` green (323 tests), production build ok; no new dependency. (`06-whole-apps-task.md`'s backlog is now 26 tasks.)
 - **Next:** nothing is unblocked by dependencies. 013/014/022 wait on 012 (human device test, Q7); 019/020 wait on 018 (D-12); 023 waits on 015/016/020/022.
-  The next real progress is a human action — run 012's device test, answer D-12, run 015's two-browser test — or opening the document-view route task the
-  built slice has been waiting for.
+  The next real progress is a human action — run 012's device test, answer D-12, run 015's two-browser test — or mounting the remaining surfaces (012's note
+  sheet, 015's cursors, 021's import entry point) into the now-live document view.
   Open housekeeping: revoke anon EXECUTE on the definer RPCs, and let teammates read the profile names of their team.
 - **Waiting on a human:**
   - **D-12** — free-tier training terms vs document sensitivity. Blocks 018, and ink transcription in 024. 003's

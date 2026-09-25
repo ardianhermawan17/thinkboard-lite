@@ -1,6 +1,6 @@
 {
 	"schema_version": "1.0",
-	"updated_at": "2026-09-25T09:00:00Z",
+	"updated_at": "2026-09-25T11:00:00Z",
 	"tracked_todos": [
 		{
 			"id": "000-todo-architecture-contract",
@@ -137,6 +137,14 @@
 			"todo_path": "agent-thinking/todo/015-todo-realtime-presence/contract.json",
 			"agent_history": "agent-history/015-task-realtime-presence",
 			"status": "in_progress"
+		},
+		{
+			"id": "025-todo-wire-document-view",
+			"name": "Wire the document view",
+			"goal": "The workspace document view is mounted, so built highlight and capture surfaces are user-visible.",
+			"todo_path": "agent-thinking/todo/025-todo-wire-document-view/contract.json",
+			"agent_history": "agent-history/025-task-wire-document-view",
+			"status": "done"
 		}
 	]
 }

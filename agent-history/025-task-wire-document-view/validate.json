@@ -1,0 +1,22 @@
+{
+  "task_id": "025-task-wire-document-view",
+  "phase": "validate",
+  "goal_checks": [
+    {"goal_id": "g1", "status": "pass", "notes": "WorkspaceShell (and its Body) accept an optional `children` and render it in the main area; without children the previous placeholder (title + goal) still renders, so /w is unchanged. The route passes the composed view as children, so the shell never imports document/highlight (I3 respected)."},
+    {"goal_id": "g2", "status": "pass", "notes": "src/app/w/[workspaceId]/workspace-document.tsx is the only place document and highlight meet; it composes DocumentViewer with HighlightedPage through the renderPage slot and imports both feature barrels. verify:arch's I4 scan finds no useAppSelector/useAppDispatch under src/app, and the component holds only the armed-tool useState."},
+    {"goal_id": "g3", "status": "pass", "notes": "The toolbar exposes Select / Rectangle / Freehand mapped to MarqueeTool | null; the composition test proves the chosen tool reaches HighlightedPage (and therefore the marquee leaf) and that Select disarms it."},
+    {"goal_id": "g4", "status": "pass", "notes": "workspace-document.test.tsx renders the real component with the viewer and page mocked, asserting the page args flow through renderPage and the tool arms/disarms. No live stack is needed for this proof."}
+  ],
+  "cross_check_against_plan": [
+    {"doc": "06-whole-apps-task.md", "section": "PHASE G · 025", "result": "matches — frontend; the four mini-goals map to g1-g4; it makes 009-012/015/021 user-visible and blocks nothing new."},
+    {"doc": "04-frontend-folder-architecture.md", "section": "§3.1, §9", "result": "matches — the composition is at the app route, the shell keeps a slot, and no feature imports another feature (I3)."},
+    {"doc": "03-frontend-architecture.md", "section": "§6.1, §7", "result": "matches — the canvas tier is unchanged; the toolbar is desktop/tablet authoring UI (D-11)."}
+  ],
+  "signed_off": true,
+  "issues_found": [
+    "The task Gate needs a seeded workspace in a browser (the local Supabase stack); it is deferred like the other browser gates. The composition is proven with mocks.",
+    "Only document + highlight are mounted: 012's NoteSheet, 015's PeerCursors and 021's ImportReview still need their own mount points inside this view (follow-ups).",
+    "015's presence cursors are not published from this view yet (nothing calls publishCursor); wiring them to the page-stage pointer stream is a follow-up.",
+    "The review document (task-review-2026-09-25.md) predates 025; a postscript records that 025 was added to close its top finding."
+  ]
+}

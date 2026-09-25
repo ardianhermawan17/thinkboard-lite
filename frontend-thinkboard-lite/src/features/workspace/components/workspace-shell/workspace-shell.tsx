@@ -1,5 +1,6 @@
 "use client"
 
+import type { ReactNode } from "react"
 import { OfflineBanner } from "@feature/sync/components/offline-banner"
 import { AuthGuard } from "../auth-guard"
 import { AppHeader } from "../app-header"
@@ -13,7 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@shared/components/ui/
 import { Textarea } from "@shared/components/ui/textarea"
 import { useWorkspaceShell } from "./use-workspace-shell"
 
-function Body({ workspaceId }: { workspaceId?: string }) {
+function Body({ workspaceId, children }: { workspaceId?: string; children?: ReactNode }) {
   const { landing, redirecting, error, session, create } = useWorkspaceShell(workspaceId)
 
   if (redirecting) return <Skeleton className="h-svh w-full" />
@@ -50,11 +51,20 @@ function Body({ workspaceId }: { workspaceId?: string }) {
       <AppHeader />
       <OfflineBanner />
       <div className="flex min-h-0 flex-1">
-        {/* the document area: 009 mounts the PDF canvas here */}
-        <main className="flex min-w-0 flex-1 flex-col gap-2 p-6">
-          <h2 className="text-lg font-medium">{session?.title ?? <Skeleton className="h-6 w-48" />}</h2>
-          {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
-          <p className="text-sm text-muted-foreground">{session?.initial_question}</p>
+        {/* the document area: the app route injects the composed document view (025); a feature may not import
+            document/highlight itself (I3), so this stays a slot. */}
+        <main className="flex min-h-0 min-w-0 flex-1 flex-col">
+          {error && (
+            <p role="alert" className="px-6 pt-2 text-sm text-destructive">
+              {error}
+            </p>
+          )}
+          {children ?? (
+            <div className="flex flex-col gap-2 p-6">
+              <h2 className="text-lg font-medium">{session?.title ?? <Skeleton className="h-6 w-48" />}</h2>
+              <p className="text-sm text-muted-foreground">{session?.initial_question}</p>
+            </div>
+          )}
         </main>
         {/* the right rail: 013 adds sheets and promotion */}
         <aside className="w-80 shrink-0 border-l p-4">
@@ -76,10 +86,10 @@ function Body({ workspaceId }: { workspaceId?: string }) {
   )
 }
 
-export function WorkspaceShell({ workspaceId }: { workspaceId?: string }) {
+export function WorkspaceShell({ workspaceId, children }: { workspaceId?: string; children?: ReactNode }) {
   return (
     <AuthGuard>
-      <Body workspaceId={workspaceId} />
+      <Body workspaceId={workspaceId}>{children}</Body>
     </AuthGuard>
   )
 }

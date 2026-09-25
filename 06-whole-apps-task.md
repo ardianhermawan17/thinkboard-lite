@@ -442,6 +442,25 @@ catches every planted violation under its own id and prints all 29 rows. "Green 
 
 ---
 
+## PHASE G — Integration
+
+### `025-task-wire-document-view` · `frontend`
+
+**Main-goal —** The workspace document view is actually mounted, so the highlight, note and result surfaces built through Phase D become visible at `/w/[workspaceId]` instead of living only in unimported components.
+
+**Why it exists** — 009 (`DocumentViewer`), 010 (`HighlightedPage`), 011 (`RegionHighlightCapture`), 012 (`NoteSheet`), 015 (`PeerCursors`) and 021 (`ImportReview`) all shipped components that no route mounts yet; the workspace shell still renders a placeholder `<main>`. This task closes that gap. It is an *integration* task, not a feature: it adds no new domain behaviour.
+
+**Mini-goals**
+- `g1` `WorkspaceShell` renders a document view in its main area instead of the placeholder; the view is injected by the app route, because `features/workspace` may not import `document`/`highlight` (I3).
+- `g2` `DocumentViewer` composes `HighlightedPage` through its `renderPage` slot at the app level; the app-level component runs no store selector or dispatch (I4: routes compose, never orchestrate).
+- `g3` a region-tool control (off / rectangle / freehand) arms the marquee leaf.
+- `g4` a composition test proves the wiring without a live stack.
+
+**Gate** — with a seeded workspace, `/w/<sessionId>` shows the PDF; selecting text persists a highlight; a region tool persists one.
+**Blocks** — —; it makes 009-012/015/021 user-visible.
+
+---
+
 ## 2. Dependency graph
 
 ```

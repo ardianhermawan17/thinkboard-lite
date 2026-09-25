@@ -1,0 +1,36 @@
+{
+  "task_id": "025-task-wire-document-view",
+  "phase": "analyze",
+  "started_at": "2026-09-25T11:00:00Z",
+  "completed_at": "2026-09-25T11:15:00Z",
+  "sources_read": [
+    {"doc": "README.md", "section": "§5 task map, §7 hard limits (I3 import law, I4 src/app)"},
+    {"doc": "06-whole-apps-task.md", "section": "PHASE G · 025"},
+    {"doc": "todo-task-025-wire-document-view.md", "section": "full file"},
+    {"doc": "04-frontend-folder-architecture.md", "section": "§3.1 routes, §9 import direction law"},
+    {"doc": "03-frontend-architecture.md", "section": "§6.1 the canvas tier, §7 devices"},
+    {"doc": "frontend-thinkboard-lite/src/features/document/components/document-viewer/", "section": "the built viewer and its renderPage slot (DocumentViewerPageArgs)"},
+    {"doc": "frontend-thinkboard-lite/src/features/document/components/document-viewer/use-document-viewer.ts", "section": "it already finds the main PDF, opens it and supplies page args"},
+    {"doc": "frontend-thinkboard-lite/src/features/highlight/components/highlighted-page/", "section": "the built page composition (layer + region capture + text capture) and its props"},
+    {"doc": "frontend-thinkboard-lite/src/features/workspace/components/workspace-shell/workspace-shell.tsx", "section": "the placeholder <main> to replace"},
+    {"doc": "frontend-thinkboard-lite/src/app/w/[workspaceId]/page.tsx", "section": "the route that composes the shell"},
+    {"doc": "frontend-thinkboard-lite/eslint.architecture.mjs", "section": "i3 (shared->features) and the src/app rules"}
+  ],
+  "scope": "Mount the already-built document view: a children slot in WorkspaceShell's main area, an app-level composition of DocumentViewer + HighlightedPage through renderPage, and a region-tool control. Out of scope: wiring the note sheet (012), presence cursors (015) or the import review (021) into the view; any new canvas/domain behaviour.",
+  "acceptance_criteria": [
+    {"goal_id": "g1", "text": "WorkspaceShell's main area renders injected children when given, and its existing placeholder otherwise."},
+    {"goal_id": "g2", "text": "The app-level component imports @feature/document and @feature/highlight and uses no useAppSelector/useAppDispatch (I4); no feature imports another feature (I3)."},
+    {"goal_id": "g3", "text": "Choosing 'rectangle' or 'freehand' arms the marquee with that tool; 'off' disarms it."},
+    {"goal_id": "g4", "text": "A test renders the composition with DocumentViewer/HighlightedPage mocked and asserts HighlightedPage receives the document page args and the armed tool."}
+  ],
+  "open_questions": [
+    "D-11 (defaulted: tablet authors, desktop analyses, mobile reads) — the toolbar is an authoring control; its mobile placement waits for 022.",
+    "Q8 (unanswered: the real tablet mix) — not needed for the wiring; the on-device frame check stays 009/011's follow-up.",
+    "NEW-1: this task is new (not in the 000-024 backlog); README Gate 1 says an ask no task covers becomes a new task with the next free NNN, added to 06 and given a plan doc first. It is filed as PHASE G — Integration. Recorded, not silently added."
+  ],
+  "risks": [
+    "I3: composing document + highlight inside a feature would be a layering violation; the composition is kept at the app route.",
+    "I4: a store selector or dispatch under src/app is forbidden; the app component holds only the armed-tool useState.",
+    "The live gate (a seeded workspace in a browser) needs the local stack; the composition is proven with mocks instead, the live pass deferred like the other browser gates."
+  ]
+}
