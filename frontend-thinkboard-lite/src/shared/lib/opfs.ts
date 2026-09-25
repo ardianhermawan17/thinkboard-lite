@@ -38,6 +38,32 @@ export async function writeCached(profileId: string, storagePath: string, bytes:
   await writable.close()
 }
 
+/**
+ * g6 / F6: OPFS is not namespaced the way Dexie is, so signing out must remove this profile's directory
+ * explicitly — otherwise a shared tablet leaks the previous user's PDF bytes.
+ */
+export async function clearProfileArtifacts(profileId: string): Promise<void> {
+  if (!supported()) return
+  try {
+    const root = await navigator.storage.getDirectory()
+    const artifacts = await root.getDirectoryHandle(ROOT, { create: false })
+    await artifacts.removeEntry(encodeURIComponent(profileId), { recursive: true })
+  } catch (e) {
+    if (isNotFound(e)) return
+    throw e
+  }
+}
+
+/**
+ * D-10 (defaulted): only the `main` document is cached/loaded offline. The leader's `note` copy is not cached
+ * by default, and a not-yet-uploaded artifact (`slot` null) is not cacheable either.
+ */
+export const CACHEABLE_OFFLINE_SLOTS = ["main"] as const
+
+export function isCacheableOffline(slot: string | null | undefined): boolean {
+  return slot != null && (CACHEABLE_OFFLINE_SLOTS as readonly string[]).includes(slot)
+}
+
 /** Without this the browser may evict the PDF under storage pressure (spec 5.3). Call on first offline open. */
 export async function requestPersistence(): Promise<boolean> {
   if (typeof navigator === "undefined" || typeof navigator.storage?.persist !== "function") return false

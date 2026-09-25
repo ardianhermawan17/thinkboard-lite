@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
-import { getOrFetch, readCached, requestPersistence, writeCached } from "@shared/lib/opfs"
+import { clearProfileArtifacts, getOrFetch, isCacheableOffline, readCached, requestPersistence, writeCached } from "@shared/lib/opfs"
 
 // A minimal in-memory OPFS: just the handles opfs.ts touches.
 class FakeFile {
@@ -32,6 +32,9 @@ class FakeDir {
       this.files.set(name, new FakeFile())
     }
     return this.files.get(name)!
+  }
+  async removeEntry(name: string) {
+    if (!this.dirs.delete(name) && !this.files.delete(name)) throw new DOMException("missing", "NotFoundError")
   }
 }
 
@@ -108,5 +111,26 @@ describe("opfs cache (g1)", () => {
     expect(await requestPersistence()).toBe(true)
     vi.stubGlobal("navigator", {})
     expect(await requestPersistence()).toBe(false)
+  })
+})
+
+describe("offline wipe and slot policy (g6)", () => {
+  it("clears only this profile's directory, so a shared tablet keeps no bytes of the previous user", async () => {
+    await writeCached("p1", PATH, PDF)
+    await writeCached("p2", PATH, PDF)
+    await clearProfileArtifacts("p1")
+    expect(await readCached("p1", PATH)).toBeNull()
+    expect(await readCached("p2", PATH)).toEqual(PDF)
+  })
+
+  it("is a no-op when the profile never cached anything", async () => {
+    await expect(clearProfileArtifacts("ghost")).resolves.toBeUndefined()
+  })
+
+  it("D-10: only the main document is cacheable offline; the leader's note copy is not", () => {
+    expect(isCacheableOffline("main")).toBe(true)
+    expect(isCacheableOffline("note")).toBe(false)
+    expect(isCacheableOffline(null)).toBe(false)
+    expect(isCacheableOffline(undefined)).toBe(false)
   })
 })

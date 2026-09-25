@@ -1,5 +1,6 @@
 "use client"
 
+import { OfflineBanner } from "@feature/sync/components/offline-banner"
 import { AuthGuard } from "../auth-guard"
 import { AppHeader } from "../app-header"
 import { Members } from "../members"
@@ -47,6 +48,7 @@ function Body({ workspaceId }: { workspaceId?: string }) {
   return (
     <div className="flex min-h-svh flex-col">
       <AppHeader />
+      <OfflineBanner />
       <div className="flex min-h-0 flex-1">
         {/* the document area: 009 mounts the PDF canvas here */}
         <main className="flex min-w-0 flex-1 flex-col gap-2 p-6">

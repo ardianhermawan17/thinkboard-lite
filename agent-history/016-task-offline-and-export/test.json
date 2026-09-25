@@ -1,0 +1,22 @@
+{
+  "task_id": "016-task-offline-and-export",
+  "phase": "test",
+  "test_files": [
+    "src/features/sync/stores/sync-slice.test.ts",
+    "src/features/sync/components/offline-banner/offline-banner.test.tsx",
+    "src/features/sync/middleware/sync-listener.test.ts",
+    "src/features/workspace/components/auth-guard/use-sign-out.test.tsx",
+    "src/shared/lib/bundle.test.ts",
+    "src/shared/lib/opfs.test.ts"
+  ],
+  "commands_run": [
+    {"command": "npx vitest run --project unit (touched files)", "result": "6 files, 38 tests, all passed"},
+    {"command": "npm run verify:arch", "result": "18 pass, 0 fail, 10 skipped, 1 void"},
+    {"command": "npm run lint", "result": "0 errors, 2 pre-existing warnings"},
+    {"command": "npm run typecheck", "result": "clean"},
+    {"command": "npm run test", "result": "57 test files passed / 2 skipped (59); 257 tests passed / 10 skipped (267); marquee stories still 4/4 in headless Chrome"},
+    {"command": "npm run build", "result": "production build succeeded; pdf-lib's dynamic import bundles lazily"}
+  ],
+  "summary": {"total": 267, "passed": 257, "failed": 0, "skipped": 10},
+  "coverage_notes": "g1 is covered by sync-slice.test.ts (manual authority, degrade-only auto-detect, persist/strip) and sync-listener.test.ts (the phase-change reconnect still runs). g2/g3 are covered by offline-banner.test.tsx (hidden while collaborating; 'Back online · N changes to sync' + Sync now when the network is back; queue-only when it is down; lastSyncedAt; DisabledWhenOffline disables with a reason). g4 is covered by bundle.test.ts: the /Highlight annotation with /NM = slug, QuadPoints geometry, the original bytes left untouched, the three-file zip round trip, and the filename. g5 is covered by bundle.test.ts: the anchor round trip, export -> edit prose -> re-import with zero duplicates, an anchorless section importing as a new unanchored note, an unknown slug reported as an orphan and a missing known slug reported, never dropped. g6 is covered by opfs.test.ts (clearProfileArtifacts removes only the profile's directory; the no-op path; isCacheableOffline main-only) and use-sign-out.test.tsx (sign-out calls clearProfileArtifacts then deleteDb; it still refuses while a write is unsynced). The 10 skipped are the pre-existing live-stack suites. Nothing here touches a pipeline-stage transition or RLS."
+}

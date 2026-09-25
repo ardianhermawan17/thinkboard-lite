@@ -1,6 +1,6 @@
 {
 	"schema_version": "1.0",
-	"updated_at": "2026-09-25T02:20:00Z",
+	"updated_at": "2026-09-25T04:20:00Z",
 	"current_task_id": null,
 	"current_phase": "idle",
 	"history_path": null,
@@ -83,6 +83,12 @@
 			"architecture": "frontend",
 			"status": "done",
 			"title": "Pages with no text layer can still be marked, with confidence-gated OCR text"
+		},
+		{
+			"id": "016-task-offline-and-export",
+			"architecture": "frontend",
+			"status": "done",
+			"title": "The private sheet works with the network off, and a workspace can leave as a portable bundle"
 		}
 	]
 }

@@ -1,0 +1,48 @@
+{
+  "task_id": "016-task-offline-and-export",
+  "phase": "code",
+  "started_at": "2026-09-25T03:20:00Z",
+  "completed_at": "2026-09-25T04:10:00Z",
+  "files_changed": [
+    {"path": "src/features/sync/types/redux.ts", "action": "modified", "summary": "Added durable manualOffline and transient ui.networkDown to SyncState (g1)."},
+    {"path": "src/features/sync/stores/sync-slice.ts", "action": "modified", "summary": "manualOfflineSet + networkDownSet reducers; networkDown may only degrade the phase, never resume it (g1)."},
+    {"path": "src/features/sync/selectors/sync-selectors.ts", "action": "modified", "summary": "selectManualOffline, selectNetworkDown, selectCanResume (g1/g3)."},
+    {"path": "src/features/sync/middleware/sync-listener.ts", "action": "modified", "summary": "Browser online/offline now only dispatch networkDownSet — no silent resync; a persisted manual choice outranks navigator.onLine on open (g1)."},
+    {"path": "src/features/sync/components/offline-banner/types.ts", "action": "created", "summary": "Banner + disabled-wrapper props."},
+    {"path": "src/features/sync/components/offline-banner/use-offline-banner.ts", "action": "created", "summary": "Banner state/label/resume from the slice (g2/g3)."},
+    {"path": "src/features/sync/components/offline-banner/offline-banner.tsx", "action": "created", "summary": "The strip: label, lastSyncedAt, and the only Sync-now control (g2/g3)."},
+    {"path": "src/features/sync/components/offline-banner/use-disabled-when-offline.ts", "action": "created", "summary": "Selector hook for the wrapper (I2)."},
+    {"path": "src/features/sync/components/offline-banner/disabled-when-offline.tsx", "action": "created", "summary": "Renders a control disabled with its reason while offline; never hides it (g2)."},
+    {"path": "src/features/sync/components/offline-banner/index.ts", "action": "created", "summary": "Barrel."},
+    {"path": "src/features/sync/components/offline-banner/offline-banner.test.tsx", "action": "created", "summary": "6 tests: hidden/offline/network-down/lastSynced + the disabled wrapper."},
+    {"path": "src/features/sync/stores/sync-slice.test.ts", "action": "created", "summary": "5 tests: manual authority, degrade-only auto-detect, persist/strip."},
+    {"path": "src/features/workspace/components/app-header/use-app-header.ts", "action": "modified", "summary": "Exposes the Work-offline toggle."},
+    {"path": "src/features/workspace/components/app-header/app-header.tsx", "action": "modified", "summary": "Adds the Work offline switch (g1)."},
+    {"path": "src/features/workspace/components/workspace-shell/workspace-shell.tsx", "action": "modified", "summary": "Mounts OfflineBanner under the header (g2/g3)."},
+    {"path": "src/features/workspace/components/auth-guard/use-sign-out.ts", "action": "modified", "summary": "Sign-out now clears OPFS before Dexie (g6/F6)."},
+    {"path": "src/features/workspace/components/auth-guard/use-sign-out.test.tsx", "action": "created", "summary": "2 tests: wipes Dexie+OPFS; refuses while unsynced."},
+    {"path": "src/shared/lib/opfs.ts", "action": "modified", "summary": "clearProfileArtifacts + isCacheableOffline/CACHEABLE_OFFLINE_SLOTS (g6/D-10)."},
+    {"path": "src/shared/lib/opfs.test.ts", "action": "modified", "summary": "3 more tests: per-profile wipe, no-op, main-only cache policy."},
+    {"path": "src/shared/lib/bundle.ts", "action": "created", "summary": "Export/import seam: notes.md anchors, thinkboard.json, pdf-lib annotation append, fflate zip (g4/g5)."},
+    {"path": "src/shared/lib/bundle.test.ts", "action": "created", "summary": "10 tests: anchors, round trip, no-duplicate re-import, orphans, PDF /NM + QuadPoints, zip."},
+    {"path": "package.json", "action": "modified", "summary": "Added fflate ^0.8 and pdf-lib ^1.17."},
+    {"path": "package-lock.json", "action": "modified", "summary": "Lockfile for fflate/pdf-lib and their 4 transitive packages."}
+  ],
+  "decisions": [
+    "The mode switch is two fields: `manualOffline` is durable and authoritative (top-level, survives stripUi), `ui.networkDown` is the transient browser mirror (stripped). A browser `online` event only clears networkDown — the banner's button is the sole resume path, per spec §5.3 ('never silently exits it'). This deliberately replaces task 007's auto-resync on the browser's online event; 007's own phase-change tests still pass because the cycle is still driven by a phase change.",
+    "g2's 'group sheet read-only' names task 013's sheets, which 013 cannot build while 012 is blocked. 016 implements the parts that do not need a sheet — the banner shows lastSyncedAt, and DisabledWhenOffline renders any control disabled with its reason — and passes g2 on its acceptance criterion ('every disabled control explains why'). The sheet application stays 013's; raised, not substituted.",
+    "The PDF writer is pdf-lib (the spec §5.6 requires appended /Highlight annotations and names no library). pdf-lib rewrites the object graph rather than concatenating bytes, but it never calls page.render, so the page content/text layer is preserved — the prohibition the spec actually states. Rects flip Y because PDF rects are bottom-left; /NM carries the slug; QuadPoints carry UL, UR, LL, LR.",
+    "The notes.md anchor is exactly `<!-- tb id=<slug> page=<n> rect=<x,y,w,h> layer=<...> extraction=<...> -->` (spec §5.6); `id` (the slug) is the only field that identifies a section (RULE-25). planReimport returns updates (matched), unanchored (no anchor -> new note), and both orphan directions (unknown slug in the file, known slug missing from it), so nothing is guessed or silently dropped.",
+    "fflate zips the three files (spec names fflate); the export seam takes rows + original bytes as plain input so it is pure and testable, and reads no Dexie itself.",
+    "OPFS is wiped by `clearProfileArtifacts` (F6); D-10 is encoded as `isCacheableOffline(slot)` (only `main`), which the future document load path must honour.",
+    "The offline banner lives in features/sync (the context that owns the mode); the toggle is in the existing workspace header, so no new context or folder outside the plan's three locations was invented."
+  ],
+  "commands_run": [
+    "npm install fflate@^0.8 pdf-lib@^1.17",
+    "npm audit --omit=dev",
+    "npm run typecheck",
+    "npx vitest run --project unit (touched files)",
+    "npm run verify",
+    "npm run build"
+  ]
+}

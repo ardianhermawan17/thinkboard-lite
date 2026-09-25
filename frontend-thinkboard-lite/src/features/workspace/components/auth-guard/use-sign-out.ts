@@ -2,6 +2,7 @@
 
 import { deleteDb, useOutboxCount } from "@feature/entities"
 import { useAppDispatch, useAppSelector } from "@shared/config/redux/hooks"
+import { clearProfileArtifacts } from "@shared/lib/opfs"
 import { selectProfileId } from "../../selectors/workspace-selectors"
 import { failed, signedOut } from "../../stores/workspace-slice"
 import { signOut } from "../../utils/workspace-remote"
@@ -27,7 +28,11 @@ export function useSignOut() {
       // offline: the local session is cleared below regardless
     }
     dispatch(signedOut())
-    if (profileId) await deleteDb(profileId)
+    if (profileId) {
+      // F6/g6: Dexie AND OPFS. A shared tablet must not keep the previous profile's PDF bytes.
+      await clearProfileArtifacts(profileId)
+      await deleteDb(profileId)
+    }
     return true
   }
 }

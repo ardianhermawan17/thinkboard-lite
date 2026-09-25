@@ -1,7 +1,7 @@
 import type { PayloadAction } from "@reduxjs/toolkit"
 import { startAppListening } from "@shared/config/redux/listener"
 import type { ChannelHandle } from "../realtime/channel"
-import { outboxQueued, phaseChanged, remoteChangeReceived, syncFailed, syncFinished, syncStarted } from "../stores/sync-slice"
+import { networkDownSet, outboxQueued, phaseChanged, remoteChangeReceived, syncFailed, syncFinished, syncStarted } from "../stores/sync-slice"
 import { drainAndRefresh, realDeps, runSyncCycle, type Ctx, type EngineDeps } from "./engine"
 
 type StartListening = typeof startAppListening
@@ -61,8 +61,11 @@ export function registerSyncListeners(start: StartListening = startAppListening,
       const profileId = api.getState().workspace.profileId
       if (!profileId) return
 
-      const online = () => api.dispatch(phaseChanged("collaboration"))
-      const offline = () => api.dispatch(phaseChanged("offline"))
+      // g1 / spec §5.3: auto-detect may only DEGRADE into offline. Coming back online records the fact and
+      // stops there — the banner's explicit button is what resumes (a manual Work-offline choice is never
+      // overridden, and no reconnect is ever silent).
+      const online = () => api.dispatch(networkDownSet(false))
+      const offline = () => api.dispatch(networkDownSet(true))
       window.addEventListener("online", online)
       window.addEventListener("offline", offline)
 
@@ -92,7 +95,9 @@ export function registerSyncListeners(start: StartListening = startAppListening,
         },
       }
       active = a
-      api.dispatch(phaseChanged(navigator.onLine ? "collaboration" : "offline"))
+      // A persisted manual choice outranks the browser; otherwise start from the browser's own state.
+      api.dispatch(phaseChanged(api.getState().sync.manualOffline || !navigator.onLine ? "offline" : "collaboration"))
+      if (!navigator.onLine) api.dispatch(networkDownSet(true))
       await cycle(api, a)
     },
   })

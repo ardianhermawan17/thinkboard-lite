@@ -1,6 +1,6 @@
 {
 	"schema_version": "1.0",
-	"updated_at": "2026-09-25T00:00:00Z",
+	"updated_at": "2026-09-25T03:00:00Z",
 	"tracked_todos": [
 		{
 			"id": "000-todo-architecture-contract",
@@ -104,6 +104,14 @@
 			"goal": "Pages with no text layer can still be marked, with confidence-gated OCR text.",
 			"todo_path": "agent-thinking/todo/011-todo-region-highlight-and-ocr/contract.json",
 			"agent_history": "agent-history/011-task-region-highlight-and-ocr",
+			"status": "done"
+		},
+		{
+			"id": "016-todo-offline-and-export",
+			"name": "Offline and export",
+			"goal": "The private sheet works with the network off, and a workspace can leave as a portable bundle.",
+			"todo_path": "agent-thinking/todo/016-todo-offline-and-export/contract.json",
+			"agent_history": "agent-history/016-task-offline-and-export",
 			"status": "done"
 		}
 	]

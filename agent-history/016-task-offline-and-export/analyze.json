@@ -1,0 +1,39 @@
+{
+  "task_id": "016-task-offline-and-export",
+  "phase": "analyze",
+  "started_at": "2026-09-25T03:00:00Z",
+  "completed_at": "2026-09-25T03:20:00Z",
+  "sources_read": [
+    {"doc": "README.md", "section": "§1 gates 0-5, §2 how an agent thinks, §7 hard limits"},
+    {"doc": "06-whole-apps-task.md", "section": "PHASE D · 016, §2 dependency graph"},
+    {"doc": "01-thinkboard-lite-spec.md", "section": "§5.3 mode switch (manual authoritative, never silently exits), §5.6 export/traceability (the three-file zip, /NM = slug, the <!-- tb id=... --> anchor, append-not-re-render), RULE-14/15/25"},
+    {"doc": "02-database-architecture.md", "section": "§4.2 highlights/notes, §8.1 (slugs, input_mode)"},
+    {"doc": "todo-task-000-split.md", "section": "§5.3 F6 (OPFS is not namespaced like Dexie — sign-out must wipe it), §4.1 DB-Q3, §5.3 F5/F8"},
+    {"doc": "todo-task-016-offline-and-export.md", "section": "full file"},
+    {"doc": "frontend-thinkboard-lite/src/features/sync/middleware/sync-listener.ts", "section": "the existing navigator.onLine handlers and the phaseChanged reconnect predicate (g1 rewires these)"},
+    {"doc": "frontend-thinkboard-lite/src/features/sync/stores/sync-slice.ts", "section": "phase is the mode switch; the slice already persists"},
+    {"doc": "frontend-thinkboard-lite/src/features/workspace/components/auth-guard/use-sign-out.ts", "section": "deletes Dexie but not OPFS (g6 gap)"},
+    {"doc": "frontend-thinkboard-lite/src/shared/lib/opfs.ts", "section": "the per-profile OPFS cache (g6 wipe target)"}
+  ],
+  "scope": "The manual mode switch and the reconnect banner, the offline UI convention (lastSyncedAt + disabled-with-reason), the export bundle (notes.md anchors, thinkboard.json, document.pdf annotation append) with fflate/pdf-lib, the re-import parser, and the sign-out/local-data wipe (Dexie + OPFS). Out of scope: rendering a group sheet (013, blocked on 012); ink/{slug}.svg for handwritten notes (only meaningful once 024/ink exists); the airplane-mode browser pass on a live stack.",
+  "acceptance_criteria": [
+    {"goal_id": "g1", "text": "Reconnecting never syncs without the button: a manual Work-offline choice survives a navigator online event, and going offline only ever degrades the phase."},
+    {"goal_id": "g2", "text": "Every disabled control explains why: the offline banner shows lastSyncedAt and a DisabledWhenOffline wrapper renders a labelled disabled child, never a silently dead one."},
+    {"goal_id": "g3", "text": "N equals the outbox count and the banner's button is what moves the phase back to collaboration."},
+    {"goal_id": "g4", "text": "Original PDF bytes are appended to, never re-rendered: load the bytes, add /Highlight annotations with /NM = slug, save; the zip holds document.pdf, notes.md and thinkboard.json."},
+    {"goal_id": "g5", "text": "Export -> edit prose -> re-import creates no duplicates: the <!-- tb id=<slug> --> comment is the only identity anchor; an anchorless section becomes a new unanchored note; an unknown anchor is reported as an orphan, never guessed or dropped."},
+    {"goal_id": "g6", "text": "After sign-out OPFS holds no file of the previous profile, and the group (note-slot) document is not loaded/cached offline by default."}
+  ],
+  "open_questions": [
+    "D-10 (defaulted: the group document is not cached offline) — g6 encodes it as a cacheable-slot predicate (only `main`); if the product later wants the note copy offline, that predicate changes.",
+    "DB-Q3 (defaulted: per-profile Dexie; OPFS wiped with it) — g6 follows it.",
+    "RULE-15 (standing: on a conflict keep local text as a second note) — the re-import path only touches notes matched by the slug anchor; a conflict rule is not exercised by 016's own tests.",
+    "NEW-1: g2's 'group sheet read-only' references the sheets of task 013, which is blocked on 012. This task implements the offline UI parts that do not need a sheet (the banner, lastSyncedAt, the disabled-with-reason wrapper) and passes g2 on its acceptance criterion ('every disabled control explains why'); the sheet itself stays 013's. Raised, not silently substituted."
+  ],
+  "risks": [
+    "A shared tablet leaking the previous user's PDF bytes (F6) — mitigated by wiping OPFS in the same sign-out that drops Dexie.",
+    "Re-rendering a page on export destroys the text layer (spec §5.6) — mitigated by loading and appending to the original bytes with pdf-lib, never re-rendering.",
+    "pdf-lib and fflate are new dependencies (the plan names fflate and a PDF writer is required by §5.6); both are lazy-imported on the export action, and npm audit is checked.",
+    "The reconnect change alters task 007's auto-resync behaviour on a browser online event (it now waits for the button, per spec §5.3); 007's own phase-change tests still hold because the cycle is still driven by a phase change."
+  ]
+}

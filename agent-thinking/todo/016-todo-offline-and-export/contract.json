@@ -1,0 +1,8 @@
+{
+  "schema_version": "1.0",
+  "id": "016-todo-offline-and-export",
+  "name": "Offline and export",
+  "goal": "The private sheet works with the network off, and a workspace can leave as a portable bundle.",
+  "human_prompt": "OKay continue",
+  "translated_prompt_agent": "Continue the backlog after task 011 by executing the next unblocked Phase D task, 016-task-offline-and-export, per todo-task-016-offline-and-export.md and the main gate (README.md). Concretely: (1) Gate 1-3 on branch task/016-offline-and-export — intake contract, task.json, analyze.json; (2) g1 make the manual Work-offline switch authoritative (sync slice manualOffline + a listener that lets navigator.onLine only degrade, never silently resync); (3) g2 an offline banner showing lastSyncedAt and a DisabledWhenOffline wrapper so every disabled control explains why (the group-sheet application itself is task 013's, still blocked on 012); (4) g3 a 'Back online · N changes to sync' banner with an explicit Sync-now button; (5) g4 shared/lib/bundle.ts — document.pdf with /Highlight annotations appended (/NM = slug, pdf-lib), notes.md with <!-- tb ... --> anchors, thinkboard.json, zipped with fflate; (6) g5 re-import where the HTML comment is the only identity anchor, anchorless sections become new unanchored notes, and orphans are reported, never guessed; (7) g6 clear Dexie AND OPFS on sign out, and never cache the group (note-slot) document offline by default; (8) keep npm run verify green and close validate/result honestly, deferring only what needs a real browser/network pass."
+}

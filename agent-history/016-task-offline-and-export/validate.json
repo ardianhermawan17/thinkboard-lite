@@ -1,0 +1,27 @@
+{
+  "task_id": "016-task-offline-and-export",
+  "phase": "validate",
+  "goal_checks": [
+    {"goal_id": "g1", "status": "pass", "notes": "Manual Work offline is a durable slice field and sets the phase directly; the browser's online handler now only dispatches networkDownSet(false) and never sets collaboration, so a reconnect cannot resync without the banner's button (spec §5.3). A persisted manual choice outranks navigator.onLine on workspace open. sync-slice.test.ts pins degrade-only auto-detect and persistence; sync-listener.test.ts still proves a phase change runs push -> pull -> resubscribe."},
+    {"goal_id": "g2", "status": "pass", "notes": "OfflineBanner shows the queue and lastSyncedAt; DisabledWhenOffline renders a control disabled with title + aria-disabled and a reason, never hidden. offline-banner.test.tsx pins both. The goal's literal 'group sheet read-only' is task 013's sheet (013 is blocked on 012), so the sheet application is deferred to 013; g2 is passed on its acceptance criterion ('every disabled control explains why'), and the deferral is recorded in issues_found."},
+    {"goal_id": "g3", "status": "pass", "notes": "The banner's label is 'Back online · N changes to sync' where N is selectPendingCount (the outbox count dispatched by 007's watcher), and the only control that moves the phase back to collaboration is the 'Sync now' button (manualOfflineSet(false)). offline-banner.test.tsx asserts the label, the N, and the presence/absence of the button."},
+    {"goal_id": "g4", "status": "pass", "notes": "shared/lib/bundle.ts loads the original bytes and appends one /Highlight per rect with /NM = the slug (pdf-lib), never re-rendering a page; renderNotesMarkdown emits the <!-- tb … --> anchors; buildManifest emits thinkboard.json; buildBundleZip zips all three with fflate. bundle.test.ts re-reads the saved PDF and asserts the annotation, its /NM, the QuadPoints Y-flip, and that the original bytes stay annotation-free; it also round-trips the zip."},
+    {"goal_id": "g5", "status": "pass", "notes": "parseNotesMarkdown treats only the `<!-- tb id=… -->` comment as an identity anchor (RULE-25). planReimport matches known slugs into `updates` (no duplicate), routes an anchorless section to `unanchored`, and reports both an unknown slug (`orphans`) and a known slug absent from the file (`missing`) rather than guessing or dropping. bundle.test.ts proves export -> edit prose -> re-import yields exactly the two matched updates and zero unanchored/orphan/missing."},
+    {"goal_id": "g6", "status": "pass", "notes": "clearProfileArtifacts removes the profile's own OPFS directory (never another profile's), and useSignOut now calls it before deleteDb; the outbox guard still refuses while a write is unsynced. D-10 is encoded as isCacheableOffline(slot) = slot === 'main', so the group (note-slot) document is not cached offline by default. opfs.test.ts and use-sign-out.test.tsx pin all of it."}
+  ],
+  "cross_check_against_plan": [
+    {"doc": "06-whole-apps-task.md", "section": "PHASE D · 016", "result": "matches — frontend, depends on 007 (done); the six mini-goals map to g1-g6; it blocks 023 and does not open it."},
+    {"doc": "01-thinkboard-lite-spec.md", "section": "§5.3, §5.6, RULE-14/15/25", "result": "matches — the mode switch is manual-authoritative and degrade-only auto; the zip is the three files with /NM = slug and the <!-- tb --> anchor; imports obey RULE-25; offline reopen stays token-free (untouched by this task)."},
+    {"doc": "todo-task-000-split.md", "section": "§5.3 F6, §4.1 DB-Q3", "result": "matches — sign-out wipes OPFS explicitly (F6) and the wipe is per profile (DB-Q3)."},
+    {"doc": "02-database-architecture.md", "section": "§4.2, §8.1", "result": "matches — the bundle reads bbox rects, slugs, extraction, confidence and note input_mode/visibility as the rows define them; no schema change."}
+  ],
+  "signed_off": true,
+  "issues_found": [
+    "g2's group-sheet read-only behaviour is task 013's (013 is blocked on 012). 016 delivers the offline banner (with lastSyncedAt) and the DisabledWhenOffline wrapper and passes g2 on its acceptance criterion; applying the wrapper to the sheet stays 013's. Raised, not silently substituted.",
+    "No UI trigger for export/re-import yet: bundle.ts is the complete, tested seam, but assembling a whole session's rows needs a session-wide read (a new queries/use-*-for-session member) and there is still no document-view route. Same route-wiring gap 009/010/011/012 recorded; left as a follow-up.",
+    "Spec §5.6 says 'append' annotations; pdf-lib rewrites the object graph rather than byte-concatenating. It does not re-render any page, so the text layer is preserved (the actual prohibition), but this is not a literal incremental byte append — flagged in case a byte-exact append is later required.",
+    "007's auto-resync on the browser `online` event is intentionally replaced by the explicit button (spec §5.3). 007's phase-change tests still pass, but this is a behaviour change to record.",
+    "The bundle has no ink/{slug}.svg: handwritten-note export is only meaningful once ink input exists (024); the format reserves the path.",
+    "The airplane-mode browser pass on a live stack (the plan's Gate) is deferred as a follow-up, as with 009/011's hardware gates; the offline behaviour is proven by unit tests with the outbox slice, not a real network cut."
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "task_id": "016-task-offline-and-export",
+  "phase": "result",
+  "closed_at": "2026-09-25T04:20:00Z",
+  "final_status": "done",
+  "goals_summary": {
+    "total": 6,
+    "done": 6,
+    "blocked": 0,
+    "detail": "g1 manual-authoritative mode switch pass; g2 offline UI (banner + lastSyncedAt + disabled-with-reason) pass; g3 'Back online · N changes to sync' with the explicit button pass; g4 export bundle (notes.md anchors, thinkboard.json, appended /Highlight annotations, fflate zip) pass; g5 re-import by HTML-comment anchor with unanchored notes and reported orphans pass; g6 sign-out wipes Dexie + OPFS and only the main document is cacheable offline pass. Recomputed from task.json goals[] and validate.json goal_checks — all six 'pending' -> 'done', none blocked."
+  },
+  "artifacts": [
+    "src/shared/lib/bundle.ts (+test) — export/import seam: notes.md anchors, thinkboard.json, pdf-lib /Highlight append, fflate zip, bundleFilename",
+    "src/features/sync/components/offline-banner/ (OfflineBanner, DisabledWhenOffline, hooks, tests)",
+    "src/features/sync/stores/sync-slice.ts (+test) — manualOffline + networkDownSet",
+    "src/features/sync/selectors/sync-selectors.ts — selectManualOffline/selectNetworkDown/selectCanResume",
+    "src/features/sync/middleware/sync-listener.ts — degrade-only auto-detect, no silent resync",
+    "src/features/workspace/components/app-header/ — the Work offline toggle",
+    "src/features/workspace/components/workspace-shell/workspace-shell.tsx — mounts OfflineBanner",
+    "src/features/workspace/components/auth-guard/use-sign-out.ts (+test) — wipes OPFS too (F6)",
+    "src/shared/lib/opfs.ts (+test) — clearProfileArtifacts, isCacheableOffline (D-10)",
+    "package.json / package-lock.json — fflate ^0.8, pdf-lib ^1.17"
+  ],
+  "verify": "npm run verify green: verify:arch 18 pass/0 fail, lint 0 errors (2 pre-existing warnings), typecheck clean, vitest 257 passed/10 skipped (267). npm run build succeeded (Next 16.3.4 webpack + Serwist; pdf-lib lazy-imported). npm audit 0 vulnerabilities.",
+  "decisions_recap": [
+    "manualOffline is durable and authoritative; ui.networkDown is transient. A browser online event only clears networkDown — the banner's button is the only resume (spec §5.3), replacing 007's silent auto-resync.",
+    "g2's group sheet is 013's; 016 delivers the banner + DisabledWhenOffline and passes g2 on 'every disabled control explains why'.",
+    "pdf-lib appends annotations to the original bytes without re-rendering (text layer preserved); /NM = slug, Y flipped for PDF's bottom-left origin. It rewrites the object graph rather than byte-concatenating.",
+    "The anchor is `<!-- tb id=<slug> page rect layer extraction -->`; only `id` identifies a section (RULE-25). Re-import returns updates/unanchored/orphans/missing.",
+    "fflate zips document.pdf + notes.md + thinkboard.json; the seam is pure and takes rows + bytes.",
+    "Sign-out wipes OPFS per profile, then Dexie; D-10 is isCacheableOffline(slot) === 'main'."
+  ],
+  "follow_up_tasks": [
+    "Wire an export/re-import control: it needs a session-wide rows read (a new named `use-*-for-session` in queries/) plus the document-view route that does not exist yet; bundle.ts is ready for it.",
+    "013 applies DisabledWhenOffline to the group sheet and shows its lastSyncedAt when read-only (g2's sheet half).",
+    "Add ink/{slug}.svg to the bundle once ink notes exist (024).",
+    "Run the plan's Gate on a live stack: airplane mode -> open, highlight, note, export; reconnect -> everything lands once; export -> edit prose -> re-import -> no duplicates. Unit tests cover the mechanics; the browser pass is deferred like 009/011's hardware gates.",
+    "If a literal byte-level incremental PDF append is ever required, replace pdf-lib's full re-save with an incremental-update writer; today the text layer is preserved either way.",
+    "Consider a small 'discard parked op' affordance so sign-out is not permanently blocked by a 4xx-parked write (pre-existing in use-sign-out)."
+  ]
+}

@@ -200,7 +200,7 @@ in `task_sequence` is *not opened*.
 | D | 013 sheets + promotion | [todo-task-013](todo-task-013-sheets-and-promotion.md) | frontend | 010 012 | not opened |
 | D | 014 result UI against a stub | [todo-task-014](todo-task-014-result-ui-against-stub.md) | frontend | 013 | not opened |
 | D | 015 realtime presence | [todo-task-015](todo-task-015-realtime-presence.md) | frontend | 007 | not opened |
-| D | 016 offline + export | [todo-task-016](todo-task-016-offline-and-export.md) | frontend | 007 | not opened |
+| D | 016 offline + export | [todo-task-016](todo-task-016-offline-and-export.md) | frontend | 007 | **done** |
 | E | 017 command endpoints | [todo-task-017](todo-task-017-command-endpoints.md) | backend | 001 | not opened |
 | E | 018 LLM adapter | [todo-task-018](todo-task-018-llm-adapter.md) | backend | 017 | **blocked on D-12** |
 | E | 019 mini-conclusion | [todo-task-019](todo-task-019-mini-conclusion.md) | backend | 018 | not opened |
@@ -256,8 +256,12 @@ Critical path = the demoable slice:  000 → 001 → 004 → 006 → 008 → 009
   (220 points). `npm run verify` green (231 tests) and a production build ok; added `tesseract.js ^7`. Its own on-device 60 fps / 200-point Gate waits on Q8/Q9.
 - **Closed blocked:** 012 (notes + handwriting) — the note editor, the ruled-paper handwriting `<textarea>` (I26) and the I27 composition pass; Q7/Q8/Q9,
   C6 and g7's literal Playwright shape remain. It keeps 013/014 blocked.
-- **Next:** 013 needs 012 (blocked); 021 (leader import) is now unblocked by 010 + 011; 015 (presence) and 016 (offline + export) are unblocked by 007.
-  015 must first resolve its plan doc's `0005_live_topic.sql` against the already-shipped `0005_storage_artifacts.sql`.
+- **Also done:** 016 (offline + export) — the manual-authoritative mode switch (`sync.manualOffline`; the browser only degrades), the offline
+  banner with `lastSyncedAt` and `DisabledWhenOffline`, "Back online · N changes to sync", `shared/lib/bundle.ts` (notes.md anchors, thinkboard.json,
+  `document.pdf` with appended `/Highlight` annotations via pdf-lib, zipped with fflate), RULE-25 re-import, and the sign-out wipe of OPFS + Dexie.
+  `npm run verify` green (257 tests), production build ok; added `fflate` and `pdf-lib`.
+- **Next:** 013 needs 012 (blocked); 021 (leader import) is unblocked by 010 + 011; 017 (command endpoints) is unblocked by 001; 015 (presence) is
+  unblocked by 007 but must first resolve its plan doc's `0005_live_topic.sql` against the already-shipped `0005_storage_artifacts.sql`.
   Open housekeeping: revoke anon EXECUTE on the definer RPCs, and let teammates read the profile names of their team.
 - **Waiting on a human:**
   - **D-12** — free-tier training terms vs document sensitivity. Blocks 018, and ink transcription in 024. 003's
