@@ -1,0 +1,27 @@
+{
+  "id": "027-task-export-bundle",
+  "title": "A member exports the open workspace from the shell as the portable bundle",
+  "architecture": "frontend",
+  "secondary_architecture": [],
+  "created_at": "2026-09-26T00:00:00Z",
+  "status": "done",
+  "depends_on": ["016-task-offline-and-export", "026-task-workspace-context"],
+  "plan_refs": [
+    {"doc": "06-whole-apps-task.md", "section": "PHASE G · 027"},
+    {"doc": "01-thinkboard-lite-spec.md", "section": "§5.6, RULE-25"},
+    {"doc": "todo-task-027-export-bundle.md", "section": "§2, §3"}
+  ],
+  "goals": [
+    {"id": "g1", "description": "a session-wide notes read (use-notes-for-session) beside 026's highlights read", "plan_ref": "tasks 027 g1", "status": "done"},
+    {"id": "g2", "description": "use-export-workspace maps the session's rows and the main PDF bytes into BundleInput, appends annotations, zips and downloads", "plan_ref": "tasks 027 g2; spec §5.6", "status": "done"},
+    {"id": "g3", "description": "a downloadBytes helper in shared/lib/download.ts", "plan_ref": "tasks 027 g3", "status": "done"},
+    {"id": "g4", "description": "an Export control in the shell header", "plan_ref": "tasks 027 g4", "status": "done"}
+  ],
+  "phases": {
+    "analyze": {"file": "analyze.json", "status": "done"},
+    "code": {"file": "code.json", "status": "done"},
+    "test": {"file": "test.json", "status": "done"},
+    "validate": {"file": "validate.json", "status": "done"},
+    "result": {"file": "result.json", "status": "done"}
+  }
+}

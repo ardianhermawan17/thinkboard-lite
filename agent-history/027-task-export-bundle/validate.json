@@ -1,0 +1,23 @@
+{
+  "task_id": "027-task-export-bundle",
+  "phase": "validate",
+  "goal_checks": [
+    {"goal_id": "g1", "status": "pass", "notes": "use-notes-for-session resolves the session's artifacts, their highlights, then their notes (mirroring use-highlights-for-session) and returns [] when any step is empty. It is exported from the queries barrel and consumed by the export hook."},
+    {"goal_id": "g2", "status": "pass", "notes": "use-export-workspace maps the session's highlights and notes plus the main artifact's metadata into BundleInput, loads the original bytes (loadArtifactBytes), appends /Highlight annotations when there are any (appendHighlightsToPdf — never a re-render), zips via buildBundleZip and saves workspace-{slug}-{yyyymmdd}.zip via downloadBytes. A slug-less highlight is skipped (RULE-25). use-export-workspace.test.ts proves all three paths."},
+    {"goal_id": "g3", "status": "pass", "notes": "shared/lib/download.ts creates the object URL, appends+clicks+removes an anchor and revokes the URL; download.test.ts pins the three steps."},
+    {"goal_id": "g4", "status": "pass", "notes": "AppHeader renders ExportWorkspace; the control triggers the export, disables while busy and shows a reason when there is nothing to export. export-workspace.test.tsx pins the disabled reason, the trigger and the busy label, and the production build includes the header."}
+  ],
+  "cross_check_against_plan": [
+    {"doc": "06-whole-apps-task.md", "section": "PHASE G · 027", "result": "matches — frontend; the four mini-goals map to g1-g4; it closes 016's export follow-up and blocks nothing new."},
+    {"doc": "01-thinkboard-lite-spec.md", "section": "§5.6, RULE-25", "result": "matches — the zip holds document.pdf (appended annotations, /NM = slug), notes.md (the <!-- tb --> anchor) and thinkboard.json; the bundle format is 016's and the HTML comment remains the only identity anchor. The ink SVG is deferred (024)."},
+    {"doc": "todo-task-016-offline-and-export.md", "section": "§2, §4", "result": "matches — 016 placed the seam in shared/lib/bundle.ts; 027 adds only the caller it deferred."}
+  ],
+  "signed_off": true,
+  "issues_found": [
+    "The live Gate (a seeded workspace downloads a valid zip in a browser) needs the local stack; the assembly is proven with mocks. A real-world check of the produced PDF annotations would follow the same step.",
+    "The bbox rect parser is a small duplication of features/highlight's isBbox, forced by I3; if a third consumer appears, consider moving the shape check to shared.",
+    "A first offline export of an uncached PDF fails with a message (the bytes come from OPFS or Storage); acceptable for a user-initiated action and covered by the error path.",
+    "The bundle has no ink/{slug}.svg (024); the format reserves the path.",
+    "The filename slug is slugify(session title); if the product wants a distinct workspace slug, that is a later change."
+  ]
+}

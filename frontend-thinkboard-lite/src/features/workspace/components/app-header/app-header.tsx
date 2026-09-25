@@ -1,6 +1,7 @@
 "use client"
 
 import { SyncStatusPill } from "@feature/sync/components/sync-status-pill"
+import { ExportWorkspace } from "../export-workspace"
 import { Button } from "@shared/components/ui/button"
 import { Switch } from "@shared/components/ui/switch"
 import { Tabs, TabsList, TabsTrigger } from "@shared/components/ui/tabs"
@@ -28,6 +29,7 @@ export function AppHeader() {
         Dark
         <Switch checked={dark} onCheckedChange={setDark} aria-label="Dark theme" />
       </label>
+      <ExportWorkspace />
       <Button size="sm" variant="ghost" onClick={() => void signOut()}>
         Sign out
       </Button>

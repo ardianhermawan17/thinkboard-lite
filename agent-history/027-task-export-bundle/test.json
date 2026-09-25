@@ -1,0 +1,19 @@
+{
+  "task_id": "027-task-export-bundle",
+  "phase": "test",
+  "test_files": [
+    "src/shared/lib/download.test.ts",
+    "src/features/workspace/components/export-workspace/use-export-workspace.test.ts",
+    "src/features/workspace/components/export-workspace/export-workspace.test.tsx"
+  ],
+  "commands_run": [
+    {"command": "npx vitest run --project unit (touched files)", "result": "3 files, 6 tests passed"},
+    {"command": "npm run verify:arch", "result": "18 pass, 0 fail, 10 skipped, 1 void"},
+    {"command": "npm run lint", "result": "0 errors, 2 pre-existing warnings"},
+    {"command": "npm run typecheck", "result": "clean"},
+    {"command": "npm run test", "result": "81 test files passed / 2 skipped (83); 337 tests passed / 10 skipped (347)"},
+    {"command": "npm run build", "result": "production build succeeded"}
+  ],
+  "summary": {"total": 347, "passed": 337, "failed": 0, "skipped": 10},
+  "coverage_notes": "g1's query mirrors 026's session read (artifacts -> highlights -> notes) and is exercised through the export hook's mock. g2 is covered by use-export-workspace.test.ts: the full path maps rows to BundleInput, calls loadArtifactBytes with the profile + storage path, appends annotations, calls buildBundleZip with the mapped input and downloads the zip under the filename; a slug-less highlight is skipped without failing; and an empty workspace reports why and does no work. g3 is covered by download.test.ts (create the object URL, click the anchor, revoke). g4 is covered by export-workspace.test.tsx (disabled + reason when nothing to export; the busy label and the trigger). The live seeded-download Gate needs the local stack and is deferred. The 10 skipped are the pre-existing live-stack suites."
+}

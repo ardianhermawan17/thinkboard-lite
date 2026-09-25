@@ -1,6 +1,6 @@
 {
 	"schema_version": "1.0",
-	"updated_at": "2026-09-25T12:00:00Z",
+	"updated_at": "2026-09-26T00:00:00Z",
 	"tracked_todos": [
 		{
 			"id": "000-todo-architecture-contract",
@@ -152,6 +152,14 @@
 			"goal": "A shared workspace context hands profileId/sessionId to any feature, and the note panel mounts the note sheet.",
 			"todo_path": "agent-thinking/todo/026-todo-workspace-context/contract.json",
 			"agent_history": "agent-history/026-task-workspace-context",
+			"status": "done"
+		},
+		{
+			"id": "027-todo-export-bundle",
+			"name": "Export the workspace bundle",
+			"goal": "A member exports the open workspace from the shell as the portable bundle.",
+			"todo_path": "agent-thinking/todo/027-todo-export-bundle/contract.json",
+			"agent_history": "agent-history/027-task-export-bundle",
 			"status": "done"
 		}
 	]

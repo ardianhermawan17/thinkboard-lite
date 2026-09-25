@@ -1,6 +1,6 @@
 {
 	"schema_version": "1.0",
-	"updated_at": "2026-09-25T13:10:00Z",
+	"updated_at": "2026-09-26T01:10:00Z",
 	"current_task_id": null,
 	"current_phase": "idle",
 	"history_path": null,
@@ -119,6 +119,12 @@
 			"architecture": "frontend",
 			"status": "done",
 			"title": "A shared workspace context hands profileId/sessionId to any feature, and the note panel mounts the note sheet"
+		},
+		{
+			"id": "027-task-export-bundle",
+			"architecture": "frontend",
+			"status": "done",
+			"title": "A member exports the open workspace from the shell as the portable bundle"
 		}
 	]
 }

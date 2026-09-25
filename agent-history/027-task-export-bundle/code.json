@@ -1,0 +1,30 @@
+{
+  "task_id": "027-task-export-bundle",
+  "phase": "code",
+  "started_at": "2026-09-26T00:15:00Z",
+  "completed_at": "2026-09-26T01:00:00Z",
+  "files_changed": [
+    {"path": "06-whole-apps-task.md", "action": "modified", "summary": "Added PHASE G · 027-task-export-bundle."},
+    {"path": "todo-task-027-export-bundle.md", "action": "created", "summary": "Plan doc for the export mount."},
+    {"path": "src/shared/lib/download.ts", "action": "created", "summary": "downloadBytes: blob URL -> anchor -> revoke (g3)."},
+    {"path": "src/shared/lib/download.test.ts", "action": "created", "summary": "1 test: URL create/click/revoke."},
+    {"path": "src/features/entities/queries/use-notes-for-session.ts", "action": "created", "summary": "Every note on the session's highlights (g1)."},
+    {"path": "src/features/entities/queries/index.ts", "action": "modified", "summary": "Export the session notes query."},
+    {"path": "src/features/workspace/components/export-workspace/types.ts", "action": "created", "summary": "ExportWorkspaceState."},
+    {"path": "src/features/workspace/components/export-workspace/use-export-workspace.ts", "action": "created", "summary": "Maps rows + PDF bytes -> BundleInput, appends, zips, downloads (g2)."},
+    {"path": "src/features/workspace/components/export-workspace/export-workspace.tsx", "action": "created", "summary": "The header control, disabled with a reason (g4)."},
+    {"path": "src/features/workspace/components/export-workspace/index.ts", "action": "created", "summary": "Barrel."},
+    {"path": "src/features/workspace/components/export-workspace/use-export-workspace.test.ts", "action": "created", "summary": "3 tests: full map+call, slug-less skipped, nothing-to-export."},
+    {"path": "src/features/workspace/components/export-workspace/export-workspace.test.tsx", "action": "created", "summary": "2 tests: disabled+reason, busy label + trigger."},
+    {"path": "src/features/workspace/components/app-header/app-header.tsx", "action": "modified", "summary": "Mounts the Export control in the header (g4)."}
+  ],
+  "decisions": [
+    "The bbox rect list is re-read locally in the export hook because its owner (features/highlight's isBbox) may not be imported by features/workspace (I3); only the rects are needed, and the parser is written to reject anything malformed. Recorded as a small, deliberate duplication.",
+    "A highlight with no slug is skipped: the slug is the bundle's only identity anchor (RULE-25), so a slug-less row cannot be exported without breaking the round trip.",
+    "The bundle format is 016's shared/lib/bundle.ts, called unchanged; 027 adds no second format and never re-renders a page (appendHighlightsToPdf appends to the original bytes).",
+    "The export reads profileId/sessionId from the shared workspace context (026), so the feature imports no other feature and the control can live in the header.",
+    "If there is no main PDF artifact the control is disabled with a reason ('Open a workspace with a document to export'); a failure during export surfaces in the control's title rather than throwing.",
+    "The filename slug is a plain slugify of the session title (falling back to the session id); the spec does not define a distinct workspace slug."
+  ],
+  "commands_run": ["npm run typecheck", "npx vitest run --project unit (touched files)", "npm run verify", "npm run build"]
+}

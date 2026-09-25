@@ -1,0 +1,35 @@
+{
+  "task_id": "027-task-export-bundle",
+  "phase": "analyze",
+  "started_at": "2026-09-26T00:00:00Z",
+  "completed_at": "2026-09-26T00:15:00Z",
+  "sources_read": [
+    {"doc": "README.md", "section": "§1 gates, §5 task map, §7 hard limits"},
+    {"doc": "06-whole-apps-task.md", "section": "PHASE G · 027"},
+    {"doc": "01-thinkboard-lite-spec.md", "section": "§5.6 export and traceability, RULE-25"},
+    {"doc": "todo-task-027-export-bundle.md", "section": "full file"},
+    {"doc": "frontend-thinkboard-lite/src/shared/lib/bundle.ts", "section": "016's seam (renderNotesMarkdown, buildManifest, appendHighlightsToPdf, buildBundleZip, bundleFilename)"},
+    {"doc": "frontend-thinkboard-lite/src/features/entities/queries/use-highlights-for-session.ts", "section": "026's session-wide read to mirror for notes"},
+    {"doc": "frontend-thinkboard-lite/src/shared/providers/workspace-provider/", "section": "the shared context that supplies profileId/sessionId"},
+    {"doc": "frontend-thinkboard-lite/src/features/workspace/components/app-header/", "section": "where the control mounts"},
+    {"doc": "frontend-thinkboard-lite/src/shared/lib/opfs.ts", "section": "loadArtifactBytes / clearProfileArtifacts — the byte source"}
+  ],
+  "scope": "The session-wide notes read, the export hook (row mapping + append + zip + download), the download helper, and the header control. Out of scope: re-import (016's, unchanged); the ink SVG (waits on 024); any bundle-format change.",
+  "acceptance_criteria": [
+    {"goal_id": "g1", "text": "use-notes-for-session returns the notes of the session's highlights and [] when there are none."},
+    {"goal_id": "g2", "text": "The hook maps rows to BundleInput, skips a slug-less highlight, appends annotations (never re-renders), zips and downloads workspace-{slug}-{yyyymmdd}.zip."},
+    {"goal_id": "g3", "text": "downloadBytes creates an object URL, clicks an anchor and revokes the URL."},
+    {"goal_id": "g4", "text": "The header control triggers the export and disables while busy; a missing artifact reports why."}
+  ],
+  "open_questions": [
+    "D-02 (defaulted: the export is the workspace's main document) — the note-slot copy is not exported; raised, not re-decided.",
+    "D-10 (defaulted: the group document is not cached offline) — the bundle reads local rows and the main artifact's bytes (downloaded on demand), so it does not require the note copy offline.",
+    "RULE-25 (standing) — the bundle format is 016's; 027 only calls it. The filename slug comes from the session title (a plain slugify); if the product wants a specific workspace slug, that is a later change."
+  ],
+  "risks": [
+    "Re-rendering a page on export destroys the text layer (spec §5.6) — appendHighlightsToPdf appends and is untouched.",
+    "A highlight with no slug would break the anchor round trip — it is skipped rather than mis-anchored.",
+    "Exporting before the bytes are cached triggers a Storage download; an offline first export of an uncached PDF will fail with a message, which is acceptable (the bundle is an online-or-cached action).",
+    "A large PDF + many highlights make the zip heavy; the work is user-initiated and shows a busy state."
+  ]
+}

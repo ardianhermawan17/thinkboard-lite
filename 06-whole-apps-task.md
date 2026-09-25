@@ -474,6 +474,21 @@ catches every planted violation under its own id and prints all 29 rows. "Green 
 **Gate** — with a seeded workspace, `/w/<id>` lists the highlights and opening one lets the author write a note.
 **Blocks** — —; it unblocks mounting 012's sheet, 015's cursors and 021's import review.
 
+### `027-task-export-bundle` · `frontend`
+
+**Main-goal —** A member can export the open workspace from the shell: one zip with the original PDF plus `/Highlight` annotations, `notes.md` with anchors, and `thinkboard.json`.
+
+**Why it exists** — 016 built the full bundle seam (`shared/lib/bundle.ts`) and closed, but no control ever called it; the app now has the document view (025), a shared workspace context and a session-wide read (026), so the export UI can finally be mounted.
+
+**Mini-goals**
+- `g1` a session-wide notes read (`use-notes-for-session`) beside 026's highlights read.
+- `g2` `use-export-workspace` maps the session's rows and the main PDF bytes into `BundleInput`, appends annotations, zips, and downloads `workspace-{slug}-{yyyymmdd}.zip`.
+- `g3` a `downloadBytes` helper (`shared/lib/download.ts`) with the bytes -> blob -> anchor step unit-tested.
+- `g4` an Export control in the shell header.
+
+**Gate** — with a seeded workspace, Export downloads a zip holding `document.pdf` (annotated), `notes.md` (anchored) and `thinkboard.json`.
+**Blocks** — —; it completes 016's follow-up.
+
 ---
 
 ## 2. Dependency graph

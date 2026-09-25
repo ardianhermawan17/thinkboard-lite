@@ -1,0 +1,8 @@
+{
+  "schema_version": "1.0",
+  "id": "027-todo-export-bundle",
+  "name": "Export the workspace bundle",
+  "goal": "A member exports the open workspace from the shell as the portable bundle.",
+  "human_prompt": "OKay continue the long code",
+  "translated_prompt_agent": "Continue the integration after task 026 by opening task 027 (PHASE G): mount 016's export bundle in the shell. Add a session-wide notes read (use-notes-for-session) beside 026's highlights read; a downloadBytes helper in shared/lib/download.ts; a features/workspace export-workspace container whose hook maps the session's highlights and notes plus the main PDF bytes into BundleInput, calls appendHighlightsToPdf and buildBundleZip from 016's shared/lib/bundle.ts, and downloads workspace-{slug}-{yyyymmdd}.zip; and an Export control in the shell header. Write every phase file into agent-history/027-task-export-bundle/, keep npm run verify green, and close validate/result honestly, deferring only the live seeded-download pass."
+}

@@ -1,0 +1,33 @@
+{
+  "task_id": "027-task-export-bundle",
+  "phase": "result",
+  "closed_at": "2026-09-26T01:10:00Z",
+  "final_status": "done",
+  "goals_summary": {
+    "total": 4,
+    "done": 4,
+    "blocked": 0,
+    "detail": "g1 the session-wide notes read pass; g2 the export hook (map + append + zip + download) pass; g3 the downloadBytes helper pass; g4 the header control pass. Recomputed from task.json goals[] and validate.json goal_checks — all four 'pending' -> 'done', none blocked."
+  },
+  "artifacts": [
+    "src/shared/lib/download.ts (+test) — the blob-URL save",
+    "src/features/entities/queries/use-notes-for-session.ts — the session-wide notes read",
+    "src/features/workspace/components/export-workspace/ (hook + control + tests) — the mount",
+    "src/features/workspace/components/app-header/app-header.tsx — the control in the header",
+    "06-whole-apps-task.md (PHASE G · 027), todo-task-027-export-bundle.md"
+  ],
+  "verify": "npm run verify green: verify:arch 18 pass/0 fail, lint 0 errors (2 pre-existing warnings), typecheck clean, vitest 337 passed/10 skipped (347). npm run build succeeded. No new dependency (016 already added fflate/pdf-lib).",
+  "decisions_recap": [
+    "The export calls 016's bundle seam unchanged; it never re-renders a page and never writes a second bundle format.",
+    "A slug-less highlight is skipped: the slug is the only identity anchor (RULE-25).",
+    "The bbox rect list is parsed locally because features/highlight's checker may not be imported by features/workspace (I3).",
+    "profileId/sessionId come from the shared workspace context (026), so the control lives in the header without a feature import.",
+    "The control is disabled with a reason when there is no document, and reports export failures in its title."
+  ],
+  "follow_up_tasks": [
+    "Run the live Gate: a seeded workspace downloads the zip and the PDF's /Highlight annotations are visible in a viewer.",
+    "If a third consumer needs the bbox shape, move the check to shared rather than duplicating it again.",
+    "Add re-import as a control once a workspace bundle is a real user artifact (016's planReimport is ready).",
+    "Include ink/{slug}.svg when ink notes exist (024)."
+  ]
+}
