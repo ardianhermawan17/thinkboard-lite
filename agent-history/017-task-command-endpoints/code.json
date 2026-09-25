@@ -1,0 +1,40 @@
+{
+  "task_id": "017-task-command-endpoints",
+  "phase": "code",
+  "started_at": "2026-09-25T05:20:00Z",
+  "completed_at": "2026-09-25T06:10:00Z",
+  "files_changed": [
+    {"path": "src/shared/lib/supabase.ts", "action": "modified", "summary": "Added createUserClient(accessToken) (request-scoped, publishable key only) and a SupabaseClient type re-export, so the server never imports supabase-js itself (I21/RULE-01)."},
+    {"path": "src/server/db/errors.ts", "action": "created", "summary": "Unauthorized/Forbidden/NotFound/Validation errors and httpStatusFor/errorMessage — the only vocabulary a route maps (g2)."},
+    {"path": "src/server/db/errors.test.ts", "action": "created", "summary": "2 tests for the status mapping."},
+    {"path": "src/server/db/client.ts", "action": "created", "summary": "bearerToken + requestContext: validate the JWT, build the user client, resolve the profile under its own RLS (g4)."},
+    {"path": "src/server/db/client.test.ts", "action": "created", "summary": "4 tests: bearer parsing, missing/malformed/invalid token, profile resolution."},
+    {"path": "src/server/db/rpc.ts", "action": "created", "summary": "createWorkspace wraps the create_workspace definer RPC; never reimplements the transaction (DB-Q6)."},
+    {"path": "src/server/http.ts", "action": "created", "summary": "json() and errorResponse() — the route layer's only branch (RULE-22)."},
+    {"path": "src/server/pipeline/stages/registry.ts", "action": "created", "summary": "The stage registry 020 fills (RULE-21)."},
+    {"path": "src/server/pipeline/service.ts", "action": "created", "summary": "requestResult (group-leader rule + run insert), requestMiniConclusion (idempotent read), subscribeRun (SSE events) (g1/g5)."},
+    {"path": "src/server/pipeline/service.test.ts", "action": "created", "summary": "8 tests: scope/owner, leader 403, NotFound, explicit mode, queued, SSE events."},
+    {"path": "src/server/memory/service.ts", "action": "created", "summary": "readGroupMinutes — the memory package's real first member."},
+    {"path": "src/server/llm/service.ts", "action": "created", "summary": "The complete()/stream() interface 018 fills, taking a profileId and never a key (RULE-24)."},
+    {"path": "src/app/api/v1/workspaces/route.ts", "action": "created", "summary": "POST /api/v1/workspaces — binds, calls createWorkspace, maps the error (g1)."},
+    {"path": "src/app/api/v1/highlights/[id]/mini-conclusion/route.ts", "action": "created", "summary": "POST /api/v1/highlights/:id/mini-conclusion (g1)."},
+    {"path": "src/app/api/v1/workspaces/[id]/results/route.ts", "action": "created", "summary": "POST /api/v1/workspaces/:id/results — validates scope, calls requestResult (g1/g5)."},
+    {"path": "src/app/api/v1/runs/[id]/stream/route.ts", "action": "created", "summary": "GET /api/v1/runs/:id/stream — SSE, no compression, no buffering (g1)."},
+    {"path": "src/server/commands.test.ts", "action": "created", "summary": "6 tests: exactly four declared routes exist and no fifth; no route touches a table/RPC (g1/g2, the gate)."},
+    {"path": "src/server/route-handlers.test.ts", "action": "created", "summary": "7 tests: 403 for a member's group run, 202 for a leader, 400 invalid scope, 201 create, 202 queued, 401 without bearer."}
+  ],
+  "decisions": [
+    "I21 versus a server client: rather than widening the eslint ignore (which would create a second supabase-js import site), shared/lib/supabase.ts gained createUserClient(accessToken) and a SupabaseClient type re-export, and src/server/** imports only that seam. No secret key exists anywhere (RULE-01).",
+    "requestContext bundles JWT validation and profile resolution so a route makes exactly one call before its one service method (RULE-22). It uses db.auth.getUser(token) then the caller's own profile_identities row under RLS; no service-role path.",
+    "create-workspace's service has no package in spec §4.2 listed for it, so it lives in src/server/db/rpc.ts (a definer-RPC wrapper is a db concern). A new `workspace/` package was not invented.",
+    "The group-leader rule (D-03) lives in requestResult, not the route: the route only validates the scope enum. run.mode falls back to the session's own default_mode column when the request omits one; owner_profile_id is null for a group run and the caller otherwise (spec §5.5).",
+    "src/server/llm/service.ts is the interface 018 fills (complete/stream taking a profileId, never a key) and fails loudly (LlmUnavailableError) until then rather than returning empty text; src/server/memory/service.ts is already a real read. No empty placeholder folders.",
+    "The SSE route sets Content-Type: text/event-stream, Cache-Control: no-cache, no-transform and Content-Encoding: identity (spec §4.3: no compression on this route); errors after headers are sent become an SSE `error` event, not a status."
+  ],
+  "commands_run": [
+    "npm run typecheck",
+    "npx vitest run --project unit src/server",
+    "npm run verify",
+    "npm run build"
+  ]
+}

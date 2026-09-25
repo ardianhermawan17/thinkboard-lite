@@ -1,0 +1,21 @@
+{
+  "task_id": "017-task-command-endpoints",
+  "phase": "test",
+  "test_files": [
+    "src/server/commands.test.ts",
+    "src/server/route-handlers.test.ts",
+    "src/server/db/client.test.ts",
+    "src/server/db/errors.test.ts",
+    "src/server/pipeline/service.test.ts"
+  ],
+  "commands_run": [
+    {"command": "npx vitest run --project unit src/server", "result": "5 files, 27 tests, all passed"},
+    {"command": "npm run verify:arch", "result": "18 pass, 0 fail, 10 skipped, 1 void — I15 confirms every src/app/api route is in blueprint.commands[] and there is no fifth"},
+    {"command": "npm run lint", "result": "0 errors, 2 pre-existing warnings"},
+    {"command": "npm run typecheck", "result": "clean"},
+    {"command": "npm run test", "result": "62 test files passed / 2 skipped (64); 284 tests passed / 10 skipped (294)"},
+    {"command": "npm run build", "result": "production build succeeded; the four API routes are emitted as dynamic (ƒ)"}
+  ],
+  "summary": {"total": 294, "passed": 284, "failed": 0, "skipped": 10},
+  "coverage_notes": "g1/gate: commands.test.ts checks exactly four blueprint commands, that each declared route file exists, and that no undeclared route.ts exists; verify:arch's I15 checks the same trace and fails on a fifth endpoint. g2: commands.test.ts asserts no route file contains `.from(`, `.rpc(`, `can_lead_session`, `pipeline_runs`, `profile_identities` or `supabase`, and route-handlers.test.ts proves each handler binds input, calls its one service and maps the typed error. g4: client.test.ts proves a missing/malformed/invalid bearer is 401 and that the client comes from the one shared seam; commands.test.ts's forbidden string `supabase` and the i21 lint rule keep any secret/second import out. g5: pipeline/service.test.ts proves a group run by a non-leader raises ForbiddenError before any insert and a leader's inserts owner_profile_id null; route-handlers.test.ts proves that error maps to 403. The 10 skipped are the pre-existing live-stack suites; the 403 path against real RLS is a follow-up, not a gap in the mapping."
+}

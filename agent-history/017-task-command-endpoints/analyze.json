@@ -1,0 +1,39 @@
+{
+  "task_id": "017-task-command-endpoints",
+  "phase": "analyze",
+  "started_at": "2026-09-25T05:00:00Z",
+  "completed_at": "2026-09-25T05:20:00Z",
+  "sources_read": [
+    {"doc": "README.md", "section": "§1 gates 0-5, §2 how an agent thinks, §5 task map, §7 hard limits"},
+    {"doc": "06-whole-apps-task.md", "section": "PHASE E · 017, §2 dependency graph"},
+    {"doc": "01-thinkboard-lite-spec.md", "section": "§4.1 runtime, §4.2 folder map, §4.3 the complete API surface; RULE-01, RULE-21..24"},
+    {"doc": "02-database-architecture.md", "section": "§8.1 highlights/notes/pipeline_runs, can_lead_session(), D-03"},
+    {"doc": "todo-task-017-command-endpoints.md", "section": "full file"},
+    {"doc": "frontend-thinkboard-lite/architecture.blueprint.json", "section": "commands[] — the four endpoints and their route paths (the gate's trace target)"},
+    {"doc": "frontend-thinkboard-lite/src/shared/lib/supabase.ts", "section": "the one supabase-js seam (I21) and the publishable-key rule (RULE-01)"},
+    {"doc": "frontend-thinkboard-lite/eslint.architecture.mjs", "section": "i21 (supabase-js confined to two files), i29 (Dexie), the rules the server skeleton must not trip"},
+    {"doc": "frontend-thinkboard-lite/AGENTS.md", "section": "§2 placement tree, §3 context skeleton, §6 escalation"},
+    {"doc": "04-frontend-folder-architecture.md", "section": "§3.2 app/api/v1 — the four command endpoints"}
+  ],
+  "scope": "The four route handlers, the request-scoped user-JWT Supabase seam, the src/server skeleton (db, pipeline/stages/registry, pipeline/service, memory, llm), and the 403 mapping for a group result. Out of scope: adding a fifth endpoint, resolving a key outside llm/vault, using any secret key, and the LLM provider adapters (018), the pipeline stages (020) and the mini-conclusion generation (019) themselves.",
+  "acceptance_criteria": [
+    {"goal_id": "g1", "text": "Exactly the four route files architecture.blueprint.json commands[] names exist, and no fifth."},
+    {"goal_id": "g2", "text": "No route handler contains a domain branch: it binds input, calls one service method and maps a typed error; the group-leader rule lives in the service."},
+    {"goal_id": "g3", "text": "src/server has the spec §4.2 members: db/, pipeline/, pipeline/stages/registry.ts, memory/, llm/ — each with a real member, no empty placeholder."},
+    {"goal_id": "g4", "text": "Every handler derives a request-scoped client from the caller's Authorization bearer only; no secret key literal and no second supabase-js import exists."},
+    {"goal_id": "g5", "text": "A group-scope result request is mapped to 403 unless the caller can lead the session; the service raises the forbidden error, RLS backs it."}
+  ],
+  "open_questions": [
+    "D-03 (defaulted: the group result is leader-only) — g5 checks can_lead_session() in the service and maps its refusal to 403; RLS enforces the same at the row.",
+    "DB-Q6 (defaulted: create_workspace definer RPC; creator is leader) — POST /workspaces wraps the RPC, it does not reimplement it.",
+    "RULE-23 (standing: check RLS reachability before adding an endpoint) — these four are the blueprint's commands[]; promotion, members and artifacts stay client -> Supabase.",
+    "NEW-1: I21 confines @supabase/supabase-js to shared/lib/supabase.ts and features/sync/realtime/channel.ts, but a server route needs a request-scoped, user-JWT client. Resolved without weakening I21: shared/lib/supabase.ts gains createUserClient(accessToken) (still the one import site), and src/server/db/ imports that seam. Recorded, not a silent new import site.",
+    "NEW-2: spec §4.2 names llm/ and memory/ as future Go packages, but 018/020 fill them. Folders are created only with a real member (04 §4.3): llm/service.ts carries the complete()/stream() seam that 018's g1 specifies, and memory/service.ts carries a real group-minutes read. No empty placeholder folders."
+  ],
+  "risks": [
+    "POST /workspaces duplicating the logic 008 already runs through create_workspace — mitigated by wrapping the RPC, never reimplementing the transaction.",
+    "Compression on the SSE route breaking streaming (spec §4.3) — the stream route sets Cache-Control: no-cache and Content-Encoding: identity and never buffers.",
+    "A handler reaching for the service-role key under load (RULE-01) — the only client factory takes a bearer token and the publishable key; a grep test guards it.",
+    "The 403 path can only be fully proven against the live RLS stack; the handler mapping is unit-tested with the service injected, and the live check stays a follow-up like the other stack-dependent gates."
+  ]
+}

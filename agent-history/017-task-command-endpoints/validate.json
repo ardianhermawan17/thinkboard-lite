@@ -1,0 +1,25 @@
+{
+  "task_id": "017-task-command-endpoints",
+  "phase": "validate",
+  "goal_checks": [
+    {"goal_id": "g1", "status": "pass", "notes": "Exactly the four route files architecture.blueprint.json commands[] names exist — POST /api/v1/workspaces, POST /api/v1/highlights/:id/mini-conclusion, POST /api/v1/workspaces/:id/results, GET /api/v1/runs/:id/stream — and no fifth. commands.test.ts pins the count and the on-disk set; verify:arch I15 fails on any undeclared route; the production build emits the four as dynamic routes."},
+    {"goal_id": "g2", "status": "pass", "notes": "Each handler binds, calls one service (createWorkspace / requestMiniConclusion / requestResult / subscribeRun) and maps a typed error through http.ts. No route contains a table read, an rpc call or the domain rule: commands.test.ts scans for `.from(`, `.rpc(`, `can_lead_session`, `pipeline_runs`, `profile_identities`; the group-leader branch lives in requestResult and is unit-tested there."},
+    {"goal_id": "g3", "status": "pass", "notes": "src/server now has the spec §4.2 members, each with a real member and no empty placeholder: db/ (client, errors, rpc), pipeline/ (service, stages/registry.ts), memory/ (service), llm/ (service). The folders mirror the future Go packages; renames in that port stay moves, not rewrites."},
+    {"goal_id": "g4", "status": "pass", "notes": "requestContext validates the bearer, builds a request-scoped client from the one shared seam (createUserClient) and resolves the caller's profile through their own RLS-readable identity row. There is no secret or service-role key anywhere: createUserClient uses only the publishable key, and both the i21 lint rule and commands.test.ts's `supabase` scan guard against a second import site. client.test.ts pins the 401 paths."},
+    {"goal_id": "g5", "status": "pass", "notes": "requestResult checks can_lead_session(target_session) for a group scope and raises ForbiddenError before any insert; the route maps it to 403. service.test.ts proves the refusal writes nothing and that a leader's group run stores owner_profile_id null; route-handlers.test.ts proves the 403. RLS continues to enforce the same at the row (D-03); the live-RLS confirmation is a follow-up."}
+  ],
+  "cross_check_against_plan": [
+    {"doc": "06-whole-apps-task.md", "section": "PHASE E · 017", "result": "matches — backend; the five mini-goals map to g1-g5; it blocks 018 and does not open it."},
+    {"doc": "01-thinkboard-lite-spec.md", "section": "§4.1, §4.2, §4.3, RULE-01, RULE-21..24", "result": "matches — the API surface is exactly the four endpoints; the server folders mirror §4.2; no service-role key (RULE-01); handlers bind/call/map (RULE-22); llm/ is the only key-resolving module (RULE-24); no endpoint was added that RLS could serve (RULE-23)."},
+    {"doc": "02-database-architecture.md", "section": "§8.1", "result": "matches — pipeline_runs(mode, owner_profile_id, status) and can_lead_session(target_session) are used as defined; sessions.default_mode supplies the fallback mode; no schema change."},
+    {"doc": "frontend-thinkboard-lite/architecture.blueprint.json", "section": "commands[]", "result": "matches — the four commands and their route paths are implemented verbatim; no fifth."}
+  ],
+  "signed_off": true,
+  "issues_found": [
+    "The 403 path is proven at the handler/service boundary with the fake client; confirming it against the live RLS stack (task 002's suite) is a follow-up, like the other stack-dependent gates.",
+    "D-12 still blocks 018, so src/server/llm/service.ts is the interface only and throws LlmUnavailableError; no provider is configured and none is named (RULE-24 respected).",
+    "The result route's request body is `{ scope, mode? }`: spec §4.3 names only `scope`, so an omitted mode falls back to the session's default_mode column rather than inventing one. Recorded as a decision.",
+    "The mini-conclusion service reports `queued` and does not persist a job: no queue table exists, and 019 owns the debounce/cache/generation. The endpoint is real (it performs an RLS-scoped read) but its enqueue is 019's.",
+    "create-workspace's service lives in src/server/db/rpc.ts because §4.2 lists no workspace package; flagged so the Go port can move it deliberately."
+  ]
+}

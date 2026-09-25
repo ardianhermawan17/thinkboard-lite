@@ -1,6 +1,6 @@
 {
 	"schema_version": "1.0",
-	"updated_at": "2026-09-25T03:00:00Z",
+	"updated_at": "2026-09-25T05:00:00Z",
 	"tracked_todos": [
 		{
 			"id": "000-todo-architecture-contract",
@@ -112,6 +112,14 @@
 			"goal": "The private sheet works with the network off, and a workspace can leave as a portable bundle.",
 			"todo_path": "agent-thinking/todo/016-todo-offline-and-export/contract.json",
 			"agent_history": "agent-history/016-task-offline-and-export",
+			"status": "done"
+		},
+		{
+			"id": "017-todo-command-endpoints",
+			"name": "Command endpoints",
+			"goal": "The four server endpoints exist with real auth and no business logic in the route layer.",
+			"todo_path": "agent-thinking/todo/017-todo-command-endpoints/contract.json",
+			"agent_history": "agent-history/017-task-command-endpoints",
 			"status": "done"
 		}
 	]

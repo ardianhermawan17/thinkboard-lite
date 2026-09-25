@@ -1,0 +1,8 @@
+{
+  "schema_version": "1.0",
+  "id": "017-todo-command-endpoints",
+  "name": "Command endpoints",
+  "goal": "The four server endpoints exist with real auth and no business logic in the route layer.",
+  "human_prompt": "okay yes. Continue, make sure to write the agent-history",
+  "translated_prompt_agent": "Continue the backlog after task 016 by executing the next unblocked task, 017-task-command-endpoints (backend; depends only on 001, which is done), per todo-task-017-command-endpoints.md and the main gate. Concretely: (1) Gate 1-3 on branch task/017-command-endpoints, writing every phase file into agent-history/017-task-command-endpoints/; (2) create the four route handlers exactly as architecture.blueprint.json commands[] names them — POST /api/v1/workspaces, POST /api/v1/highlights/:id/mini-conclusion, POST /api/v1/workspaces/:id/results, GET /api/v1/runs/:id/stream — and no fifth; (3) each handler binds input, calls exactly one service method and maps a typed error to a status, with no domain branch in the route; (4) create src/server/ with the Go-mirroring members: db/ (a request-scoped, user-JWT-only Supabase client built from the one shared seam, so no secret key and no second supabase-js import), pipeline/stages/registry.ts, pipeline/service.ts, memory/, llm/; (5) g5 — a group-scope result request is refused with 403 unless can_lead_session(); (6) tests for the 403 mapping, the blueprint trace (I15) and the no-domain-branch rule; (7) keep npm run verify green and close validate/result honestly, leaving 018/019/020 to fill llm/pipeline/memory, and asking before any git commit."
+}

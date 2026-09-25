@@ -201,7 +201,7 @@ in `task_sequence` is *not opened*.
 | D | 014 result UI against a stub | [todo-task-014](todo-task-014-result-ui-against-stub.md) | frontend | 013 | not opened |
 | D | 015 realtime presence | [todo-task-015](todo-task-015-realtime-presence.md) | frontend | 007 | not opened |
 | D | 016 offline + export | [todo-task-016](todo-task-016-offline-and-export.md) | frontend | 007 | **done** |
-| E | 017 command endpoints | [todo-task-017](todo-task-017-command-endpoints.md) | backend | 001 | not opened |
+| E | 017 command endpoints | [todo-task-017](todo-task-017-command-endpoints.md) | backend | 001 | **done** |
 | E | 018 LLM adapter | [todo-task-018](todo-task-018-llm-adapter.md) | backend | 017 | **blocked on D-12** |
 | E | 019 mini-conclusion | [todo-task-019](todo-task-019-mini-conclusion.md) | backend | 018 | not opened |
 | E | 020 result engine | [todo-task-020](todo-task-020-result-engine.md) | backend | 014 018 019 | not opened |
@@ -260,8 +260,11 @@ Critical path = the demoable slice:  000 → 001 → 004 → 006 → 008 → 009
   banner with `lastSyncedAt` and `DisabledWhenOffline`, "Back online · N changes to sync", `shared/lib/bundle.ts` (notes.md anchors, thinkboard.json,
   `document.pdf` with appended `/Highlight` annotations via pdf-lib, zipped with fflate), RULE-25 re-import, and the sign-out wipe of OPFS + Dexie.
   `npm run verify` green (257 tests), production build ok; added `fflate` and `pdf-lib`.
-- **Next:** 013 needs 012 (blocked); 021 (leader import) is unblocked by 010 + 011; 017 (command endpoints) is unblocked by 001; 015 (presence) is
-  unblocked by 007 but must first resolve its plan doc's `0005_live_topic.sql` against the already-shipped `0005_storage_artifacts.sql`.
+- **Also done:** 017 (command endpoints) — the four `/api/v1` routes (dynamic) with `requestContext` running every request under the caller's JWT, no
+  secret key, and the `src/server/` skeleton (db/pipeline/stages/memory/llm) that mirrors the future Go packages; a member's group run is 403. No new
+  dependency; `npm run verify` green (284 tests) and the four routes build.
+- **Next:** 013 needs 012 (blocked); 021 (leader import) is unblocked by 010 + 011; 019 waits on 018 (blocked on D-12); 015 (presence) is unblocked by 007
+  but must first resolve its plan doc's `0005_live_topic.sql` against the already-shipped `0005_storage_artifacts.sql`.
   Open housekeeping: revoke anon EXECUTE on the definer RPCs, and let teammates read the profile names of their team.
 - **Waiting on a human:**
   - **D-12** — free-tier training terms vs document sensitivity. Blocks 018, and ink transcription in 024. 003's

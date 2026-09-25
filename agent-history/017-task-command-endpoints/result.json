@@ -1,0 +1,38 @@
+{
+  "task_id": "017-task-command-endpoints",
+  "phase": "result",
+  "closed_at": "2026-09-25T06:20:00Z",
+  "final_status": "done",
+  "goals_summary": {
+    "total": 5,
+    "done": 5,
+    "blocked": 0,
+    "detail": "g1 the four endpoints exist and no fifth pass; g2 hands-bind-call-map with no domain branch in the route pass; g3 src/server mirrors the Go packages with a real member each pass; g4 every request runs under the user's JWT from the one shared seam, no secret key pass; g5 a group run is 403 unless can_lead_session pass. Recomputed from task.json goals[] and validate.json goal_checks — all five 'pending' -> 'done', none blocked."
+  },
+  "artifacts": [
+    "src/app/api/v1/workspaces/route.ts, src/app/api/v1/highlights/[id]/mini-conclusion/route.ts, src/app/api/v1/workspaces/[id]/results/route.ts, src/app/api/v1/runs/[id]/stream/route.ts",
+    "src/server/db/{client,errors,rpc}.ts (+ client/errors tests)",
+    "src/server/pipeline/service.ts (+ test), src/server/pipeline/stages/registry.ts",
+    "src/server/memory/service.ts, src/server/llm/service.ts",
+    "src/server/http.ts",
+    "src/server/commands.test.ts, src/server/route-handlers.test.ts",
+    "src/shared/lib/supabase.ts — createUserClient + SupabaseClient type re-export"
+  ],
+  "verify": "npm run verify green: verify:arch 18 pass/0 fail (I15 traces all four routes and rejects a fifth), lint 0 errors (2 pre-existing warnings), typecheck clean, vitest 284 passed/10 skipped (294). npm run build succeeded; the four API routes build as dynamic (ƒ). No new dependency; npm audit 0 vulnerabilities.",
+  "decisions_recap": [
+    "The server's user-JWT client is createUserClient in shared/lib/supabase.ts, with a type re-export, so I21 stays intact and there is still exactly one supabase-js import site (RULE-01: publishable key only).",
+    "requestContext validates the JWT and resolves the profile, so a route makes one call before its one service method; no route reads a table or calls an RPC.",
+    "The group-leader rule lives in requestResult; the run's mode falls back to sessions.default_mode; owner_profile_id is null for a group run.",
+    "create-workspace's service is a definer-RPC wrapper in src/server/db/rpc.ts because §4.2 lists no workspace package.",
+    "llm/service.ts is 018's interface (profileId, never a key) and fails loudly until then; memory/service.ts is a real read. No empty placeholder folders.",
+    "The SSE route is unbuffered/uncompressed (spec §4.3); post-header errors become SSE events."
+  ],
+  "follow_up_tasks": [
+    "Confirm the 403 path against real RLS (extend task 002's suite or add a live route test) once the local stack is part of the loop.",
+    "018 fills src/server/llm/service.ts (providers/resolver/vault/usage/ratelimit) behind the interface defined here — it is still gated on D-12.",
+    "019 gives mini-conclusion its debounce, cache key and generation; the endpoint currently reports `queued` after an RLS-scoped read.",
+    "020 registers the scope_anchor -> analytic -> result stages in pipeline/stages/registry.ts and replaces subscribeRun's single-snapshot SSE with real stage events over a detached context.",
+    "Move create-workspace's service into a dedicated package if the Go port grows one; today §4.2 has none.",
+    "Consider a client-side command api (RTK Query) that targets these endpoints when 014/020 need it; 018's Q2 default keeps RTK Query to the four commands."
+  ]
+}
