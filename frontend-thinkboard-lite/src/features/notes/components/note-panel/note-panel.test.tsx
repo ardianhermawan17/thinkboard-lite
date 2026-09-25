@@ -5,6 +5,7 @@ const mocks = vi.hoisted(() => ({ select: vi.fn(), state: {} as Record<string, u
 vi.mock("./use-note-panel", () => ({ useNotePanel: () => mocks.state }))
 vi.mock("@shared/providers/workspace-provider", () => ({ useWorkspaceContext: () => ({ profileId: "p1", sessionId: "s1" }) }))
 vi.mock("../note-sheet", () => ({ NoteSheet: () => <div data-testid="note-sheet" /> }))
+vi.mock("../reimport-review", () => ({ ReimportReview: () => <div data-testid="reimport-review" /> }))
 
 import { NotePanel } from "./note-panel"
 

@@ -3,6 +3,7 @@
 import type { UUID } from "@shared/types/domain/common"
 import { useWorkspaceContext } from "@shared/providers/workspace-provider"
 import { NoteSheet } from "../note-sheet"
+import { ReimportReview } from "../reimport-review"
 import { useNotePanel } from "./use-note-panel"
 
 /** g3: the notes rail beside the document. A container leaf — its hook owns the selection; it renders no state. */
@@ -30,6 +31,8 @@ export function NotePanel() {
         </ul>
       )}
       {selectedId && profileId && <NoteSheet highlightId={selectedId} profileId={profileId as UUID<"profiles">} note={note} open={open} onOpenChange={onOpenChange} />}
+      {/* 029: re-import a bundle's notes. */}
+      <ReimportReview />
     </div>
   )
 }

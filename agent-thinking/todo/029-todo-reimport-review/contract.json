@@ -1,0 +1,8 @@
+{
+  "schema_version": "1.0",
+  "id": "029-todo-reimport-review",
+  "name": "Re-import review",
+  "goal": "A member can paste an exported notes.md and re-import it without duplicates.",
+  "human_prompt": "yes, and continue the next 3 task. Make sure to do work->testing->review",
+  "translated_prompt_agent": "Continue the integration after 028. Task 029: add a reimport-review container in features/notes that parses pasted notes.md via 016's planReimport and shows matched/unanchored/orphan/missing counts, applies the matched updates (updating the author's existing note, else inserting one, never a duplicate) via the note repository, mounts in the notes rail, and adds hook + component tests. Write all six phase files, keep npm run verify green, close validate/result."
+}

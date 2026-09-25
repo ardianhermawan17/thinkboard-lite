@@ -1,0 +1,29 @@
+{
+  "task_id": "029-task-reimport-review",
+  "phase": "result",
+  "closed_at": "2026-09-26T03:55:00Z",
+  "final_status": "done",
+  "goals_summary": {
+    "total": 4,
+    "done": 4,
+    "blocked": 0,
+    "detail": "g1 plan counts pass; g2 apply matched updates without duplicates pass; g3 mounted in the rail pass; g4 tests pass. Recomputed from task.json goals[] and validate.json goal_checks — all four 'pending' -> 'done', none blocked."
+  },
+  "artifacts": [
+    "src/features/notes/components/reimport-review/ (hook + component + tests)",
+    "src/features/notes/components/note-panel/note-panel.tsx — the mount",
+    "06-whole-apps-task.md (PHASE G · 029), todo-task-029-reimport-review.md"
+  ],
+  "verify": "npm run verify green: verify:arch 18 pass/0 fail, lint 0 errors (2 pre-existing warnings), typecheck clean, vitest 350 passed/10 skipped (360). npm run build succeeded. No new dependency.",
+  "decisions_recap": [
+    "016's planReimport is the only identity-anchor reader (RULE-25).",
+    "A matched slug updates the author's note; identical content is a no-op, so re-applying cannot duplicate.",
+    "Orphans and anchorless sections are reported, not applied.",
+    "The control mounts in the notes rail and inherits the shared context."
+  ],
+  "follow_up_tasks": [
+    "Create unanchored notes from anchorless sections when a highlight to hang them on exists (016's follow-up).",
+    "Add a file picker for notes.md if a paste is not enough.",
+    "Run the live Gate in a browser (export -> edit -> paste -> apply)."
+  ]
+}

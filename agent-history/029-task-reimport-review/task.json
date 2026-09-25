@@ -1,0 +1,27 @@
+{
+  "id": "029-task-reimport-review",
+  "title": "A member can paste an exported notes.md and re-import it without duplicates",
+  "architecture": "frontend",
+  "secondary_architecture": [],
+  "created_at": "2026-09-26T03:00:00Z",
+  "status": "done",
+  "depends_on": ["016-task-offline-and-export", "026-task-workspace-context"],
+  "plan_refs": [
+    {"doc": "06-whole-apps-task.md", "section": "PHASE G · 029"},
+    {"doc": "01-thinkboard-lite-spec.md", "section": "§5.6, RULE-25"},
+    {"doc": "todo-task-029-reimport-review.md", "section": "§2, §3"}
+  ],
+  "goals": [
+    {"id": "g1", "description": "parse pasted markdown via planReimport and show matched/unanchored/orphan/missing counts", "plan_ref": "tasks 029 g1", "status": "done"},
+    {"id": "g2", "description": "apply matched updates (update the author's note, else insert one), never a duplicate", "plan_ref": "tasks 029 g2; RULE-25", "status": "done"},
+    {"id": "g3", "description": "mounted in the notes rail", "plan_ref": "tasks 029 g3", "status": "done"},
+    {"id": "g4", "description": "hook and component tests", "plan_ref": "tasks 029 g4", "status": "done"}
+  ],
+  "phases": {
+    "analyze": {"file": "analyze.json", "status": "done"},
+    "code": {"file": "code.json", "status": "done"},
+    "test": {"file": "test.json", "status": "done"},
+    "validate": {"file": "validate.json", "status": "done"},
+    "result": {"file": "result.json", "status": "done"}
+  }
+}

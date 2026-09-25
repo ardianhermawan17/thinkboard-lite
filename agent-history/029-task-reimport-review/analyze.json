@@ -1,0 +1,33 @@
+{
+  "task_id": "029-task-reimport-review",
+  "phase": "analyze",
+  "started_at": "2026-09-26T03:00:00Z",
+  "completed_at": "2026-09-26T03:10:00Z",
+  "sources_read": [
+    {"doc": "README.md", "section": "§5 task map, §7 hard limits"},
+    {"doc": "06-whole-apps-task.md", "section": "PHASE G · 029"},
+    {"doc": "01-thinkboard-lite-spec.md", "section": "§5.6, RULE-15, RULE-25"},
+    {"doc": "todo-task-029-reimport-review.md", "section": "full file"},
+    {"doc": "frontend-thinkboard-lite/src/shared/lib/bundle.ts", "section": "016's parseNotesMarkdown/planReimport (the only anchor reading)"},
+    {"doc": "frontend-thinkboard-lite/src/features/entities/repository/note-repository.ts", "section": "insertNote/updateNote to apply"},
+    {"doc": "frontend-thinkboard-lite/src/features/entities/queries/use-highlights-for-session.ts", "section": "slug -> highlight resolution"},
+    {"doc": "frontend-thinkboard-lite/src/features/notes/components/note-panel/", "section": "the rail to mount into"}
+  ],
+  "scope": "A re-import review container: paste markdown, plan via 016's planReimport, show the four counts, apply the matched updates through the note repository, mounted in the notes rail. Out of scope: creating unanchored notes from anchorless sections (016's recorded follow-up); the PDF bundle re-import.",
+  "acceptance_criteria": [
+    {"goal_id": "g1", "text": "The counts equal planReimport's updates/unanchored/orphans/missing lengths."},
+    {"goal_id": "g2", "text": "A matched slug updates the author's existing note once (deduping identical content) or inserts one when absent; orphans and unanchored sections are not written."},
+    {"goal_id": "g3", "text": "The notes rail renders the control."},
+    {"goal_id": "g4", "text": "Hook and component tests pass."}
+  ],
+  "open_questions": [
+    "RULE-25 (standing): the HTML comment is the only identity anchor; planReimport already enforces it. No second source is introduced.",
+    "RULE-15 (standing): a conflict keeps local text as a second note; this task sets content only on a matched anchor, so it does not merge or discard anything else.",
+    "Anchorless sections are reported, not applied; creating unanchored notes stays 016's recorded follow-up (raised, not silently dropped)."
+  ],
+  "risks": [
+    "A second identity source (heading/page) would break RULE-25; the hook only uses the slug map from planReimport.",
+    "Re-applying the same markdown must not duplicate: an existing author note is updated, and content that already matches is left untouched.",
+    "Applying notes writes through the outbox (RULE-08); it is a normal client write, not a server call."
+  ]
+}

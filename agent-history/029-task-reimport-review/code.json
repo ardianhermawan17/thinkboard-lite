@@ -1,0 +1,26 @@
+{
+  "task_id": "029-task-reimport-review",
+  "phase": "code",
+  "started_at": "2026-09-26T03:10:00Z",
+  "completed_at": "2026-09-26T03:45:00Z",
+  "files_changed": [
+    {"path": "06-whole-apps-task.md", "action": "modified", "summary": "Added PHASE G · 029-task-reimport-review."},
+    {"path": "todo-task-029-reimport-review.md", "action": "created", "summary": "Plan doc."},
+    {"path": "src/features/notes/components/reimport-review/types.ts", "action": "created", "summary": "ReimportPlanView/State."},
+    {"path": "src/features/notes/components/reimport-review/use-reimport-review.ts", "action": "created", "summary": "Plan via 016's planReimport; apply matched updates through the note repository (g1/g2)."},
+    {"path": "src/features/notes/components/reimport-review/reimport-review.tsx", "action": "created", "summary": "Paste panel, counts and Apply control (g3)."},
+    {"path": "src/features/notes/components/reimport-review/index.ts", "action": "created", "summary": "Barrel."},
+    {"path": "src/features/notes/components/reimport-review/use-reimport-review.test.ts", "action": "created", "summary": "5 tests: plan, update, insert, idempotent re-apply, orphan."},
+    {"path": "src/features/notes/components/reimport-review/reimport-review.test.tsx", "action": "created", "summary": "3 tests: toggle, counts + apply, disabled when nothing matched."},
+    {"path": "src/features/notes/components/note-panel/note-panel.tsx", "action": "modified", "summary": "Mount ReimportReview in the rail (g3)."},
+    {"path": "src/features/notes/components/note-panel/note-panel.test.tsx", "action": "modified", "summary": "Mock ReimportReview (its hook needs a live DB)."}
+  ],
+  "decisions": [
+    "016's planReimport stays the only reader of the identity anchor (RULE-25); the hook introduces no second source and does not guess an anchor.",
+    "A matched slug updates the author's note; if the content already equals the paste, nothing is written (re-applying is a no-op), so a repeated import cannot duplicate or churn.",
+    "Anchorless sections and orphans are reported but not applied; creating unanchored notes remains 016's recorded follow-up (raised in issues_found).",
+    "The control mounts inside the notes rail (026), so it inherits profileId/sessionId from the shared context and needs no feature import.",
+    "The picker is a paste textarea, not a file input: the bundle's notes.md is what a user edits and pastes back, and a paste keeps the flow testable and dependency-free."
+  ],
+  "commands_run": ["npm run typecheck", "npx vitest run --project unit (touched files)", "npm run verify", "npm run build"]
+}

@@ -1,0 +1,19 @@
+{
+  "task_id": "029-task-reimport-review",
+  "phase": "test",
+  "test_files": [
+    "src/features/notes/components/reimport-review/use-reimport-review.test.ts",
+    "src/features/notes/components/reimport-review/reimport-review.test.tsx",
+    "src/features/notes/components/note-panel/note-panel.test.tsx"
+  ],
+  "commands_run": [
+    {"command": "npx vitest run --project unit (touched files)", "result": "4 files, 14 tests passed"},
+    {"command": "npm run verify:arch", "result": "18 pass, 0 fail, 10 skipped, 1 void"},
+    {"command": "npm run lint", "result": "0 errors, 2 pre-existing warnings"},
+    {"command": "npm run typecheck", "result": "clean"},
+    {"command": "npm run test", "result": "85 test files passed / 2 skipped (87); 350 tests passed / 10 skipped (360)"},
+    {"command": "npm run build", "result": "production build succeeded"}
+  ],
+  "summary": {"total": 360, "passed": 350, "failed": 0, "skipped": 10},
+  "coverage_notes": "g1 is covered by use-reimport-review.test.ts (the plan counts equal planReimport's arrays; an unknown slug is an orphan while the known slug absent from the file is reported missing). g2 is covered by four hook cases: an existing author note is updated exactly once, a matched highlight with no note gets one inserted, re-applying identical content writes nothing, and an orphan writes nothing — so no duplicate is possible. g3 is covered by reimport-review.test.tsx (toggle, counts, apply, disabled when nothing matched) and by the note-panel test rendering with the control mocked. verify:arch's I3/I4 stay green. The live Gate (export, edit, paste back, apply) is a browser pass; the planner and apply are unit-proven. The 10 skipped are the pre-existing live-stack suites."
+}

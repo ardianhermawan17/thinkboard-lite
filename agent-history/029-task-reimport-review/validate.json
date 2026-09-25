@@ -1,0 +1,21 @@
+{
+  "task_id": "029-task-reimport-review",
+  "phase": "validate",
+  "goal_checks": [
+    {"goal_id": "g1", "status": "pass", "notes": "The hook plans only when the paste is non-empty, and its view counts equal planReimport's updates/unanchored/orphans/missing lengths. use-reimport-review.test.ts pins the matched case and the orphan+missing case."},
+    {"goal_id": "g2", "status": "pass", "notes": "apply iterates only plan.updates, resolves each slug to a highlight, updates the caller's existing note (skipping an identical body) or inserts one; orphans and anchorless sections are never written. Four hook tests prove update-once, insert, idempotent re-apply, and orphan no-op."},
+    {"goal_id": "g3", "status": "pass", "notes": "NotePanel renders ReimportReview at the bottom of the rail; the control toggles a paste panel with the counts and an Apply button (disabled unless something matched). reimport-review.test.tsx pins it."},
+    {"goal_id": "g4", "status": "pass", "notes": "Hook and component tests exist and pass (5 + 3), and the note-panel suite still passes with the control mounted."}
+  ],
+  "cross_check_against_plan": [
+    {"doc": "06-whole-apps-task.md", "section": "PHASE G · 029", "result": "matches — frontend; the four mini-goals map to g1-g4; it closes 016's re-import follow-up."},
+    {"doc": "01-thinkboard-lite-spec.md", "section": "§5.6, RULE-15, RULE-25", "result": "matches — the HTML comment is the only identity anchor; a matched slug writes prose, and the planner reports both orphan directions instead of guessing. No conflict-merge (RULE-15) behaviour is triggered because only matched anchors are written."},
+    {"doc": "todo-task-016-offline-and-export.md", "section": "§2 g5", "result": "matches — 016 wrote planReimport and deferred the UI; 029 mounts it."}
+  ],
+  "signed_off": true,
+  "issues_found": [
+    "Unanchored sections are reported but not imported as new notes; creating an unanchored note needs a highlight to hang it on, which is 016's recorded follow-up. Raised, not silently dropped.",
+    "The control takes a pasted notes.md rather than a file picker; a file input is a small follow-up if the product wants it.",
+    "The live Gate (export -> edit -> paste -> apply) needs a browser; the planner and apply are unit-proven."
+  ]
+}

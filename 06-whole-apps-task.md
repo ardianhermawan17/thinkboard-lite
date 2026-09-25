@@ -503,6 +503,20 @@ catches every planted violation under its own id and prints all 29 rows. "Green 
 
 **Gate** — two browsers in one workspace see each other in the rail and the "Leader is drawing" badge appears while the leader's pen moves. (Live; the peer-cursor canvas painting is a separate follow-up.)
 
+### `029-task-reimport-review` · `frontend`
+
+**Main-goal —** A member can paste an exported `notes.md` and re-import it: the HTML comment's slug matches the note, so editing the prose in a text editor and importing again updates it with no duplicate.
+
+**Why it exists** — 016 built `planReimport` and closed, but no control ever called it; the notes rail (026) is the natural home.
+
+**Mini-goals**
+- `g1` a `reimport-review` container in `features/notes` that parses pasted markdown via 016's `planReimport` and shows matched / unanchored / orphan / missing counts.
+- `g2` applying the matched updates: a matched slug updates the author's existing note or inserts one, never a duplicate (RULE-25); anchorless sections are not guessed at.
+- `g3` mounted in the notes rail.
+- `g4` hook + component tests.
+
+**Gate** — export → edit the prose → paste back → apply updates the note and adds none.
+
 ---
 
 ## 2. Dependency graph
