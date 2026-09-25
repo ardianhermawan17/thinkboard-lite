@@ -1,0 +1,26 @@
+{
+  "task_id": "015-task-realtime-presence",
+  "phase": "validate",
+  "goal_checks": [
+    {"goal_id": "g1", "status": "pass", "notes": "Presence comes only from the live channel's own state (presenceToPeers over presenceState()); a departure removes the entry, and a dropped channel clears the peer list, so it self-cleans. live-channel.test.ts and use-presence.test.ts pin it."},
+    {"goal_id": "g2", "status": "pass", "notes": "peer-cursors is a canvas leaf with a painter (I17/I18/I25 green) fed by usePeerCursors: the container gets an imperative paint() and drives it from a ref, so no cursor value passes through useState; the send path is createThrottle(50) and only fires on real movement. throttle.test.ts and the peer-cursors tests pin both halves."},
+    {"goal_id": "g3", "status": "pass", "notes": "A teammate's highlight still re-renders through 007's path (broadcast-from-database -> applyRemote -> Dexie -> useLiveQuery); 015 adds no second render path and does not touch it. The private-highlight-on-no-shared-topic property remains task 002's proven result."},
+    {"goal_id": "g4", "status": "pass", "notes": "The leader indicator is raised by a cursor whose profileId is the leader's and whose page is current, is cleared by an explicit drawing:false frame (the stroke end), and has a 1.2s idle fallback. use-presence.test.ts proves the set and the clear, and that a non-leader/other-page cursor is ignored."},
+    {"goal_id": "g5", "status": "blocked", "notes": "BLOCKED: the two-browser latency measurement (~100-300 ms) needs the live Supabase stack and two browsers; it cannot be performed by an agent. Nothing in test.json fabricates a latency number. The private-highlight routing half is already task 002's proof."},
+    {"goal_id": "g6", "status": "pass", "notes": "0006_live_topic.sql grants session members SELECT and INSERT on live:{sessionId} for broadcast + presence only; no INSERT policy exists on ws:/user: (0004 grants only SELECT there), so a member cannot insert a message on ws:{sessionId}. The policy mirrors 0004's proven shape; the live RLS confirmation is a follow-up (the SQL is deterministic)."}
+  ],
+  "cross_check_against_plan": [
+    {"doc": "06-whole-apps-task.md", "section": "PHASE D · 015", "result": "matches — frontend (secondary supabase), depends on 007 (done); the six mini-goals map to g1-g6; it blocks 023 and does not open it."},
+    {"doc": "01-thinkboard-lite-spec.md", "section": "§5.2, RULE-03, RULE-20", "result": "matches — one socket, presence and ~20 Hz cursors on a live topic; ws:/user: stay database-sent; cursors are ref-driven, never React state; a topic is only as private as its policy."},
+    {"doc": "02-database-architecture.md", "section": "§8.1, §10 DB-Q9", "result": "matches — the separate live:{sessionId} topic is DB-Q9's default, implemented in 0006; no schema change."},
+    {"doc": "03-frontend-architecture.md", "section": "§3, §4.2", "result": "matches — transient cursor state is a ref + painter, the store is untouched; the presence channel mirrors 007's realtime seam."}
+  ],
+  "signed_off": true,
+  "issues_found": [
+    "g5 (the two-browser latency measurement) is blocked: it needs the local Supabase stack and two browsers. The task's own Gate (five simulated peers at 20 Hz without dropped frames) additionally needs the pilot tablet (Q8).",
+    "The plan's migration was named 0005_live_topic.sql; it shipped as 0006_live_topic.sql because 0005 is 0005_storage_artifacts.sql (task 003). Recorded as a decision (analyze.json NEW-1), not a silent pick.",
+    "The migration's live-stack RLS proof is a follow-up; the SQL mirrors the proven 0004 topic policies and is deterministic.",
+    "The presence layer is implemented but not mounted: no route renders PeerCursors or LeaderDrawing yet (the document-view route still does not exist), so g1/g4 have no user-visible surface today.",
+    "The leader indicator's stroke-end depends on a drawing:false cursor frame; if that frame is lost it falls back to a 1.2s idle timeout."
+  ]
+}

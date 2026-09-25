@@ -1,0 +1,42 @@
+{
+  "task_id": "015-task-realtime-presence",
+  "phase": "code",
+  "started_at": "2026-09-25T09:20:00Z",
+  "completed_at": "2026-09-25T10:00:00Z",
+  "files_changed": [
+    {"path": "database-thinkboard-lite/supabase/migrations/0006_live_topic.sql", "action": "created", "summary": "Members-only live:{sessionId} topic: select + insert for broadcast and presence; ws:/user: get no insert, so they stay database-sent only (g6)."},
+    {"path": "src/shared/lib/supabase.ts", "action": "modified", "summary": "Re-export RealtimeChannel alongside SupabaseClient so presence code never imports supabase-js (I21)."},
+    {"path": "src/shared/utils/throttle.ts", "action": "created", "summary": "Send policy: one message per interval, only on real movement (RULE-20) (g2)."},
+    {"path": "src/shared/utils/throttle.test.ts", "action": "created", "summary": "3 tests with an injected clock."},
+    {"path": "src/shared/components/canvas/peer-cursors/types.ts", "action": "created", "summary": "DisplayCursor + PeerCursorsProps (register the imperative paint)."},
+    {"path": "src/shared/components/canvas/peer-cursors/peer-cursors.painter.ts", "action": "created", "summary": "THE EXCEPTION: paintCursors adds one non-interactive circle per cursor (g2)."},
+    {"path": "src/shared/components/canvas/peer-cursors/use-peer-cursors.ts", "action": "created", "summary": "Ref + paint lifecycle; hands paint to the container once; no React state (g2)."},
+    {"path": "src/shared/components/canvas/peer-cursors/peer-cursors.tsx", "action": "created", "summary": "The passive z2 layer."},
+    {"path": "src/shared/components/canvas/peer-cursors/index.ts", "action": "created", "summary": "Barrel (painter not exported)."},
+    {"path": "src/shared/components/canvas/peer-cursors/peer-cursors.painter.test.ts", "action": "created", "summary": "3 painter tests."},
+    {"path": "src/shared/components/canvas/peer-cursors/use-peer-cursors.test.ts", "action": "created", "summary": "1 hook test: register + replace-on-paint."},
+    {"path": "src/shared/components/canvas/peer-cursors/peer-cursors.test.tsx", "action": "created", "summary": "1 render test."},
+    {"path": "src/features/presence/types.ts", "action": "created", "summary": "Peer + Cursor."},
+    {"path": "src/features/presence/live-channel.ts", "action": "created", "summary": "openLiveChannel (private live: topic, presence key) + presenceToPeers (g1/g6)."},
+    {"path": "src/features/presence/live-channel.test.ts", "action": "created", "summary": "3 tests: presence flatten, subscribe/track/wire, drop."},
+    {"path": "src/features/presence/use-presence.ts", "action": "created", "summary": "Peers + leader indicator as state, cursors via ref + throttle; stroke-end clears (g1/g2/g4)."},
+    {"path": "src/features/presence/use-presence.test.ts", "action": "created", "summary": "5 tests: peers, leader indicator set/clear, ignore non-leader/other page, throttle, close."},
+    {"path": "src/features/presence/components/leader-drawing/leader-drawing.tsx", "action": "created", "summary": "The 'Leader is drawing' badge (g4)."},
+    {"path": "src/features/presence/components/leader-drawing/index.ts", "action": "created", "summary": "Barrel."},
+    {"path": "src/features/presence/index.ts", "action": "created", "summary": "Barrel."}
+  ],
+  "decisions": [
+    "DB-Q9 / the migration number: the plan's 0005_live_topic.sql collides with 0005_storage_artifacts.sql (task 003); 0006_live_topic.sql is the next free number (analyze.json NEW-1). The policy mirrors 0004's proven ws: shape, uses realtime.messages.extension in ('broadcast','presence'), and grants INSERT only on live: — so a client still cannot forge a database-change event on ws:/user:.",
+    "The live channel lives in features/presence and imports getSupabase + type RealtimeChannel from shared/lib/supabase (I21 intact); it is a separate channel from 007's ws:/user: one, and uses the same private-channel + presence-key discipline.",
+    "Cursors are never React state (RULE-20): usePeerCursors hands an imperative paint() to the container once; the container calls it from the presence hook's ref. Presence (who is here) and the leader indicator are low-frequency, so they are state (analyze.json NEW-2).",
+    "The leader indicator clears on an explicit cursor with drawing:false (the stroke end) and has a 1.2s idle fallback if that frame is lost (g4).",
+    "g3 (broadcast-from-database applied via applyRemote) is 007's path and is not duplicated; presence adds no second render path.",
+    "The presence layer is not yet mounted in the shell (no route renders PeerCursors or LeaderDrawing) because the document-view route still does not exist; the leaf and hook are ready for it."
+  ],
+  "commands_run": [
+    "npm run typecheck",
+    "npx vitest run --project unit (touched files)",
+    "npm run verify",
+    "npm run build"
+  ]
+}

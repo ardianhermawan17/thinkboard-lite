@@ -1,0 +1,34 @@
+{
+  "task_id": "015-task-realtime-presence",
+  "phase": "result",
+  "closed_at": "2026-09-25T10:10:00Z",
+  "final_status": "blocked",
+  "goals_summary": {
+    "total": 6,
+    "done": 5,
+    "blocked": 1,
+    "detail": "g1 presence pass; g2 ref/paint peer-cursors with a ~20 Hz movement-only throttle pass; g3 broadcast-from-database via applyRemote pass (007's path, unchanged); g4 leader-is-drawing indicator pass; g6 members-only live:{sessionId} topic (0006) pass. g5 blocked: the two-browser latency measurement needs the live Supabase stack and two browsers, and the task Gate additionally needs the pilot tablet (Q8). Recomputed from task.json goals[] and validate.json goal_checks."
+  },
+  "artifacts": [
+    "database-thinkboard-lite/supabase/migrations/0006_live_topic.sql — the members-only live:{sessionId} topic (g6)",
+    "src/features/presence/ (types, live-channel (+test), use-presence (+test), components/leader-drawing, index)",
+    "src/shared/components/canvas/peer-cursors/ (leaf + painter + hook + tests)",
+    "src/shared/utils/throttle.ts (+test) — the ~20 Hz movement-only send policy",
+    "src/shared/lib/supabase.ts — RealtimeChannel type re-export (I21)"
+  ],
+  "verify": "npm run verify green: verify:arch 18 pass/0 fail (I25 now sees peer-cursors.painter.ts), lint 0 errors (2 pre-existing warnings), typecheck clean, vitest 321 passed/10 skipped (331). npm run build succeeded. No new dependency; npm audit 0 vulnerabilities.",
+  "decisions_recap": [
+    "The migration ships as 0006_live_topic.sql (the plan's 0005 collides with 0005_storage_artifacts.sql); the policy mirrors 0004's proven shape and grants client INSERT only on live:.",
+    "Cursors are ref+paint only; presence and the leader indicator are low-frequency state (analyze.json NEW-2).",
+    "The leader indicator clears on a drawing:false cursor and on a 1.2s idle fallback.",
+    "The live channel lives in features/presence and imports only shared/lib/supabase (I21).",
+    "g3 is 007's path and was not duplicated."
+  ],
+  "follow_up_tasks": [
+    "Run the two-browser latency test (g5) on the live stack and the five-peer 20 Hz frame budget on the pilot tablet (Q8), then flip 015 to done.",
+    "Prove 0006 against the local stack (extend task 002's suite: a member cannot insert on ws:{sessionId}; a member can send/receive on live:{sessionId}; a non-member cannot).",
+    "Mount the presence layer once the document-view route exists: render PeerCursors into the page Stage and LeaderDrawing in the header, feeding both from usePresence.",
+    "Wire cursor publishing to the real pointer stream (the marquee/text capture already has pointer handlers) with the throttle; today nothing calls publishCursor.",
+    "Consider a richer cursor marker (label/initial) and per-peer colour once 022 tunes the theme."
+  ]
+}

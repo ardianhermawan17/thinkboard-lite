@@ -1,0 +1,8 @@
+{
+  "schema_version": "1.0",
+  "id": "015-todo-realtime-presence",
+  "name": "Realtime presence",
+  "goal": "A workspace feels shared: you see who is there and marks appear as they are made.",
+  "human_prompt": "OKay continue that task. After that review all task",
+  "translated_prompt_agent": "Continue the backlog after task 021 by executing task 015-task-realtime-presence (frontend, secondary supabase; depends on 007, done). The plan's `0005_live_topic.sql` collides with the already-shipped `0005_storage_artifacts.sql` (task 003), so use the next free number, `0006_live_topic.sql`, and record the resolution as a decision. Concretely: (1) g6 the 0006 migration adds a members-only `live:{sessionId}` topic policy for client-sent broadcast AND presence, leaving ws:/user: database-sent only (DB-Q9); (2) g1 presence — who is here and which page, from the live channel; (3) g2 a peer-cursors canvas leaf + painter fed by a ref/throttle (~20 Hz, only on real movement, never React state); (4) g3 broadcast-from-database events keep applying through applyRemote (already 007); (5) g4 a 'Leader is drawing' ephemeral indicator that clears when the stroke ends; (6) g5 the two-browser latency test is a live-stack follow-up. Write every phase file into agent-history/015-task-realtime-presence/, keep npm run verify green, and defer only the hardware/live-stack gates."
+}

@@ -34,5 +34,5 @@ function env() {
   return { url, key }
 }
 
-// Type re-export so server code can annotate a client without importing supabase-js itself (I21).
-export type { SupabaseClient } from "@supabase/supabase-js"
+// Type re-exports so server and presence code can annotate without importing supabase-js itself (I21).
+export type { RealtimeChannel, SupabaseClient } from "@supabase/supabase-js"

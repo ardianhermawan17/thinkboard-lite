@@ -1,0 +1,38 @@
+{
+  "task_id": "015-task-realtime-presence",
+  "phase": "analyze",
+  "started_at": "2026-09-25T09:00:00Z",
+  "completed_at": "2026-09-25T09:20:00Z",
+  "sources_read": [
+    {"doc": "README.md", "section": "§1 gates 0-5, §2 how an agent thinks, §5 task map"},
+    {"doc": "06-whole-apps-task.md", "section": "PHASE D · 015, §2 dependency graph"},
+    {"doc": "01-thinkboard-lite-spec.md", "section": "§5.2 transport (cursors ~20 Hz, presence, broadcast-from-database), RULE-03 (a topic is only as private as its policy), RULE-20 (cursors are ref-driven)"},
+    {"doc": "02-database-architecture.md", "section": "§8.1, §10 DB-Q9 (a separate live:{sessionId} topic)"},
+    {"doc": "todo-task-000-split.md", "section": "§4 I13 (imperative cursor state), §5.3 F5"},
+    {"doc": "todo-task-015-realtime-presence.md", "section": "full file"},
+    {"doc": "database-thinkboard-lite/supabase/migrations/0004_lite.sql", "section": "the realtime.messages topic policies (ws:/user:) the live: policy mirrors"},
+    {"doc": "frontend-thinkboard-lite/src/features/sync/realtime/channel.ts", "section": "007's one-socket/private-topic wiring and setAuth discipline the presence channel mirrors"},
+    {"doc": "frontend-thinkboard-lite/src/features/sync/realtime/handlers.ts", "section": "the F5 event buffer (g3's same render path is already 007)"},
+    {"doc": "frontend-thinkboard-lite/architecture.blueprint.json", "section": "contexts[presence] ('who is here, cursors — ref-based, no store'), canvasLeaves[peer-cursors] (active, hasPainter true)"}
+  ],
+  "scope": "The members-only live:{sessionId} topic policy (a migration), the presence channel and hook (who is here, which page), the peer-cursors canvas leaf fed by a ref + ~20 Hz throttle, and the 'leader is drawing' indicator. Out of scope: putting cursors in React state or Redux, and client broadcasts on ws:{sessionId}; g3's broadcast-from-database path is already 007's and is not reimplemented.",
+  "acceptance_criteria": [
+    {"goal_id": "g1", "text": "Presence self-cleans on disconnect: peers come only from the channel's own presence state, so an untrack removes them."},
+    {"goal_id": "g2", "text": "No cursor value passes through useState: the leaf paints from a ref and a paint() callback the container drives; the throttle sends only on real movement."},
+    {"goal_id": "g3", "text": "A teammate's highlight re-renders through the same live query: unchanged from 007 (applyRemote -> Dexie -> useLiveQuery); this task adds no second render path."},
+    {"goal_id": "g4", "text": "The 'leader is drawing' indicator sets on a leader cursor and clears when the stroke ends (an idle timeout)."},
+    {"goal_id": "g5", "text": "Measured latency recorded in test.json — a two-browser live-stack pass, deferred like the other browser gates."},
+    {"goal_id": "g6", "text": "A member cannot insert a message on ws:{sessionId}: 0006 grants send only on live:{sessionId}, so ws:/user: stay database-sent only."}
+  ],
+  "open_questions": [
+    "DB-Q9 (defaulted: a separate live:{sessionId} topic) — g6 implements exactly that; ws:/user: keep their database-sent-only policies.",
+    "Q8 (unanswered: the real tablet mix) — the frame-budget part of the task Gate (five simulated peers at 20 Hz without dropped frames) needs the pilot tablet; the code is written to the documented shape and the measurement is deferred.",
+    "NEW-1: the plan names `0005_live_topic.sql`, but migration 0005 is already `0005_storage_artifacts.sql` (task 003). The next free number, `0006_live_topic.sql`, is the mechanical consequence of the repo state, not a product choice; the human's go-ahead to continue is recorded here. The intent (a members-only live topic) is unchanged.",
+    "NEW-2: spec §5.2 says cursors are 'never React state'; presence (who is here) is low-frequency and may be React state, while cursors are ref+paint only. The leader indicator (g4) is a low-frequency boolean, so state there is acceptable; this split is recorded, not assumed."
+  ],
+  "risks": [
+    "A client insert on ws: would let a member forge a database-change event into teammates' Dexie (DB-Q9) — mitigated by granting client send only on live: in 0006.",
+    "100 state updates a second through React drop frames (fa §3) — mitigated by the ref+paint leaf and the ~20 Hz movement-only throttle.",
+    "The live-stack RLS proof and the two-browser latency measurement cannot run without the local Supabase stack and two browsers; both are follow-ups, and the migration's SQL mirrors the proven 0004 policy shape."
+  ]
+}

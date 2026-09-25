@@ -1,6 +1,6 @@
 {
 	"schema_version": "1.0",
-	"updated_at": "2026-09-25T08:20:00Z",
+	"updated_at": "2026-09-25T10:10:00Z",
 	"current_task_id": null,
 	"current_phase": "idle",
 	"history_path": null,
@@ -101,6 +101,12 @@
 			"architecture": "frontend",
 			"status": "done",
 			"title": "A leader drops in an already-highlighted PDF and every mark becomes a group focus point with a note and a slug"
+		},
+		{
+			"id": "015-task-realtime-presence",
+			"architecture": "frontend",
+			"status": "blocked",
+			"title": "A workspace feels shared: you see who is there and marks appear as they are made"
 		}
 	]
 }

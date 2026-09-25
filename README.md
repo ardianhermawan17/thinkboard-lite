@@ -199,7 +199,7 @@ in `task_sequence` is *not opened*.
 | D | 012 notes + handwriting | [todo-task-012](todo-task-012-notes-and-handwriting.md) | frontend | 010 | **blocked** (3/7) |
 | D | 013 sheets + promotion | [todo-task-013](todo-task-013-sheets-and-promotion.md) | frontend | 010 012 | not opened |
 | D | 014 result UI against a stub | [todo-task-014](todo-task-014-result-ui-against-stub.md) | frontend | 013 | not opened |
-| D | 015 realtime presence | [todo-task-015](todo-task-015-realtime-presence.md) | frontend | 007 | not opened |
+| D | 015 realtime presence | [todo-task-015](todo-task-015-realtime-presence.md) | frontend | 007 | **blocked** (5/6) |
 | D | 016 offline + export | [todo-task-016](todo-task-016-offline-and-export.md) | frontend | 007 | **done** |
 | E | 017 command endpoints | [todo-task-017](todo-task-017-command-endpoints.md) | backend | 001 | **done** |
 | E | 018 LLM adapter | [todo-task-018](todo-task-018-llm-adapter.md) | backend | 017 | **blocked on D-12** |
@@ -266,8 +266,12 @@ Critical path = the demoable slice:  000 → 001 → 004 → 006 → 008 → 009
 - **Also done:** 021 (leader import) — the three-rung ladder (Highlight annotations with flattened QuadPoints; HSV colour mask + text-layer intersect;
   scan crop + Tesseract), the review screen with per-region checkboxes and editable text, and the accepted regions written as `layer='group'` highlights in
   ONE Dexie transaction. `npm run verify` green (305 tests), production build ok; no new dependency.
-- **Next:** 013 needs 012 (blocked); 019 waits on 018 (blocked on D-12); 015 (presence) is unblocked by 007 but must first resolve its plan doc's
-  `0005_live_topic.sql` against the already-shipped `0005_storage_artifacts.sql`.
+- **Closed blocked:** 015 (realtime presence) — presence, the ref/paint `peer-cursors` leaf with a ~20 Hz movement-only throttle, the "Leader is drawing"
+  indicator and `0006_live_topic.sql` (a members-only `live:{sessionId}` topic; `ws:`/`user:` stay database-sent only). g5, the two-browser latency
+  measurement, needs the live stack and two browsers. `npm run verify` green (321 tests), production build ok; no new dependency.
+- **Next:** nothing is unblocked by dependencies. 013/014/022 wait on 012 (human device test, Q7); 019/020 wait on 018 (D-12); 023 waits on 015/016/020/022.
+  The next real progress is a human action — run 012's device test, answer D-12, run 015's two-browser test — or opening the document-view route task the
+  built slice has been waiting for.
   Open housekeeping: revoke anon EXECUTE on the definer RPCs, and let teammates read the profile names of their team.
 - **Waiting on a human:**
   - **D-12** — free-tier training terms vs document sensitivity. Blocks 018, and ink transcription in 024. 003's

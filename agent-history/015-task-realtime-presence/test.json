@@ -1,0 +1,22 @@
+{
+  "task_id": "015-task-realtime-presence",
+  "phase": "test",
+  "test_files": [
+    "src/shared/utils/throttle.test.ts",
+    "src/shared/components/canvas/peer-cursors/peer-cursors.painter.test.ts",
+    "src/shared/components/canvas/peer-cursors/use-peer-cursors.test.ts",
+    "src/shared/components/canvas/peer-cursors/peer-cursors.test.tsx",
+    "src/features/presence/live-channel.test.ts",
+    "src/features/presence/use-presence.test.ts"
+  ],
+  "commands_run": [
+    {"command": "npx vitest run --project unit (touched files)", "result": "6 files, 16 tests, all passed"},
+    {"command": "npm run verify:arch", "result": "18 pass, 0 fail, 10 skipped, 1 void — I25 now sees peer-cursors.painter.ts"},
+    {"command": "npm run lint", "result": "0 errors, 2 pre-existing warnings"},
+    {"command": "npm run typecheck", "result": "clean"},
+    {"command": "npm run test", "result": "74 test files passed / 2 skipped (76); 321 tests passed / 10 skipped (331)"},
+    {"command": "npm run build", "result": "production build succeeded"}
+  ],
+  "summary": {"total": 331, "passed": 321, "failed": 0, "skipped": 10},
+  "coverage_notes": "g1 is covered by live-channel.test.ts (presenceToPeers flattens and drops malformed entries; subscribe -> track -> onPeers) and use-presence.test.ts (peers update, cleared on drop). g2 is covered by throttle.test.ts (one send per interval, movement-only) and peer-cursors tests (the painter adds non-interactive circles and disposes; the hook registers paint and replaces the previous paint; no useState anywhere on the cursor path). g3 is not re-tested because it is 007's path (applyRemote -> Dexie -> useLiveQuery) and 015 adds no second path. g4 is covered by use-presence.test.ts (leader cursor raises the indicator, drawing:false clears it, a non-leader or other-page cursor is ignored). g5 has no automated test: it is the two-browser latency measurement on the live stack, which cannot run here — it is recorded blocked. g6 is structurally covered: the migration grants client INSERT only on live: and 0004 grants none on ws:/user:; the live RLS proof is a follow-up. The 10 skipped are the pre-existing live-stack suites."
+}

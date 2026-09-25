@@ -1,6 +1,6 @@
 {
 	"schema_version": "1.0",
-	"updated_at": "2026-09-25T07:00:00Z",
+	"updated_at": "2026-09-25T09:00:00Z",
 	"tracked_todos": [
 		{
 			"id": "000-todo-architecture-contract",
@@ -129,6 +129,14 @@
 			"todo_path": "agent-thinking/todo/021-todo-leader-import/contract.json",
 			"agent_history": "agent-history/021-task-leader-import",
 			"status": "done"
+		},
+		{
+			"id": "015-todo-realtime-presence",
+			"name": "Realtime presence",
+			"goal": "A workspace feels shared: you see who is there and marks appear as they are made.",
+			"todo_path": "agent-thinking/todo/015-todo-realtime-presence/contract.json",
+			"agent_history": "agent-history/015-task-realtime-presence",
+			"status": "in_progress"
 		}
 	]
 }
