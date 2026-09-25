@@ -4,6 +4,7 @@ import { useState } from "react"
 import { DocumentViewer } from "@feature/document/components/document-viewer"
 import { HighlightedPage } from "@feature/highlight/components/highlighted-page"
 import { NotePanel } from "@feature/notes/components/note-panel"
+import { PresenceRail } from "@feature/presence/components/presence-rail"
 import type { MarqueeTool } from "@shared/components/canvas/marquee"
 import { Button } from "@shared/components/ui/button"
 import type { UUID } from "@shared/types/domain/common"
@@ -31,6 +32,8 @@ export function WorkspaceDocument({ sessionId }: { sessionId: string }) {
             {option.label}
           </Button>
         ))}
+        {/* 028: who is here (shared workspace context), beside the tools. */}
+        <PresenceRail />
       </div>
       <div className="flex min-h-0 flex-1">
         <div className="min-h-0 min-w-0 flex-1 overflow-hidden">

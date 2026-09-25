@@ -1,0 +1,27 @@
+{
+  "task_id": "028-task-presence-rail",
+  "phase": "code",
+  "started_at": "2026-09-26T02:10:00Z",
+  "completed_at": "2026-09-26T02:45:00Z",
+  "files_changed": [
+    {"path": "06-whole-apps-task.md", "action": "modified", "summary": "Added PHASE G · 028-task-presence-rail."},
+    {"path": "todo-task-028-presence-rail.md", "action": "created", "summary": "Plan doc."},
+    {"path": "src/features/presence/use-presence.ts", "action": "modified", "summary": "Guard: open no live channel without a session/profile (g1)."},
+    {"path": "src/features/presence/components/presence-rail/types.ts", "action": "created", "summary": "PresenceRailState."},
+    {"path": "src/features/presence/components/presence-rail/use-presence-rail.ts", "action": "created", "summary": "Ids from the shared context, leader from the members meta, presence from usePresence (g2)."},
+    {"path": "src/features/presence/components/presence-rail/presence-rail.tsx", "action": "created", "summary": "The rail: peer count + leader indicator (g2)."},
+    {"path": "src/features/presence/components/presence-rail/index.ts", "action": "created", "summary": "Barrel."},
+    {"path": "src/features/presence/components/presence-rail/use-presence-rail.test.ts", "action": "created", "summary": "3 tests: leader resolution, peers/flag, empty ids."},
+    {"path": "src/features/presence/components/presence-rail/presence-rail.test.tsx", "action": "created", "summary": "2 tests: 'Only you', count + badge."},
+    {"path": "src/features/presence/index.ts", "action": "modified", "summary": "Export PresenceRail."},
+    {"path": "src/app/w/[workspaceId]/workspace-document.tsx", "action": "modified", "summary": "Mount the rail in the toolbar (g3)."},
+    {"path": "src/app/w/[workspaceId]/workspace-document.test.tsx", "action": "modified", "summary": "Mock the presence rail (it reads the context this unit test does not provide)."}
+  ],
+  "decisions": [
+    "usePresence is inert without a session/profile: subscribing to `live:` with an empty id would be wrong, and the context can be empty on first paint.",
+    "The leader's id comes from the members meta (the roster's own home); features/presence reads the two fields it needs because it may not import features/workspace's MemberMeta type (I3).",
+    "The rail mounts app-level (I4-safe) and consumes the shared context; it adds no feature coupling.",
+    "Peer-cursor canvas painting and cursor publishing are deliberately out of scope: they need the page's displayed size/rotation and a pointer stream, and are a separate task (recorded)."
+  ],
+  "commands_run": ["npm run typecheck", "npx vitest run --project unit (touched files)", "npm run verify", "npm run build"]
+}

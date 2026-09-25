@@ -212,6 +212,7 @@ in `task_sequence` is *not opened*.
 | G | 025 wire the document view | [todo-task-025](todo-task-025-wire-document-view.md) | frontend | 009 010 011 | **done** |
 | G | 026 workspace context + note panel | [todo-task-026](todo-task-026-workspace-context.md) | frontend | 025 | **done** |
 | G | 027 export the workspace bundle | [todo-task-027](todo-task-027-export-bundle.md) | frontend | 016 026 | **done** |
+| G | 028 presence rail | [todo-task-028](todo-task-028-presence-rail.md) | frontend | 015 026 | **done** |
 
 ```
 Critical path = the demoable slice:  000 → 001 → 004 → 006 → 008 → 009 → 010 → 012
@@ -281,9 +282,11 @@ Critical path = the demoable slice:  000 → 001 → 004 → 006 → 008 → 009
 - **Also done:** 027 (export the workspace bundle) — 016's bundle seam is now mounted: a session-wide notes read, the export hook (map -> append `/Highlight`
   annotations -> zip -> download) and an Export control in the shell header. `npm run verify` green (337 tests), production build ok; no new dependency.
   (`06-whole-apps-task.md`'s backlog is now 28 tasks.)
+- **Also done:** 028 (presence rail) — `usePresence` no longer subscribes without ids, and the document view shows who is here plus the "Leader is drawing"
+  indicator. `npm run verify` green (342 tests), production build ok; no new dependency. (`06-whole-apps-task.md`'s backlog is now 29 tasks.)
 - **Next:** nothing is unblocked by dependencies. 013/014/022 wait on 012 (human device test, Q7); 019/020 wait on 018 (D-12); 023 waits on 015/016/020/022.
-  The next real progress is a human action — run 012's device test, answer D-12, run 015's two-browser test — or continuing the integration: mounting 015's
-  cursors and 021's import review against the workspace context.
+  The next real progress is a human action — run 012's device test, answer D-12, run 015's two-browser test — or continuing the integration: painting peer
+  cursors and mounting 021's import review.
   Open housekeeping: revoke anon EXECUTE on the definer RPCs, and let teammates read the profile names of their team.
 - **Waiting on a human:**
   - **D-12** — free-tier training terms vs document sensitivity. Blocks 018, and ink transcription in 024. 003's

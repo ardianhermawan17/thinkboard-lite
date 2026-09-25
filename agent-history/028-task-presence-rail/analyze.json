@@ -1,0 +1,33 @@
+{
+  "task_id": "028-task-presence-rail",
+  "phase": "analyze",
+  "started_at": "2026-09-26T02:00:00Z",
+  "completed_at": "2026-09-26T02:10:00Z",
+  "sources_read": [
+    {"doc": "README.md", "section": "§5 task map, §7 hard limits"},
+    {"doc": "06-whole-apps-task.md", "section": "PHASE G · 028"},
+    {"doc": "01-thinkboard-lite-spec.md", "section": "§5.2 transport"},
+    {"doc": "todo-task-028-presence-rail.md", "section": "full file"},
+    {"doc": "frontend-thinkboard-lite/src/features/presence/use-presence.ts", "section": "the hook to guard and consume"},
+    {"doc": "frontend-thinkboard-lite/src/features/presence/components/leader-drawing/", "section": "the indicator to mount"},
+    {"doc": "frontend-thinkboard-lite/src/shared/providers/workspace-provider/", "section": "the shared context supplying profileId/sessionId"},
+    {"doc": "frontend-thinkboard-lite/src/app/w/[workspaceId]/workspace-document.tsx", "section": "where the rail mounts"}
+  ],
+  "scope": "Guard usePresence against missing ids; a presence-rail container showing the peer count and the leader indicator; mounting it in the document view; tests. Out of scope: painting peer cursors on the canvas (needs the page's displayed geometry), and publishing cursors (needs a pointer stream).",
+  "acceptance_criteria": [
+    {"goal_id": "g1", "text": "With no sessionId/profileId, usePresence opens no channel and returns empty peers."},
+    {"goal_id": "g2", "text": "The rail shows 'Only you' with no peers, 'N here' with peers, and the leader badge while the leader draws; the leader id comes from the members meta."},
+    {"goal_id": "g3", "text": "The document composition renders the rail; no store hook under src/app (I4) and no feature->feature import (I3)."},
+    {"goal_id": "g4", "text": "Hook and component tests pass."}
+  ],
+  "open_questions": [
+    "The leader's profileId is read from the members meta (META.members), the roster's own home; duplicating it would drift. features/presence may not import features/workspace's MemberMeta type (I3), so it reads the two fields it needs.",
+    "Q8 (unanswered: the real tablet mix) and D-11 (defaulted: device parity) leave the rail's mobile placement to 022.",
+    "Peer-cursor canvas painting and cursor publishing are deliberately out of scope; they need the page's displayed size/rotation and a pointer stream, and are a separate task."
+  ],
+  "risks": [
+    "Opening a live channel before a session is known would subscribe to live: with an empty id; the guard closes that.",
+    "A second leader source would drift; the rail reads the roster meta only.",
+    "The rail mounts app-level (I4-safe) and consumes the shared context, so it adds no feature coupling."
+  ]
+}

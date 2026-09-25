@@ -1,0 +1,22 @@
+{
+  "task_id": "028-task-presence-rail",
+  "phase": "validate",
+  "goal_checks": [
+    {"goal_id": "g1", "status": "pass", "notes": "usePresence's effect returns early when sessionId or profileId is empty, so no `live:` channel opens before a session exists. use-presence-rail.test.ts pins that the rail forwards empty ids in that case, and the existing use-presence tests still pass with ids present."},
+    {"goal_id": "g2", "status": "pass", "notes": "PresenceRail shows 'Only you' with no peers and 'N here' otherwise, and renders LeaderDrawing only while the leader draws. use-presence-rail.test.ts proves the leader is resolved from META.members and passed to usePresence; presence-rail.test.tsx proves the two render states."},
+    {"goal_id": "g3", "status": "pass", "notes": "workspace-document.tsx renders the rail in the toolbar; verify:arch finds no store hook under src/app (I4) and the rail imports only shared + entities (I3). The composition test still passes."},
+    {"goal_id": "g4", "status": "pass", "notes": "Hook and component tests exist and pass (5 tests across the two new files, plus the unchanged use-presence suite)."}
+  ],
+  "cross_check_against_plan": [
+    {"doc": "06-whole-apps-task.md", "section": "PHASE G · 028", "result": "matches — frontend (secondary supabase); the four mini-goals map to g1-g4; it makes 015 g1/g4 visible and blocks nothing."},
+    {"doc": "01-thinkboard-lite-spec.md", "section": "§5.2", "result": "matches — presence comes from the Realtime Presence channel; no row data is published (the rail only counts peers and shows the leader flag)."},
+    {"doc": "todo-task-015-realtime-presence.md", "section": "§4, §5", "result": "matches for the indicator half — 015's hook and indicator are now mounted; its peer-cursor canvas painting remains a follow-up."}
+  ],
+  "signed_off": true,
+  "issues_found": [
+    "Only the presence indicator is mounted; peer cursors are still not painted on the canvas (they need the page's displayed size/rotation) and nothing publishes cursors yet. A follow-up task.",
+    "The rail passes page 0 to usePresence (it is view-level and does not track the page); once cursor painting lands, the page will come from the page composition.",
+    "The two-browser Gate needs the live stack and is deferred.",
+    "The leader is read from the members meta; if the roster is not bootstrapped yet the badge simply does not fire (safe default)."
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "task_id": "028-task-presence-rail",
+  "phase": "test",
+  "test_files": [
+    "src/features/presence/components/presence-rail/use-presence-rail.test.ts",
+    "src/features/presence/components/presence-rail/presence-rail.test.tsx",
+    "src/features/presence/use-presence.test.ts",
+    "src/app/w/[workspaceId]/workspace-document.test.tsx"
+  ],
+  "commands_run": [
+    {"command": "npx vitest run --project unit (touched files)", "result": "5 files, 15 tests passed"},
+    {"command": "npm run verify:arch", "result": "18 pass, 0 fail, 10 skipped, 1 void"},
+    {"command": "npm run lint", "result": "0 errors, 2 pre-existing warnings"},
+    {"command": "npm run typecheck", "result": "clean"},
+    {"command": "npm run test", "result": "83 test files passed / 2 skipped (85); 342 tests passed / 10 skipped (352)"},
+    {"command": "npm run build", "result": "production build succeeded"}
+  ],
+  "summary": {"total": 352, "passed": 342, "failed": 0, "skipped": 10},
+  "coverage_notes": "g1 is covered indirectly: use-presence.test.ts still passes with a session present, and use-presence-rail.test.ts proves that with no context the rail passes empty ids (which the guard turns into no channel); the guard itself is a one-line early return. g2 is covered by use-presence-rail.test.ts (the leader resolves from the roster and reaches usePresence; peers and the flag are exposed) and presence-rail.test.tsx ('Only you' vs '2 here', and the badge only while drawing). g3 is covered by workspace-document.test.tsx (the composition renders with the rail mocked, since the unit test has no context) plus verify:arch's I3/I4. The live two-browser Gate is deferred. The 10 skipped are the pre-existing live-stack suites."
+}

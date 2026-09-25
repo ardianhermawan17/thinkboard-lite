@@ -1,4 +1,5 @@
 export { LeaderDrawing } from "./components/leader-drawing"
+export { PresenceRail } from "./components/presence-rail"
 export { openLiveChannel, presenceToPeers } from "./live-channel"
 export { usePresence } from "./use-presence"
 export type { LiveHandle, LiveHooks } from "./live-channel"

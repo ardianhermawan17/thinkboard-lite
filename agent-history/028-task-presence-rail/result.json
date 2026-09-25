@@ -1,0 +1,30 @@
+{
+  "task_id": "028-task-presence-rail",
+  "phase": "result",
+  "closed_at": "2026-09-26T02:55:00Z",
+  "final_status": "done",
+  "goals_summary": {
+    "total": 4,
+    "done": 4,
+    "blocked": 0,
+    "detail": "g1 the usePresence guard pass; g2 the presence rail pass; g3 the mount pass; g4 the tests pass. Recomputed from task.json goals[] and validate.json goal_checks — all four 'pending' -> 'done', none blocked."
+  },
+  "artifacts": [
+    "src/features/presence/use-presence.ts — the empty-ids guard",
+    "src/features/presence/components/presence-rail/ (hook + component + tests)",
+    "src/app/w/[workspaceId]/workspace-document.tsx — the rail in the toolbar",
+    "06-whole-apps-task.md (PHASE G · 028), todo-task-028-presence-rail.md"
+  ],
+  "verify": "npm run verify green: verify:arch 18 pass/0 fail, lint 0 errors (2 pre-existing warnings), typecheck clean, vitest 342 passed/10 skipped (352). npm run build succeeded. No new dependency.",
+  "decisions_recap": [
+    "usePresence opens no channel without ids.",
+    "The leader comes from the members meta; the rail reads the two fields it needs (I3).",
+    "The rail mounts app-level via the shared context.",
+    "Peer-cursor canvas painting and cursor publishing are a separate follow-up."
+  ],
+  "follow_up_tasks": [
+    "Paint peer cursors on the page Stage: pass the page's displayed size/rotation to PeerCursors and denormalize each cursor (015 g2), then publish cursors from the pointer stream.",
+    "Run the two-browser Gate for presence (015 g5).",
+    "Show peers per page once the page is known in the rail."
+  ]
+}

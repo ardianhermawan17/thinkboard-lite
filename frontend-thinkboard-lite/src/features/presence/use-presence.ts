@@ -35,6 +35,8 @@ export function usePresence({ sessionId, profileId, page, leaderId }: UsePresenc
   }, [])
 
   useEffect(() => {
+    // 028 g1: never subscribe to `live:` before a session and profile are known (context can be empty on first paint).
+    if (!sessionId || !profileId) return
     const handle = openLiveChannel(sessionId, profileId, page, {
       onPeers: setPeers,
       onCursor: (cursor: Cursor) => {

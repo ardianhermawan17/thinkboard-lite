@@ -489,6 +489,20 @@ catches every planted violation under its own id and prints all 29 rows. "Green 
 **Gate** — with a seeded workspace, Export downloads a zip holding `document.pdf` (annotated), `notes.md` (anchored) and `thinkboard.json`.
 **Blocks** — —; it completes 016's follow-up.
 
+### `028-task-presence-rail` · `frontend`
+
+**Main-goal —** The workspace shows who is here and raises the "Leader is drawing" indicator, so 015's presence state is finally user-visible.
+
+**Why it exists** — 015 shipped the presence hook and channel but mounted nothing; 026's shared context now supplies the ids it needs.
+
+**Mini-goals**
+- `g1` `usePresence` skips opening the live channel when no session/profile is in context.
+- `g2` a `presence-rail` container in `features/presence` showing the peer count and the leader indicator, reading `profileId`/`sessionId` from the shared context and the leader from the members meta.
+- `g3` the app document composition renders the rail.
+- `g4` tests for the rail hook and component.
+
+**Gate** — two browsers in one workspace see each other in the rail and the "Leader is drawing" badge appears while the leader's pen moves. (Live; the peer-cursor canvas painting is a separate follow-up.)
+
 ---
 
 ## 2. Dependency graph

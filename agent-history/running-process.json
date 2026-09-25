@@ -1,6 +1,6 @@
 {
 	"schema_version": "1.0",
-	"updated_at": "2026-09-26T01:10:00Z",
+	"updated_at": "2026-09-26T02:55:00Z",
 	"current_task_id": null,
 	"current_phase": "idle",
 	"history_path": null,
@@ -125,6 +125,12 @@
 			"architecture": "frontend",
 			"status": "done",
 			"title": "A member exports the open workspace from the shell as the portable bundle"
+		},
+		{
+			"id": "028-task-presence-rail",
+			"architecture": "frontend",
+			"status": "done",
+			"title": "The workspace shows who is here and raises the Leader-is-drawing indicator"
 		}
 	]
 }

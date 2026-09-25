@@ -11,8 +11,9 @@ vi.mock("@feature/document/components/document-viewer", () => ({
 vi.mock("@feature/highlight/components/highlighted-page", () => ({
   HighlightedPage: (props: { pageNumber: number; tool: unknown }) => <div data-testid="highlighted-page" data-page={props.pageNumber} data-tool={String(props.tool)} />,
 }))
-// 026: the note panel reads the shared workspace context, which the app composition does not provide in this unit test.
+// 026/028: the note panel and presence rail read the shared workspace context, which this unit test does not provide.
 vi.mock("@feature/notes/components/note-panel", () => ({ NotePanel: () => <div data-testid="note-panel" /> }))
+vi.mock("@feature/presence/components/presence-rail", () => ({ PresenceRail: () => <div data-testid="presence-rail" /> }))
 
 import { WorkspaceDocument } from "./workspace-document"
 

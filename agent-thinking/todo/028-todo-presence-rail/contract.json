@@ -1,0 +1,8 @@
+{
+  "schema_version": "1.0",
+  "id": "028-todo-presence-rail",
+  "name": "Presence rail",
+  "goal": "The workspace shows who is here and raises the Leader-is-drawing indicator.",
+  "human_prompt": "yes, and continue the next 3 task. Make sure to do work->testing->review",
+  "translated_prompt_agent": "Continue the integration after 027. Task 028: guard usePresence so it opens no live channel without a session/profile; add a presence-rail container in features/presence that shows the peer count and the LeaderDrawing indicator, reading profileId/sessionId from the shared workspace context and the leader from the members meta; mount it in the app document composition; test the hook and the component; write all six phase files; keep npm run verify green; close validate/result."
+}

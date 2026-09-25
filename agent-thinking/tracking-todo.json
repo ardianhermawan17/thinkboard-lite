@@ -1,6 +1,6 @@
 {
 	"schema_version": "1.0",
-	"updated_at": "2026-09-26T00:00:00Z",
+	"updated_at": "2026-09-26T02:00:00Z",
 	"tracked_todos": [
 		{
 			"id": "000-todo-architecture-contract",
@@ -160,6 +160,14 @@
 			"goal": "A member exports the open workspace from the shell as the portable bundle.",
 			"todo_path": "agent-thinking/todo/027-todo-export-bundle/contract.json",
 			"agent_history": "agent-history/027-task-export-bundle",
+			"status": "done"
+		},
+		{
+			"id": "028-todo-presence-rail",
+			"name": "Presence rail",
+			"goal": "The workspace shows who is here and raises the Leader-is-drawing indicator.",
+			"todo_path": "agent-thinking/todo/028-todo-presence-rail/contract.json",
+			"agent_history": "agent-history/028-task-presence-rail",
 			"status": "done"
 		}
 	]
