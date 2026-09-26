@@ -76,4 +76,28 @@ describe("sync listener (g5)", () => {
     expect(calls).toEqual([])
     expect(store.getState().sync.ui.pendingCount).toBe(3)
   })
+
+  it("the banner's Sync now (manualOfflineSet) runs the reconnect cycle, not just phaseChanged", async () => {
+    // The real resume path dispatches manualOfflineSet(false), which sets the phase directly; a listener keyed on
+    // `sync/phaseChanged` never fired, so queued ops stayed stuck.
+    const store = open()
+    await vi.waitFor(() => expect(calls).toContain("resubscribe"))
+    calls.length = 0
+
+    store.dispatch({ type: "sync/manualOfflineSet", payload: true })
+    await vi.waitFor(() => expect(close).toHaveBeenCalledTimes(1))
+
+    store.dispatch({ type: "sync/manualOfflineSet", payload: false })
+    await vi.waitFor(() => expect(calls).toContain("resubscribe"))
+    expect(calls).toEqual(["bootstrap", "push", "pullMeta", "pull", "resubscribe"])
+  })
+
+  it("a browser network cut (networkDownSet(true)) also cancels the cycle", async () => {
+    const store = open()
+    await vi.waitFor(() => expect(calls).toContain("resubscribe"))
+    calls.length = 0
+    store.dispatch({ type: "sync/networkDownSet", payload: true })
+    await vi.waitFor(() => expect(close).toHaveBeenCalledTimes(1))
+    expect(calls).toEqual([])
+  })
 })

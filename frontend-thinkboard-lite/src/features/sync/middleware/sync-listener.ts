@@ -102,9 +102,12 @@ export function registerSyncListeners(start: StartListening = startAppListening,
     },
   })
 
-  // 05 §2.5: offline -> collaboration is the reconnect sequence (push, pull, resubscribe); going offline cancels the cycle and the sockets
+  // 05 §2.5: offline -> collaboration is the reconnect sequence (push, pull, resubscribe); going offline cancels the cycle and the sockets.
+  // It watches ANY phase transition, not just `sync/phaseChanged`: `manualOfflineSet` (the banner's Sync now) and
+  // `networkDownSet` set the phase directly, so a predicate keyed on the action type missed the resume and left the
+  // outbox queued forever.
   const unsubscribePhase = start({
-    predicate: (action, current, previous) => action.type === "sync/phaseChanged" && current.sync.phase !== previous.sync.phase,
+    predicate: (_action, current, previous) => current.sync.phase !== previous.sync.phase,
     effect: async (_action, api) => {
       if (!active) return
       if (api.getState().sync.phase === "offline") {
