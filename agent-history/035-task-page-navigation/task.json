@@ -1,0 +1,28 @@
+{
+  "id": "035-task-page-navigation",
+  "title": "A multi-page document can be stepped and turned",
+  "architecture": "frontend",
+  "secondary_architecture": [],
+  "created_at": "2026-09-26T13:00:00Z",
+  "status": "done",
+  "depends_on": ["009-task-pdf-canvas"],
+  "plan_refs": [
+    {"doc": "06-whole-apps-task.md", "section": "PHASE G — live integration"},
+    {"doc": "03-frontend-architecture.md", "section": "§6.2 (the page window), §5.4 (viewport slice)"},
+    {"doc": "task-review-2026-09-25.md", "section": "§3.3 live-stack verification"},
+    {"doc": "todo-task-035-page-navigation-and-rotate.md", "section": "§2, §3"}
+  ],
+  "goals": [
+    {"id": "g1", "description": "a Page N of M indicator and Prev/Next dispatch pageChanged, disabling at the bounds", "plan_ref": "035 §2 g1", "status": "done"},
+    {"id": "g2", "description": "Rotate dispatches rotated and the page itself renders rotated", "plan_ref": "035 §2 g2", "status": "done"},
+    {"id": "g3", "description": "tests pin the dispatch, the bounds and the rotation argument", "plan_ref": "035 §2 g3", "status": "done"},
+    {"id": "g4", "description": "docs and board record the task with its live evidence", "plan_ref": "035 §2 g4", "status": "done"}
+  ],
+  "phases": {
+    "analyze": {"file": "analyze.json", "status": "done"},
+    "code": {"file": "code.json", "status": "done"},
+    "test": {"file": "test.json", "status": "done"},
+    "validate": {"file": "validate.json", "status": "done"},
+    "result": {"file": "result.json", "status": "done"}
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "task_id": "035-task-page-navigation",
+  "phase": "analyze",
+  "started_at": "2026-09-26T13:00:00Z",
+  "completed_at": "2026-09-26T13:05:00Z",
+  "sources_read": [
+    {"doc": "src/features/document/stores/viewport-slice.ts", "section": "pageChanged and rotated exist"},
+    {"doc": "src/features/document/selectors/viewport-selectors.ts", "section": "selectPage, selectPageCount, selectRotation"},
+    {"doc": "src/shared/utils/page-window.ts", "section": "the cursor ± 1 window"},
+    {"doc": "a grep for pageChanged/rotated in src", "section": "only the slice and tests reference them — no dispatcher"},
+    {"doc": "src/features/document/components/document-viewer/*", "section": "the viewer and its hook"},
+    {"doc": "src/shared/lib/pdf.ts", "section": "renderPage/renderTextLayer build the viewport with scale only"},
+    {"doc": "src/shared/components/canvas/page-stage/*", "section": "the render effect and its rotation prop"}
+  ],
+  "scope": "One container component, its wiring into DocumentViewer, and the rotation argument in the pdf render helpers. Out of scope: scroll-driven cursors, thumbnails, per-page zoom.",
+  "acceptance_criteria": [
+    {"goal_id": "g1", "text": "Stepping the cursor slides the mounted page window and disables the control at each bound."},
+    {"goal_id": "g2", "text": "Rotate dispatches rotated and the rendered canvas changes shape."},
+    {"goal_id": "g3", "text": "page-controls.test.tsx covers indicator, bounds and rotate; use-page-stage.test.ts covers the rotation argument."},
+    {"goal_id": "g4", "text": "README, the review and the vault cache record it."}
+  ],
+  "open_questions": [
+    "Whether the page cursor should also follow scrolling (an IntersectionObserver over the mounted pages) is a UX choice, left open; the control is the smallest honest dispatcher today."
+  ],
+  "risks": [
+    "A rotation change re-renders the page; the abort signal from 033 already cancels the previous paint, so the two do not collide.",
+    "The window is cursor-based, so a 2-page document always mounts both pages and only the indicator moves — expected, and covered by the 4-page fixture."
+  ]
+}

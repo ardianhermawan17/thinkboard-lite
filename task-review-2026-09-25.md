@@ -109,6 +109,8 @@ The pass **found and fixed two defects that the unit suite structurally cannot s
 - **Import rungs 2 and 3 are mounted.** An annotation-free page rasterizes and its flattened mark is found by colour, with the text layer supplying the exact text (rung 2, proven with a generated fixture: group highlight "A flattened highlight line", 1.0). A page with no text layer is a scan, and its crops go to OCR (rung 3, proven with an image-only fixture: candidate "Scanned highlight line", imported at 0.94; Import stayed disabled until accept). The pale green mark was correctly ignored (below the mask's 0.35 saturation cut).
 - **Still open:** a genuine Acrobat-exported annotated PDF (rung 1 on a real file), and the mask's saturation cut as a tuning question.
 
+**Page navigation (2026-09-26, task 035).** A live-pass grep for `pageChanged`/`rotated` found them defined and tested but **never dispatched**, so a multi-page document was stuck on `pageWindow(1)` = pages 1–2. Added a `Page N of M` control with Prev/Next and a quarter-turn Rotate. The Rotate control exposed a second gap: `renderPage`/`renderTextLayer` built the pdfjs viewport with `{ scale }` only, so the page would not have turned (only the rotation-normalized overlays). Both fixed; proven live on a 4-page fixture — the mounted window slid `[1,2] → [1,2,3] → [2,3,4]` and Rotate changed the rendered canvas `612×792 → 792×612`.
+
 ### 3.4 Plan docs have drifted in places
 - **015's `0005_live_topic.sql`** collided with the shipped `0005_storage_artifacts.sql`; resolved to `0006`.
 - **012 g7** asks for a "named Playwright story test" while the repo has one Storybook story and no `play()`

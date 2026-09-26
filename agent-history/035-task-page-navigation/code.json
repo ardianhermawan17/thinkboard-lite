@@ -1,0 +1,16 @@
+{
+  "task_id": "035-task-page-navigation",
+  "phase": "code",
+  "completed_at": "2026-09-26T13:20:00Z",
+  "changes": [
+    {"file": "src/features/document/components/page-controls/{page-controls.tsx,use-page-controls.ts,types.ts,index.ts}", "summary": "a container with the Page N of M indicator, Prev/Next dispatching pageChanged, and Rotate dispatching rotated; the hook reads the viewport selectors.", "kind": "feature"},
+    {"file": "src/features/document/components/document-viewer/document-viewer.tsx", "summary": "renders PageControls above the page list inside a flex column.", "kind": "feature"},
+    {"file": "src/shared/lib/pdf.ts", "summary": "renderPage and renderTextLayer take a Rotation and build the viewport with it, so the page itself turns.", "kind": "fix"},
+    {"file": "src/shared/components/canvas/page-stage/use-page-stage.ts", "summary": "passes the rotation prop to both render calls.", "kind": "fix"}
+  ],
+  "decisions": [
+    "The control dispatches the slice actions; the window and every layer already follow the slice, so no second page source.",
+    "Rotation goes to the pdfjs viewport, not a CSS transform, so the text layer and hit geometry stay aligned.",
+    "Prev/Next rather than a scroll observer for now."
+  ]
+}

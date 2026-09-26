@@ -1,0 +1,20 @@
+{
+  "task_id": "035-task-page-navigation",
+  "phase": "test",
+  "test_files": [
+    "src/features/document/components/page-controls/page-controls.test.tsx",
+    "src/features/document/components/document-viewer/document-viewer.test.tsx",
+    "src/shared/components/canvas/page-stage/use-page-stage.test.ts"
+  ],
+  "commands_run": [
+    {"command": "npx vitest run --project unit src/features/document", "result": "11 passed (page-controls 4, document-viewer 1 with the indicator assertion, viewport-slice 6)"},
+    {"command": "npx vitest run --project unit src/shared/components/canvas/page-stage", "result": "10 passed, including the new rotation-argument case and the 033 abort case"},
+    {"command": "npm run verify", "result": "green: arch 18/0, lint 0 errors, typecheck clean, vitest 374 passed / 14 skipped (was 369/14)"}
+  ],
+  "live_evidence": [
+    {"what": "the page cursor and window", "how": "on a 4-page fixture: Page 1 of 4 mounts [1,2] with Prev disabled; Next -> Page 2 of 4 mounts [1,2,3]; Next -> Page 3 of 4 mounts [2,3,4]"},
+    {"what": "rotation renders", "how": "Rotate swapped the rendered canvas from 612x792 to 792x612 (the page turned, not just the overlays)"}
+  ],
+  "summary": {"total": 374, "passed": 374, "failed": 0, "skipped": 14},
+  "coverage_notes": "The unit tests pin the dispatch and the bounds against a real store, and the render hook's rotation argument; the browser is the gate for the window sliding and the canvas turning."
+}

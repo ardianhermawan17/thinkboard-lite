@@ -1,0 +1,21 @@
+{
+  "task_id": "035-task-page-navigation",
+  "phase": "validate",
+  "goal_checks": [
+    {"goal_id": "g1", "status": "pass", "notes": "PageControls shows 'Page N of M' and dispatches pageChanged; Prev is disabled on page 1 and Next on the last page. PROVEN live: a 4-page fixture slid the mounted window [1,2] -> [1,2,3] -> [2,3,4] with the indicator following."},
+    {"goal_id": "g2", "status": "pass", "notes": "Rotate dispatches rotated, and renderPage/renderTextLayer now build the viewport with the rotation. PROVEN live: the rendered canvas changed 612x792 -> 792x612. Before the render fix the control would have turned only the overlays."},
+    {"goal_id": "g3", "status": "pass", "notes": "page-controls.test.tsx covers the indicator, both bounds and rotate; use-page-stage.test.ts asserts the rotation reaches renderPage; document-viewer.test asserts the indicator reflects the slice. 374 passed / 14 skipped."},
+    {"goal_id": "g4", "status": "pass", "notes": "README §6, the review's §3.3 and the vault hot cache record the task; this dir carries the goals and evidence."}
+  ],
+  "cross_check_against_plan": [
+    {"doc": "03-frontend-architecture.md", "section": "§5.4/§6.2", "result": "matches — the slice stays the one source; the window is unchanged, only its cursor moves."},
+    {"doc": "04-frontend-folder-architecture.md", "section": "§8", "result": "matches — a Redux-touching component lives in its feature's components/; its hook owns the hooks (I2)."},
+    {"doc": "01-thinkboard-lite-spec.md", "section": "RULE-17", "result": "matches — rotation is applied at the render AND to the layer normalization, so geometry stays in one space."}
+  ],
+  "signed_off": true,
+  "issues_found": [
+    "Nothing dispatched pageChanged/rotated, so a multi-page document was stuck on its first window. Fixed.",
+    "renderPage/renderTextLayer ignored rotation, so Rotate would not have turned the page. Fixed.",
+    "Note (test-environment): a stray click during an earlier live pass had created a second workspace and transferred the seed team's leadership to Member B; RLS then correctly denied the leader's storage write. The DB was reseeded; this was test-data drift, not a product bug."
+  ]
+}

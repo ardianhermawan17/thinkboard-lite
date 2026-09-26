@@ -1,0 +1,29 @@
+{
+  "task_id": "035-task-page-navigation",
+  "phase": "result",
+  "closed_at": "2026-09-26T13:35:00Z",
+  "final_status": "done",
+  "goals_summary": {
+    "total": 4,
+    "done": 4,
+    "blocked": 0,
+    "detail": "g1 the page indicator + Prev/Next (pageChanged) pass, proven live on a 4-page fixture; g2 Rotate (rotated + the viewport rotation) pass, proven live by the canvas turning; g3 tests pass (374/14); g4 docs pass. Recomputed from task.json goals[] and validate.json goal_checks — all four 'pending' -> 'done', none blocked."
+  },
+  "artifacts": [
+    "src/features/document/components/page-controls/ (the container + hook + tests)",
+    "src/features/document/components/document-viewer/document-viewer.tsx — renders it",
+    "src/shared/lib/pdf.ts — renderPage/renderTextLayer take a Rotation",
+    "src/shared/components/canvas/page-stage/use-page-stage.ts — passes it",
+    "todo-task-035-page-navigation-and-rotate.md"
+  ],
+  "verify": "npm run verify green: arch 18/0, lint 0 errors, typecheck clean, vitest 374 passed/14 skipped. Live: a 4-page fixture stepped [1,2] -> [1,2,3] -> [2,3,4] with the indicator and bounds correct, and Rotate changed the rendered canvas 612x792 -> 792x612.",
+  "decisions_recap": [
+    "One dispatcher for the page cursor and rotation; the slice stays the one source.",
+    "Rotation is applied at the pdfjs viewport so the page turns.",
+    "Prev/Next now; a scroll-driven cursor is a later UX choice."
+  ],
+  "follow_up_tasks": [
+    "Optional: let scrolling move the page cursor (an observer over the mounted pages) instead of only the buttons.",
+    "Optional: a page thumbnail strip, and per-page zoom memory."
+  ]
+}
