@@ -332,6 +332,12 @@ Critical path = the demoable slice:  000 → 001 → 004 → 006 → 008 → 009
   display type, double-bezel motif, button-in-button CTA), the header, the notes panel (+ a composed empty state), members (initials + role chip), page controls,
   the presence rail and the offline banner. `npm run verify` green (374 / 14); **Lighthouse 1.00 / 1.00 / 1.00 with zero failing audits on both the sign-in and the
   workspace page**.
+- **Also done:** 040 (PWA) — installable and offline. A generated icon set (192 / 512 / maskable / apple-touch) from the product's own motif; a manifest that names
+  them with a stable `id`, `lang`, `dir`; iOS `appleWebApp` + apple-touch-icon; a designed `/~offline` page; the **app shell and the offline page precached
+  explicitly** (documents are not in the build's asset manifest); and `navigateFallback: "/w"` so any navigation the cache cannot answer boots the shell — a deep
+  link opened offline renders the workspace from Dexie. Two silent traps fixed: `fallbacks` does not precache its entries, and **Serwist never disables navigation
+  preload** — a stale registration answered offline navigations with a failed preload response (a blank page). Proven with the production server **killed**: `/w`
+  and `/w/<id>` both render. `npm run verify` green (374 / 14).
 - **Next:** nothing an agent can start remains. 013/014/022 wait on 012 (human device test, Q7); 019/020 wait on 018 (D-12); 023 waits on 015/016/020/022;
   024 is conditional. The live gates 030 / 015 / 016 / 031 / 017 (and the whole text-highlight path, and all three import rungs) are now proven in a real browser
   (033, 034); the browser-only remainder is a genuine Acrobat-exported annotated PDF. The human unblockers are unchanged: run 012's device test (Q7), answer

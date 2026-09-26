@@ -1,0 +1,24 @@
+{
+  "task_id": "040-task-pwa",
+  "phase": "validate",
+  "goal_checks": [
+    {"goal_id": "g1", "status": "pass", "notes": "Four PNG icons ship (192, 512, maskable 512, apple 180), generated from the product's motif; the manifest names the three app icons and reports 200 application/manifest+json with id/lang/dir/categories."},
+    {"goal_id": "g2", "status": "pass", "notes": "layout.tsx adds appleWebApp (capable/title/status bar) and the icon + apple-touch-icon links; the HTML carries both."},
+    {"goal_id": "g3", "status": "pass", "notes": "The precache holds /w and /~offline (additionalPrecacheEntries), navigation preload is off, and navigateFallback '/w' answers any other navigation. /~offline is a designed static page, reachable directly."},
+    {"goal_id": "g4", "status": "pass", "notes": "verify green (374/14) and build clean. With the production server KILLED: /w rendered the shell and the deep link /w/f05e17f9-… rendered the shell too. A real sign-in on the production build opened the seeded workspace."}
+  ],
+  "cross_check_against_plan": [
+    {"doc": "todo-task-016-offline-and-export.md", "section": "§2", "result": "matches — the app's data-level offline story (OPFS + outbox) is untouched; this task adds the shell-level one."},
+    {"doc": "todo-task-037-web-identity-a11y.md", "section": "§2", "result": "matches — the manifest/robots/title from 037 are extended, not replaced."},
+    {"doc": "todo-task-039-ui-rework.md", "section": "§3", "result": "matches — the offline page and the new icon use the same tokens as the rest of the app."},
+    {"doc": "04-frontend-folder-architecture.md", "section": "§8", "result": "matches — route files (manifest/robots/~offline) live in app/; the worker stays sw.ts; assets in public/."}
+  ],
+  "signed_off": true,
+  "issues_found": [
+    "`fallbacks` does not precache its entries and only runs for a matching handler, so an uncached navigation fell through to the browser's error.",
+    "Serwist never disables navigation preload; a registration that once had it keeps it, and the failed preload response is what painted a blank offline page. Now disabled explicitly on activate.",
+    "Documents are not in the build's asset manifest, so the shell had to be named explicitly (`additionalPrecacheEntries`).",
+    "For a client-rendered app the navigation fallback should be the shell, not an offline page — otherwise an offline deep link loses the workspace.",
+    "The environment cannot emulate a device install; the maskable safe zone needs a real Android check."
+  ]
+}

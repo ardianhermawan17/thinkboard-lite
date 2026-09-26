@@ -1,0 +1,19 @@
+{
+  "task_id": "040-task-pwa",
+  "phase": "test",
+  "test_files": [],
+  "commands_run": [
+    {"command": "npm run verify", "result": "green: arch 18 pass/0 fail, lint 0 errors, typecheck clean, vitest 374 passed / 14 skipped"},
+    {"command": "npm run build (with the stack env)", "result": "clean; /sw.js bundled, /~offline prerendered, /manifest.webmanifest and /robots.txt static"},
+    {"command": "npm start -- --port 3200 + HTTP checks", "result": "manifest 200 application/manifest+json; all four icons 200 image/png; /sw.js 200; /~offline 200"},
+    {"command": "browser: SW lifecycle", "result": "registered -> activated -> controlling; precache holds /w and /~offline; navigationPreload.getState() = { enabled: false }"},
+    {"command": "browser: offline navigations (production server killed)", "result": "GET /w -> the app shell (31,655 bytes, h1 'Sign in'); GET /w/f05e17f9-… (deep link) -> the app shell (31,731 bytes) — both answered by the worker"}
+  ],
+  "live_evidence": [
+    {"what": "installable", "how": "manifest served with the three icons, each 200 image/png; apple-touch-icon and apple-mobile-web-app-capable in the HTML"},
+    {"what": "offline shell", "how": "with the production server stopped, a navigation to /w rendered the sign-in screen from the precache"},
+    {"what": "offline deep link", "how": "with the server stopped, /w/f05e17f9-… also rendered the shell (navigateFallback), so the client router can open the workspace from Dexie"}
+  ],
+  "summary": {"total": 374, "passed": 374, "failed": 0, "skipped": 14},
+  "coverage_notes": "A service worker cannot be unit-tested in jsdom; the gate only proves nothing else broke. The real test is a production build with the server killed, which is what was run — three times, because two earlier strategies (fallbacks alone; preload on) silently served a blank document."
+}

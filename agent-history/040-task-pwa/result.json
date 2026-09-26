@@ -1,0 +1,32 @@
+{
+  "task_id": "040-task-pwa",
+  "phase": "result",
+  "closed_at": "2026-09-26T19:50:00Z",
+  "final_status": "done",
+  "goals_summary": {
+    "total": 4,
+    "done": 4,
+    "blocked": 0,
+    "detail": "g1 the icon set + manifest pass; g2 iOS metadata pass; g3 offline (precache + navigateFallback + offline page) pass; g4 verify/build + a real offline navigation pass. Recomputed from task.json goals[] and validate.json goal_checks — all four 'pending' -> 'done', none blocked."
+  },
+  "artifacts": [
+    "public/icons/{icon-192,icon-512,icon-maskable-512,apple-icon-180}.png",
+    "src/app/manifest.ts, src/app/layout.tsx",
+    "src/app/~offline/page.tsx",
+    "next.config.ts (additionalPrecacheEntries)",
+    "src/app/sw.ts (preload off, navigateFallback)",
+    "todo-task-040-pwa.md"
+  ],
+  "verify": "npm run verify green (arch 18/0, lint 0 errors, typecheck clean, 374 passed/14 skipped); npm run build clean. On the production server: manifest + all icons + /sw.js + /~offline all 200; the worker activates and controls; preload disabled; and with the server killed, both /w and a deep link render the app shell.",
+  "decisions_recap": [
+    "Navigation preload off — the cache must win, and Serwist cannot turn preload off by itself.",
+    "navigateFallback to the shell — correct for a client-rendered app and it keeps offline deep links working.",
+    "Precache the shell and the offline page explicitly.",
+    "Icons generated from the product's own motif."
+  ],
+  "follow_up_tasks": [
+    "Verify the maskable icon's safe zone on a real Android device (and the iOS home-screen icon).",
+    "A designer's master icon set to replace the generated one.",
+    "If the pilot wants an offline *page* rather than the shell for uncached routes, revisit navigateFallback (it is a one-line change plus the denylist)."
+  ]
+}

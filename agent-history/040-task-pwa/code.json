@@ -1,0 +1,19 @@
+{
+  "task_id": "040-task-pwa",
+  "phase": "code",
+  "completed_at": "2026-09-26T19:40:00Z",
+  "changes": [
+    {"file": "public/icons/{icon-192,icon-512,icon-maskable-512,apple-icon-180}.png", "summary": "the icon set, rendered from the product's own motif (a page with a highlight swept across a line and a presence dot) on the off-black ground.", "kind": "asset"},
+    {"file": "src/app/manifest.ts", "summary": "names the three icons (any 192/512 + maskable 512), adds id, lang, dir and categories.", "kind": "feature"},
+    {"file": "src/app/layout.tsx", "summary": "appleWebApp (capable, title, status bar) and the icon/apple-touch-icon links; formatDetection off.", "kind": "feature"},
+    {"file": "src/app/~offline/page.tsx", "summary": "a designed offline page (static, so Serwist can precache it), with a Try again link.", "kind": "feature"},
+    {"file": "next.config.ts", "summary": "additionalPrecacheEntries: ['/w', '/~offline'] — documents are not in the build's asset manifest.", "kind": "fix"},
+    {"file": "src/app/sw.ts", "summary": "navigation preload disabled (explicitly, on activate — Serwist never disables it) and navigateFallback '/w' with a denylist, so an offline deep link renders the shell.", "kind": "fix"}
+  ],
+  "decisions": [
+    "Navigation preload off: it can hand a navigation a failed preload response offline, and Serwist never turns it back off.",
+    "navigateFallback to the shell, not the offline page: the app is client-rendered, so the shell + its router is correct for any path (and renders the workspace offline from Dexie).",
+    "Precache the shell and the offline page explicitly, because `fallbacks` does not add them.",
+    "Icons are generated from the in-app motif rather than shipping a placeholder."
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "task_id": "040-task-pwa",
+  "phase": "analyze",
+  "started_at": "2026-09-26T19:00:00Z",
+  "completed_at": "2026-09-26T19:15:00Z",
+  "sources_read": [
+    {"doc": "src/app/sw.ts", "section": "Serwist precache + defaultCache + navigationPreload: true"},
+    {"doc": "next.config.ts", "section": "withSerwistInit (build-only)"},
+    {"doc": "src/app/manifest.ts", "section": "a manifest whose only icon was favicon.ico"},
+    {"doc": "node_modules/serwist/dist/index.mjs", "section": "how `fallbacks` is wired (PrecacheFallbackPlugin) and that navigationPreload is only ever enabled"},
+    {"doc": "node_modules/@serwist/next/dist/index.worker.mjs", "section": "defaultCache's routes (no document route unless production, and PAGES_CACHE_NAME html)"},
+    {"doc": "node_modules/@serwist/next/dist/index.schema.d.mts", "section": "additionalPrecacheEntries exists"}
+  ],
+  "scope": "Icons, the manifest, the worker's navigation strategy, an offline page, and iOS metadata. Out of scope: push, background sync, and the app's own offline data layer (task 016).",
+  "acceptance_criteria": [
+    {"goal_id": "g1", "text": "The manifest is served with 192/512/maskable icons that return 200."},
+    {"goal_id": "g2", "text": "apple-mobile-web-app-capable and an apple-touch-icon are in the served HTML."},
+    {"goal_id": "g3", "text": "The precache holds the shell; an offline navigation renders the app, not a browser error."},
+    {"goal_id": "g4", "text": "verify green; a production build clean; offline navigation of /w and of a deep link both render."}
+  ],
+  "open_questions": [
+    "Whether the pilot wants the offline page (`/~offline`) surfaced anywhere; it is precached and reachable, but the shell answers navigations."
+  ],
+  "risks": [
+    "A service worker is sticky: changes only reach a returning client on the next load, and a stale registration keeps navigation preload on unless the new worker disables it (it does).",
+    "Precaching the shell means a deploy's shell HTML updates on the next visit, not instantly.",
+    "The maskable icon needs a real Android install to confirm the safe zone."
+  ]
+}
