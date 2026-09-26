@@ -48,4 +48,12 @@ describe("PageStage interactive (g3/I27)", () => {
     expect(stage.className).toContain("touch-none")
     expect(stage.className).not.toContain("touch-pan-x")
   })
+
+  it("g1: the text layer stays selectable until a draw tool is armed, so text highlighting works", () => {
+    const { rerender, container } = render(<PageStage doc={doc} pageNumber={1} zoom={1} rotation={0} />)
+    expect(container.querySelector(".textLayer")?.className).toContain("select-text")
+
+    rerender(<PageStage doc={doc} pageNumber={1} zoom={1} rotation={0} drawing />)
+    expect(container.querySelector(".textLayer")?.className).toContain("select-none")
+  })
 })

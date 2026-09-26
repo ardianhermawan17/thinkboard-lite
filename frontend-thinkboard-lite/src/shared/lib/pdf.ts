@@ -43,27 +43,48 @@ export async function openPdf(bytes: Uint8Array): Promise<PdfDocument> {
   return lib.getDocument({ data: bytes.slice() }).promise
 }
 
-/** z0: paints one page into `canvas` at natural resolution times `scale` (zoom, and devicePixelRatio for sharpness). */
-export async function renderPage(doc: PdfDocument, pageNumber: number, canvas: HTMLCanvasElement, scale: number) {
+/** z0: paints one page into `canvas` at natural resolution times `scale` (zoom, and devicePixelRatio for sharpness).
+ * `signal` cancels an in-flight render: pdfjs refuses two renders on one canvas ("Cannot use the same canvas
+ * during multiple render() operations"), so a page/zoom change — or React's dev double-effect — must cancel the
+ * previous paint instead of colliding with it. A cancelled render rejects; the caller ignores it when aborted. */
+export async function renderPage(doc: PdfDocument, pageNumber: number, canvas: HTMLCanvasElement, scale: number, signal?: AbortSignal) {
   const page = await doc.getPage(pageNumber)
   const viewport = page.getViewport({ scale })
   canvas.width = viewport.width
   canvas.height = viewport.height
   const context = canvas.getContext("2d")
   if (!context) throw new Error("Canvas 2D context unavailable")
+  if (signal?.aborted) throw new DOMException("render aborted", "AbortError")
   const task = page.render({ canvasContext: context, viewport, canvas })
-  await task.promise
+  const cancel = () => task.cancel()
+  signal?.addEventListener("abort", cancel, { once: true })
+  try {
+    await task.promise
+  } finally {
+    signal?.removeEventListener("abort", cancel)
+  }
   return { width: viewport.width, height: viewport.height }
 }
 
-/** z1: PDF.js's own text layer — real, selectable spans, positioned by pdfjs itself (03 §6.1: highlights come from here, never z2). */
-export async function renderTextLayer(doc: PdfDocument, pageNumber: number, container: HTMLDivElement, scale: number) {
+/** z1: PDF.js's own text layer — real, selectable spans, positioned by pdfjs itself (03 §6.1: highlights come from here, never z2).
+ * Cancels with the same `signal` as z0, so a replaced page never leaves a half-built text layer behind. */
+export async function renderTextLayer(doc: PdfDocument, pageNumber: number, container: HTMLDivElement, scale: number, signal?: AbortSignal) {
   const lib = await loadPdfjs()
   const page = await doc.getPage(pageNumber)
   const viewport = page.getViewport({ scale })
   container.style.width = `${viewport.width}px`
   container.style.height = `${viewport.height}px`
   const layer = new lib.TextLayer({ textContentSource: page.streamTextContent(), container, viewport })
-  await layer.render()
+  if (signal?.aborted) {
+    layer.cancel()
+    return layer
+  }
+  const cancel = () => layer.cancel()
+  signal?.addEventListener("abort", cancel, { once: true })
+  try {
+    await layer.render()
+  } finally {
+    signal?.removeEventListener("abort", cancel)
+  }
   return layer
 }

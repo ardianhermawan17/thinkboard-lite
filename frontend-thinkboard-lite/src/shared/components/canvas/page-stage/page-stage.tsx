@@ -43,8 +43,10 @@ export function PageStage({ doc, pageNumber, zoom, rotation, onZoomCommit, onTex
       <div ref={gestureRef} className="origin-center">
         {/* z0 */}
         <canvas ref={canvasRef} className="absolute inset-0" />
-        {/* z1 */}
-        <div ref={textLayerRef} className="textLayer absolute inset-0" />
+        {/* z1 — pdfjs's text layer. `select-text` while no tool is armed is what makes 010's text highlight
+            possible at all: the stage's `select-none` would otherwise make the layer unselectable (user-select is
+            inherited). Arming a draw tool turns it back off so a marquee/freehand stroke never selects text. */}
+        <div ref={textLayerRef} className={`textLayer absolute inset-0 ${drawing ? "select-none" : "select-text"}`} />
         {/* z2 — host only; highlight-layer (010) and marquee (011) draw into it */}
         {pageSize.width > 0 && (
           <Stage width={pageSize.width} height={pageSize.height} className="absolute inset-0">

@@ -1,7 +1,7 @@
 import { act, renderHook } from "@testing-library/react"
 import { afterEach, describe, expect, it, vi } from "vitest"
 
-const renderPage = vi.fn(async () => ({ width: 600, height: 800 }))
+const renderPage = vi.fn(async (..._args: unknown[]) => ({ width: 600, height: 800 }))
 const renderTextLayer = vi.fn(async () => ({}))
 vi.mock("@shared/lib/pdf", () => ({ renderPage: (...a: unknown[]) => renderPage(...(a as [])), renderTextLayer: (...a: unknown[]) => renderTextLayer(...(a as [])) }))
 
@@ -27,6 +27,26 @@ describe("usePageStage (g3, g4)", () => {
       // the effect already fired against null refs; re-render to fire it again now the refs are set
     })
     expect(result.current.pageSize).toEqual({ width: 0, height: 0 })
+  })
+
+  it("aborts an in-flight paint so a page change never renders twice on one canvas", async () => {
+    // pdfjs refuses two render() calls on one canvas, and the same canvas is re-painted on every page/zoom
+    // change; the effect must cancel the previous task instead of colliding with it.
+    const { result, rerender, unmount } = renderHook(
+      (props: { pageNumber: number }) => usePageStage({ doc, pageNumber: props.pageNumber, zoom: 1, rotation: 0 }),
+      { initialProps: { pageNumber: 1 } }
+    )
+    withCanvasRefs(result)
+    await act(async () => {
+      rerender({ pageNumber: 2 })
+    })
+    const signal = renderPage.mock.calls.at(-1)?.[4] as AbortSignal | undefined
+    expect(signal).toBeInstanceOf(AbortSignal)
+    expect(signal?.aborted).toBe(false)
+    act(() => {
+      unmount()
+    })
+    expect(signal?.aborted).toBe(true)
   })
 
   it("a pinch gesture applies a live transform and commits zoom once, on the last pointer up", () => {
