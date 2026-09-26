@@ -34,5 +34,9 @@
     "Move the colour mask into a Worker once a page raster exists (spec §5.4's suggestion; pure today).",
     "021's server side: the leader import fans out as ONE broadcast (F5); 001's trigger and 007's channel already batch, so confirm it under a 40-highlight import when the live stack is in the loop.",
     "Reuse the same review model for 013's promotion flow if the UX overlaps."
-  ]
+  ],
+  "postscript": {
+    "date": "2026-09-26",
+    "note": "The first follow-up is partly done. src/features/highlight/utils/annotation-quads.real.test.ts builds a real PDF with pdf-lib (text + a two-quad /Highlight + a Square) and reads it back through the real pdfjs annotation and text layers: rung 1 yields two normalized rects and the exact text-layer text with confidence 1 and no OCR. This also confirmed the parser's assumption that pdfjs v6 reports `quadPoints` as a flat number array (a real multi-quad highlight does not collapse to its rect). viewportLike() was extracted from use-import-source so the real pdfjs viewport seam is covered. A genuine Acrobat-exported fixture remains the manual check."
+  }
 }

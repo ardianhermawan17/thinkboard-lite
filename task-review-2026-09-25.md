@@ -90,7 +90,7 @@ Unit tests are strong, but several proofs can only run against the local Supabas
 - ~~017's 403 path under real RLS~~ **proven live** — `command-endpoints.live.test.ts` (4/4: a member's group run is 403, their individual run and the leader's group run are 202, no bearer is 401, an invalid scope is 400);
 - 015 g5's two-browser latency,
 - 016's airplane-mode round trip,
-- 021/032's real Acrobat-annotated PDF (the parser is tested with faithful objects).
+- 021/032's **parser against a real document** is now covered (`annotation-quads.real.test.ts`: a pdf-lib-built PDF with a real two-quad /Highlight + text layer, read through real pdfjs — two rects, exact text, no OCR); a genuine Acrobat-exported fixture in a browser remains the manual check.
 
 **Note (environment):** Windows reserves TCP `55262–55361` on this machine, colliding with the documented 553xx Lite ports; the stack was moved to **563xx** (`config.toml`, README §6, database README, the two live-test comments). Restore 553xx on a machine where the range is free. The remaining live items are the frontend ones above.
 

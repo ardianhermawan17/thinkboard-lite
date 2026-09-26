@@ -27,5 +27,9 @@
     "Build the artifact-upload flow (D-02's note-slot copy): create the artifact and upload the leader's annotated PDF to Storage, then scan it with this same rung-1 path.",
     "Mount rungs 2/3 when a raster source exists (rasterize + colour mask + crop OCR).",
     "Run the live Gate against a seeded annotated PDF in a browser."
-  ]
+  ],
+  "postscript": {
+    "date": "2026-09-26",
+    "note": "The scan path is now covered against a real document, not just mocked pdfjs: annotation-quads.real.test.ts (node) builds a pdf-lib PDF with a real two-quad /Highlight and reads it through the real pdfjs layers, asserting two rects and the exact text-layer text. It also proved pdfjs v6 reports `quadPoints` as a flat number array, which is what this code reads. The browser Gate against a seeded Acrobat-annotated PDF is still the manual item."
+  }
 }

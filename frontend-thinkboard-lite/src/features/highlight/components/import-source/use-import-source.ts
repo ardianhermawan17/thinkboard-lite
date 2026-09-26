@@ -5,6 +5,7 @@ import { useArtifactsForSession } from "@feature/entities/queries/use-artifacts-
 import type { ArtifactRow } from "@feature/entities/types"
 import { loadArtifactBytes, openPdf } from "@shared/lib/pdf"
 import { useWorkspaceContext } from "@shared/providers/workspace-provider"
+import { viewportLike } from "../../utils/annotation-quads"
 import { annotationCandidates, type ImportCandidate } from "../../utils/import-ladder"
 import { textBoxesFromViewport, type PdfTextItemLike } from "../../utils/pdf-text-boxes"
 import type { ImportSourceState } from "./types"
@@ -38,18 +39,7 @@ export function useImportSource(): ImportSourceState {
         const viewport = page.getViewport({ scale: 1 })
         const content = await page.getTextContent()
         const boxes = textBoxesFromViewport(content.items as unknown as PdfTextItemLike[], { transform: viewport.transform })
-        // pdfjs v6 exposes convertToViewportPoint (not the older convertToViewportRectangle); build the rect
-        // from its two opposite corners, keeping the min/max the parser expects.
-        const viewportLike = {
-          width: viewport.width,
-          height: viewport.height,
-          convertToViewportRectangle: ([x1, y1, x2, y2]: number[]) => {
-            const [ax, ay] = viewport.convertToViewportPoint(x1, y1)
-            const [bx, by] = viewport.convertToViewportPoint(x2, y2)
-            return [Math.min(ax, bx), Math.min(ay, by), Math.max(ax, bx), Math.max(ay, by)]
-          },
-        }
-        found.push(...annotationCandidates(annotations, viewportLike, pageNumber, 0, boxes))
+        found.push(...annotationCandidates(annotations, viewportLike(viewport), pageNumber, 0, boxes))
       }
       setCandidates(found)
       if (found.length === 0) setError("No highlights were found in this document")

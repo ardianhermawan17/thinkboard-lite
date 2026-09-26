@@ -19,6 +19,26 @@ export type ViewportLike = {
   convertToViewportRectangle(rect: number[]): number[]
 }
 
+/** The slice of a real pdfjs `PageViewport` (v6 no longer exposes `convertToViewportRectangle`). */
+export type PointViewportLike = {
+  width: number
+  height: number
+  convertToViewportPoint(x: number, y: number): number[]
+}
+
+/** Adapts a real pdfjs viewport to `ViewportLike` by mapping the rect's two opposite corners and keeping min/max. */
+export function viewportLike(viewport: PointViewportLike): ViewportLike {
+  return {
+    width: viewport.width,
+    height: viewport.height,
+    convertToViewportRectangle: ([x1, y1, x2, y2]) => {
+      const [ax, ay] = viewport.convertToViewportPoint(x1, y1)
+      const [bx, by] = viewport.convertToViewportPoint(x2, y2)
+      return [Math.min(ax, bx), Math.min(ay, by), Math.max(ax, bx), Math.max(ay, by)]
+    },
+  }
+}
+
 export type ImportedRegion = {
   rects: Rect[]
   /** Exact text when the page has a text layer; `contents` or "" otherwise. */
