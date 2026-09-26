@@ -82,3 +82,20 @@ const fakeContext = new FakeCanvasRenderingContext2D()
 if (typeof HTMLCanvasElement !== "undefined") {
   HTMLCanvasElement.prototype.getContext = ((type: string) => (type === "2d" ? fakeContext : null)) as typeof HTMLCanvasElement.prototype.getContext
 }
+
+// Motion (reduced motion) and next-themes (colour scheme) ask the browser for a media query; jsdom has no
+// matchMedia, so provide the smallest stand-in. It reports "no match" — light theme, no reduced motion.
+if (typeof window !== "undefined" && !window.matchMedia) {
+  window.matchMedia = ((query: string) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener() {},
+    removeListener() {},
+    addEventListener() {},
+    removeEventListener() {},
+    dispatchEvent() {
+      return false
+    },
+  })) as unknown as typeof window.matchMedia
+}

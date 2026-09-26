@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react"
 import { OfflineBanner } from "@feature/sync/components/offline-banner"
+import { motion, rise, stagger } from "@shared/lib/motion"
 import { WorkspaceProvider } from "@shared/providers/workspace-provider"
 import { AuthGuard } from "../auth-guard"
 import { AppHeader } from "../app-header"
@@ -49,10 +50,14 @@ function Body({ workspaceId, children }: { workspaceId?: string; children?: Reac
 
   return (
     <WorkspaceProvider profileId={profileId} sessionId={sessionId}>
-      <div className="flex min-h-svh flex-col">
-        <AppHeader />
-        <OfflineBanner />
-        <div className="flex min-h-0 flex-1">
+      {/* One orchestrated open (frontend-design: a single staggered reveal reads better than scattered
+          micro-interactions). Motion is DOM-only; the canvases inside stay untouched. */}
+      <motion.div className="flex min-h-svh flex-col" variants={stagger} initial="hidden" animate="show">
+        <motion.div variants={rise}>
+          <AppHeader />
+          <OfflineBanner />
+        </motion.div>
+        <motion.div variants={rise} className="flex min-h-0 flex-1">
         {/* the document area: the app route injects the composed document view (025); a feature may not import
             document/highlight itself (I3), so this stays a slot. */}
         <main className="flex min-h-0 min-w-0 flex-1 flex-col">
@@ -83,8 +88,8 @@ function Body({ workspaceId, children }: { workspaceId?: string; children?: Reac
             </TabsContent>
           </Tabs>
         </aside>
-      </div>
-      </div>
+      </motion.div>
+      </motion.div>
     </WorkspaceProvider>
   )
 }
