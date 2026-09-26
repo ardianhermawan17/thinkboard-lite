@@ -139,8 +139,10 @@ The top finding above — the route-wiring gap — was fixed immediately: **task
 **PHASE G — Integration** and closed the same day. `/w/[workspaceId]` now mounts `DocumentViewer` +
 `HighlightedPage` at the app route (I3/I4 respected) with a region-tool control, so the built slice is visible.
 
-Effect on this review's snapshot: the backlog is now **32 tasks**; **22 done** (000–011, 016, 017, 021, 025–031),
-3 blocked (012, 015, 018), 1 conditional (024), 6 not started (013, 014, 019, 020, 022, 023). Nothing else in
+Effect on this review's snapshot: the backlog is now **33 tasks**; **23 done** (000–011, 016, 017, 021, 025–032),
+3 blocked (012, 015, 018), 1 conditional (024), 6 not started (013, 014, 019, 020, 022, 023). Every task an agent can
+start without a human decision has been opened and closed; the rest are gated on Q7/Q8/Q9, D-12, C6, the live
+stack, or D-02's upload flow. Nothing else in
 the review changes — the remaining blockers are still human/hardware decisions, and the per-phase
 recommendations stand.
 

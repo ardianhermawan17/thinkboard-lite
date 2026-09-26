@@ -1,0 +1,8 @@
+{
+  "schema_version": "1.0",
+  "id": "032-todo-import-existing",
+  "name": "Import existing highlights",
+  "goal": "Import the open PDF's existing annotations as group focus points, review-gated.",
+  "human_prompt": "continue",
+  "translated_prompt_agent": "Mount task 021's rung 1 against the open document. Task 032 (frontend): give ImportCandidate a page and make ImportReview/useImportReview write per candidate; add a pdf-text-boxes helper mapping pdfjs text items to display boxes; add an import-source container that loads the session's main artifact bytes, opens the PDF and scans rung 1 (Highlight annotations + text layer) per page into candidates, then renders ImportReview; mount it in the document view; tests for the box mapping, the scan and the per-page review. Write all six phase files, keep npm run verify green, close validate/result, and record the D-02 divergence (importing the open document, not an uploaded note copy) as an open question."
+}

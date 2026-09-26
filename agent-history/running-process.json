@@ -1,6 +1,6 @@
 {
 	"schema_version": "1.0",
-	"updated_at": "2026-09-26T06:00:00Z",
+	"updated_at": "2026-09-26T07:40:00Z",
 	"current_task_id": null,
 	"current_phase": "idle",
 	"history_path": null,
@@ -149,6 +149,12 @@
 			"architecture": "frontend",
 			"status": "done",
 			"title": "A teammate's pointer is drawn on the page as it moves, and this client publishes its own"
+		},
+		{
+			"id": "032-task-import-existing",
+			"architecture": "frontend",
+			"status": "done",
+			"title": "Import the open PDF's existing annotations as group focus points, review-gated"
 		}
 	]
 }

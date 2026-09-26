@@ -14,6 +14,8 @@ vi.mock("@feature/highlight/components/highlighted-page", () => ({
 }))
 // 026: the note panel reads the shared workspace context, which this unit test does not provide.
 vi.mock("@feature/notes/components/note-panel", () => ({ NotePanel: () => <div data-testid="note-panel" /> }))
+// 032: the import source reads the shared context too.
+vi.mock("@feature/highlight/components/import-source", () => ({ ImportSource: () => <div data-testid="import-source" /> }))
 // 028/031: presence reads the shared context too; mock the whole barrel so the provider adds nothing here.
 vi.mock("@feature/presence", () => ({
   PresenceProvider: ({ children }: { children: ReactNode }) => <>{children}</>,

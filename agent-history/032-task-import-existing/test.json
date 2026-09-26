@@ -1,0 +1,21 @@
+{
+  "task_id": "032-task-import-existing",
+  "phase": "test",
+  "test_files": [
+    "src/features/highlight/utils/pdf-text-boxes.test.ts",
+    "src/features/highlight/utils/import-ladder.test.ts",
+    "src/features/highlight/components/import-source/use-import-source.test.ts",
+    "src/features/highlight/components/import-review/use-import-review.test.ts",
+    "src/app/w/[workspaceId]/workspace-document.test.tsx"
+  ],
+  "commands_run": [
+    {"command": "npx vitest run --project unit (touched files)", "result": "5 files, 15 tests passed"},
+    {"command": "npm run verify:arch", "result": "18 pass, 0 fail, 10 skipped, 1 void"},
+    {"command": "npm run lint", "result": "0 errors, 2 pre-existing warnings"},
+    {"command": "npm run typecheck", "result": "clean"},
+    {"command": "npm run test", "result": "89 test files passed / 2 skipped (91); 360 tests passed / 10 skipped (370)"},
+    {"command": "npm run build", "result": "production build succeeded"}
+  ],
+  "summary": {"total": 370, "passed": 360, "failed": 0, "skipped": 10},
+  "coverage_notes": "g1 is covered by use-import-review.test.ts: two accepted candidates on pages 3 and 1 write in one call with rows whose page, bbox.page and slug prefix match their own page. g2 is covered by pdf-text-boxes.test.ts (the item and viewport matrices compose to a display box; blanks and a missing transform are dropped). g3 is covered by use-import-source.test.ts: the scan loads the artifact's bytes, walks every page and returns candidates carrying their page with exact text from the text layer; a missing document and a document with no highlights both report why. The mount is covered by workspace-document.test.tsx (with the source mocked) and verify:arch's I3/I4. The live Gate (a seeded annotated PDF) is a browser pass. The 10 skipped are the pre-existing live-stack suites."
+}

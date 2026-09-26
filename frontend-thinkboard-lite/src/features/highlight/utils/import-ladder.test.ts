@@ -24,7 +24,8 @@ function raster(width: number, height: number, box: { x: number; y: number; w: n
 describe("import ladder (g1, g2, g3)", () => {
   it("rung 1 uses exact annotation geometry and reads exact text from the layer, with no OCR", () => {
     const boxes: TextItemBox[] = [{ text: "Cost basis", rect: { x: 10, y: 20, w: 40, h: 10 } }]
-    const [candidate] = annotationCandidates([{ subtype: "Highlight", quadPoints: [10, 180, 40, 180, 10, 170, 40, 170] }], viewport, 0, boxes)
+    const [candidate] = annotationCandidates([{ subtype: "Highlight", quadPoints: [10, 180, 40, 180, 10, 170, 40, 170] }], viewport, 1, 0, boxes)
+    expect(candidate.page).toBe(1)
     expect(candidate.extraction).toBe("text_layer")
     expect(candidate.confidence).toBe(1)
     expect(candidate.text).toBe("Cost basis")
@@ -34,7 +35,7 @@ describe("import ladder (g1, g2, g3)", () => {
   it("rung 2 finds a flattened highlight by its ink and reads exact text from the layer", () => {
     const display = { x: 5, y: 2, w: 30, h: 10 }
     const boxes: TextItemBox[] = [{ text: "flattened", rect: display }]
-    const [candidate] = flattenedCandidates(raster(50, 20, display), 0, boxes)
+    const [candidate] = flattenedCandidates(raster(50, 20, display), 2, 0, boxes)
     expect(candidate.extraction).toBe("text_layer")
     expect(candidate.text).toBe("flattened")
     expect(candidate.rects[0].x).toBeCloseTo(5 / 50)
@@ -43,7 +44,7 @@ describe("import ladder (g1, g2, g3)", () => {
   it("rung 3 crops the mask box to OCR and keeps the raw confidence", async () => {
     const display = { x: 5, y: 2, w: 30, h: 10 }
     const recognize = vi.fn(async (_source: CanvasImageSource, crop: { x: number; y: number; w: number; h: number }) => ({ text: `ocr:${crop.x}`, confidence: 0.4 }))
-    const [candidate] = await scanCandidates(raster(50, 20, display), {} as CanvasImageSource, 0, recognize)
+    const [candidate] = await scanCandidates(raster(50, 20, display), {} as CanvasImageSource, 3, 0, recognize)
     expect(candidate.extraction).toBe("ocr")
     expect(candidate.confidence).toBe(0.4)
     expect(candidate.text).toBe("ocr:5")

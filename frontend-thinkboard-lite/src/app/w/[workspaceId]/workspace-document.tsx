@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { DocumentViewer } from "@feature/document/components/document-viewer"
+import { ImportSource } from "@feature/highlight/components/import-source"
 import { HighlightedPage } from "@feature/highlight/components/highlighted-page"
 import { NotePanel } from "@feature/notes/components/note-panel"
 import { PresenceLayer, PresenceProvider, PresenceRail, usePresenceContext } from "@feature/presence"
@@ -73,6 +74,8 @@ function WorkspaceDocumentBody({ sessionId }: { sessionId: string }) {
         {/* 026: the notes rail reads profileId from the shared workspace context, so it mounts here (I3/I4 safe). */}
         <aside className="hidden w-72 shrink-0 md:block">
           <NotePanel />
+          {/* 032: import the open document's existing highlights (rung 1), review-gated. */}
+          <ImportSource />
         </aside>
       </div>
     </div>

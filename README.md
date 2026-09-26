@@ -216,6 +216,7 @@ in `task_sequence` is *not opened*.
 | G | 029 re-import review | [todo-task-029](todo-task-029-reimport-review.md) | frontend | 016 026 | **done** |
 | G | 030 database housekeeping | [todo-task-030](todo-task-030-db-housekeeping.md) | supabase | 001 002 | **done** (live RLS run pending) |
 | G | 031 peer cursors | [todo-task-031](todo-task-031-peer-cursors.md) | frontend | 015 026 028 | **done** |
+| G | 032 import existing highlights | [todo-task-032](todo-task-032-import-existing.md) | frontend | 021 | **done** (D-02 upload follow-up) |
 
 ```
 Critical path = the demoable slice:  000 → 001 → 004 → 006 → 008 → 009 → 010 → 012
@@ -296,9 +297,12 @@ Critical path = the demoable slice:  000 → 001 → 004 → 006 → 008 → 009
 - **Also done:** 031 (peer cursors) — one `PresenceProvider` owns the live channel; `PresenceLayer` paints peers' cursors through the `peer-cursors` leaf and the
   page publishes its own pointer, normalized (RULE-17) and throttled ~20 Hz (RULE-20). Closes 015 g2. `npm run verify` green (354 tests), production build ok.
   (`06-whole-apps-task.md`'s backlog is now 32 tasks.)
-- **Next:** nothing is unblocked by dependencies. 013/014/022 wait on 012 (human device test, Q7); 019/020 wait on 018 (D-12); 023 waits on 015/016/020/022.
-  The next real progress is a human action — run 012's device test, answer D-12, run 015's/031's two-browser test, or run 030's live RLS suite — or mounting
-  021's import review.
+- **Also done:** 032 (import existing highlights) — mounts 021 rung 1 against the open document: it scans the session's PDF for `/Highlight` annotations + text
+  items (per page, exact text, no OCR) and offers the review. **D-02 divergence recorded**: this imports the open document, not a separately uploaded note-slot
+  copy (no upload flow exists). `npm run verify` green (360 tests), production build ok. (`06-whole-apps-task.md`'s backlog is now 33 tasks.)
+- **Next:** nothing an agent can start remains. 013/014/022 wait on 012 (human device test, Q7); 019/020 wait on 018 (D-12); 023 waits on 015/016/020/022;
+  024 is conditional. The unblockers are all human/hardware: run 012's device test (Q7), answer D-12, run the live gates (030 RLS, 015/031 two-browser, 016
+  airplane, 021/032 annotated-PDF), and decide D-02's upload flow.
   Housekeeping: both carried items are done (030); the live RLS run for them is pending.
 - **Waiting on a human:**
   - **D-12** — free-tier training terms vs document sensitivity. Blocks 018, and ink transcription in 024. 003's

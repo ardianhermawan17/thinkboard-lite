@@ -545,6 +545,22 @@ catches every planted violation under its own id and prints all 29 rows. "Green 
 
 **Gate —** two browsers in one workspace: each sees the other's pointer move; latency ~100-300 ms on the live stack.
 
+### `032-task-import-existing` · `frontend`
+
+**Main-goal —** A leader can import the highlights already embedded in the open workspace PDF as group focus points, review-gated.
+
+**Why it exists** — 021 built the three-rung ladder and closed, but nothing mounted it. This mounts **rung 1** against the *open* document (its own `/Highlight` annotations + text layer), which needs no upload flow.
+
+**Scope note** — D-02's default (the import is a *separately uploaded* note-slot copy) needs an artifact-upload flow Lite does not build; that stays open. This task imports the open document's own annotations, which is geometry-correct and review-gated.
+
+**Mini-goals**
+- `g1` `ImportCandidate` carries its page; `ImportReview`/`useImportReview` write per-candidate (slug, bbox, reading order).
+- `g2` a `pdf-text-boxes` helper maps pdfjs text items to display-space boxes for the exact-text intersect.
+- `g3` an `import-source` container scans the session's main PDF (rung 1) and offers `ImportReview`; mounted in the document view.
+- `g4` tests for the box mapping, the scan, and the per-page review.
+
+**Gate —** with a seeded workspace whose PDF carries `/Highlight` annotations, the leader scans, reviews and imports them as group highlights.
+
 ---
 
 ## 2. Dependency graph

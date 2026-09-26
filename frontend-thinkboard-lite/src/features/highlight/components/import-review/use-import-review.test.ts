@@ -2,24 +2,28 @@ import { act, renderHook } from "@testing-library/react"
 import { afterEach, describe, expect, it, vi } from "vitest"
 
 const mocks = vi.hoisted(() => ({
+  highlights: [] as unknown[],
   insertHighlights: vi.fn(async (rows: unknown[]) => rows),
-  useHighlightsForPage: vi.fn<() => unknown[]>(() => []),
 }))
+vi.mock("@shared/providers/workspace-provider", () => ({ useWorkspaceContext: () => ({ profileId: "p1", sessionId: "s1" }) }))
+vi.mock("@feature/entities/queries/use-highlights-for-session", () => ({ useHighlightsForSession: () => mocks.highlights }))
 vi.mock("@feature/entities/repository/highlight-repository", () => ({ insertHighlights: mocks.insertHighlights }))
-vi.mock("@feature/entities/queries/use-highlights-for-page", () => ({ useHighlightsForPage: () => mocks.useHighlightsForPage() }))
 
 import type { ImportCandidate } from "../../utils/import-ladder"
 import { useImportReview } from "./use-import-review"
 
 const candidates: ImportCandidate[] = [
-  { rects: [{ x: 0.1, y: 0.1, w: 0.2, h: 0.05 }], text: "A", extraction: "text_layer", confidence: 1 },
-  { rects: [{ x: 0.1, y: 0.2, w: 0.2, h: 0.05 }], text: "B", extraction: "ocr", confidence: 0.4 },
+  { page: 3, rects: [{ x: 0.1, y: 0.1, w: 0.2, h: 0.05 }], text: "A", extraction: "text_layer", confidence: 1 },
+  { page: 1, rects: [{ x: 0.1, y: 0.2, w: 0.2, h: 0.05 }], text: "B", extraction: "ocr", confidence: 0.4 },
 ]
-const props = { artifactId: "a1" as never, profileId: "p1" as never, page: 3, candidates }
+const props = { artifactId: "a1" as never, profileId: "p1" as never, candidates }
 
-afterEach(() => vi.clearAllMocks())
+afterEach(() => {
+  mocks.highlights = []
+  vi.clearAllMocks()
+})
 
-describe("useImportReview (g4, g5)", () => {
+describe("useImportReview (g1, g5)", () => {
   it("starts every region unselected and flags a below-gate region needs-correction", () => {
     const { result } = renderHook(() => useImportReview(props))
     expect(result.current.items).toHaveLength(2)
@@ -36,7 +40,7 @@ describe("useImportReview (g4, g5)", () => {
     expect(mocks.insertHighlights).not.toHaveBeenCalled()
   })
 
-  it("commits the accepted regions as group highlights in ONE call", async () => {
+  it("writes each accepted region as a group highlight on its OWN page, in ONE call", async () => {
     const { result } = renderHook(() => useImportReview(props))
     act(() => {
       result.current.toggle("candidate-0", true)
@@ -48,12 +52,13 @@ describe("useImportReview (g4, g5)", () => {
     })
     expect(count).toBe(2)
     expect(mocks.insertHighlights).toHaveBeenCalledTimes(1)
-    const rows = mocks.insertHighlights.mock.calls[0][0] as { layer: string; extraction: string; bbox: { tool: string }; slug: string }[]
+    const rows = mocks.insertHighlights.mock.calls[0][0] as { layer: string; page: number; extraction: string; bbox: { tool: string; page: number }; slug: string }[]
     expect(rows).toHaveLength(2)
     expect(rows.every((row) => row.layer === "group")).toBe(true)
-    expect(rows.map((row) => row.extraction)).toEqual(["text_layer", "ocr"])
-    expect(rows[0].bbox.tool).toBe("rect")
+    expect(rows.map((row) => row.page)).toEqual([3, 1])
+    expect(rows.map((row) => row.bbox.page)).toEqual([3, 1])
     expect(rows[0].slug).toMatch(/^h-p03-01-/)
+    expect(rows[1].slug).toMatch(/^h-p01-01-/)
   })
 
   it("writes the reviewer's edited text", async () => {

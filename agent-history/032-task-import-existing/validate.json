@@ -1,0 +1,23 @@
+{
+  "task_id": "032-task-import-existing",
+  "phase": "validate",
+  "goal_checks": [
+    {"goal_id": "g1", "status": "pass", "notes": "ImportCandidate has a page; useImportReview computes the slug, bbox and reading order per candidate's page and queries the session's existing highlights session-wide, ranking each page separately. use-import-review.test.ts proves two pages write in one call to their own pages."},
+    {"goal_id": "g2", "status": "pass", "notes": "textBoxesFromViewport composes the pdfjs item transform with the viewport transform (the multiplication Util.transform performs) into a display-space box; pdf-text-boxes.test.ts pins the composition and the guards."},
+    {"goal_id": "g3", "status": "pass", "notes": "useImportSource reads the session's main artifact bytes through the shared/lib/pdf seam, opens the PDF, walks every page and builds rung-1 candidates (annotations + text items); a missing document and an annotation-free document both report why. The control mounts in the rail and renders the review. use-import-source.test.ts and workspace-document.test.tsx pin it."},
+    {"goal_id": "g4", "status": "pass", "notes": "Fifteen tests across the touched files, and the full suite passes (360 passed / 10 skipped)."}
+  ],
+  "cross_check_against_plan": [
+    {"doc": "06-whole-apps-task.md", "section": "PHASE G · 032", "result": "matches — frontend; the four mini-goals map to g1-g4; it mounts 021 rung 1 and blocks nothing."},
+    {"doc": "01-thinkboard-lite-spec.md", "section": "§5.4, RULE-19", "result": "matches — rung 1 only; a real /Highlight annotation is exact, so no OCR runs and no page is rasterized."},
+    {"doc": "todo-task-021-leader-import.md", "section": "§2 g1", "result": "matches for rung 1 — the ladder's annotation parser is now mounted; rungs 2/3 stay available for a raster source."}
+  ],
+  "signed_off": true,
+  "issues_found": [
+    "D-02 divergence: this imports the OPEN document's annotations, not a separately uploaded note-slot copy. The upload flow (create the artifact, upload bytes to Storage) is not built and remains a follow-up; recorded in analyze.json and here.",
+    "pdfjs v6 removed convertToViewportRectangle; the adapter uses convertToViewportPoint. Worth noting for any other consumer.",
+    "The scan walks every page synchronously in the client; a very large PDF would want progress/yield, but a pilot PDF is fine.",
+    "The live Gate (a seeded annotated PDF: scan, review, import) is a browser pass.",
+    "Rungs 2 and 3 (flattened scans) still need a raster source; they are not mounted here."
+  ]
+}

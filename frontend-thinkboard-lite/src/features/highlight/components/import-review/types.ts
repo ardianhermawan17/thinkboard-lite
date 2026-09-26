@@ -7,8 +7,7 @@ export type ImportReviewItem = ImportCandidate & { id: string; selected: boolean
 export type ImportReviewProps = {
   artifactId: ArtifactRow["id"]
   profileId: UUID<"profiles">
-  page: number
-  /** What the ladder produced (rung 1, 2 or 3). Nothing is written until the leader accepts it (g4). */
+  /** What the ladder produced; each candidate carries its own page (032). Nothing is written until accepted. */
   candidates: ImportCandidate[]
   onCommitted?: (count: number) => void
 }

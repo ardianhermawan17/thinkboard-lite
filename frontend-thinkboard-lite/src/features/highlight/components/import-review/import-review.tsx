@@ -35,7 +35,7 @@ export function ImportReview(props: ImportReviewProps) {
               <label className="flex items-center gap-2 text-xs">
                 <input type="checkbox" checked={item.selected} onChange={(event) => toggle(item.id, event.target.checked)} />
                 <span className="text-muted-foreground">
-                  p.{props.page} · {item.extraction}
+                  p.{item.page} · {item.extraction}
                   {item.needsCorrection ? " · needs correction" : ""}
                 </span>
               </label>

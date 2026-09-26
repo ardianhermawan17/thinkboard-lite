@@ -1,0 +1,31 @@
+{
+  "task_id": "032-task-import-existing",
+  "phase": "result",
+  "closed_at": "2026-09-26T07:40:00Z",
+  "final_status": "done",
+  "goals_summary": {
+    "total": 4,
+    "done": 4,
+    "blocked": 0,
+    "detail": "g1 per-candidate page pass; g2 the text-box helper pass; g3 the rung-1 scan and mount pass; g4 the tests pass. Recomputed from task.json goals[] and validate.json goal_checks — all four 'pending' -> 'done', none blocked."
+  },
+  "artifacts": [
+    "src/features/highlight/utils/import-ladder.ts — a page on each candidate",
+    "src/features/highlight/utils/pdf-text-boxes.ts (+test)",
+    "src/features/highlight/components/import-source/ (+ test)",
+    "src/features/highlight/components/import-review/ — per-candidate page",
+    "src/app/w/[workspaceId]/workspace-document.tsx — the mount"
+  ],
+  "verify": "npm run verify green: verify:arch 18 pass/0 fail, lint 0 errors (2 pre-existing warnings), typecheck clean, vitest 360 passed/10 skipped (370). npm run build succeeded. No new dependency.",
+  "decisions_recap": [
+    "Imports the open document's annotations (no upload flow); D-02's note-slot copy stays a follow-up.",
+    "Per-candidate pages; the review ranks each page separately.",
+    "pdfjs v6 uses convertToViewportPoint.",
+    "Rung 1 only (RULE-19)."
+  ],
+  "follow_up_tasks": [
+    "Build the artifact-upload flow (D-02's note-slot copy): create the artifact and upload the leader's annotated PDF to Storage, then scan it with this same rung-1 path.",
+    "Mount rungs 2/3 when a raster source exists (rasterize + colour mask + crop OCR).",
+    "Run the live Gate against a seeded annotated PDF in a browser."
+  ]
+}

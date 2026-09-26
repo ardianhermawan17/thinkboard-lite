@@ -1,0 +1,34 @@
+{
+  "task_id": "032-task-import-existing",
+  "phase": "analyze",
+  "started_at": "2026-09-26T06:30:00Z",
+  "completed_at": "2026-09-26T06:40:00Z",
+  "sources_read": [
+    {"doc": "README.md", "section": "§5 task map, §7 hard limits"},
+    {"doc": "06-whole-apps-task.md", "section": "PHASE G · 032"},
+    {"doc": "01-thinkboard-lite-spec.md", "section": "§5.4 import ladder, RULE-19"},
+    {"doc": "todo-task-032-import-existing.md", "section": "full file"},
+    {"doc": "frontend-thinkboard-lite/src/features/highlight/utils/import-ladder.ts", "section": "the rung-1 function to parametrise with a page"},
+    {"doc": "frontend-thinkboard-lite/src/features/highlight/components/import-review/", "section": "the review to make per-candidate-page"},
+    {"doc": "frontend-thinkboard-lite/src/shared/lib/pdf.ts", "section": "openPdf + loadArtifactBytes, the pdfjs seam"},
+    {"doc": "frontend-thinkboard-lite/src/shared/lib/opfs.ts", "section": "loadArtifactBytes"},
+    {"doc": "frontend-thinkboard-lite/src/app/w/[workspaceId]/workspace-document.tsx", "section": "where the control mounts"}
+  ],
+  "scope": "A page on ImportCandidate, the pdf-text-boxes helper, the rung-1 scan of the open document through the pdf seam, the per-candidate review, and the mount. Out of scope: uploading or creating an artifact (D-02), rungs 2/3, OCR.",
+  "acceptance_criteria": [
+    {"goal_id": "g1", "text": "ImportReview writes each candidate with its own page (slug, bbox, reading order)."},
+    {"goal_id": "g2", "text": "A pdfjs text item maps to a display-space box through the viewport transform (compose matrices)."},
+    {"goal_id": "g3", "text": "The scan loads the session's main artifact bytes, opens it, and returns per-page rung-1 candidates; a missing artifact says why."},
+    {"goal_id": "g4", "text": "Tests cover the box mapping, the scan, and the per-page review."}
+  ],
+  "open_questions": [
+    "D-02 (defaulted: the import is the uploaded note-slot copy) — this task imports the OPEN document's own annotations instead, because Lite has no artifact-upload flow; geometry is therefore correct. The note-slot upload remains a follow-up. Raised, not silently re-decided.",
+    "RULE-19 (standing): rung 1 only — a real annotation is exact, so no OCR runs.",
+    "D-03 (defaulted): the import writes group highlights; the leader is the caller (RLS backs it)."
+  ],
+  "risks": [
+    "A multi-page scan must carry each candidate's page or the slug/bbox would be computed against page 0.",
+    "Re-scanning the same PDF could duplicate marks; the review requires acceptance and the slug is deterministic, so a re-import dedupes at the Result level.",
+    "pdfjs needs the bytes; the container reads OPFS/Storage through the existing seam and reports a load failure."
+  ]
+}

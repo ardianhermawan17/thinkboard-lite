@@ -1,0 +1,29 @@
+{
+  "task_id": "032-task-import-existing",
+  "phase": "code",
+  "started_at": "2026-09-26T06:40:00Z",
+  "completed_at": "2026-09-26T07:30:00Z",
+  "files_changed": [
+    {"path": "06-whole-apps-task.md", "action": "modified", "summary": "Added PHASE G · 032-task-import-existing."},
+    {"path": "todo-task-032-import-existing.md", "action": "created", "summary": "Plan doc."},
+    {"path": "src/features/highlight/utils/import-ladder.ts", "action": "modified", "summary": "ImportCandidate carries its page; the three rung functions take a page (g1)."},
+    {"path": "src/features/highlight/utils/import-ladder.test.ts", "action": "modified", "summary": "Updated the calls for the page argument."},
+    {"path": "src/features/highlight/utils/pdf-text-boxes.ts", "action": "created", "summary": "Compose pdfjs text-item + viewport transforms into display boxes (g2)."},
+    {"path": "src/features/highlight/utils/pdf-text-boxes.test.ts", "action": "created", "summary": "3 tests: compose, drop blanks, no viewport transform."},
+    {"path": "src/features/highlight/components/import-review/{types,use-import-review}.ts", "action": "modified", "summary": "Per-candidate page: slug/bbox/reading order and the existing query are session-wide, ranked per page (g1)."},
+    {"path": "src/features/highlight/components/import-review/import-review.tsx", "action": "modified", "summary": "Shows each row's own page."},
+    {"path": "src/features/highlight/components/import-review/use-import-review.test.ts", "action": "modified", "summary": "Per-page assertions."},
+    {"path": "src/features/highlight/components/import-source/{types,use-import-source.ts,import-source.tsx,index}.ts", "action": "created", "summary": "Rung-1 scan of the open document (annotations + text per page) and the review (g3)."},
+    {"path": "src/features/highlight/components/import-source/use-import-source.test.ts", "action": "created", "summary": "3 tests: per-page scan, no document, no highlights."},
+    {"path": "src/app/w/[workspaceId]/workspace-document.tsx", "action": "modified", "summary": "Mounts ImportSource in the rail (g3)."},
+    {"path": "src/app/w/[workspaceId]/workspace-document.test.tsx", "action": "modified", "summary": "Mock the import source."}
+  ],
+  "decisions": [
+    "This imports the OPEN document's own /Highlight annotations, not D-02's separately uploaded note copy, because Lite has no artifact-upload flow. Geometry is therefore correct and no upload is invented; the note-slot upload is recorded as the follow-up.",
+    "ImportCandidate carries its page, and the review is session-wide: slug, bbox and reading order are computed per page (that page's existing marks first, then the chosen ones). A page-constant slug/bbox would be wrong on a multi-page import.",
+    "pdfjs v6 exposes convertToViewportPoint, not the older convertToViewportRectangle; the adapter builds the rect from its two corners, keeping the min/max the pure parser expects.",
+    "The scan reads bytes through the existing shared/lib/pdf seam (OPFS/Storage); it opens the PDF and walks every page, rung 1 only (RULE-19: no OCR, and a real annotation is exact).",
+    "The control lives in the rail beside the notes panel; the review is the same 021 component, now per-candidate-page."
+  ],
+  "commands_run": ["npm run typecheck", "npx vitest run --project unit (touched files)", "npm run verify", "npm run build"]
+}

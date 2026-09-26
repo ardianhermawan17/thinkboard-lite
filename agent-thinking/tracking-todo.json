@@ -1,6 +1,6 @@
 {
 	"schema_version": "1.0",
-	"updated_at": "2026-09-26T05:00:00Z",
+	"updated_at": "2026-09-26T06:30:00Z",
 	"tracked_todos": [
 		{
 			"id": "000-todo-architecture-contract",
@@ -192,6 +192,14 @@
 			"goal": "A teammate's pointer is drawn on the page as it moves, and this client publishes its own.",
 			"todo_path": "agent-thinking/todo/031-todo-peer-cursors/contract.json",
 			"agent_history": "agent-history/031-task-peer-cursors",
+			"status": "done"
+		},
+		{
+			"id": "032-todo-import-existing",
+			"name": "Import existing highlights",
+			"goal": "Import the open PDF's existing annotations as group focus points, review-gated.",
+			"todo_path": "agent-thinking/todo/032-todo-import-existing/contract.json",
+			"agent_history": "agent-history/032-task-import-existing",
 			"status": "done"
 		}
 	]
