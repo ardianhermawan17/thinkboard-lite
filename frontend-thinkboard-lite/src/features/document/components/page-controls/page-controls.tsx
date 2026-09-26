@@ -23,7 +23,7 @@ export function PageControls() {
         Next ›
       </Button>
       <Button size="sm" variant="ghost" onClick={rotate} aria-label="Rotate 90 degrees" title={`Rotate 90° (now ${rotation}°)`}>
-        ⟳ Rotate
+        <span aria-hidden>⟳</span> Rotate
       </Button>
     </div>
   )

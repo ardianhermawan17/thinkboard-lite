@@ -14,7 +14,7 @@ export function NotePanel() {
 
   return (
     <div data-testid="note-panel" className="flex h-full min-h-0 flex-col border-l">
-      <h3 className="border-b px-3 py-2 text-sm font-medium">Notes</h3>
+      <h2 className="border-b px-3 py-2 text-sm font-medium">Notes</h2>
       {items.length === 0 ? (
         <p className="p-3 text-xs text-muted-foreground">Select text or draw a region on the page to add a highlight and a note.</p>
       ) : (

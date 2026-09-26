@@ -1,4 +1,5 @@
-import { Geist, Geist_Mono, IBM_Plex_Sans } from "next/font/google"
+import type { Metadata, Viewport } from "next"
+import { Geist_Mono, IBM_Plex_Sans } from "next/font/google"
 
 import "./globals.css"
 import { LibraryProvider } from "@shared/providers"
@@ -10,6 +11,26 @@ const fontMono = Geist_Mono({
   subsets: ["latin"],
   variable: "--font-mono",
 })
+
+/**
+ * The document identity Lighthouse asked for (2026-09-26): a title, a description, an app name, and a theme colour
+ * pair so the browser chrome matches the workspace in light and dark. `manifest.ts` and `robots.ts` sit beside this
+ * file and are served by Next at /manifest.webmanifest and /robots.txt.
+ */
+export const metadata: Metadata = {
+  applicationName: "ThinkBoard Lite",
+  title: { default: "ThinkBoard Lite — collaborative PDF review", template: "%s · ThinkBoard Lite" },
+  description:
+    "A local-first workspace for reviewing a PDF together: highlight, attach a note, and reach a conclusion — it keeps working with the network off.",
+}
+
+export const viewport: Viewport = {
+  colorScheme: "light dark",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#0b0b0d" },
+  ],
+}
 
 export default function RootLayout({
   children,
