@@ -30,5 +30,9 @@
     "Mount the presence layer once the document-view route exists: render PeerCursors into the page Stage and LeaderDrawing in the header, feeding both from usePresence.",
     "Wire cursor publishing to the real pointer stream (the marquee/text capture already has pointer handlers) with the throttle; today nothing calls publishCursor.",
     "Consider a richer cursor marker (label/initial) and per-peer colour once 022 tunes the theme."
-  ]
+  ],
+  "postscript": {
+    "date": "2026-09-26",
+    "note": "Follow-up #2 is done. rls.sql's g19 (run by npm test on the 563xx stack, suite now 20/20) proves 0006 live: a member may broadcast and send presence on live:{session}; a member cannot forge a broadcast on ws:{session}; a member cannot send on another session's live topic; and an outsider is refused. The only blocked item remains g5 — the two-browser latency measurement on the pilot tablet (Q8), which needs hardware."
+  }
 }

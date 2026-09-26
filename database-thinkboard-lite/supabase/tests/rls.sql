@@ -50,6 +50,13 @@ create function tb_test.msgs(tbl text, id uuid) returns text[] language sql stab
 -- how many messages the current user may read on `topic` (realtime.topic is what Realtime sets on join)
 create function tb_test.can_read(topic text) returns bigint language plpgsql as $$
 begin perform set_config('realtime.topic', topic, true); return (select count(*) from realtime.messages where realtime.messages.topic = $1); end $$;
+-- pretend to be Realtime publishing on `topic` (it sets realtime.topic), then INSERT as the current user;
+-- -1 on an RLS refusal (the insert policies key off realtime.topic(), not the row's topic column).
+create function tb_test.send(topic text, ext text default 'broadcast') returns int language plpgsql as $$
+begin
+  perform set_config('realtime.topic', topic, true);
+  return tb_test.run(format($q$insert into realtime.messages (topic, extension, payload) values (%L, %L, '{}'::jsonb)$q$, topic, ext));
+end $$;
 
 -- g17 runs the harness itself as anon, so anon needs USAGE on this schema and EXECUTE on the helpers.
 grant usage on schema tb_test to anon;
@@ -125,6 +132,14 @@ select tb_test.be('X');
 select tb_test.ok('g5 an outsider cannot listen on ws:{session}', tb_test.can_read('ws:' || tb_test.g('sid')) = 0);
 select tb_test.be('A');
 select tb_test.ok('g5 A''s other devices can listen on user:{A}', tb_test.can_read('user:' || tb_test.p('A')) > 0);
+
+-- ═══ g19 · 015's live:{session} topic (0006): members may send presence/cursors; nobody may forge a ws: message ═══
+select tb_test.ok('g19 a member can broadcast on live:{session}', tb_test.send('live:' || tb_test.g('sid')) = 1);
+select tb_test.ok('g19 a member can send presence on live:{session}', tb_test.send('live:' || tb_test.g('sid'), 'presence') = 1);
+select tb_test.ok('g19 a member cannot forge a broadcast on ws:{session}', tb_test.send('ws:' || tb_test.g('sid')) <= 0);
+select tb_test.ok('g19 a member cannot send on the live topic of a session they are not in', tb_test.send('live:' || gen_random_uuid()) <= 0);
+select tb_test.be('X');
+select tb_test.ok('g19 an outsider cannot send on live:{session}', tb_test.send('live:' || tb_test.g('sid')) <= 0);
 
 -- ═══ g10 · unsharing: B is told (RETRACT on ws:), A's other devices keep the row ═══
 select tb_test.root();

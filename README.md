@@ -293,7 +293,7 @@ Critical path = the demoable slice:  000 → 001 → 004 → 006 → 008 → 009
   (`06-whole-apps-task.md`'s backlog is now 30 tasks.)
 - **Also done:** 030 (database housekeeping) — `0007` revokes EXECUTE on the definer RPCs from PUBLIC and `anon` (granting `authenticated`), and `0008` lets a
   teammate read a co-member's profile name. **Proven live:** the Lite stack was moved to ports 563xx (Windows reserves the documented 553xx range on this
-  machine) and the RLS suite ran **19/19** (g17/g18 asserted) with the seed/storage suite **6/6**. (`06-whole-apps-task.md`'s backlog is now 31+ tasks.)
+  machine) and the RLS suite ran **20/20** (g17/g18 from 030, g19 from 015's `live:` topic) with the seed/storage suite **6/6**. (`06-whole-apps-task.md`'s backlog is now 31+ tasks.)
 - **Also done:** 031 (peer cursors) — one `PresenceProvider` owns the live channel; `PresenceLayer` paints peers' cursors through the `peer-cursors` leaf and the
   page publishes its own pointer, normalized (RULE-17) and throttled ~20 Hz (RULE-20). Closes 015 g2. `npm run verify` green (354 tests), production build ok.
   (`06-whole-apps-task.md`'s backlog is now 32 tasks.)
