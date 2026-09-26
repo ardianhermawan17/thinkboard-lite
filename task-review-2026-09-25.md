@@ -85,13 +85,14 @@ No task is unblocked. The blockers are:
 
 ### 3.3 Live-stack verification is thin
 Unit tests are strong, but several proofs can only run against the local Supabase stack and were deferred:
-- 0006's RLS (a member cannot insert on `ws:`, can send on `live:`),
+- ~~0006's RLS (a member cannot insert on `ws:`, can send on `live:`)~~ **proven live** — the Lite stack now starts (ports 563xx, see below) and task 030's RLS suite runs **19/19**, seed/storage **6/6**;
+- ~~007/008 live paths~~ **proven live** — `sync-engine.live.test.ts` (4/4: realtime private topic, an offline drain lands once) and `workspace-remote.test.ts` (6/6: sign-in, `create_workspace`, transfer leadership through the outbox, persona-write RLS parking) pass against the stack;
 - 017's 403 path under real RLS,
 - 015 g5's two-browser latency,
 - 016's airplane-mode round trip,
-- 021's real Acrobat-annotated PDF (the parser is tested with faithful objects).
-The repo already has a live-test pattern (`*.live.test.ts`, skipped in `verify`); a "one command brings the stack up
-and runs the live suites" step would convert these into confidence rather than open items.
+- 021/032's real Acrobat-annotated PDF (the parser is tested with faithful objects).
+
+**Note (environment):** Windows reserves TCP `55262–55361` on this machine, colliding with the documented 553xx Lite ports; the stack was moved to **563xx** (`config.toml`, README §6, database README, the two live-test comments). Restore 553xx on a machine where the range is free. The remaining live items are the frontend ones above.
 
 ### 3.4 Plan docs have drifted in places
 - **015's `0005_live_topic.sql`** collided with the shipped `0005_storage_artifacts.sql`; resolved to `0006`.
