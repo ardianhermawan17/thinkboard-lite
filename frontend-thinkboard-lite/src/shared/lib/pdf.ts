@@ -90,15 +90,16 @@ export async function renderTextLayer(doc: PdfDocument, pageNumber: number, cont
 }
 
 /**
- * Rasterizes one page off-screen and returns its RGBA pixels — the ink source rungs 2/3 read (spec §5.4). It
- * returns null where no 2D context exists (SSR, jsdom), so a caller can simply skip the ink rungs.
+ * Rasterizes one page off-screen and returns its pixels plus the canvas. The pixels are rung 2's ink source; the
+ * canvas is rung 3's crop source for OCR (spec §5.4). It returns null where no 2D context exists (SSR, jsdom), so
+ * a caller can simply skip the ink rungs.
  */
-export async function pageImageData(doc: PdfDocument, pageNumber: number, scale = 1): Promise<{ data: Uint8ClampedArray; width: number; height: number } | null> {
+export async function pageImageData(doc: PdfDocument, pageNumber: number, scale = 1): Promise<{ canvas: HTMLCanvasElement; data: Uint8ClampedArray; width: number; height: number } | null> {
   if (typeof document === "undefined") return null
   const canvas = document.createElement("canvas")
   await renderPage(doc, pageNumber, canvas, scale)
   const context = canvas.getContext("2d", { willReadFrequently: true })
   if (!context) return null
   const image = context.getImageData(0, 0, canvas.width, canvas.height)
-  return { data: image.data, width: image.width, height: image.height }
+  return { canvas, data: image.data, width: image.width, height: image.height }
 }

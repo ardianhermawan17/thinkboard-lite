@@ -6,16 +6,17 @@ import type { ArtifactRow } from "@feature/entities/types"
 import { loadArtifactBytes, openPdf, pageImageData } from "@shared/lib/pdf"
 import { useWorkspaceContext } from "@shared/providers/workspace-provider"
 import { viewportLike } from "../../utils/annotation-quads"
-import { annotationCandidates, flattenedCandidates, type ImportCandidate } from "../../utils/import-ladder"
+import { annotationCandidates, flattenedCandidates, scanCandidates, type ImportCandidate } from "../../utils/import-ladder"
 import { textBoxesFromViewport, type PdfTextItemLike } from "../../utils/pdf-text-boxes"
 import type { ImportSourceState } from "./types"
 
 /**
- * 032's importer, rungs 1 and 2 (spec §5.4). It reads the session's main PDF bytes through the existing seam and,
+ * 032's importer, the full ladder (spec §5.4). It reads the session's main PDF bytes through the existing seam and,
  * per page, tries rung 1 first: exact `/Highlight` annotations + exact text, no OCR. A page with no annotations is
  * a flattened document — the mark is ink, so it rasterizes the page and finds the mark by its colour (rung 2), with
- * the text layer still supplying the exact text (RULE-19: no OCR for either rung). Rung 3 (a scan, OCR crops) is the
- * remaining follow-up. D-02's separately uploaded note copy stays its own follow-up.
+ * the text layer still supplying the exact text. A page with NO text layer is a scan: the same mask finds the marks,
+ * and each crop goes to rung 3 (OCR), where the 0.70 gate marks a low-confidence result for correction (RULE-19:
+ * OCR is last and crops only). D-02's separately uploaded note copy stays its own follow-up.
  */
 export function useImportSource(): ImportSourceState {
   const { profileId, sessionId } = useWorkspaceContext()
@@ -49,7 +50,11 @@ export function useImportSource(): ImportSourceState {
           continue
         }
         const image = await pageImageData(doc, pageNumber)
-        if (image) found.push(...flattenedCandidates(image, pageNumber, 0, boxes))
+        if (!image) continue
+        // A page with a text layer gives exact text for free (rung 2). A page without one is a scan, so the same
+        // mask finds the marks and each crop goes to OCR (rung 3), where the 0.70 gate flags the low-confidence ones.
+        if (boxes.length > 0) found.push(...flattenedCandidates(image, pageNumber, 0, boxes))
+        else found.push(...(await scanCandidates(image, image.canvas, pageNumber, 0)))
       }
       setCandidates(found)
       if (found.length === 0) setError("No highlights were found in this document")

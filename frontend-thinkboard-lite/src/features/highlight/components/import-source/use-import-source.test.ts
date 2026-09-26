@@ -7,10 +7,12 @@ const mocks = vi.hoisted(() => ({
   loadArtifactBytes: vi.fn(async () => ({ bytes: new Uint8Array([1]) })),
   openPdf: vi.fn(),
   pageImageData: vi.fn(async () => null as unknown),
+  recognizeRegion: vi.fn(async () => ({ text: "Scanned mark", confidence: 0.4 })),
 }))
 vi.mock("@shared/providers/workspace-provider", () => ({ useWorkspaceContext: () => mocks.context }))
 vi.mock("@feature/entities/queries/use-artifacts-for-session", () => ({ useArtifactsForSession: () => mocks.artifacts }))
 vi.mock("@shared/lib/pdf", () => ({ loadArtifactBytes: mocks.loadArtifactBytes, openPdf: mocks.openPdf, pageImageData: mocks.pageImageData }))
+vi.mock("@shared/lib/ocr", () => ({ recognizeRegion: (...a: unknown[]) => mocks.recognizeRegion(...(a as [])) }))
 
 import { useImportSource } from "./use-import-source"
 
@@ -117,5 +119,23 @@ describe("useImportSource (g3)", () => {
     })
     expect(result.current.candidates).toHaveLength(1)
     expect(mocks.pageImageData).not.toHaveBeenCalled()
+  })
+
+  it("rung 3: a page with no text layer sends each mask box to OCR", async () => {
+    const scanned = {
+      getAnnotations: async () => [],
+      getViewport: () => ({ width: 100, height: 200, transform: [1, 0, 0, -1, 0, 200], convertToViewportPoint: (x: number, y: number) => [x, 200 - y] }),
+      getTextContent: async () => ({ items: [] }),
+    }
+    mocks.openPdf.mockResolvedValue({ numPages: 1, getPage: vi.fn(async () => scanned) })
+    mocks.pageImageData.mockResolvedValue({ canvas: {}, ...yellowRaster(100, 200, { x: 10, y: 18, w: 60, h: 12 }) })
+
+    const { result } = renderHook(() => useImportSource())
+    await act(async () => {
+      await result.current.scan()
+    })
+    expect(mocks.recognizeRegion).toHaveBeenCalledTimes(1)
+    expect(result.current.candidates).toHaveLength(1)
+    expect(result.current.candidates[0]).toMatchObject({ page: 1, extraction: "ocr", confidence: 0.4 })
   })
 })
