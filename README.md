@@ -322,8 +322,9 @@ Critical path = the demoable slice:  000 → 001 → 004 → 006 → 008 → 009
 - **Waiting on a human:**
   - **D-12** — free-tier training terms vs document sensitivity. Blocks 018, and ink transcription in 024. 003's
     placeholder provider rows stand in until it is answered.
-  - **Q7** — the 45-minute Bahasa Indonesia handwriting test. Decides 024, and the blueprint's `ink-pad`.
-  - **Q8, Q9** — the real tablet mix; whether users have styluses.
+  - **Q7** — the 45-minute Bahasa Indonesia handwriting test. Decides 024, and the blueprint's `ink-pad`. **Script:**
+    [`pilot-field-test-protocol.md`](pilot-field-test-protocol.md).
+  - **Q8, Q9** — the real tablet mix; whether users have styluses. **Survey:** the same protocol, §1.
   - **Raised in plan docs:** the workspace-create path before 017 exists (008); Vault access under the user's
     JWT (018); adding members to a team needs its own definer RPC, like `create_workspace` (008).
 - **Local stacks:** the Lite stack runs on ports 563xx (`database-thinkboard-lite/supabase/config.toml`; moved from 553xx because Windows reserves 55262-55361 on the owner's machine), beside the

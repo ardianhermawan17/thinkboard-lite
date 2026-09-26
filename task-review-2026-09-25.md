@@ -111,6 +111,13 @@ The pass **found and fixed two defects that the unit suite structurally cannot s
 
 **Page navigation (2026-09-26, task 035).** A live-pass grep for `pageChanged`/`rotated` found them defined and tested but **never dispatched**, so a multi-page document was stuck on `pageWindow(1)` = pages 1–2. Added a `Page N of M` control with Prev/Next and a quarter-turn Rotate. The Rotate control exposed a second gap: `renderPage`/`renderTextLayer` built the pdfjs viewport with `{ scale }` only, so the page would not have turned (only the rotation-normalized overlays). Both fixed; proven live on a 4-page fixture — the mounted window slid `[1,2] → [1,2,3] → [2,3,4]` and Rotate changed the rendered canvas `612×792 → 792×612`.
 
+**Live pass 2 (2026-09-26).** The remaining mounted flows were driven in the browser; all five worked, no code changed:
+- **Export** produced `workspace-placeholder-report-review-20260926.zip` (69 KB) with the expected files.
+- **Re-import** of a hand-built `notes.md` planned exactly `1 matched · 1 unanchored · 1 orphans · 0 missing` (RULE-25) and "Applied 1 note" (server row confirmed).
+- **Personas** saved both a personal (`user_personas`) and a team (`team_personas`) row.
+- **Transfer leadership** (Make leader) moved the role — verified in `team_members`; the RLS-enforced RPC then correctly denied the former leader's storage write (this is what a stray click had caused earlier).
+- **Sign out** deleted the profile's Dexie database and emptied its OPFS directory (016 g6), returning to sign-in.
+
 ### 3.4 Plan docs have drifted in places
 - **015's `0005_live_topic.sql`** collided with the shipped `0005_storage_artifacts.sql`; resolved to `0006`.
 - **012 g7** asks for a "named Playwright story test" while the repo has one Storybook story and no `play()`

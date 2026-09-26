@@ -453,9 +453,9 @@ duplicates cannot drift apart unnoticed.
 | Q4 | Canvas leaves as a third shared tier? | fa §13 | defaulted | third tier | 000, 009 |
 | Q5 | Storybook for canvas leaves? | fa §13 | defaulted | yes, with fixture strokes | 004, 011 |
 | Q6 | Mobile at the end? | fa §13 | defaulted | breakpoint hook + sheet early, layout last | 005, 022 |
-| Q7 | Does Scribble produce usable Bahasa Indonesia on the fleet? | v2 §6 | **unanswered** | 45-minute test — run before 000 closes | 012, 024, blueprint `ink-pad.status` |
-| Q8 | The real tablet mix | v2 §6 | **unanswered** | — | 012, 022 |
-| Q9 | Do users have styluses at all? | v2 §6 | **unanswered** | assume a pen; verify | 012 |
+| Q7 | Does Scribble produce usable Bahasa Indonesia on the fleet? | v2 §6 | **unanswered** | 45-minute test — script in [`pilot-field-test-protocol.md`](pilot-field-test-protocol.md) §2 | 012, 024, blueprint `ink-pad.status` |
+| Q8 | The real tablet mix | v2 §6 | **unanswered** | survey in [`pilot-field-test-protocol.md`](pilot-field-test-protocol.md) §1 | 012, 022 |
+| Q9 | Do users have styluses at all? | v2 §6 | **unanswered** | survey in [`pilot-field-test-protocol.md`](pilot-field-test-protocol.md) §1 | 012 |
 | Q10 | Hand-rolled sync, or PowerSync from day one? | v2 §6 | defaulted | hand-rolled; escape hatch keyed to behaviour (§5.1) | 007 |
 | Q11 | Note sheet docked or overlaid? | v2 §6 | defaulted | dock ≥1280, overlay below (I27) | 012, 013 |
 | DB-Q1 | = D-01 | db §10 | defaulted | yes | 001, 002 |
@@ -630,6 +630,8 @@ defaulted: `D-12` (free-tier training terms vs Perhutani document sensitivity �
 **The cheapest item on this page is Q7.** Three people, their own tablets, real Indonesian, a plain
 textarea — 45 minutes. It decides whether task 024 exists, whether `ink-pad` gets a painter, and
 therefore what package B writes into the blueprint. Run it before 000 closes, not in week one of 012.
+[`pilot-field-test-protocol.md`](pilot-field-test-protocol.md) is the ready-to-run script for Q7, Q8 and Q9,
+with the results block to hand back.
 
 ---
 
