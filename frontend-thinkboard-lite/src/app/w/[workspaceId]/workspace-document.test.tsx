@@ -67,21 +67,24 @@ describe("WorkspaceDocument (g1-g4)", () => {
     expect(screen.getByTestId("highlighted-page").dataset.tool).toBe("null")
   })
 
-  it("043: shows the notes rail, folds it to a chevron handle, and comes back", () => {
+  it("043: shows the notes rail, slides it folded to a handle, and slides it back", () => {
     renderRoute()
-    expect(screen.getByTestId("notes-rail")).toBeTruthy()
-    expect(screen.getByTestId("note-panel")).toBeTruthy()
+    const rail = screen.getByTestId("notes-rail")
+    const panel = screen.getByTestId("notes-rail-panel")
+    expect(rail.className).toContain("w-72")
+    expect(panel.getAttribute("aria-hidden")).toBe("false")
 
     fireEvent.click(screen.getByRole("button", { name: "hide rails" }))
 
-    expect(screen.queryByTestId("notes-rail")).toBeNull()
-    expect(screen.queryByTestId("note-panel")).toBeNull()
-    expect(screen.queryByTestId("import-source")).toBeNull()
-    // the page itself stays, and the way back sits where the rail was
+    // the rail stays mounted while it slides: the width collapses, the panel goes inert, the handle takes over
+    expect(rail.className).toContain("w-11")
+    expect(panel.getAttribute("aria-hidden")).toBe("true")
+    expect(panel.hasAttribute("inert")).toBe(true)
+    // the page itself stays
     expect(screen.getByTestId("document-viewer")).toBeTruthy()
 
     fireEvent.click(screen.getByRole("button", { name: "Show the notes rail" }))
-    expect(screen.getByTestId("notes-rail")).toBeTruthy()
-    expect(screen.getByTestId("note-panel")).toBeTruthy()
+    expect(rail.className).toContain("w-72")
+    expect(panel.getAttribute("aria-hidden")).toBe("false")
   })
 })

@@ -100,18 +100,40 @@ function WorkspaceDocumentBody({ sessionId }: { sessionId: string }) {
           />
         </div>
         {/* 026: the notes rail reads profileId from the shared workspace context, so it mounts here (I3/I4 safe).
-            043: it folds from the chevron beside its title, leaving a handle in its place. */}
-        {notesVisible ? (
-          <aside className="hidden w-72 shrink-0 md:block" data-testid="notes-rail">
+            043: it folds from the chevron beside its title and slides away. Only width and transform move, so a
+            frozen transition (a background tab) still lands on the right state; the folded panel is inert, not just
+            off-screen. */}
+        <aside
+          data-testid="notes-rail"
+          className={cn(
+            "relative hidden shrink-0 overflow-hidden transition-[width] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none md:block",
+            notesVisible ? "w-72" : "w-11"
+          )}
+        >
+          <div
+            data-testid="notes-rail-panel"
+            aria-hidden={!notesVisible}
+            inert={!notesVisible}
+            className={cn(
+              "flex h-full w-72 flex-col transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none",
+              notesVisible ? "translate-x-0" : "translate-x-full"
+            )}
+          >
             <NotePanel />
             {/* 032: import the open document's existing highlights (rung 1), review-gated. */}
             <ImportSource />
-          </aside>
-        ) : (
-          <div className="hidden md:block">
+          </div>
+          <div
+            aria-hidden={notesVisible}
+            inert={notesVisible}
+            className={cn(
+              "absolute inset-y-0 end-0 w-11 transition-opacity duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none",
+              notesVisible ? "pointer-events-none opacity-0" : "opacity-100"
+            )}
+          >
             <RailHandle label="Notes" onExpand={() => setNotesVisible(true)} />
           </div>
-        )}
+        </aside>
       </div>
       {/* 041: the first-run tour. It overlays the whole document view and leaves once it is finished or skipped. */}
       <OnboardingTour />

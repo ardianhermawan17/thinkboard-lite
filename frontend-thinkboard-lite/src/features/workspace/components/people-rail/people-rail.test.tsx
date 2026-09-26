@@ -20,14 +20,21 @@ const renderRail = () =>
 describe("PeopleRail (043)", () => {
   it("folds from the chevron beside its tabs and comes back from the handle", () => {
     renderRail()
-    expect(screen.getByTestId("people-rail")).toBeTruthy()
+    const rail = screen.getByTestId("people-rail")
+    const panel = screen.getByTestId("people-rail-panel")
+    expect(rail.className).toContain("w-80")
+    expect(panel.getAttribute("aria-hidden")).toBe("false")
     expect(screen.getByTestId("members")).toBeTruthy()
 
     fireEvent.click(screen.getByRole("button", { name: "Hide the people rail" }))
-    expect(screen.queryByTestId("people-rail")).toBeNull()
+    // the rail stays mounted and slides: the width collapses, the panel is inert, and the handle takes over
+    expect(rail.className).toContain("w-11")
+    expect(panel.getAttribute("aria-hidden")).toBe("true")
+    expect(panel.hasAttribute("inert")).toBe(true)
 
     fireEvent.click(screen.getByRole("button", { name: "Show the people rail" }))
-    expect(screen.getByTestId("people-rail")).toBeTruthy()
-    expect(screen.getByTestId("members")).toBeTruthy()
+    expect(rail.className).toContain("w-80")
+    expect(panel.getAttribute("aria-hidden")).toBe("false")
+    expect(panel.hasAttribute("inert")).toBe(false)
   })
 })
