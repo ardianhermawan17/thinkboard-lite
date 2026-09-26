@@ -1,0 +1,29 @@
+{
+  "task_id": "039-task-ui-rework",
+  "phase": "code",
+  "completed_at": "2026-09-26T17:55:00Z",
+  "changes": [
+    {"file": "src/app/globals.css", "summary": "the token foundation: off-white/off-black neutrals, a desaturated petrol primary, alpha-ink hairline borders, the documented radius scale (0.75rem / xl / pill), soft tinted shadow tokens, easing tokens, thinned Lucide strokes, a selection tint, and a fixed pointer-events-none grain layer (+ the shimmer keyframes).", "kind": "design"},
+    {"file": "src/shared/lib/motion.ts", "summary": "the entrances move to the [0.16, 1, 0.3, 1] bezier and a spring-feel pop; still transform-only.", "kind": "design"},
+    {"file": "src/shared/components/ui/button.tsx", "summary": "one accent (color-mix hover), press physics (scale 0.98), custom easing instead of transition-all.", "kind": "design"},
+    {"file": "src/shared/components/ui/input.tsx", "summary": "fields read as fields: a tinted surface, custom easing, a soft focus shadow.", "kind": "design"},
+    {"file": "src/shared/components/ui/card.tsx", "summary": "soft tinted shadow + hairline ring instead of a flat 10% ring.", "kind": "design"},
+    {"file": "src/shared/components/ui/sheet.tsx", "summary": "token-tinted overlay, shadow-lift, duration-300 with the expo bezier (no ease-in-out).", "kind": "design"},
+    {"file": "src/shared/components/ui/skeleton.tsx", "summary": "a transform-driven shimmer sweep instead of a pulse.", "kind": "design"},
+    {"file": "src/features/workspace/components/auth-guard/auth-guard.tsx", "summary": "the sign-in screen: eyebrow pill, display type, a double-bezel motif, and a button-in-button pill CTA with a drifting arrow.", "kind": "design"},
+    {"file": "src/features/workspace/components/workspace-shell/workspace-shell.tsx", "summary": "the new-workspace screen gains labels, an eyebrow, display type and the same CTA; the rail gets the sidebar surface.", "kind": "design"},
+    {"file": "src/features/workspace/components/app-header/app-header.tsx", "summary": "a sticky, blurred, hairline bar (app toolbar, not a marketing nav).", "kind": "design"},
+    {"file": "src/features/workspace/components/members/members.tsx", "summary": "initials avatars and a role chip; rows hover as cards.", "kind": "design"},
+    {"file": "src/features/notes/components/note-panel/note-panel.tsx", "summary": "a tighter header, rounded list rows, and a composed empty state with a glyph.", "kind": "design"},
+    {"file": "src/features/document/components/page-controls/page-controls.tsx", "summary": "a mono pill page indicator; chevron/rotate glyphs become aria-hidden icons.", "kind": "design"},
+    {"file": "src/features/presence/components/presence-rail/presence-rail.tsx", "summary": "the rail becomes a pill with a hairline.", "kind": "design"},
+    {"file": "src/features/sync/components/offline-banner/offline-banner.tsx", "summary": "the banner takes the accent tint.", "kind": "design"}
+  ],
+  "decisions": [
+    "Replace the violet primary with petrol — the visible 'AI default' (LILA rule).",
+    "Hairline borders via alpha ink rather than a fixed grey.",
+    "One documented radius scale; pills for badges and primary CTAs.",
+    "Grain as a single fixed, pointer-events-none layer, off under prefers-reduced-transparency.",
+    "Lucide thinned globally by CSS rather than a new icon dependency."
+  ]
+}

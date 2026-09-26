@@ -325,6 +325,13 @@ Critical path = the demoable slice:  000 → 001 → 004 → 006 → 008 → 009
   sweeping across a line, a drifting peer cursor, a note chip, a "2 here" pill) with the form beside it. The form gained real labels, `autocomplete`, show/hide password, a
   pending state and a `role="alert"` error; the state lives in the hook (I2) and the motion comes from 036's transform-only seam. Audited: **Accessibility / Best Practices /
   SEO 1.00, no failing audits**; a real sign-in still opens the workspace. `npm run verify` green (374 / 14).
+- **Also done:** 039 (UI rework) — a design-system pass in the "soft structuralism" direction. The saturated **violet primary** (the most recognisable AI-default
+  accent) is replaced with a desaturated **petrol** on off-white/off-black neutrals, with alpha-ink **hairline** borders, a documented radius scale (controls
+  `0.75rem` · surfaces `xl` · pills), **soft tinted shadows**, premium easing (`cubic-bezier(0.16,1,0.3,1)`), Lucide thinned to 1.5, and one fixed **grain** layer
+  (pointer-events-none, off under `prefers-reduced-transparency`). Reworked: the tokens, six primitives, the **sign-in** and **new-workspace** screens (eyebrow,
+  display type, double-bezel motif, button-in-button CTA), the header, the notes panel (+ a composed empty state), members (initials + role chip), page controls,
+  the presence rail and the offline banner. `npm run verify` green (374 / 14); **Lighthouse 1.00 / 1.00 / 1.00 with zero failing audits on both the sign-in and the
+  workspace page**.
 - **Next:** nothing an agent can start remains. 013/014/022 wait on 012 (human device test, Q7); 019/020 wait on 018 (D-12); 023 waits on 015/016/020/022;
   024 is conditional. The live gates 030 / 015 / 016 / 031 / 017 (and the whole text-highlight path, and all three import rungs) are now proven in a real browser
   (033, 034); the browser-only remainder is a genuine Acrobat-exported annotated PDF. The human unblockers are unchanged: run 012's device test (Q7), answer

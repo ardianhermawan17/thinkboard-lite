@@ -1,0 +1,32 @@
+{
+  "task_id": "039-task-ui-rework",
+  "phase": "result",
+  "closed_at": "2026-09-26T18:10:00Z",
+  "final_status": "done",
+  "goals_summary": {
+    "total": 4,
+    "done": 4,
+    "blocked": 0,
+    "detail": "g1 the token foundation pass; g2 the primitives pass; g3 the surfaces pass; g4 verify + both audits pass. Recomputed from task.json goals[] and validate.json goal_checks — all four 'pending' -> 'done', none blocked."
+  },
+  "artifacts": [
+    "src/app/globals.css — the token foundation + grain + shimmer",
+    "src/shared/lib/motion.ts — the premium easing",
+    "src/shared/components/ui/{button,input,card,skeleton,sheet}.tsx",
+    "src/features/workspace/components/{auth-guard,workspace-shell,app-header,members}",
+    "src/features/notes/components/note-panel, src/features/document/components/page-controls, src/features/presence/components/presence-rail, src/features/sync/components/offline-banner",
+    "todo-task-039-ui-rework.md"
+  ],
+  "verify": "npm run verify green (arch 18/0, lint 0 errors, typecheck clean, 374 passed/14 skipped). jev-ultrafast Lighthouse: sign-in 1.00/1.00/1.00 and workspace 1.00/1.00/1.00, zero failing audits on both.",
+  "decisions_recap": [
+    "Direction: soft structuralism on a desaturated petrol accent.",
+    "Hairline alpha-ink borders, soft tinted shadows, one documented radius scale.",
+    "Grain once, fixed, pointer-events-none, off under prefers-reduced-transparency.",
+    "Motion stays transform-only; text glyphs leave labelled controls."
+  ],
+  "follow_up_tasks": [
+    "A second pass on the surfaces that only inherited the tokens: the note-sheet editor internals, the persona editor, export/re-import panels, the dialog primitive, toasts.",
+    "Decide on an icon family (Lucide thinned vs Phosphor Light) and a real manifest icon set (task 037's follow-up).",
+    "Human review of the look at lg+ (the agent environment cannot screenshot)."
+  ]
+}

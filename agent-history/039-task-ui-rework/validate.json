@@ -1,0 +1,23 @@
+{
+  "task_id": "039-task-ui-rework",
+  "phase": "validate",
+  "goal_checks": [
+    {"goal_id": "g1", "status": "pass", "notes": "globals.css carries the new foundation and it is live: off-black 0.17 / off-white 0.986, petrol primary 0.44|0.76 chroma ~0.08, alpha-ink borders, radius 0.75rem with a documented scale, soft tinted shadow tokens, expo easing, and a fixed grain layer that hides under prefers-reduced-transparency. No pure #fff/#000 anywhere in the tokens."},
+    {"goal_id": "g2", "status": "pass", "notes": "button (accent + scale-0.98 press), input (tinted field, soft focus shadow), card (soft shadow + hairline), sheet (shadow-lift, expo bezier, no ease-in-out), skeleton (transform shimmer). The button test still passes."},
+    {"goal_id": "g3", "status": "pass", "notes": "sign-in and new-workspace both carry an eyebrow, display type, labels above inputs and a button-in-button CTA; the header is sticky+blurred; the notes panel has a composed empty state; members show initials and a role chip; the page indicator is a mono pill. Banned patterns audited: no violet, no pure black/white, no ease-in-out/linear transition, no hard grey border, no text glyph inside a labelled control."},
+    {"goal_id": "g4", "status": "pass", "notes": "verify green (374/14, arch 18/0). Lighthouse on the sign-in page and on the workspace page: Accessibility 1.00, Best Practices 1.00, SEO 1.00 with zero failing audits on each."}
+  ],
+  "cross_check_against_plan": [
+    {"doc": "05-feature-architecture.md", "section": "design system", "result": "matches — the change is tokens + the existing primitives; no new dependency and no new component shape."},
+    {"doc": "04-frontend-folder-architecture.md", "section": "§6/§8", "result": "matches — page composition stays in the feature containers; the primitives stay in shared/ui; the Konva leaves are untouched (a painter is not DOM)."},
+    {"doc": "todo-task-036-motion.md", "section": "§4", "result": "matches — the reworked entrances are still transform-only, so a background tab never paints blank."},
+    {"doc": "todo-task-037-web-identity-a11y.md", "section": "§2", "result": "matches — the identity work is intact (title/manifest/robots) and the a11y bar is unchanged at 1.00."}
+  ],
+  "signed_off": true,
+  "issues_found": [
+    "The previous primary was a saturated violet — the most recognisable AI-default accent. Replaced with petrol.",
+    "`⟳ Rotate` failed label-content-name-mismatch because axe counts the text glyph in the visible label; the chevrons and the rotate glyph are now aria-hidden icons.",
+    "The audit only catches this class of problem when the document viewer is mounted; running it before the PDF loads would have missed it.",
+    "The environment cannot screenshot, so the look needs a human eye at lg+."
+  ]
+}

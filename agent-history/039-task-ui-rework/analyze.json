@@ -1,0 +1,30 @@
+{
+  "task_id": "039-task-ui-rework",
+  "phase": "analyze",
+  "started_at": "2026-09-26T17:00:00Z",
+  "completed_at": "2026-09-26T17:15:00Z",
+  "sources_read": [
+    {"doc": "skills: high-end-visual-design, design-taste-frontend, frontend-design", "section": "the archetype engine, the anti-slop rules, the pre-flight checklist"},
+    {"doc": "src/app/globals.css", "section": "the existing oklch tokens; a saturated violet primary"},
+    {"doc": "src/shared/components/ui/{button,input,card,skeleton,sheet}.tsx", "section": "the primitives and their hardcoded shadows/easing"},
+    {"doc": "src/features/workspace/components/{auth-guard,workspace-shell,app-header,members}", "section": "the surfaces users see first"},
+    {"doc": "src/features/{notes/note-panel,document/page-controls,presence/presence-rail,sync/offline-banner}", "section": "the app chrome"},
+    {"doc": "src/shared/lib/motion.ts", "section": "task 036's transform-only seam"}
+  ],
+  "scope": "The design system (tokens + six primitives) and the highest-visibility surfaces. Out of scope: the Konva canvas rendering (a painter is not DOM), new dependencies, and the surfaces listed in the plan doc §6.",
+  "acceptance_criteria": [
+    {"goal_id": "g1", "text": "Tokens change every surface at once; the primary is a desaturated petrol; borders are alpha-ink hairlines; radii follow the documented scale; shadows are soft and tinted; grain is fixed and pointer-events-none."},
+    {"goal_id": "g2", "text": "Buttons use the accent + press physics; inputs read as fields; cards and sheets use a soft shadow and a hairline; the skeleton shimmers."},
+    {"goal_id": "g3", "text": "Both entry screens and the app chrome carry eyebrow/display type where it belongs, labels above inputs, composed empty states, and no banned pattern from the skills' checklists."},
+    {"goal_id": "g4", "text": "verify green; Lighthouse 1.00/1.00/1.00 on the sign-in page and the workspace page, zero failing audits on each."}
+  ],
+  "open_questions": [
+    "Whether to keep Lucide (thinned to 1.5) or add a lighter icon family; the skills prefer Phosphor Light, but that is a dependency decision for the owner.",
+    "Whether the note-sheet editor internals and the persona/export panels get a second pass (see the plan doc §6)."
+  ],
+  "risks": [
+    "Contrast is the real risk in a re-skin; both pages were re-audited and are clean, but a human should still look.",
+    "Token-level changes reach the Konva colours only where a task reads the CSS variable (the highlight tokens are read by the canvas tasks), so those values were left recognisable.",
+    "A fixed z-index grain overlay could sit above a modal; it is pointer-events-none at 0.022 opacity and off under prefers-reduced-transparency."
+  ]
+}

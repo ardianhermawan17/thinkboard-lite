@@ -1,0 +1,17 @@
+{
+  "task_id": "039-task-ui-rework",
+  "phase": "test",
+  "test_files": [],
+  "commands_run": [
+    {"command": "npm run verify", "result": "green twice (before and after the rotate fix): arch 18 pass/0 fail, lint 0 errors, typecheck clean, vitest 374 passed / 14 skipped — no test asserts a colour or a radius, so nothing broke"},
+    {"command": "jev-ultrafast: browser.lighthouse on the sign-in page (desktop)", "result": "Accessibility 1.00, Best Practices 1.00, SEO 1.00, zero failing audits"},
+    {"command": "jev-ultrafast: browser.lighthouse on the workspace page (desktop)", "result": "first run flagged label-content-name-mismatch (the Rotate glyph); after the fix, Accessibility 1.00, Best Practices 1.00, SEO 1.00, zero failing audits"}
+  ],
+  "live_evidence": [
+    {"what": "the tokens are live", "how": "computed styles on the running app: body oklch(0.17 0.008 250), primary oklch(0.76 0.088 200), border oklch(1 0 0 / 0.09), radius 0.75rem, CTA 9999px / 44px, grain background-image present, font IBM Plex Sans"},
+    {"what": "the app chrome", "how": "header position:sticky with backdrop-filter blur(12px); the notes panel on the sidebar tint; three member avatar dots"},
+    {"what": "the sign-in screen", "how": "one h1 'Sign in', labelled Email/Password, a Show control, and a pill submit whose arrow sits in its own circle"}
+  ],
+  "summary": {"total": 374, "passed": 374, "failed": 0, "skipped": 14},
+  "coverage_notes": "The gate cannot see colour, spacing or shadow, so the audit tool plus a read of computed styles is the evidence. The one real regression the audit caught (the rotate glyph in the visible label) was fixed and re-audited clean."
+}
