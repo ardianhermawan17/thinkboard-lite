@@ -321,6 +321,10 @@ Critical path = the demoable slice:  000 → 001 → 004 → 006 → 008 → 009
   `manifest.webmanifest` (installable on the pilot's tablets) and a valid `robots.txt`; the header's mode switch was **Tabs with no panels**, so
   `aria-controls` dangled — it is now a toggle group; the Notes heading is an `h2`; the rotate control's visible label matches its accessible name.
   Re-audited: **Accessibility 1.00 / Best Practices 1.00 / SEO 1.00, zero failures.** `npm run verify` green (374 / 14).
+- **Also done:** 038 (sign-in screen) — the first screen now shows the product: a two-column layout whose brand side draws the workspace's own vocabulary (a page, a highlight
+  sweeping across a line, a drifting peer cursor, a note chip, a "2 here" pill) with the form beside it. The form gained real labels, `autocomplete`, show/hide password, a
+  pending state and a `role="alert"` error; the state lives in the hook (I2) and the motion comes from 036's transform-only seam. Audited: **Accessibility / Best Practices /
+  SEO 1.00, no failing audits**; a real sign-in still opens the workspace. `npm run verify` green (374 / 14).
 - **Next:** nothing an agent can start remains. 013/014/022 wait on 012 (human device test, Q7); 019/020 wait on 018 (D-12); 023 waits on 015/016/020/022;
   024 is conditional. The live gates 030 / 015 / 016 / 031 / 017 (and the whole text-highlight path, and all three import rungs) are now proven in a real browser
   (033, 034); the browser-only remainder is a genuine Acrobat-exported annotated PDF. The human unblockers are unchanged: run 012's device test (Q7), answer

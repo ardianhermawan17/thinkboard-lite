@@ -1,0 +1,16 @@
+{
+  "task_id": "038-task-signin-redesign",
+  "phase": "code",
+  "completed_at": "2026-09-26T16:35:00Z",
+  "changes": [
+    {"file": "src/features/workspace/components/auth-guard/auth-guard.tsx", "summary": "the sign-in screen: a two-column layout, a private ReadingRoom motif (page, sweeping highlight, drifting peer cursor, note chip, presence pill) and a form with real labels, autocomplete, show/hide password, a pending state and role=alert errors.", "kind": "feature"},
+    {"file": "src/features/workspace/components/auth-guard/use-auth-guard.ts", "summary": "adds the screen's own state (submitting, showPassword, togglePassword); the auth contract is unchanged.", "kind": "feature"}
+  ],
+  "decisions": [
+    "Direction 'the reading room': the brand side draws the workspace's own vocabulary rather than a stock hero.",
+    "Exactly one h1 ('Sign in'); the wordmark is a paragraph, so the outline holds on every viewport.",
+    "The form's state goes in the hook, not the .tsx (I2).",
+    "Motion is the task 036 seam, transform-only; the ambient loops settle under reduced motion.",
+    "No credentials or 'demo account' hints in the UI."
+  ]
+}

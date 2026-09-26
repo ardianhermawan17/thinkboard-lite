@@ -1,0 +1,21 @@
+{
+  "task_id": "038-task-signin-redesign",
+  "phase": "validate",
+  "goal_checks": [
+    {"goal_id": "g1", "status": "pass", "notes": "A two-column grid (lg:grid-cols-[1.05fr_1fr]); the brand side is `hidden … lg:flex` so the form is never below the fold on a phone, and the desktop audit renders it. Atmosphere is two token glows over bg-muted/30; the ReadingRoom motif is the workspace's own vocabulary (page, sweeping highlight, drifting peer cursor, note chip, presence pill)."},
+    {"goal_id": "g2", "status": "pass", "notes": "Read back from the live page: label Email + label Password bound to the inputs, autoComplete username/current-password, a Show/Hide control (aria-pressed), a pending 'Signing in…' submit, and the error as role=alert. Submitting the real form signed in and opened the workspace."},
+    {"goal_id": "g3", "status": "pass", "notes": "The form uses the task 036 seam (stagger + riseChild) for a staggered entrance; the motif has three transform-only loops. MotionConfig reducedMotion=\"user\" settles them, and because nothing starts at opacity 0, a background tab still paints the screen."},
+    {"goal_id": "g4", "status": "pass", "notes": "npm run verify green (374/14, arch 18/0, lint 0, typecheck clean); jev-ultrafast Lighthouse on /w (desktop): Accessibility 1.00, Best Practices 1.00, SEO 1.00, zero failing audits; a real sign-in landed at /w/f05e17f9-… with the presence rail mounted."}
+  ],
+  "cross_check_against_plan": [
+    {"doc": "05-feature-architecture.md", "section": "design system", "result": "matches — only existing primitives (button/input/skeleton) and tokens are used; no new dependency and no new primitive."},
+    {"doc": "04-frontend-folder-architecture.md", "section": "§6/§8", "result": "matches — the container stays in features/workspace/components/auth-guard; its state is in the sibling hook (I2); the motif is a private component in the same file."},
+    {"doc": "todo-task-036-motion.md", "section": "§4", "result": "matches — every entrance is transform-only; the same reason (a paused rAF must not hide the screen) applies to the sign-in page."}
+  ],
+  "signed_off": true,
+  "issues_found": [
+    "The environment has no visible desktop, so screenshots fail; the look was judged from structure and computed styles, not by eye. A human should review it at lg+.",
+    "No 'forgot password' affordance: the Lite stack has no reset flow, so a link would be a dead end. Raised rather than built.",
+    "The ambient loops run while the page is open; they are transform-only and disabled under reduced motion, so the cost is frames on the compositor, not layout."
+  ]
+}

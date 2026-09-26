@@ -1,0 +1,29 @@
+{
+  "task_id": "038-task-signin-redesign",
+  "phase": "result",
+  "closed_at": "2026-09-26T16:50:00Z",
+  "final_status": "done",
+  "goals_summary": {
+    "total": 4,
+    "done": 4,
+    "blocked": 0,
+    "detail": "g1 the two-column screen + motif pass; g2 the form affordances pass; g3 the transform-only motion pass; g4 verify + the audit + a real sign-in pass. Recomputed from task.json goals[] and validate.json goal_checks — all four 'pending' -> 'done', none blocked."
+  },
+  "artifacts": [
+    "src/features/workspace/components/auth-guard/auth-guard.tsx — the sign-in screen and the ReadingRoom motif",
+    "src/features/workspace/components/auth-guard/use-auth-guard.ts — submitting / showPassword",
+    "todo-task-038-signin-redesign.md"
+  ],
+  "verify": "npm run verify green (arch 18/0, lint 0 errors, typecheck clean, 374 passed/14 skipped). jev-ultrafast Lighthouse on /w (desktop): Accessibility 1.00, Best Practices 1.00, SEO 1.00, no failing audits. A real sign-in through the new form opened the workspace.",
+  "decisions_recap": [
+    "Direction 'the reading room': the product's own vocabulary, not a stock hero.",
+    "One h1; the wordmark is a paragraph, so the outline holds at every viewport.",
+    "State in the hook (I2); motion from the task 036 seam, transform-only.",
+    "No credentials anywhere in the UI."
+  ],
+  "follow_up_tasks": [
+    "Show the brand side from md as well if a tablet in portrait feels empty.",
+    "If password reset is ever added to the stack, surface it under the password field.",
+    "Have a human review the look at lg+ (the agent environment cannot screenshot)."
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "task_id": "038-task-signin-redesign",
+  "phase": "analyze",
+  "started_at": "2026-09-26T16:00:00Z",
+  "completed_at": "2026-09-26T16:10:00Z",
+  "sources_read": [
+    {"doc": "src/features/workspace/components/auth-guard/auth-guard.tsx", "section": "the centred Card with placeholder-only inputs"},
+    {"doc": "src/features/workspace/components/auth-guard/use-auth-guard.ts", "section": "phase / error / signInWith"},
+    {"doc": "src/shared/lib/motion.ts", "section": "the task 036 seam and its transform-only variants"},
+    {"doc": "src/app/globals.css", "section": "the tokens, including --color-highlight-yellow / -green"},
+    {"doc": "src/shared/components/ui/{button,input,skeleton}.tsx", "section": "the primitives to compose"}
+  ],
+  "scope": "The sign-in screen only: its layout, its form affordances and its motion. Out of scope: any auth logic (the hook's contract is unchanged apart from UI state), and the workspace shell.",
+  "acceptance_criteria": [
+    {"goal_id": "g1", "text": "At lg and up the brand side renders beside the form; below lg only the form does, above the fold."},
+    {"goal_id": "g2", "text": "Each field has a real label; the password reveals; submit shows a pending state; an error is announced."},
+    {"goal_id": "g3", "text": "The entrance staggers and the motif loops; both are transform-only and settle under reduced motion."},
+    {"goal_id": "g4", "text": "verify green; the page's Lighthouse a11y/bp/seo are 1.00 with no failures; a real sign-in lands in the workspace."}
+  ],
+  "open_questions": [
+    "Whether the pilot wants the brand side at md as well; today it appears at lg, so a tablet in portrait (1024) still gets it.",
+    "Whether a 'forgot password' affordance is needed — there is no reset flow in the Lite stack, so adding a link would be a dead end; raised, not built."
+  ],
+  "risks": [
+    "Adding a heading could break the outline; exactly one h1 ('Sign in') is used and the wordmark is a paragraph.",
+    "Infinite ambient animations cost frames while the page is open; they are transform-only (compositor) and disabled under reduced motion.",
+    "No UI hint carries credentials: a hint would ship to production."
+  ]
+}
