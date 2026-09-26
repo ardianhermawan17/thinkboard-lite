@@ -11,8 +11,8 @@ export function AppHeader() {
   const { teamName, mode, setMode, offline, setOffline, dark, setDark, signOut } = useAppHeader()
 
   return (
-    <header className="flex flex-wrap items-center gap-3 border-b px-4 py-2">
-      <h1 className="min-w-0 truncate text-sm font-medium">{teamName ?? "ThinkBoard"}</h1>
+    <header className="sticky top-0 z-30 flex flex-wrap items-center gap-3 border-b border-border bg-background/85 px-4 py-2 backdrop-blur-md">
+      <h1 className="min-w-0 truncate text-sm font-medium tracking-tight">{teamName ?? "ThinkBoard"}</h1>
       <SyncStatusPill />
       {/* A segmented control, not tabs: the mode picks a pipeline stage, it does not reveal a panel (no dangling aria-controls). */}
       <ToggleGroup type="single" value={mode} onValueChange={(next) => next && setMode(next)} aria-label="View mode" className="ml-auto">

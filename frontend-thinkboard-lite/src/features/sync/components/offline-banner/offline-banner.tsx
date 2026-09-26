@@ -24,7 +24,7 @@ export function OfflineBanner() {
       variants={rise}
       initial="hidden"
       animate="show"
-      className="flex flex-wrap items-center gap-3 border-b bg-muted px-4 py-1.5 text-xs"
+      className="flex flex-wrap items-center gap-3 border-b border-border bg-accent/50 px-4 py-1.5 text-xs"
     >
       <span className="font-medium">{label}</span>
       <span className="text-muted-foreground">Last synced {lastSyncedAt ? formatLastSynced(lastSyncedAt) : "never"}</span>

@@ -1,15 +1,15 @@
 "use client"
 
 import type { ReactNode } from "react"
+import { ArrowRight } from "lucide-react"
 import { OfflineBanner } from "@feature/sync/components/offline-banner"
-import { motion, rise, stagger } from "@shared/lib/motion"
+import { motion, rise, riseChild, stagger } from "@shared/lib/motion"
 import { WorkspaceProvider } from "@shared/providers/workspace-provider"
 import { AuthGuard } from "../auth-guard"
 import { AppHeader } from "../app-header"
 import { Members } from "../members"
 import { PersonaEditor } from "../persona-editor"
 import { Button } from "@shared/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@shared/components/ui/card"
 import { Input } from "@shared/components/ui/input"
 import { Skeleton } from "@shared/components/ui/skeleton"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@shared/components/ui/tabs"
@@ -24,26 +24,59 @@ function Body({ workspaceId, children }: { workspaceId?: string; children?: Reac
   if (landing) {
     return (
       <div className="flex min-h-svh items-center justify-center p-6">
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle>New workspace</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form
-              className="flex flex-col gap-3"
-              onSubmit={(e) => {
-                e.preventDefault()
-                void create(new FormData(e.currentTarget))
-              }}
-            >
-              <Input name="name" placeholder="Workspace name" required />
-              <Input name="title" placeholder="Title" required />
-              <Textarea name="goal" placeholder="Goal: what is this workspace for?" required />
-              {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
-              <Button type="submit">Create workspace</Button>
-            </form>
-          </CardContent>
-        </Card>
+        <motion.div variants={stagger} initial="hidden" animate="show" className="w-full max-w-md">
+          <motion.p
+            variants={riseChild}
+            className="inline-flex w-max items-center gap-2 rounded-pill border border-border bg-card/70 px-3 py-1 font-mono text-[10px] tracking-[0.2em] text-muted-foreground uppercase"
+          >
+            <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary" />
+            New workspace
+          </motion.p>
+          <motion.div variants={riseChild}>
+            <h1 className="mt-4 text-2xl font-medium tracking-tight">Start a workspace</h1>
+            <p className="mt-1.5 text-sm text-muted-foreground">Name it, give it a title, and say what it is for. Your team gets a new one.</p>
+          </motion.div>
+          <motion.form
+            variants={riseChild}
+            className="mt-8 rounded-2xl border border-border bg-card p-5 shadow-soft"
+            onSubmit={(e) => {
+              e.preventDefault()
+              void create(new FormData(e.currentTarget))
+            }}
+          >
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-2">
+                <label htmlFor="ws-name" className="text-sm font-medium">
+                  Name
+                </label>
+                <Input id="ws-name" name="name" placeholder="e.g. Pilot" required />
+              </div>
+              <div className="flex flex-col gap-2">
+                <label htmlFor="ws-title" className="text-sm font-medium">
+                  Title
+                </label>
+                <Input id="ws-title" name="title" placeholder="e.g. Cost review" required />
+              </div>
+              <div className="flex flex-col gap-2">
+                <label htmlFor="ws-goal" className="text-sm font-medium">
+                  Goal
+                </label>
+                <Textarea id="ws-goal" name="goal" placeholder="What is this workspace for?" required />
+              </div>
+              {error && (
+                <p role="alert" className="rounded-lg bg-destructive/8 px-3 py-2 text-sm text-destructive">
+                  {error}
+                </p>
+              )}
+            </div>
+            <Button type="submit" className="group/cta mt-5 h-11 w-full justify-between rounded-pill ps-5 pe-1.5">
+              <span>Create workspace</span>
+              <span className="flex size-8 items-center justify-center rounded-pill bg-primary-foreground/15 transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover/cta:translate-x-0.5 group-hover/cta:-translate-y-px">
+                <ArrowRight className="size-4" />
+              </span>
+            </Button>
+          </motion.form>
+        </motion.div>
       </div>
     )
   }
@@ -74,7 +107,7 @@ function Body({ workspaceId, children }: { workspaceId?: string; children?: Reac
           )}
         </main>
         {/* the right rail: 013 adds sheets and promotion */}
-        <aside className="w-80 shrink-0 border-l p-4">
+        <aside className="w-80 shrink-0 border-s border-border bg-sidebar/30 p-4">
           <Tabs defaultValue="members">
             <TabsList>
               <TabsTrigger value="members">Members</TabsTrigger>

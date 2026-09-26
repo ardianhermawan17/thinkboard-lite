@@ -19,25 +19,25 @@ export type { Variants }
 
 /** The app-wide entrance: a short rise. The product is a calm reading surface, so entrances are quiet and quick. */
 export const rise: Variants = {
-  hidden: { y: 8 },
-  show: { y: 0, transition: { duration: 0.3, ease: "easeOut" } },
+  hidden: { y: 10 },
+  show: { y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } },
 }
 
 /** A parent that reveals its children in reading order. Use with `riseChild`. */
 export const stagger: Variants = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.04, delayChildren: 0.03 } },
+  show: { transition: { staggerChildren: 0.05, delayChildren: 0.04 } },
 }
 
 /** One row/child inside a `stagger` parent. */
 export const riseChild: Variants = {
-  hidden: { y: 6 },
-  show: { y: 0, transition: { duration: 0.24, ease: "easeOut" } },
+  hidden: { y: 8 },
+  show: { y: 0, transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] } },
 }
 
 /** For ephemeral chips/badges that appear and disappear (e.g. "Leader is drawing"). Scale-only, same reason. */
 export const pop: Variants = {
   hidden: { scale: 0.94 },
-  show: { scale: 1, transition: { duration: 0.18, ease: "easeOut" } },
-  exit: { scale: 0.94, transition: { duration: 0.12, ease: "easeIn" } },
+  show: { scale: 1, transition: { duration: 0.28, ease: [0.34, 1.4, 0.5, 1] } },
+  exit: { scale: 0.94, transition: { duration: 0.16, ease: [0.4, 0, 1, 1] } },
 }
