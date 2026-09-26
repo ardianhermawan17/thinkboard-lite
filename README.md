@@ -306,14 +306,16 @@ Critical path = the demoable slice:  000 → 001 → 004 → 006 → 008 → 009
   peer cursor arrives in **~70 ms**, and select→highlight→note→Supabase works. `npm run verify` green (363 tests / 14 skipped), build ok. Branch `task/live-fixes`.
 - **Also done:** 034 (live-pass follow-ups) — the three gaps 033 raised, all closed and proven live: (a) the page stage's current page is mirrored through the
   shared workspace context so the "Leader is drawing" indicator fires; (b) the offline resume now actually runs the sync cycle — the listener was keyed on
-  `sync/phaseChanged` while the banner dispatches `manualOfflineSet`, so queued ops stuck with `attempts: 0`; (c) the importer runs **rung 2** — an
-  annotation-free page rasterizes and a flattened mark is found by colour, with the text layer supplying exact text. `npm run verify` green (368 / 14 skipped).
+  `sync/phaseChanged` while the banner dispatches `manualOfflineSet`, so queued ops stuck with `attempts: 0`; (c) the importer runs **rungs 2 and 3** — an
+  annotation-free page rasterizes and a flattened mark is found by colour (rung 2, exact text), and a page with no text layer is a scan whose crops go to OCR
+  (rung 3, 0.70 gate), nothing committed without accept. `npm run verify` green (369 / 14 skipped).
 - **Next:** nothing an agent can start remains. 013/014/022 wait on 012 (human device test, Q7); 019/020 wait on 018 (D-12); 023 waits on 015/016/020/022;
-  024 is conditional. The live gates 030 / 015 / 016 / 031 / 017 (and the whole text-highlight path, and import rungs 1–2) are now proven in a real browser
+  024 is conditional. The live gates 030 / 015 / 016 / 031 / 017 (and the whole text-highlight path, and all three import rungs) are now proven in a real browser
   (033, 034); the browser-only remainder is a genuine Acrobat-exported annotated PDF. The human unblockers are unchanged: run 012's device test (Q7), answer
   D-12, decide D-02's upload flow.
   Housekeeping: both carried items are done and proven live (030; RLS 20/20, seed 6/6, on the 563xx stack).
-- **Open:** import **rung 3** (a scanned page → OCR crops) is still unmounted, and the colour mask's saturation threshold (0.35) silently ignores a pale mark.
+- **Open:** the colour mask's saturation threshold (0.35) silently ignores a pale mark, and the only browser-only check left is a genuine Acrobat-exported
+  annotated PDF (import rung 1 on a real file).
 - **Waiting on a human:**
   - **D-12** — free-tier training terms vs document sensitivity. Blocks 018, and ink transcription in 024. 003's
     placeholder provider rows stand in until it is answered.

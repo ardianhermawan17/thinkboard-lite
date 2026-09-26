@@ -7,12 +7,12 @@
     {"file": "features/document/components/document-viewer/use-document-viewer.ts", "summary": "reports the viewport's current page into the shared context on every change.", "kind": "fix"},
     {"file": "features/presence/components/presence-provider/presence-provider.tsx", "summary": "passes the context page to usePresence instead of a hardcoded 0.", "kind": "fix"},
     {"file": "features/sync/middleware/sync-listener.ts", "summary": "the phase predicate is current.sync.phase !== previous.sync.phase, so manualOfflineSet and networkDownSet drive the cycle.", "kind": "fix"},
-    {"file": "shared/lib/pdf.ts", "summary": "pageImageData rasterizes one page off-screen to RGBA (null without a 2D context).", "kind": "feature"},
-    {"file": "features/highlight/components/import-source/use-import-source.ts", "summary": "per page: rung 1; if a page has no annotations, rasterize and run rung 2.", "kind": "feature"}
+    {"file": "shared/lib/pdf.ts", "summary": "pageImageData rasterizes one page off-screen and returns its RGBA pixels plus the canvas (rung 2's ink source, rung 3's crop source).", "kind": "feature"},
+    {"file": "features/highlight/components/import-source/use-import-source.ts", "summary": "per page: rung 1; with no annotations → rasterize → rung 2 when the page has a text layer, rung 3 (OCR crops) when it does not.", "kind": "feature"}
   ],
   "decisions": [
     "The page mirror goes through the shared context, not a cross-feature import (I3) or an app-route store read (I4).",
     "The listener watches the phase value, not the action type.",
-    "Rung 1 short-circuits the raster; rungs 1/2 never OCR."
+    "Rung 1 short-circuits the raster; OCR is rung 3 only when the page has no text layer (RULE-19)."
   ]
 }

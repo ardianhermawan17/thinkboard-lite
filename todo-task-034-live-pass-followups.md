@@ -44,6 +44,7 @@ authority: "Scope and contract for task 034 only."
 | **g1** | The document view mirrors its current page into the shared workspace context; presence reads it there, so the leader indicator fires for a cursor on the current page. |
 | **g2** | The sync listener reacts to any change of `sync.phase`, so `manualOfflineSet(false)` (and `networkDownSet`) run/cancel the cycle. |
 | **g3** | `useImportSource` runs rung 1 per page and falls back to rung 2 (rasterize + colour mask + text-layer intersect) when a page has no annotations. |
+| **g5** | A page with no text layer runs rung 3: the same mask, each crop OCR'd, the 0.70 gate surfaced, nothing committed without accept. |
 | **g4** | The docs and board record all three, each with its live evidence. |
 
 **Gate.** `npm run verify` green, plus live proof of each: the indicator raises then clears; an offline write stays local, reconnect does not auto-sync, `Sync now` pushes it; a flattened fixture scans to a candidate that imports.
@@ -74,6 +75,6 @@ authority: "Scope and contract for task 034 only."
 
 ---
 
-## 6. Note for the import gate
+## 6. Import gate
 
-`example_notes.pdf` has neither annotations nor mask-hue fills, so it exercises **neither** rung; it is a text-highlight fixture. A flattened fixture (or a real Acrobat-exported PDF) is what rungs 2/3 need. Rung 3 (a scan → OCR crops) remains open.
+`example_notes.pdf` has neither annotations nor mask-hue fills, so it exercises **no** rung; it is a text-highlight fixture. Rungs 2 and 3 were proven with generated fixtures (flattened ink; an image-only scan, OCR text at 0.94). The only browser-only item left is a genuine Acrobat-exported annotated PDF for rung 1.

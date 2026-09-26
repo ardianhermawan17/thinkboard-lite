@@ -11,14 +11,15 @@
   "commands_run": [
     {"command": "npx vitest run --project unit src/shared/providers src/features/presence src/features/document src/app", "result": "32 passed (workspace context now mirrors a page; presence receives it; the document viewer runs inside the provider)"},
     {"command": "npx vitest run --project unit src/features/sync/middleware/sync-listener.test.ts", "result": "6 passed, including the new manualOfflineSet resume and networkDownSet cancel cases"},
-    {"command": "npx vitest run --project unit src/features/highlight/components/import-source", "result": "5 passed, including the rung-2 fallback and the rung-1 short-circuit"},
-    {"command": "npm run verify", "result": "green: arch 18/0, lint 0 errors, typecheck clean, vitest 368 passed / 14 skipped (was 363/14)"}
+    {"command": "npx vitest run --project unit src/features/highlight/components/import-source", "result": "6 passed, including the rung-2 fallback, the rung-1 short-circuit and rung 3 (a no-text page sends its mask boxes to OCR)"},
+    {"command": "npm run verify", "result": "green: arch 18/0, lint 0 errors, typecheck clean, vitest 369 passed / 14 skipped (was 368/14)"}
   ],
   "live_evidence": [
     {"what": "the leader indicator", "how": "isolated leader/member contexts; the member's rail showed 'Leader is drawing' on the leader's cursor and cleared after the idle fallback"},
     {"what": "the offline resume", "how": "CDP Offline -> banner 'Offline · 1 change to sync', server count unchanged; reconnect -> 'Back online · 1 change to sync' with no auto-resync (server unchanged); Sync now -> the row arrived (5 -> 6)"},
-    {"what": "rung 2", "how": "a generated flattened fixture scanned to one candidate and imported a group highlight 'A flattened highlight line' (text_layer, confidence 1.0) on the server"}
+    {"what": "rung 2", "how": "a generated flattened fixture scanned to one candidate and imported a group highlight 'A flattened highlight line' (text_layer, confidence 1.0) on the server"},
+    {"what": "rung 3", "how": "an image-only fixture (rendered to PNG, embedded as a page with no text) scanned to one 'ocr' candidate reading 'Scanned highlight line'; the Import button stayed disabled until accept, and accepting wrote a group highlight at confidence 0.94"}
   ],
-  "summary": {"total": 368, "passed": 368, "failed": 0, "skipped": 14},
+  "summary": {"total": 369, "passed": 369, "failed": 0, "skipped": 14},
   "coverage_notes": "Each fix is pinned by a unit test for its wiring, and by a live browser result for its behaviour. The sync-resume bug existed because the old tests dispatched sync/phaseChanged while the UI dispatches manualOfflineSet; the new test dispatches the UI's action."
 }

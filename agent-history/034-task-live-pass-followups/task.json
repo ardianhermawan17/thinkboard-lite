@@ -17,6 +17,7 @@
     {"id": "g1", "description": "the current page is mirrored into the shared workspace context; the leader indicator fires", "plan_ref": "034 §2 g1; 015 g4", "status": "done"},
     {"id": "g2", "description": "the sync listener reacts to any sync.phase change, so manualOfflineSet(false) runs the cycle", "plan_ref": "034 §2 g2; 016 g1/g3", "status": "done"},
     {"id": "g3", "description": "useImportSource falls back to rung 2 (rasterize + colour mask + text intersect)", "plan_ref": "034 §2 g3; 021 rung 2, 032", "status": "done"},
+    {"id": "g5", "description": "a page with no text layer runs rung 3 (mask + OCR crops, 0.70 gate)", "plan_ref": "034 §2 g5; 021 rung 3, 011", "status": "done"},
     {"id": "g4", "description": "docs and board record all three with their live evidence", "plan_ref": "034 §2 g4", "status": "done"}
   ],
   "phases": {
