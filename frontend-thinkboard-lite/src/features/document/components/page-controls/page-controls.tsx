@@ -13,14 +13,14 @@ export function PageControls() {
 
   return (
     <div role="toolbar" aria-label="Page" className="flex items-center gap-1 border-b border-border px-2 py-1.5">
-      <Button size="sm" variant="ghost" disabled={!canGoBack} onClick={() => goTo(page - 1)} aria-label="Previous page">
+      <Button size="sm" variant="ghost" disabled={!canGoBack} onClick={() => goTo(page - 1)} aria-label="Previous page" title="Previous page (←)">
         <ChevronLeft aria-hidden /> Prev
       </Button>
       <span data-testid="page-indicator" className="min-w-24 rounded-pill border border-border bg-card/60 px-2.5 py-0.5 text-center font-mono text-[11px] text-muted-foreground">
         Page {page}
         {pageCount > 0 ? ` of ${pageCount}` : ""}
       </span>
-      <Button size="sm" variant="ghost" disabled={!canGoForward} onClick={() => goTo(page + 1)} aria-label="Next page">
+      <Button size="sm" variant="ghost" disabled={!canGoForward} onClick={() => goTo(page + 1)} aria-label="Next page" title="Next page (→)">
         Next <ChevronRight aria-hidden />
       </Button>
       <Button size="sm" variant="ghost" onClick={rotate} aria-label="Rotate 90 degrees" title={`Rotate 90° (now ${rotation}°)`}>

@@ -14,11 +14,11 @@ export function WritingCheck() {
   if (loading || checked) return null
 
   return (
-    <div className="flex flex-col gap-2 rounded-lg border border-border p-4">
-      <p className="text-sm text-muted-foreground">{ENABLE_INSTRUCTIONS}</p>
-      <Textarea placeholder="Try writing here…" spellCheck={false} className="min-h-24" />
+    <div className="flex flex-col gap-3 rounded-xl border border-border bg-card/60 p-4 shadow-soft">
+      <p className="text-xs leading-relaxed text-muted-foreground">{ENABLE_INSTRUCTIONS}</p>
+      <Textarea placeholder="Try writing here…" spellCheck={false} className="min-h-24 bg-background/60" />
       <div className="flex items-center justify-between">
-        <span className="text-xs text-muted-foreground">{penDetected ? "pen detected" : "no pen detected yet"}</span>
+        <span className="text-xs text-muted-foreground">{penDetected ? "Pen detected" : "No pen detected yet"}</span>
         <Button size="sm" onClick={() => void complete()}>
           Done
         </Button>

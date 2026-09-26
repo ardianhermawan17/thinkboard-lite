@@ -75,6 +75,11 @@ export async function renderTextLayer(doc: PdfDocument, pageNumber: number, cont
   const viewport = page.getViewport({ scale, rotation })
   container.style.width = `${viewport.width}px`
   container.style.height = `${viewport.height}px`
+  // pdf.js sizes every span with `calc(Npx * var(--total-scale-factor))` and expects the host viewer to set it. This
+  // integration did not (043, found live): with the variable unset the declaration is invalid at computed-value time
+  // and the whole layer collapsed into one flowing paragraph. It is the zoom, not the device pixel ratio — the layer
+  // is measured in CSS pixels, the same ones the canvas is displayed at.
+  container.style.setProperty("--total-scale-factor", String(scale))
   const layer = new lib.TextLayer({ textContentSource: page.streamTextContent(), container, viewport })
   if (signal?.aborted) {
     layer.cancel()

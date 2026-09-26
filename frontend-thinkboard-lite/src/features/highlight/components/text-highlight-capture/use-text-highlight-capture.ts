@@ -5,6 +5,7 @@ import { highlightSlug } from "@shared/lib/slug"
 import type { Json } from "@shared/types/domain/common"
 import { readingOrderRank } from "../../utils/reading-order"
 import { selectionText, selectionToRects } from "../../utils/selection-to-rects"
+import { useNotesNudge } from "../../utils/use-notes-nudge"
 import type { Bbox } from "../../types/bbox"
 import type { TextHighlightCaptureProps } from "./types"
 
@@ -13,8 +14,9 @@ import type { TextHighlightCaptureProps } from "./types"
  * generates the deterministic slug, and writes the highlight through the existing repository call.
  * A container leaf: the only file in this feature that touches Dexie (via the repository/query hooks).
  */
-export function useTextHighlightCapture({ artifactId, profileId, page, textLayerElement, textLayerSize, rotation }: TextHighlightCaptureProps) {
+export function useTextHighlightCapture({ artifactId, profileId, page, textLayerElement, textLayerSize, rotation, colorKey }: TextHighlightCaptureProps) {
   const existingHighlights = useHighlightsForPage(artifactId, page)
+  const nudge = useNotesNudge()
 
   const capture = useCallback(async () => {
     const selection = window.getSelection()
@@ -33,11 +35,14 @@ export function useTextHighlightCapture({ artifactId, profileId, page, textLayer
     const primary = rects[0]
     const order = readingOrderRank(primary, (existingHighlights ?? []).map((h) => (h.bbox as Bbox | null)?.rects[0]).filter((r): r is NonNullable<typeof r> => Boolean(r)))
     const slug = await highlightSlug(text, primary, page, order)
-    const bbox: Bbox = { page, rects, color: null, tool: "text_layer" }
+    // 043: the chosen hue travels on the row; the layer resolves it at render.
+    const bbox: Bbox = { page, rects, color: colorKey ?? null, tool: "text_layer" }
 
     await insertHighlight({ artifactId, profileId, text, page, bbox: bbox as unknown as Json, confidence: 1.0, slug })
     selection.removeAllRanges()
-  }, [artifactId, profileId, page, textLayerElement, textLayerSize, rotation, existingHighlights])
+    // In full-page reading the notes rail is away, so say where the mark just went.
+    nudge(text)
+  }, [artifactId, profileId, page, textLayerElement, textLayerSize, rotation, existingHighlights, colorKey, nudge])
 
   useEffect(() => {
     // Selection end, not every selectionchange tick: a drag fires selectionchange continuously.

@@ -1,5 +1,6 @@
 "use client"
 
+import { HelpCircle } from "lucide-react"
 import { SyncStatusPill } from "@feature/sync/components/sync-status-pill"
 import { ExportWorkspace } from "../export-workspace"
 import { Button } from "@shared/components/ui/button"
@@ -8,7 +9,7 @@ import { ToggleGroup, ToggleGroupItem } from "@shared/components/ui/toggle-group
 import { useAppHeader } from "./use-app-header"
 
 export function AppHeader() {
-  const { teamName, mode, setMode, offline, setOffline, dark, setDark, signOut } = useAppHeader()
+  const { teamName, mode, setMode, offline, setOffline, dark, setDark, showTour, signOut } = useAppHeader()
 
   return (
     <header className="sticky top-0 z-30 flex flex-wrap items-center gap-3 border-b border-border bg-background/85 px-4 py-2 backdrop-blur-md">
@@ -28,6 +29,10 @@ export function AppHeader() {
         Dark
         <Switch checked={dark} onCheckedChange={setDark} aria-label="Dark theme" />
       </label>
+      {/* 043: walking the tour again. The rails fold from the chevron beside their own titles, so the header stays bare. */}
+      <Button size="icon-sm" variant="ghost" aria-label="Show the tour again" title="Walk the tour again" onClick={showTour}>
+        <HelpCircle aria-hidden />
+      </Button>
       <ExportWorkspace />
       <Button size="sm" variant="ghost" onClick={() => void signOut()}>
         Sign out

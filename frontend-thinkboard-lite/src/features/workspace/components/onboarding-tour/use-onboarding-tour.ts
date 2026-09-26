@@ -7,8 +7,9 @@ import { tourCompleted } from "../../stores/workspace-slice"
 import type { OnboardingTourState, TourRect, TourStep } from "./types"
 
 /**
- * Seven stops through the document view: what the document is, how to mark it, where the notes live, how to bring
- * your own highlights in, who else is here, and how to take it away. The copy names the product's own vocabulary.
+ * Eight stops through the document view: what the document is, how to mark it, where the notes live, how to bring
+ * your own highlights in, who else is here, how to make room, and how to take it away. The copy names the product's
+ * own vocabulary.
  */
 export const TOUR_STEPS: TourStep[] = [
   {
@@ -16,11 +17,11 @@ export const TOUR_STEPS: TourStep[] = [
     title: "Welcome to your workspace",
     body: "A PDF, your team, and the notes you make on it — in one place. It keeps working when the network does not. This tour takes about a minute.",
   },
-  { id: "document", title: "Read the document", body: "Pinch to zoom or pan, and use Prev / Next to move through the pages.", selector: '[data-testid="page-stage"]' },
+  { id: "document", title: "Read the document", body: "Pinch to zoom or pan, and use Prev / Next to move through the pages — the arrow keys work too.", selector: '[data-testid="document-area"]' },
   {
     id: "tools",
     title: "Mark what matters",
-    body: "Select text to highlight a line. Rectangle and Freehand are for what a line of text cannot cover — a chart, a table, a figure.",
+    body: "Select text to highlight a line — pick one of the four colours first. Rectangle and Freehand are for what a line of text cannot cover — a chart, a table, a figure.",
     selector: '[data-testid="region-toolbar"]',
   },
   { id: "notes", title: "Write it down", body: "Every highlight lands here. Open one to add a note to it — typed, or handwritten with a pen.", selector: '[data-testid="note-panel"]' },
@@ -31,6 +32,12 @@ export const TOUR_STEPS: TourStep[] = [
     selector: '[data-testid="import-existing"]',
   },
   { id: "together", title: "Read it together", body: "See who is here, and where their cursor is on the page as they move.", selector: '[data-testid="presence-rail"]' },
+  {
+    id: "room",
+    title: "Make room",
+    body: "Each rail folds away from the chevron beside its own title — the notes on the right of the page, the people at the far edge. Fold both and the page takes the whole width. A highlight made while the notes are away is waiting in Notes.",
+    selector: '[data-testid="notes-rail-header"]',
+  },
   { id: "export", title: "Take it with you", body: "Export the workspace as a portable bundle: the annotated PDF, the notes as Markdown, and a manifest.", selector: '[data-testid="export-workspace"]' },
 ]
 
@@ -65,6 +72,15 @@ export function useOnboardingTour(): OnboardingTourState {
   const total = TOUR_STEPS.length
   const step = TOUR_STEPS[Math.min(index, total - 1)]
   const rect = step.selector && measured?.id === step.id ? measured.rect : null
+
+  // Settling the tour also rewinds it, so a later "Show the tour again" starts at the first step. The hook stays
+  // mounted while the tour is closed, so the local index would otherwise survive. (This runs on the close event,
+  // not in an effect: React's compiler lint rejects a synchronous setState inside an effect.)
+  const close = useCallback(() => {
+    setIndex(0)
+    setMeasured(null)
+    dispatch(tourCompleted())
+  }, [dispatch])
 
   useEffect(() => {
     if (!open || !step.selector) return
@@ -103,24 +119,23 @@ export function useOnboardingTour(): OnboardingTourState {
   useEffect(() => {
     if (!open) return
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") dispatch(tourCompleted())
+      if (e.key === "Escape") close()
       else if (e.key === "ArrowRight") setIndex((i) => (i + 1 < total ? i + 1 : i))
       else if (e.key === "ArrowLeft") setIndex((i) => Math.max(0, i - 1))
     }
     document.addEventListener("keydown", onKey)
     return () => document.removeEventListener("keydown", onKey)
-  }, [open, dispatch, total])
+  }, [open, close, total])
 
   // Keep focus on the tour while it is open.
   useEffect(() => {
     cardRef.current?.focus()
   }, [index, open])
 
-  const finish = useCallback(() => dispatch(tourCompleted()), [dispatch])
   const next = useCallback(() => {
-    if (index + 1 >= total) return finish()
+    if (index + 1 >= total) return close()
     setIndex(index + 1)
-  }, [index, total, finish])
+  }, [index, total, close])
   const back = useCallback(() => setIndex((i) => Math.max(0, i - 1)), [])
 
   // Card placement: below the target when it fits, above otherwise, centred when there is no target.
@@ -144,6 +159,6 @@ export function useOnboardingTour(): OnboardingTourState {
     cardStyle: { left, top, width: CARD_W },
     next,
     back,
-    skip: finish,
+    skip: close,
   }
 }

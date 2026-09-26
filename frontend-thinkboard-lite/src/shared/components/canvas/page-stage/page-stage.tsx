@@ -26,6 +26,10 @@ export function PageStage({ doc, pageNumber, zoom, rotation, onZoomCommit, onTex
       data-page={pageNumber}
       data-interactive={interactive}
       data-drawing={drawing}
+      // 043: the page owns a box, so a window of pages stacks instead of piling up at one point. pdf.js has already
+      // sized the canvas; without this the root collapses to zero height and every page in the window lands on the
+      // same spot (found live — the reader showed pages 1 and 2 on top of each other).
+      style={pageSize.width > 0 ? { width: pageSize.width, height: pageSize.height } : undefined}
       // g2 / 03 §7: touch-action is `none` only while a draw tool is armed (or the stage is inert behind a
       // note sheet), so a disarmed page keeps native pan/scroll instead of fighting every stroke.
       className={`relative select-none ${interactive ? "" : "pointer-events-none"} ${drawing || !interactive ? "touch-none" : "touch-pan-x touch-pan-y"}`}

@@ -1,8 +1,8 @@
-import { cleanup, fireEvent, render, screen } from "@testing-library/react"
+import { act, cleanup, fireEvent, render, screen } from "@testing-library/react"
 import { Provider } from "react-redux"
 import { configureStore } from "@reduxjs/toolkit"
 import { afterEach, describe, expect, it } from "vitest"
-import { initialWorkspaceState, workspaceReducer } from "../../stores/workspace-slice"
+import { initialWorkspaceState, tourReset, workspaceReducer } from "../../stores/workspace-slice"
 import { TOUR_STEPS } from "./use-onboarding-tour"
 
 import { OnboardingTour } from "./onboarding-tour"
@@ -64,5 +64,20 @@ describe("OnboardingTour (g1, g2)", () => {
   it("does not open again once it has been seen", () => {
     renderTour(makeStore(true))
     expect(screen.queryByRole("dialog")).toBeNull()
+  })
+
+  it("043: reopens from the first step, not the step it was left on", () => {
+    const store = makeStore()
+    renderTour(store)
+    for (let i = 0; i < TOUR_STEPS.length - 1; i++) fireEvent.click(screen.getByRole("button", { name: "Next" }))
+    fireEvent.click(screen.getByRole("button", { name: "Start reading" }))
+    expect(screen.queryByRole("dialog")).toBeNull()
+
+    act(() => {
+      store.dispatch(tourReset())
+    })
+
+    expect(screen.getByText(TOUR_STEPS[0].title)).toBeTruthy()
+    expect(screen.getByText(`1 / ${TOUR_STEPS.length}`)).toBeTruthy()
   })
 })

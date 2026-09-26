@@ -26,25 +26,62 @@ vi.mock("@feature/presence", () => ({
 // 041: the first-run tour reads the store, which this composition test does not provide.
 vi.mock("@feature/workspace/components/onboarding-tour", () => ({ OnboardingTour: () => <div data-testid="onboarding-tour" /> }))
 
+import { WorkspaceProvider, useWorkspaceContext } from "@shared/providers/workspace-provider"
 import { WorkspaceDocument } from "./workspace-document"
 
 afterEach(cleanup)
 
+/** 043: the rails are provider state, so the test flips them the way a header toggle would. */
+function HideRails() {
+  const { setNotesVisible } = useWorkspaceContext()
+  return (
+    <button type="button" onClick={() => setNotesVisible(false)}>
+      hide rails
+    </button>
+  )
+}
+
+const renderRoute = () =>
+  render(
+    <WorkspaceProvider profileId="p1" sessionId="s1">
+      <WorkspaceDocument sessionId="s1" />
+      <HideRails />
+    </WorkspaceProvider>
+  )
+
 describe("WorkspaceDocument (g1-g4)", () => {
   it("composes DocumentViewer with HighlightedPage through renderPage, at the session id it was given", () => {
-    render(<WorkspaceDocument sessionId="s1" />)
+    renderRoute()
     expect(screen.getByTestId("document-viewer").dataset.session).toBe("s1")
     expect(screen.getByTestId("highlighted-page").dataset.page).toBe("3")
     expect(screen.getByTestId("highlighted-page").dataset.tool).toBe("null")
   })
 
   it("arms the marquee with the chosen region tool and disarms it again", () => {
-    render(<WorkspaceDocument sessionId="s1" />)
+    renderRoute()
     fireEvent.click(screen.getByRole("button", { name: "Rectangle" }))
     expect(screen.getByTestId("highlighted-page").dataset.tool).toBe("rect")
     fireEvent.click(screen.getByRole("button", { name: "Freehand" }))
     expect(screen.getByTestId("highlighted-page").dataset.tool).toBe("freehand")
     fireEvent.click(screen.getByRole("button", { name: "Select" }))
     expect(screen.getByTestId("highlighted-page").dataset.tool).toBe("null")
+  })
+
+  it("043: shows the notes rail, folds it to a chevron handle, and comes back", () => {
+    renderRoute()
+    expect(screen.getByTestId("notes-rail")).toBeTruthy()
+    expect(screen.getByTestId("note-panel")).toBeTruthy()
+
+    fireEvent.click(screen.getByRole("button", { name: "hide rails" }))
+
+    expect(screen.queryByTestId("notes-rail")).toBeNull()
+    expect(screen.queryByTestId("note-panel")).toBeNull()
+    expect(screen.queryByTestId("import-source")).toBeNull()
+    // the page itself stays, and the way back sits where the rail was
+    expect(screen.getByTestId("document-viewer")).toBeTruthy()
+
+    fireEvent.click(screen.getByRole("button", { name: "Show the notes rail" }))
+    expect(screen.getByTestId("notes-rail")).toBeTruthy()
+    expect(screen.getByTestId("note-panel")).toBeTruthy()
   })
 })

@@ -8,6 +8,7 @@ import { insertHighlight } from "@feature/entities/repository/highlight-reposito
 import { useHighlightsForPage } from "@feature/entities/queries/use-highlights-for-page"
 import { isBbox, type Bbox } from "../../types/bbox"
 import { readingOrderRank } from "../../utils/reading-order"
+import { useNotesNudge } from "../../utils/use-notes-nudge"
 import type { RegionHighlightCaptureProps } from "./types"
 
 /**
@@ -19,8 +20,9 @@ import type { RegionHighlightCaptureProps } from "./types"
  * A container leaf: the only file in this component that touches Dexie (via repository/query hooks). The
  * OCR call is never awaited on a *note* save path (I28); it decorates a repository write that already landed.
  */
-export function useRegionHighlightCapture({ artifactId, profileId, page, size, rotation, canvas }: RegionHighlightCaptureProps) {
+export function useRegionHighlightCapture({ artifactId, profileId, page, size, rotation, canvas, colorKey }: RegionHighlightCaptureProps) {
   const existing = useHighlightsForPage(artifactId, page)
+  const nudge = useNotesNudge()
 
   const onCommit = useCallback(
     async (stroke: MarqueeStroke) => {
@@ -35,8 +37,8 @@ export function useRegionHighlightCapture({ artifactId, profileId, page, size, r
       const order = readingOrderRank(primary, existingRects)
       const slug = await highlightSlug(text || "region", primary, page, order)
 
-      // color stays null: highlight-layer resolves the design token at render (010's rule).
-      const bbox: Bbox = { page, rects: stroke.rects, color: null, tool: stroke.tool }
+      // 043: the row keeps the chosen key for the layer to resolve (010's rule); `null` means the default hue.
+      const bbox: Bbox = { page, rects: stroke.rects, color: colorKey ?? null, tool: stroke.tool }
       await insertHighlight({
         artifactId,
         profileId: profileId as UUID<"profiles">,
@@ -47,8 +49,9 @@ export function useRegionHighlightCapture({ artifactId, profileId, page, size, r
         extraction: "ocr",
         slug,
       })
+      nudge(text)
     },
-    [artifactId, profileId, page, size, rotation, canvas, existing]
+    [artifactId, profileId, page, size, rotation, canvas, existing, colorKey, nudge]
   )
 
   return { onCommit }

@@ -1,5 +1,6 @@
 "use client"
 
+import { Download } from "lucide-react"
 import { Button } from "@shared/components/ui/button"
 import { useExportWorkspace } from "./use-export-workspace"
 
@@ -9,6 +10,7 @@ export function ExportWorkspace() {
   const reason = error ?? (canExport ? undefined : "Open a workspace with a document to export")
   return (
     <Button data-testid="export-workspace" size="sm" variant="ghost" disabled={!canExport || busy} title={reason} onClick={() => void exportWorkspace()}>
+      <Download aria-hidden />
       {busy ? "Exporting…" : "Export"}
     </Button>
   )

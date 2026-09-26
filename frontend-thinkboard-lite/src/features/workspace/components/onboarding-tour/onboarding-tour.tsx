@@ -6,7 +6,7 @@ import { useOnboardingTour } from "./use-onboarding-tour"
 
 /**
  * The first-run tour. It dims the workspace, cuts a hole over the thing being explained, and walks through the
- * document view in seven steps. The hole is four springs that the scrim's `clip-path` is derived from, and the card
+ * document view in eight steps. The hole is four springs that the scrim's `clip-path` is derived from, and the card
  * pops in per step. Because the scrim is clipped, the spotlight itself stays clickable — the app under it is blocked
  * everywhere else.
  *

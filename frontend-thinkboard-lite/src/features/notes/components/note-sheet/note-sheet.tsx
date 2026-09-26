@@ -14,11 +14,13 @@ import type { NoteSheetProps } from "./types"
 export function NoteSheet({ highlightId, profileId, note, open, onOpenChange }: NoteSheetProps) {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right">
-        <SheetHeader>
+      <SheetContent side="right" className="sm:max-w-md">
+        <SheetHeader className="border-b border-border">
+          <p className="font-mono text-[10px] tracking-[0.2em] text-muted-foreground uppercase">Highlight note</p>
           <SheetTitle>Note</SheetTitle>
         </SheetHeader>
-        <div className="flex flex-col gap-4 p-4">
+        {/* The body scrolls on its own, so a long note never pushes the sheet past the viewport. */}
+        <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4">
           <WritingCheck />
           <NoteEditor highlightId={highlightId} profileId={profileId} note={note} />
         </div>

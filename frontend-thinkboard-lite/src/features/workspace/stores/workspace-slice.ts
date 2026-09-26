@@ -32,11 +32,15 @@ const workspaceSlice = createSlice({
     tourCompleted(state) {
       state.tourSeen = true
     },
+    /** 043: the header's "Show the tour again" control — the tour opens on the next render. */
+    tourReset(state) {
+      state.tourSeen = false
+    },
     failed(state, action: PayloadAction<string>) {
       state.ui.error = action.payload
     },
   },
 })
 
-export const { signedIn, signedOut, workspaceOpened, modeChanged, tourCompleted, failed } = workspaceSlice.actions
+export const { signedIn, signedOut, workspaceOpened, modeChanged, tourCompleted, tourReset, failed } = workspaceSlice.actions
 export const workspaceReducer = workspaceSlice.reducer

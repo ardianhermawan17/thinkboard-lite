@@ -6,7 +6,7 @@ import { selectManualOffline } from "@feature/sync/selectors/sync-selectors"
 import { manualOfflineSet } from "@feature/sync/stores/sync-slice"
 import { useAppDispatch, useAppSelector } from "@shared/config/redux/hooks"
 import { selectMode } from "../../selectors/workspace-selectors"
-import { modeChanged } from "../../stores/workspace-slice"
+import { modeChanged, tourReset } from "../../stores/workspace-slice"
 import type { SessionMode } from "../../types/redux"
 import type { TeamMeta } from "../../types/meta"
 import { useSignOut } from "../auth-guard"
@@ -28,6 +28,8 @@ export function useAppHeader() {
     setOffline: (on: boolean) => dispatch(manualOfflineSet(on)),
     dark: resolvedTheme === "dark",
     setDark: (on: boolean) => setTheme(on ? "dark" : "light"),
+    // 043: a way to walk the tour again.
+    showTour: () => dispatch(tourReset()),
     signOut,
   }
 }

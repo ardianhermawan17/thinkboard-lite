@@ -7,12 +7,10 @@ import { motion, rise, riseChild, stagger } from "@shared/lib/motion"
 import { WorkspaceProvider } from "@shared/providers/workspace-provider"
 import { AuthGuard } from "../auth-guard"
 import { AppHeader } from "../app-header"
-import { Members } from "../members"
-import { PersonaEditor } from "../persona-editor"
+import { PeopleRail } from "../people-rail"
 import { Button } from "@shared/components/ui/button"
 import { Input } from "@shared/components/ui/input"
 import { Skeleton } from "@shared/components/ui/skeleton"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@shared/components/ui/tabs"
 import { Textarea } from "@shared/components/ui/textarea"
 import { useWorkspaceShell } from "./use-workspace-shell"
 
@@ -126,21 +124,8 @@ function Body({ workspaceId, children }: { workspaceId?: string; children?: Reac
             </div>
           )}
         </main>
-        {/* the right rail: 013 adds sheets and promotion */}
-        <aside className="w-80 shrink-0 border-s border-border bg-sidebar/30 p-4">
-          <Tabs defaultValue="members">
-            <TabsList>
-              <TabsTrigger value="members">Members</TabsTrigger>
-              <TabsTrigger value="personas">Personas</TabsTrigger>
-            </TabsList>
-            <TabsContent value="members" className="pt-3">
-              <Members />
-            </TabsContent>
-            <TabsContent value="personas" className="pt-3">
-              <PersonaEditor />
-            </TabsContent>
-          </Tabs>
-        </aside>
+        {/* the right rail: 013 adds sheets and promotion; 043 makes it hideable */}
+        <PeopleRail />
       </motion.div>
       </motion.div>
     </WorkspaceProvider>

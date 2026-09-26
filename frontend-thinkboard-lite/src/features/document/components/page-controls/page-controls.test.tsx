@@ -61,4 +61,31 @@ describe("PageControls (g1)", () => {
     renderWith(store)
     expect(screen.getByTestId("page-indicator").textContent).toBe("Page 1")
   })
+
+  it("043: the arrow keys turn the page, and yield to an open dialog or a text field", () => {
+    const store = makeStore(1, 30)
+    renderWith(store)
+
+    fireEvent.keyDown(document.body, { key: "ArrowRight" })
+    expect(store.getState().viewport.page).toBe(2)
+    fireEvent.keyDown(document.body, { key: "ArrowRight" })
+    expect(store.getState().viewport.page).toBe(3)
+    fireEvent.keyDown(document.body, { key: "ArrowLeft" })
+    expect(store.getState().viewport.page).toBe(2)
+
+    // an open dialog owns the arrows (Radix's sheet is role=dialog, not aria-modal)
+    const dialog = document.createElement("div")
+    dialog.setAttribute("role", "dialog")
+    document.body.appendChild(dialog)
+    fireEvent.keyDown(document.body, { key: "ArrowRight" })
+    expect(store.getState().viewport.page).toBe(2)
+    dialog.remove()
+
+    // so does a text field
+    const field = document.createElement("textarea")
+    document.body.appendChild(field)
+    fireEvent.keyDown(field, { key: "ArrowRight" })
+    expect(store.getState().viewport.page).toBe(2)
+    field.remove()
+  })
 })

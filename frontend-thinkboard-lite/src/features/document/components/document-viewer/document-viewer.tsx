@@ -20,16 +20,19 @@ export function DocumentViewer({ sessionId, renderPage }: DocumentViewerProps) {
       {/* 035: page navigation + rotation. It renders no page of its own; it only dispatches the viewport actions
           the window and every layer already follow. */}
       <PageControls />
-      <div className="relative min-h-0 flex-1 overflow-auto">
-        {pages.map((pageNumber) => (
-          <Fragment key={pageNumber}>
-            {renderPage ? (
-              renderPage({ doc, artifactId, profileId, pageNumber, zoom, rotation, onZoomCommit })
-            ) : (
-              <PageStage doc={doc} pageNumber={pageNumber} zoom={zoom} rotation={rotation} onZoomCommit={onZoomCommit} />
-            )}
-          </Fragment>
-        ))}
+      <div className="relative min-h-0 flex-1 overflow-auto bg-muted/30 p-4">
+        {/* 043: the page window is a stack — pages in reading order, centred, with air between them. */}
+        <div className="mx-auto flex w-max flex-col items-center gap-4">
+          {pages.map((pageNumber) => (
+            <Fragment key={pageNumber}>
+              {renderPage ? (
+                renderPage({ doc, artifactId, profileId, pageNumber, zoom, rotation, onZoomCommit })
+              ) : (
+                <PageStage doc={doc} pageNumber={pageNumber} zoom={zoom} rotation={rotation} onZoomCommit={onZoomCommit} />
+              )}
+            </Fragment>
+          ))}
+        </div>
       </div>
     </div>
   )
