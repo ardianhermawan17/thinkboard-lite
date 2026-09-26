@@ -2,6 +2,7 @@ import { act, render, screen } from "@testing-library/react"
 import { afterEach, describe, expect, it, vi } from "vitest"
 import { Provider } from "react-redux"
 import { configureStore } from "@reduxjs/toolkit"
+import { WorkspaceProvider } from "@shared/providers/workspace-provider"
 import { viewportReducer, pageChanged } from "../../stores/viewport-slice"
 import { workspaceReducer } from "@feature/workspace/stores/workspace-slice"
 
@@ -33,7 +34,9 @@ describe("DocumentViewer (g2 windowing, container)", () => {
     const store = makeStore()
     render(
       <Provider store={store}>
-        <DocumentViewer sessionId={"s1" as import("@shared/types/domain/common").UUID<"sessions">} />
+        <WorkspaceProvider profileId="p1" sessionId="s1">
+          <DocumentViewer sessionId={"s1" as import("@shared/types/domain/common").UUID<"sessions">} />
+        </WorkspaceProvider>
       </Provider>
     )
     await act(async () => {

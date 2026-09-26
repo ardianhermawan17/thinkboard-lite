@@ -3,6 +3,7 @@ import { useAppDispatch, useAppSelector } from "@shared/config/redux/hooks"
 import { useArtifactsForSession } from "@feature/entities/queries/use-artifacts-for-session"
 import { openPdf, type PdfDocument } from "@shared/lib/pdf"
 import { loadArtifactBytes } from "@shared/lib/pdf"
+import { useWorkspaceContext } from "@shared/providers/workspace-provider"
 import { pageWindow } from "@shared/utils/page-window"
 import { selectProfileId } from "@feature/workspace/selectors/workspace-selectors"
 import type { UUID } from "@shared/types/domain/common"
@@ -21,6 +22,13 @@ export function useDocumentViewer(sessionId: UUID<"sessions">): DocumentViewerSt
   const page = useAppSelector(selectPage)
   const rotation = useAppSelector(selectRotation)
   const pageCount = useAppSelector(selectPageCount)
+  const { reportPage } = useWorkspaceContext()
+
+  // 033: presence may not read the viewport slice (a feature may not import another feature), so the current page
+  // is mirrored into the shared workspace context for the leader-drawing check (015 g4).
+  useEffect(() => {
+    reportPage(page)
+  }, [page, reportPage])
 
   const artifacts = useArtifactsForSession(sessionId)
   const pdfArtifact = artifacts?.find((a) => a.kind === "pdf")
