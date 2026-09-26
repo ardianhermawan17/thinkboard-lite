@@ -13,7 +13,7 @@ export function ImportSource() {
 
   return (
     <div className="flex flex-col gap-2 border-t p-3">
-      <Button size="sm" variant="ghost" disabled={!canScan || busy} title={error ?? undefined} onClick={() => void scan()}>
+      <Button data-testid="import-existing" size="sm" variant="ghost" disabled={!canScan || busy} title={error ?? undefined} onClick={() => void scan()}>
         {busy ? "Scanning…" : "Import existing highlights"}
       </Button>
       {candidates.length > 0 && artifactId && profileId && (

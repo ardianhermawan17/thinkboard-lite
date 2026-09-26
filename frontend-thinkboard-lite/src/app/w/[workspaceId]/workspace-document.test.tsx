@@ -23,6 +23,8 @@ vi.mock("@feature/presence", () => ({
   PresenceLayer: () => null,
   PresenceRail: () => <div data-testid="presence-rail" />,
 }))
+// 041: the first-run tour reads the store, which this composition test does not provide.
+vi.mock("@feature/workspace/components/onboarding-tour", () => ({ OnboardingTour: () => <div data-testid="onboarding-tour" /> }))
 
 import { WorkspaceDocument } from "./workspace-document"
 

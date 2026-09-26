@@ -6,6 +6,7 @@ import { ImportSource } from "@feature/highlight/components/import-source"
 import { HighlightedPage } from "@feature/highlight/components/highlighted-page"
 import { NotePanel } from "@feature/notes/components/note-panel"
 import { PresenceLayer, PresenceProvider, PresenceRail, usePresenceContext } from "@feature/presence"
+import { OnboardingTour } from "@feature/workspace/components/onboarding-tour"
 import type { MarqueeTool } from "@shared/components/canvas/marquee"
 import { Button } from "@shared/components/ui/button"
 import type { UUID } from "@shared/types/domain/common"
@@ -37,7 +38,7 @@ function WorkspaceDocumentBody({ sessionId }: { sessionId: string }) {
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <div role="toolbar" aria-label="Region tool" className="flex items-center gap-1 border-b px-2 py-1">
+      <div role="toolbar" aria-label="Region tool" data-testid="region-toolbar" className="flex items-center gap-1 border-b border-border px-2 py-1">
         {TOOLS.map((option) => (
           <Button key={option.label} size="sm" variant={tool === option.value ? "default" : "ghost"} aria-pressed={tool === option.value} onClick={() => setTool(option.value)}>
             {option.label}
@@ -78,6 +79,8 @@ function WorkspaceDocumentBody({ sessionId }: { sessionId: string }) {
           <ImportSource />
         </aside>
       </div>
+      {/* 041: the first-run tour. It overlays the whole document view and leaves once it is finished or skipped. */}
+      <OnboardingTour />
     </div>
   )
 }

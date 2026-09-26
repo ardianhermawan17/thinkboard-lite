@@ -8,7 +8,7 @@ export function ExportWorkspace() {
   const { canExport, busy, error, exportWorkspace } = useExportWorkspace()
   const reason = error ?? (canExport ? undefined : "Open a workspace with a document to export")
   return (
-    <Button size="sm" variant="ghost" disabled={!canExport || busy} title={reason} onClick={() => void exportWorkspace()}>
+    <Button data-testid="export-workspace" size="sm" variant="ghost" disabled={!canExport || busy} title={reason} onClick={() => void exportWorkspace()}>
       {busy ? "Exporting…" : "Export"}
     </Button>
   )

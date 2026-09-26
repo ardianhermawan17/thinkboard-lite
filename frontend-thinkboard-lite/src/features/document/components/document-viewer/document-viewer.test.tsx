@@ -23,7 +23,7 @@ import { DocumentViewer } from "./document-viewer"
 function makeStore() {
   return configureStore({
     reducer: { workspace: workspaceReducer, viewport: viewportReducer },
-    preloadedState: { workspace: { profileId: "p1", teamId: "t1", sessionId: "s1", mode: "planning" as const, ui: { error: null } } },
+    preloadedState: { workspace: { profileId: "p1", teamId: "t1", sessionId: "s1", mode: "planning" as const, tourSeen: true, ui: { error: null } } },
   })
 }
 

@@ -6,6 +6,7 @@ export const initialWorkspaceState: WorkspaceState = {
   teamId: null,
   sessionId: null,
   mode: "planning",
+  tourSeen: false,
   ui: { error: null },
 }
 
@@ -27,11 +28,15 @@ const workspaceSlice = createSlice({
     modeChanged(state, action: PayloadAction<SessionMode>) {
       state.mode = action.payload
     },
+    /** The first-run tour was finished or skipped: it does not open again for this account. */
+    tourCompleted(state) {
+      state.tourSeen = true
+    },
     failed(state, action: PayloadAction<string>) {
       state.ui.error = action.payload
     },
   },
 })
 
-export const { signedIn, signedOut, workspaceOpened, modeChanged, failed } = workspaceSlice.actions
+export const { signedIn, signedOut, workspaceOpened, modeChanged, tourCompleted, failed } = workspaceSlice.actions
 export const workspaceReducer = workspaceSlice.reducer

@@ -6,5 +6,7 @@ export type WorkspaceState = {
   teamId: string | null
   sessionId: string | null
   mode: SessionMode
+  /** The first-run tour is shown once per signed-in account; `signedOut` clears it (a fresh sign-in is a fresh start). */
+  tourSeen: boolean
   ui: { error: string | null }
 }
