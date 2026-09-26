@@ -1,0 +1,24 @@
+{
+  "task_id": "034-task-live-pass-followups",
+  "phase": "validate",
+  "goal_checks": [
+    {"goal_id": "g1", "status": "pass", "notes": "The viewport's page is mirrored into shared WorkspaceProvider state by the document view; PresenceProvider passes it to usePresence. PROVEN live: the teammate's rail raised 'Leader is drawing' and cleared it via the idle fallback. Before, presence was told page 0 and the check could never match a 1-based cursor page."},
+    {"goal_id": "g2", "status": "pass", "notes": "The listener predicate now compares sync.phase across any action, so the banner's manualOfflineSet(false) runs the cycle. PROVEN live: with the fix, Sync now pushed the queued highlight (server 5 -> 6); the pre-fix run left two ops queued with attempts 0 after the banner cleared. networkDownSet(true) also cancels the cycle now (unit)."},
+    {"goal_id": "g3", "status": "pass", "notes": "useImportSource tries rung 1 per page and rasterizes only annotation-free pages for rung 2. PROVEN live: a generated fixture with a flattened yellow mark produced one candidate and imported a group highlight 'A flattened highlight line' (text_layer, 1.0). A pale green mark was correctly ignored by the mask's saturation threshold."},
+    {"goal_id": "g4", "status": "pass", "notes": "README §6, the review's §3.3 and the vault hot cache record all three; this task and todo-task-034 carry the goals and evidence."}
+  ],
+  "cross_check_against_plan": [
+    {"doc": "03-frontend-architecture.md", "section": "§5.3", "result": "matches — a reconnect still never auto-resyncs (proven live); only the explicit button resumes, and now it actually does."},
+    {"doc": "03-frontend-architecture.md", "section": "§6.4", "result": "matches — the engine stays listener middleware reacting to actions; the predicate simply watches the phase value it already owns."},
+    {"doc": "04-frontend-folder-architecture.md", "section": "§8/§9", "result": "matches — the raster helper is a third-party wrapper in shared/lib; presence and document still meet only through the shared provider (I3/I4)."},
+    {"doc": "05-feature-architecture.md", "section": "§5.4", "result": "matches — the ladder is rung 1 then rung 2, no OCR in either."}
+  ],
+  "signed_off": true,
+  "issues_found": [
+    "The leader indicator never fired (page: 0) — fixed and proven live.",
+    "The offline resume never ran the sync cycle (predicate keyed on the action type) — fixed; queued ops no longer stick.",
+    "Rung 2 was unmounted, so flattened-highlight documents imported nothing — fixed and proven with a fixture.",
+    "example_notes.pdf exercises neither rung (no annotations, no mask-hue fills); rung 3 (a scan -> OCR) is still open.",
+    "A colour-mask threshold means a pale mark is silently ignored; the review shows what was found, but a user with a very light highlighter may import nothing — record as a tuning question, not a bug."
+  ]
+}

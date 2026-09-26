@@ -103,7 +103,11 @@ The pass **found and fixed two defects that the unit suite structurally cannot s
 1. **The stage never mounted.** The pdfjs render task was never cancelled, so React's dev double-effect (and any page/zoom change) started a second render on the same canvas, which pdfjs refuses. `pageSize` stayed 0, so the Konva stage — peer cursors, the highlight layer, the marquee — never rendered. `renderPage`/`renderTextLayer` now take an `AbortSignal` and cancel the in-flight task.
 2. **Text could not be selected.** The page stage's `select-none` is inherited, so pdfjs's text layer was unselectable and 010's entire input was impossible. The text layer is now `select-text` unless a draw tool is armed.
 
-**Raised, not fixed:** `PresenceProvider` passes `page: 0` while cursors carry the real 1-based page, so `usePresence`'s leader-drawing check can never match and the "Leader is drawing" indicator (015 g4/028) never fires live. It needs a "current page" source; the viewer renders every page at once, so that is a design choice.
+**Follow-ups, now closed (task 034).**
+- **The leader indicator fires.** The page stage's current page is mirrored into the shared workspace context (the 026 seam) and presence reads it there; proven live — the teammate's rail raises "Leader is drawing" and clears it via the idle fallback.
+- **The offline resume works.** "Sync now" dispatches `manualOfflineSet(false)`, which sets `sync.phase` directly, but the sync listener only reacted to `sync/phaseChanged` — so the reconnect cycle never ran and queued ops stuck at `attempts: 0`. The predicate now watches the phase value; proven live: an offline write stayed local (server unchanged), a reconnect did **not** auto-sync (016 g1), and `Sync now` pushed it (server 5 → 6).
+- **Import rung 2 is mounted.** An annotation-free page rasterizes and its flattened mark is found by colour, with the text layer supplying the exact text; proven live with a generated fixture (group highlight "A flattened highlight line", `text_layer`, confidence 1.0). The pale green mark was correctly ignored (below the mask's 0.35 saturation cut).
+- **Still open:** rung 3 (a scanned page → OCR crops), and a genuine Acrobat-exported annotated PDF.
 
 ### 3.4 Plan docs have drifted in places
 - **015's `0005_live_topic.sql`** collided with the shipped `0005_storage_artifacts.sql`; resolved to `0006`.

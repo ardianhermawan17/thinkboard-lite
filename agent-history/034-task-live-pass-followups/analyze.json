@@ -1,0 +1,32 @@
+{
+  "task_id": "034-task-live-pass-followups",
+  "phase": "analyze",
+  "started_at": "2026-09-26T12:05:00Z",
+  "completed_at": "2026-09-26T12:15:00Z",
+  "sources_read": [
+    {"doc": "features/presence/components/presence-provider/presence-provider.tsx", "section": "page: 0"},
+    {"doc": "features/presence/use-presence.ts", "section": "the cursor.page === pageRef.current leader check"},
+    {"doc": "features/document/stores/viewport-slice.ts + selectors/viewport-selectors.ts", "section": "the real viewport.page and pageChanged"},
+    {"doc": "shared/providers/workspace-provider/", "section": "the 026 seam (profileId/sessionId)"},
+    {"doc": "features/sync/components/offline-banner/use-offline-banner.ts", "section": "resume() dispatches manualOfflineSet(false)"},
+    {"doc": "features/sync/stores/sync-slice.ts", "section": "manualOfflineSet and networkDownSet set phase directly"},
+    {"doc": "features/sync/middleware/sync-listener.ts", "section": "the phase predicate keyed on sync/phaseChanged"},
+    {"doc": "features/highlight/components/import-source/use-import-source.ts", "section": "rung 1 only"},
+    {"doc": "features/highlight/utils/import-ladder.ts + colour-mask.ts", "section": "flattenedCandidates and the HSV thresholds"}
+  ],
+  "scope": "Three fixes and their tests plus the docs. Out of scope: rung 3 (OCR), D-02's upload flow, and any change to the sync protocol or the viewport slice.",
+  "acceptance_criteria": [
+    {"goal_id": "g1", "text": "The indicator raises for the leader's cursor on the current page and clears on the stroke end / idle."},
+    {"goal_id": "g2", "text": "manualOfflineSet(false) runs push -> pull -> resubscribe; networkDownSet(true) cancels the cycle."},
+    {"goal_id": "g3", "text": "A page with no annotations rasterizes once and its flattened mark becomes a candidate with text-layer text."},
+    {"goal_id": "g4", "text": "README, the review, the vault cache and this record carry each result and its evidence."}
+  ],
+  "open_questions": [
+    "Presence still takes `page` as a plain prop value, so if the viewport later gains real scroll-driven page changes the mirror must follow — it does today because the document view reports on every change."
+  ],
+  "risks": [
+    "Broadening the listener predicate to any phase change could double-run the cycle if a future action sets the phase without changing it; the predicate compares current vs previous, so an unchanged phase is ignored.",
+    "Rasterizing every annotation-free page adds work; it is bounded by the page count and only runs on tap.",
+    "A colour mask is threshold-based: a pale mark is intentionally ignored (proven by the fixture's green mark)."
+  ]
+}

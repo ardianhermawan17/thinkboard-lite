@@ -1,0 +1,32 @@
+{
+  "task_id": "034-task-live-pass-followups",
+  "phase": "result",
+  "closed_at": "2026-09-26T12:45:00Z",
+  "final_status": "done",
+  "goals_summary": {
+    "total": 4,
+    "done": 4,
+    "blocked": 0,
+    "detail": "g1 the leader indicator (page mirror) pass, proven live; g2 the offline resume (phase predicate) pass, proven live; g3 rung 2 mounted pass, proven live with a fixture; g4 docs pass. Recomputed from task.json goals[] and validate.json goal_checks — all four 'pending' -> 'done', none blocked."
+  },
+  "artifacts": [
+    "shared/providers/workspace-provider/ — page + reportPage (use-workspace-provider.ts)",
+    "features/document/components/document-viewer/use-document-viewer.ts — reports the page",
+    "features/presence/components/presence-provider/presence-provider.tsx — reads the page",
+    "features/sync/middleware/sync-listener.ts — the phase predicate",
+    "shared/lib/pdf.ts — pageImageData",
+    "features/highlight/components/import-source/use-import-source.ts — rung 2",
+    "todo-task-034-live-pass-followups.md"
+  ],
+  "verify": "npm run verify green: arch 18/0, lint 0 errors, typecheck clean, vitest 368 passed/14 skipped. Live: the indicator raises/clears; offline -> local (server unchanged) -> reconnect no auto-resync -> Sync now pushes (5 -> 6); a flattened fixture imports a group highlight (text_layer, 1.0).",
+  "decisions_recap": [
+    "Mirror the page through the shared workspace context (the 026 seam).",
+    "Watch the phase value, not the action type — that is what made resume dead.",
+    "Rung 1 short-circuits the raster; no OCR in rungs 1/2."
+  ],
+  "follow_up_tasks": [
+    "Rung 3: a scanned page with no text layer should rasterize, mask, and send each crop to 011's OCR seam (with the derived 0.70 gate).",
+    "Tune the colour-mask saturation threshold if real highlighter colours prove paler than the current 0.35 cut.",
+    "The browser-only remainder after this: a genuine Acrobat-exported annotated PDF (rung 1 on a real file)."
+  ]
+}
