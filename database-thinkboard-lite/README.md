@@ -12,7 +12,7 @@ supabase/migrations/        0001-0003 from the Full project, unchanged; 0004_lit
                             0005_storage_artifacts.sql is the `artifacts` bucket + its policy (task 003, DB-Q11)
 supabase/tests/             rls.sql + rls.test.mjs — the access-model proof (task 002)
 supabase/tests/seed/        seed.test.mjs — the seed and storage-policy checks (task 003)
-supabase/seed.sql           the local dev seed: one team, leader, two members, board/column/session, one pdf artifact,
+supabase/seed.sql           the local dev seed: one team, leader, three members, board/column/session, one pdf artifact,
                             and PLACEHOLDER llm_providers / llm_models (inactive, no real provider named; D-12 is open)
 supabase/seed/              upload-pdf.mjs — uploads a generated placeholder PDF as the seeded leader
 ```
@@ -35,7 +35,7 @@ npm test
 |---|---|
 | `start` | the stack with storage, without studio, edge-runtime and the other services these tasks do not use |
 | `reset` | `supabase db reset` — applies every migration and `seed.sql` from scratch |
-| `db:seed` | `reset`, then uploads the placeholder PDF: a fresh stack to the seeded state in one command. Local logins: `leader@`, `member-a@`, `member-b@thinkboard.test`, password `password` |
+| `db:seed` | `reset`, then uploads the placeholder PDF: a fresh stack to the seeded state in one command. Local logins: `leader@`, `member-a@`, `member-b@thinkboard.test` and the owner's mock `admin@gmail.com`, all with password `password` |
 | `test` | runs `rls.sql` in the db container, then re-applies `0004` |
 | `test:seed` | the seed and storage-policy checks; re-runs `db:seed`, so run it alone, not beside `test` |
 | `stop` | stops the stack |

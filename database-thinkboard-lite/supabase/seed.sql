@@ -1,5 +1,6 @@
 -- ThinkBoard Lite — local dev seed (task 003 g2). Runs after the migrations on `supabase db reset`.
--- One team, one leader, two members, one board / column / session, one pdf artifact (D-02: one `main` PDF).
+-- One team, one leader, three members (one of them `admin@gmail.com`, the owner's mock login), one board / column /
+-- session, one pdf artifact (D-02: one `main` PDF).
 -- Local stack only. The users share the dev password below; it is a password on a throwaway local database, not a key.
 -- The PDF bytes are uploaded afterwards by seed/upload-pdf.mjs (npm run db:seed), signed in as the leader.
 -- g3 (llm_providers / llm_models) is PLACEHOLDER rows only, see the end of this file: D-12 is still unanswered.
@@ -18,6 +19,7 @@ select '00000000-0000-0000-0000-000000000000', u.id, 'authenticated', 'authentic
        '{"provider":"email","providers":["email"]}', jsonb_build_object('full_name', u.name), now(), now(),
        '', '', '', ''
 from (values
+  ('00000000-0000-4000-8000-0000000000a0'::uuid, 'admin@gmail.com', 'Admin'),
   ('00000000-0000-4000-8000-0000000000a1'::uuid, 'leader@thinkboard.test', 'Leader'),
   ('00000000-0000-4000-8000-0000000000a2'::uuid, 'member-a@thinkboard.test', 'Member A'),
   ('00000000-0000-4000-8000-0000000000a3'::uuid, 'member-b@thinkboard.test', 'Member B')
@@ -26,7 +28,7 @@ from (values
 insert into auth.identities (id, user_id, provider_id, provider, identity_data, last_sign_in_at, created_at, updated_at)
 select gen_random_uuid(), id, id::text, 'email',
        jsonb_build_object('sub', id::text, 'email', email, 'email_verified', true), now(), now(), now()
-from auth.users where email like '%@thinkboard.test';
+from auth.users where email like '%@thinkboard.test' or email = 'admin@gmail.com';
 
 do $$
 declare s uuid; t uuid;
@@ -39,7 +41,7 @@ begin
   -- clients cannot add team members (team_members is read-only to them), so the seed does, as postgres
   insert into team_members (team_id, profile_id, role)
     select t, profile_id, 'member' from profile_identities
-    where auth_user_id in ('00000000-0000-4000-8000-0000000000a2', '00000000-0000-4000-8000-0000000000a3');
+    where auth_user_id in ('00000000-0000-4000-8000-0000000000a0', '00000000-0000-4000-8000-0000000000a2', '00000000-0000-4000-8000-0000000000a3');
   insert into artifacts (session_id, kind, slot, title, created_by)
     values (s, 'pdf', 'main', 'Placeholder report', current_profile_id());
 end $$;
