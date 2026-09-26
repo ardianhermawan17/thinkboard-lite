@@ -22,6 +22,16 @@ export const metadata: Metadata = {
   title: { default: "ThinkBoard Lite — collaborative PDF review", template: "%s · ThinkBoard Lite" },
   description:
     "A local-first workspace for reviewing a PDF together: highlight, attach a note, and reach a conclusion — it keeps working with the network off.",
+  // Installable: a standalone window on a tablet, and an iOS home-screen icon (apple-touch-icon).
+  appleWebApp: { capable: true, title: "ThinkBoard", statusBarStyle: "default" },
+  icons: {
+    icon: [
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/icons/apple-icon-180.png", sizes: "180x180", type: "image/png" }],
+  },
+  formatDetection: { telephone: false },
 }
 
 export const viewport: Viewport = {
