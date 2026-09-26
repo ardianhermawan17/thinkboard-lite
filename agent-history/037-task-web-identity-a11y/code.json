@@ -1,0 +1,19 @@
+{
+  "task_id": "037-task-web-identity-a11y",
+  "phase": "code",
+  "completed_at": "2026-09-26T15:30:00Z",
+  "changes": [
+    {"file": "src/app/layout.tsx", "summary": "exports metadata (applicationName, title template, description) and viewport (colorScheme, light/dark themeColor); drops the unused Geist import.", "kind": "feature"},
+    {"file": "src/app/manifest.ts", "summary": "the web app manifest: name, short_name, start_url /w, standalone, colours, favicon icon.", "kind": "feature"},
+    {"file": "src/app/robots.ts", "summary": "a valid robots.txt that disallows crawling (a private pilot workspace).", "kind": "feature"},
+    {"file": "src/shared/components/ui/toggle-group.tsx", "summary": "shadcn ToggleGroup/ToggleGroupItem (Radix), the accessible shape for a mode switch.", "kind": "feature"},
+    {"file": "src/features/workspace/components/app-header/app-header.tsx", "summary": "the mode switch becomes a ToggleGroup, so no aria-controls dangles.", "kind": "fix"},
+    {"file": "src/features/notes/components/note-panel/note-panel.tsx", "summary": "the Notes heading is an h2, so the outline is sequential.", "kind": "fix"},
+    {"file": "src/features/document/components/page-controls/page-controls.tsx", "summary": "the rotate glyph is aria-hidden, so the visible label 'Rotate' is contained in the accessible name.", "kind": "fix"}
+  ],
+  "decisions": [
+    "Toggle group over tabs for a mode switch: role=group + aria-pressed cannot reference a panel that does not exist.",
+    "Ship a manifest as well as meta, because the pilot is a tablet app worth installing.",
+    "robots disallows all: the workspace is private."
+  ]
+}

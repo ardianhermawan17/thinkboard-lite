@@ -1,0 +1,19 @@
+{
+  "task_id": "037-task-web-identity-a11y",
+  "phase": "test",
+  "test_files": [],
+  "commands_run": [
+    {"command": "npm run verify", "result": "green: arch 18 pass/0 fail, lint 0 errors (and the unused-Geist warning is now gone), typecheck clean, vitest 374 passed / 14 skipped — unchanged"},
+    {"command": "jev-ultrafast: browser.lighthouse (before)", "result": "a11y 0.89, best-practices 1.00, seo 0.40; six failing audits"},
+    {"command": "jev-ultrafast: browser.lighthouse (after)", "result": "a11y 1.00, best-practices 1.00, seo 1.00; zero failing audits"}
+  ],
+  "live_evidence": [
+    {"what": "the document identity", "how": "document.title = 'ThinkBoard Lite — collaborative PDF review'; description and theme-color meta present"},
+    {"what": "installability", "how": "/manifest.webmanifest -> 200, { name: 'ThinkBoard Lite', display: 'standalone' }"},
+    {"what": "robots", "how": "/robots.txt -> 200, 'User-Agent: *\\nDisallow: /'"},
+    {"what": "the heading outline", "how": "one h1, then the Notes h2"},
+    {"what": "the mode switch", "how": "role=group with aria-pressed items; the ARIA audit is clean"}
+  ],
+  "summary": {"total": 374, "passed": 374, "failed": 0, "skipped": 14},
+  "coverage_notes": "The gate cannot see ARIA or document metadata, so the audit tool is the test: the before/after Lighthouse run is the evidence, plus the explicit fetch checks for the two new routes."
+}

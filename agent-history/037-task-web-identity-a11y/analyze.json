@@ -1,0 +1,28 @@
+{
+  "task_id": "037-task-web-identity-a11y",
+  "phase": "analyze",
+  "started_at": "2026-09-26T15:00:00Z",
+  "completed_at": "2026-09-26T15:10:00Z",
+  "sources_read": [
+    {"doc": "jev-ultrafast Lighthouse run", "section": "workspace page: a11y 0.89, best-practices 1.00, seo 0.40; six failing audits"},
+    {"doc": "the Lighthouse JSON", "section": "the failing nodes: the planning TabTrigger's aria-controls, the missing title/description/robots, the <h3>Notes</h3>, the Rotate button's aria-label"},
+    {"doc": "src/app/layout.tsx", "section": "no metadata/viewport export"},
+    {"doc": "src/features/workspace/components/app-header/app-header.tsx", "section": "Tabs with no TabsContent"},
+    {"doc": "src/shared/components/ui/tabs.tsx", "section": "the shadcn primitive + radix-ui import convention"},
+    {"doc": "public/ and src/app/", "section": "no manifest, no robots"}
+  ],
+  "scope": "The document identity (metadata + manifest + robots) and three accessibility fixes. Out of scope: product copy, a real icon set, and a production performance measurement.",
+  "acceptance_criteria": [
+    {"goal_id": "g1", "text": "/manifest.webmanifest and /robots.txt both 200 with the expected fields; the title, description and theme-colour meta are in the served HTML."},
+    {"goal_id": "g2", "text": "The mode switch exposes role=group with aria-pressed; one h1 then an h2; the rotate button's accessible name contains its visible text."},
+    {"goal_id": "g3", "text": "verify green at the same test totals."},
+    {"goal_id": "g4", "text": "Lighthouse: no failing audits and 1.00 in all three scored categories."}
+  ],
+  "open_questions": [
+    "Whether the pilot wants to be crawlable later (it is a private workspace today, so robots disallows all)."
+  ],
+  "risks": [
+    "Radix ToggleGroup must exist in the installed radix-ui package; typecheck proves the import.",
+    "Swapping the header control changes its markup; no test asserted it, and the right-rail Tabs (which do have panels) are untouched."
+  ]
+}

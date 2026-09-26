@@ -1,0 +1,23 @@
+{
+  "task_id": "037-task-web-identity-a11y",
+  "phase": "validate",
+  "goal_checks": [
+    {"goal_id": "g1", "status": "pass", "notes": "layout.tsx exports metadata + viewport; manifest.ts and robots.ts are served. PROVEN live: document.title set, description/theme-color meta present, /manifest.webmanifest 200 (name ThinkBoard Lite, display standalone), /robots.txt 200 (Disallow: /)."},
+    {"goal_id": "g2", "status": "pass", "notes": "AppHeader's mode switch is a ToggleGroup (role=group, aria-pressed); the Notes heading is an h2; the rotate glyph is aria-hidden. PROVEN by the audit: the four a11y failures are gone."},
+    {"goal_id": "g3", "status": "pass", "notes": "npm run verify green: arch 18/0, lint 0 errors (one fewer warning), typecheck clean, 374 passed / 14 skipped."},
+    {"goal_id": "g4", "status": "pass", "notes": "Lighthouse re-run: Accessibility 0.89 -> 1.00, Best Practices 1.00, SEO 0.40 -> 1.00, failing audits 6 -> 0."}
+  ],
+  "cross_check_against_plan": [
+    {"doc": "05-feature-architecture.md", "section": "design system", "result": "matches — a new primitive lives in shared/components/ui in the shadcn style; the header consumes it."},
+    {"doc": "04-frontend-folder-architecture.md", "section": "§8", "result": "matches — route metadata lives in app/, the primitive in shared/ui, the container in features/workspace."},
+    {"doc": "task-review-2026-09-25.md", "section": "§3.3", "result": "matches — the audit result is recorded there as the web-identity pass."}
+  ],
+  "signed_off": true,
+  "issues_found": [
+    "The header mode switch was Tabs without panels: every trigger's aria-controls referenced a missing element. Now a toggle group.",
+    "The document had no title, description or robots, and no manifest — the app was not installable and its tab read empty.",
+    "The Notes heading was an h3 after an h1 (skipped level); now h2.",
+    "The Rotate control's visible glyph was not part of its accessible name; the glyph is now aria-hidden.",
+    "Lighthouse did not score Performance (dev build); a production measurement is the honest follow-up."
+  ]
+}

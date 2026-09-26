@@ -316,6 +316,11 @@ Critical path = the demoable slice:  000 → 001 → 004 → 006 → 008 → 009
   plus the Members/Notes lists, the import-review rows, the offline banner and the "Leader is drawing" chip. Every entrance is **transform-only**: an
   opacity-from-0 entrance leaves a workspace opened in a background tab invisible, because `requestAnimationFrame` is paused there — reproduced live.
   `npm run verify` green (374 / 14 skipped, same totals).
+- **Also done:** 037 (web identity & accessibility) — an audit with **jev-ultrafast** (the browser MCP's Lighthouse) scored the live workspace at
+  **Accessibility 0.89 / SEO 0.40** with six failing audits. Fixed: a real document identity (title, description, theme colour) plus a
+  `manifest.webmanifest` (installable on the pilot's tablets) and a valid `robots.txt`; the header's mode switch was **Tabs with no panels**, so
+  `aria-controls` dangled — it is now a toggle group; the Notes heading is an `h2`; the rotate control's visible label matches its accessible name.
+  Re-audited: **Accessibility 1.00 / Best Practices 1.00 / SEO 1.00, zero failures.** `npm run verify` green (374 / 14).
 - **Next:** nothing an agent can start remains. 013/014/022 wait on 012 (human device test, Q7); 019/020 wait on 018 (D-12); 023 waits on 015/016/020/022;
   024 is conditional. The live gates 030 / 015 / 016 / 031 / 017 (and the whole text-highlight path, and all three import rungs) are now proven in a real browser
   (033, 034); the browser-only remainder is a genuine Acrobat-exported annotated PDF. The human unblockers are unchanged: run 012's device test (Q7), answer
