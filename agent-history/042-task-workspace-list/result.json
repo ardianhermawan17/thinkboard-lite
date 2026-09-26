@@ -1,0 +1,30 @@
+{
+  "task_id": "042-task-workspace-list",
+  "phase": "result",
+  "closed_at": "2026-09-27T05:05:00Z",
+  "final_status": "done",
+  "goals_summary": {
+    "total": 4,
+    "done": 4,
+    "blocked": 0,
+    "detail": "g1 the RLS-scoped read pass (proven by the live suite's g5); g2 the landing list pass; g3 open + silent degradation pass (proven live); g4 verify + the live suite + the click-through pass. Recomputed from task.json goals[] and validate.json goal_checks — all four 'pending' -> 'done', none blocked."
+  },
+  "artifacts": [
+    "src/features/workspace/utils/workspace-remote.ts — listWorkspaces + WorkspaceSummary",
+    "src/features/workspace/components/workspace-shell/use-workspace-shell.ts — the load and open(id)",
+    "src/features/workspace/components/workspace-shell/workspace-shell.tsx — the list on the landing screen",
+    "src/features/workspace/utils/workspace-remote.test.ts — g5",
+    "todo-task-042-workspace-list.md"
+  ],
+  "verify": "npm run verify green (arch 18/0, lint 0 errors, typecheck clean, 379 passed/15 skipped). Live suite with the stack: 7/7 including g5. Browser: the landing listed the seeded workspace and opening it mounted the workspace at /w/f05e17f9-….",
+  "decisions_recap": [
+    "RLS decides the set; no client filter.",
+    "A read only — no meta, no outbox.",
+    "A failed list degrades silently to the create form.",
+    "RULE-14's redirect is untouched."
+  ],
+  "follow_up_tasks": [
+    "Ordering by recency (needs a column or a local 'last opened' note) and rename/delete are product calls.",
+    "Search/pagination if a pilot account ever holds dozens of workspaces."
+  ]
+}

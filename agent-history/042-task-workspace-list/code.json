@@ -1,0 +1,17 @@
+{
+  "task_id": "042-task-workspace-list",
+  "phase": "code",
+  "completed_at": "2026-09-27T04:55:00Z",
+  "changes": [
+    {"file": "src/features/workspace/utils/workspace-remote.ts", "summary": "listWorkspaces(): `select id, title` from sessions with no client filter — RLS scopes it to the caller's teams; an empty title becomes 'Untitled'.", "kind": "feature"},
+    {"file": "src/features/workspace/components/workspace-shell/use-workspace-shell.ts", "summary": "loads the list while landing (waiting for profileId; a failure leaves it empty) and exposes `open(id)` to navigate.", "kind": "feature"},
+    {"file": "src/features/workspace/components/workspace-shell/workspace-shell.tsx", "summary": "the landing screen lists the workspaces as rows with a drifting arrow, adapts its heading/subtitle when the list is present, and labels the form 'New workspace'.", "kind": "feature"},
+    {"file": "src/features/workspace/utils/workspace-remote.test.ts", "summary": "g5: the leader's list contains the workspace they created; a member of the seeded team sees the seeded one and not the new team's.", "kind": "test"}
+  ],
+  "decisions": [
+    "RLS is the filter; the query carries no where clause.",
+    "A read only: no meta write, no outbox op, so it cannot park.",
+    "A failed list is silent — the screen degrades to exactly what it was.",
+    "RULE-14 is untouched: a cached session still redirects straight to the last workspace."
+  ]
+}

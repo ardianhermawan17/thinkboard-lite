@@ -1,0 +1,21 @@
+{
+  "task_id": "042-task-workspace-list",
+  "phase": "validate",
+  "goal_checks": [
+    {"goal_id": "g1", "status": "pass", "notes": "listWorkspaces() selects id, title with no where clause and normalises an empty title. PROVEN live: the live suite's g5 shows the leader's list containing the workspace they created, and a member of the seeded team seeing the seeded workspace but not that new team's — the set is RLS's, not a client filter's."},
+    {"goal_id": "g2", "status": "pass", "notes": "The landing renders the rows above the create form and adapts its heading ('Your workspaces' when there are rows, 'Start a workspace' otherwise); the form is unchanged apart from a 'New workspace' label when the list is present."},
+    {"goal_id": "g3", "status": "pass", "notes": "open(id) pushes /w/<id>. PROVEN live: clicking the row navigated to /w/f05e17f9-… and the workspace mounted. The load's catch leaves the list empty, so an offline landing is exactly the old screen."},
+    {"goal_id": "g4", "status": "pass", "notes": "verify green (379/15, arch 18/0, lint 0 errors, typecheck clean); the live suite is 7/7 with the new g5; the browser click-through passed."}
+  ],
+  "cross_check_against_plan": [
+    {"doc": "frontend-thinkboard-lite/AGENTS.md", "section": "§2 placement tree", "result": "matches — an online read sits in features/workspace/utils (with teamOfSession/createWorkspace); the hook loads it; the shell renders it. No Dexie query hook, because `sessions` is not a mirrored table."},
+    {"doc": "frontend-thinkboard-lite/AGENTS.md", "section": "§5 where state lives", "result": "matches — the list is component state in the container hook, not a slice; nothing domain-shaped is stored."},
+    {"doc": "todo-task-008-auth-and-workspace-shell.md", "section": "RULE-14", "result": "matches — a cached session still redirects to the last workspace; the list only fills the 'offers create' branch."}
+  ],
+  "signed_off": true,
+  "issues_found": [
+    "The landing screen was a dead end for a returning user on a new device; this closes it without changing RULE-14.",
+    "`sessions` is not one of the seven mirrored tables, so the list is a remote read rather than a Dexie query — the honest placement, and the same shape as teamOfSession.",
+    "An offline list is empty by design; the create form remains the offline path."
+  ]
+}

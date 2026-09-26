@@ -1,0 +1,28 @@
+{
+  "task_id": "042-task-workspace-list",
+  "phase": "analyze",
+  "started_at": "2026-09-27T04:30:00Z",
+  "completed_at": "2026-09-27T04:40:00Z",
+  "sources_read": [
+    {"doc": "src/features/workspace/components/workspace-shell/use-workspace-shell.ts", "section": "the landing branch and the existing remote reads"},
+    {"doc": "src/features/workspace/utils/workspace-remote.ts", "section": "teamOfSession / createWorkspace — where an online read belongs"},
+    {"doc": "src/features/entities/db/thinkboard-db.ts", "section": "the seven mirrored tables — `sessions` is not one of them"},
+    {"doc": "src/features/workspace/components/workspace-shell/workspace-shell.tsx", "section": "the landing JSX to extend"},
+    {"doc": "frontend-thinkboard-lite/AGENTS.md", "section": "§2 placement tree, §5 where state lives"}
+  ],
+  "scope": "One remote read, the landing list, and its wiring. Out of scope: ordering, rename/delete, search, and any change to RULE-14's redirect-to-last behaviour.",
+  "acceptance_criteria": [
+    {"goal_id": "g1", "text": "select id, title with no client filter; RLS decides the set."},
+    {"goal_id": "g2", "text": "The list renders above the create form; the heading adapts; the form is untouched."},
+    {"goal_id": "g3", "text": "A click navigates to /w/<id>; a rejection leaves an empty list and no error banner."},
+    {"goal_id": "g4", "text": "verify green; a live list→open; the live suite gains a test that proves the RLS scoping."}
+  ],
+  "open_questions": [
+    "Whether the pilot wants ordering by recency (needs a column or a local note) and rename/delete; both are product calls."
+  ],
+  "risks": [
+    "The list is empty when offline — accepted, because the create form is the offline-capable path and a workspace URL still opens directly.",
+    "A sign-in that has not resolved a profile yet must not query; the hook waits for profileId.",
+    "Creating a workspace from the same screen still works; the list is additive."
+  ]
+}

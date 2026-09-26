@@ -342,6 +342,11 @@ Critical path = the demoable slice:  000 → 001 → 004 → 006 → 008 → 009
   notes, importing your own highlights, the people, the export), with a **spotlight** that moves between real elements and a card per step. Motion springs the ring and
   pops the card; a CSS-transitioned `clip-path` cuts the hole, which stays **clickable** so the explained control can be tried while it is described. The flag
   (`workspace.tourSeen`) persists, and **finishing or skipping both close it for good**. `npm run verify` green (379 / 14).
+- **Also done:** 042 (the landing lists your workspaces) — `/w` was a dead end for a returning user on a new device: it redirected to the last workspace (RULE-14) or
+  offered **create**, so an existing workspace had to be reached by URL. It now lists the workspaces the account can open — a `select id, title` with **no client
+  filter, because RLS already scopes it** — as rows above the create form, with the heading adapting to what is there. Opening one goes to `/w/<id>`; a failed list
+  (offline, or before sign-in resolves) degrades silently to the old screen, so creating still works offline. `npm run verify` green (379 / 15 skipped); the live
+  suite gained **g5** proving the scoping against the real stack (**7/7**), and the click-through was verified in the browser.
 - **Next:** nothing an agent can start remains. 013/014/022 wait on 012 (human device test, Q7); 019/020 wait on 018 (D-12); 023 waits on 015/016/020/022;
   024 is conditional. The live gates 030 / 015 / 016 / 031 / 017 (and the whole text-highlight path, and all three import rungs) are now proven in a real browser
   (033, 034); the browser-only remainder is a genuine Acrobat-exported annotated PDF. The human unblockers are unchanged: run 012's device test (Q7), answer

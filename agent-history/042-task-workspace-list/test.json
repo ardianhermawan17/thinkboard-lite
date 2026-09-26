@@ -1,0 +1,17 @@
+{
+  "task_id": "042-task-workspace-list",
+  "phase": "test",
+  "test_files": ["src/features/workspace/utils/workspace-remote.test.ts"],
+  "commands_run": [
+    {"command": "npm run verify", "result": "green: arch 18 pass/0 fail, lint 0 errors, typecheck clean, vitest 379 passed / 15 skipped (the new live test skips without the stack)"},
+    {"command": "npx vitest run --project unit src/features/workspace/utils/workspace-remote.test.ts (with the stack env)", "result": "7/7 passed, including the new g5 that proves the RLS scoping"},
+    {"command": "browser (dev, fresh browser so no session was cached)", "result": "signed in; the landing showed 'Start a workspace', then the list arrived as 'Your workspaces' with one row, the seeded 'Placeholder report review'; clicking it opened /w/f05e17f9-… and the workspace mounted"}
+  ],
+  "live_evidence": [
+    {"what": "the list", "how": "heading 'Your workspaces' with the seeded workspace as a row, the create form still present below"},
+    {"what": "opening one", "how": "the click navigated to /w/f05e17f9-… and the presence rail mounted"},
+    {"what": "RLS scoping", "how": "live suite g5: the leader sees the workspace they created; a member of the seeded team sees the seeded one and not the new team's"}
+  ],
+  "summary": {"total": 379, "passed": 379, "failed": 0, "skipped": 15},
+  "coverage_notes": "The gate cannot run a remote read, so the proof is the live suite's g5 (RLS scoping, against the real stack) plus the browser click-through. The gate's 15th skip is that new test."
+}
