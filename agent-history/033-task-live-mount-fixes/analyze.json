@@ -1,0 +1,30 @@
+{
+  "task_id": "033-task-live-mount-fixes",
+  "phase": "analyze",
+  "started_at": "2026-09-26T11:30:00Z",
+  "completed_at": "2026-09-26T11:40:00Z",
+  "sources_read": [
+    {"doc": "frontend-thinkboard-lite/src/shared/lib/pdf.ts", "section": "renderPage/renderTextLayer (the one pdfjs seam)"},
+    {"doc": "frontend-thinkboard-lite/src/shared/components/canvas/page-stage/use-page-stage.ts", "section": "the paint effect and its dependency array"},
+    {"doc": "frontend-thinkboard-lite/src/shared/components/canvas/page-stage/page-stage.tsx", "section": "the z0/z1/z2 layout and the stage's `select-none`"},
+    {"doc": "frontend-thinkboard-lite/src/features/highlight/components/text-highlight-capture/use-text-highlight-capture.ts", "section": "the pointerup-based capture that reads window.getSelection()"},
+    {"doc": "frontend-thinkboard-lite/src/features/presence/use-presence.ts", "section": "the leader-indicator page check"},
+    {"doc": "frontend-thinkboard-lite/src/features/presence/components/presence-provider/presence-provider.tsx", "section": "page: 0"},
+    {"doc": "the dev server log", "section": "`Cannot use the same canvas during multiple render() operations`"}
+  ],
+  "scope": "Two mount-level defects in @shared/lib/pdf and the page stage, plus their tests. Out of scope: the presence page source (a design choice, raised), and the import rungs 2/3.",
+  "acceptance_criteria": [
+    {"goal_id": "g1", "text": "With an AbortSignal, a second paint cancels the first; the Konva stage mounts in a browser."},
+    {"goal_id": "g2", "text": "The text layer allows native selection when no tool is armed; arming a tool disables it."},
+    {"goal_id": "g3", "text": "A test asserts the paint's signal is aborted on unmount; a test asserts the text layer's select class follows `drawing`."},
+    {"goal_id": "g4", "text": "docs updated; the `page: 0` indicator defect is recorded, not guessed at."}
+  ],
+  "open_questions": [
+    "What is 'the current page' for the leader indicator, given the viewer renders every page at once? The provider hardcodes 0 and the cursor carries 1-based pages, so the indicator never fires live. This needs a source (a viewed-page signal, or an explicit multi-page rule) — raised, not picked."
+  ],
+  "risks": [
+    "Cancelling a render makes renderPage reject; the caller must swallow the abort and still surface real failures.",
+    "user-select is inherited, so `select-text` must sit on the text layer itself, not the stage.",
+    "A cancelled text layer must not leave half a layer behind; it cancels with the same signal."
+  ]
+}

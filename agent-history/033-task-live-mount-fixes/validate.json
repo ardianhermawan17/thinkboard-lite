@@ -1,0 +1,22 @@
+{
+  "task_id": "033-task-live-mount-fixes",
+  "phase": "validate",
+  "goal_checks": [
+    {"goal_id": "g1", "status": "pass", "notes": "renderPage/renderTextLayer accept a signal and cancel the pdfjs task on abort; usePageStage aborts on cleanup. PROVEN live: the canvas error stopped and the Konva stage (.konvajs-content, 2 layers) mounted. The stage had never mounted before, so 031's cursors and 010's highlight layer were dead in the browser."},
+    {"goal_id": "g2", "status": "pass", "notes": "The text layer is select-text unless a draw tool is armed. PROVEN live: with the class in place (no runtime hack), a selection of 60 characters produced a highlights row; before it, window.getSelection().toString() was empty because the stage's select-none was inherited."},
+    {"goal_id": "g3", "status": "pass", "notes": "use-page-stage.test.ts asserts the paint signal is aborted on unmount; page-stage.test.tsx asserts the text layer's select class follows `drawing`. Both pass; suite 363 passed / 14 skipped."},
+    {"goal_id": "g4", "status": "pass", "notes": "todo-task-033 + this record; task-review §3.3 and the vault hot cache updated. The PresenceProvider `page: 0` defect is recorded as an open question (033 §6, analyze.json) rather than guessed at."}
+  ],
+  "cross_check_against_plan": [
+    {"doc": "03-frontend-architecture.md", "section": "§6.1/§6.2", "result": "matches — pdfjs stays configured in the one seam (shared/lib/pdf); the cancellation is added there, not sprinkled into components."},
+    {"doc": "03-frontend-architecture.md", "section": "§7", "result": "matches — the tool still owns touch-action; selection toggles with the tool rather than permanently."},
+    {"doc": "04-frontend-folder-architecture.md", "section": "§6 (leaf kinds)", "result": "matches — the change is inside the canvas leaf and its hook; nothing imports across contexts."}
+  ],
+  "signed_off": true,
+  "issues_found": [
+    "The pdfjs render task was never cancelled, so the Konva stage never mounted in dev (and could break on any rapid page/zoom change). Fixed.",
+    "The page stage's select-none made the text layer unselectable, so task 010's text highlight was impossible in the browser. Fixed.",
+    "OPEN: PresenceProvider passes page: 0, so usePresence's leader-drawing check (cursor.page === pageRef.current) can never be true and 015 g4/028's indicator never fires live. Needs a 'current page' source — a design choice, raised.",
+    "example_notes.pdf has neither annotations nor highlighter-hue fills, so rung 1 (mounted, 032) finds nothing and rung 2 (unmounted, 021) would not either; rungs 2/3 remain the 032 follow-up."
+  ]
+}

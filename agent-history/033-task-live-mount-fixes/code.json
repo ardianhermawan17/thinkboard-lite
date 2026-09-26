@@ -1,0 +1,17 @@
+{
+  "task_id": "033-task-live-mount-fixes",
+  "phase": "code",
+  "completed_at": "2026-09-26T11:50:00Z",
+  "changes": [
+    {"file": "frontend-thinkboard-lite/src/shared/lib/pdf.ts", "summary": "renderPage and renderTextLayer take an optional AbortSignal and cancel the in-flight pdfjs task (task.cancel() / layer.cancel()) on abort; a new render is never started on a canvas that is still rendering.", "kind": "fix"},
+    {"file": "frontend-thinkboard-lite/src/shared/components/canvas/page-stage/use-page-stage.ts", "summary": "the paint effect owns one AbortController per run, passes its signal to both pdfjs calls, aborts on cleanup, and swallows the expected cancellation while still rethrowing anything else.", "kind": "fix"},
+    {"file": "frontend-thinkboard-lite/src/shared/components/canvas/page-stage/page-stage.tsx", "summary": "the z1 text layer is `select-text` while no draw tool is armed and `select-none` while one is, so native text selection works without a gesture selecting text.", "kind": "fix"},
+    {"file": "frontend-thinkboard-lite/src/shared/components/canvas/page-stage/use-page-stage.test.ts", "summary": "new test: a page change re-paints with a fresh signal and unmount aborts it.", "kind": "test"},
+    {"file": "frontend-thinkboard-lite/src/shared/components/canvas/page-stage/page-stage.test.tsx", "summary": "new test: the text layer's select class follows `drawing`.", "kind": "test"}
+  ],
+  "decisions": [
+    "Cancel the previous render rather than skip the new one: the newest page is the one that must win.",
+    "The text layer re-enables selection itself; the stage keeps `select-none` for overlays.",
+    "The leader-indicator page source is left alone and raised (see analyze.json.open_questions)."
+  ]
+}

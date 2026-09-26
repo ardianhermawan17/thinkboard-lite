@@ -300,10 +300,18 @@ Critical path = the demoable slice:  000 → 001 → 004 → 006 → 008 → 009
 - **Also done:** 032 (import existing highlights) — mounts 021 rung 1 against the open document: it scans the session's PDF for `/Highlight` annotations + text
   items (per page, exact text, no OCR) and offers the review. **D-02 divergence recorded**: this imports the open document, not a separately uploaded note-slot
   copy (no upload flow exists). `npm run verify` green (360 tests), production build ok. (`06-whole-apps-task.md`'s backlog is now 33 tasks.)
+- **Also done:** 033 (live mount fixes) — live browser testing found two defects the unit suite could not: the pdfjs render task was never cancelled
+  (React's dev double-effect meant the Konva stage never mounted, so peer cursors, the highlight layer and the marquee were dead), and the page stage's
+  `select-none` reached the text layer (so task 010's text selection was impossible). Both fixed and proven in a headless browser: the stage mounts, a
+  peer cursor arrives in **~70 ms**, and select→highlight→note→Supabase works. `npm run verify` green (363 tests / 14 skipped), build ok. Branch `task/live-fixes`.
 - **Next:** nothing an agent can start remains. 013/014/022 wait on 012 (human device test, Q7); 019/020 wait on 018 (D-12); 023 waits on 015/016/020/022;
-  024 is conditional. The unblockers are all human/hardware: run 012's device test (Q7), answer D-12, run the live gates (030 RLS, 015/031 two-browser, 016
-  airplane, 021/032 annotated-PDF), and decide D-02's upload flow.
-  Housekeeping: both carried items are done and proven live (030; RLS 19/19, seed 6/6, on the 563xx stack).
+  024 is conditional. The live gates 030 / 015 / 031 / 017 (and the whole text-highlight path) are now proven in a real browser (see 033); the browser-only
+  remainder is 016's airplane mode and a genuine Acrobat-annotated PDF. The human unblockers are unchanged: run 012's device test (Q7), answer D-12, decide
+  D-02's upload flow.
+  Housekeeping: both carried items are done and proven live (030; RLS 20/20, seed 6/6, on the 563xx stack).
+- **Open (raised, not fixed):** `PresenceProvider` passes `page: 0`, so `usePresence`'s leader-drawing check can never match a cursor's real (1-based) page —
+  the "Leader is drawing" indicator (015 g4 / 028) never fires live. It needs a "current page" source, and the viewer renders every page at once, so it is a
+  design choice: raised, not guessed.
 - **Waiting on a human:**
   - **D-12** — free-tier training terms vs document sensitivity. Blocks 018, and ink transcription in 024. 003's
     placeholder provider rows stand in until it is answered.

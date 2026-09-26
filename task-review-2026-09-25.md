@@ -92,7 +92,18 @@ Unit tests are strong, but several proofs can only run against the local Supabas
 - 016's airplane-mode round trip,
 - 021/032's **parser against a real document** is now covered (`annotation-quads.real.test.ts`: a pdf-lib-built PDF with a real two-quad /Highlight + text layer, read through real pdfjs — two rects, exact text, no OCR); a genuine Acrobat-exported fixture in a browser remains the manual check.
 
-**Note (environment):** Windows reserves TCP `55262–55361` on this machine, colliding with the documented 553xx Lite ports; the stack was moved to **563xx** (`config.toml`, README §6, database README, the two live-test comments). Restore 553xx on a machine where the range is free. The remaining live items are the frontend ones above.
+**Note (environment):** Windows reserves TCP `55262–55361` on this machine, colliding with the documented 553xx Lite ports; the stack was moved to **563xx** (`config.toml`, README §6, database README, the two live-test comments). Restore 553xx on a machine where the range is free.
+
+**Browser pass (2026-09-26, task 033).** With a headless Chrome driven over CDP against the dev server, the previously "manual" frontend items are now real results:
+- **Presence (015/028):** two isolated browser contexts, two teammates; each shows the other ("N here").
+- **Peer cursors (031/g5):** a cursor dispatched in one context reached the teammate's Konva canvas in **~70 ms** (well inside 015's ~100–300 ms target).
+- **Text highlight + note (010/012/026/007):** selecting text on `example_notes.pdf` wrote a `highlights` row and a note on it wrote a `highlight_notes` row, both synced to Postgres.
+
+The pass **found and fixed two defects that the unit suite structurally cannot see** (jsdom neither cancels a pdfjs render nor performs CSS selection):
+1. **The stage never mounted.** The pdfjs render task was never cancelled, so React's dev double-effect (and any page/zoom change) started a second render on the same canvas, which pdfjs refuses. `pageSize` stayed 0, so the Konva stage — peer cursors, the highlight layer, the marquee — never rendered. `renderPage`/`renderTextLayer` now take an `AbortSignal` and cancel the in-flight task.
+2. **Text could not be selected.** The page stage's `select-none` is inherited, so pdfjs's text layer was unselectable and 010's entire input was impossible. The text layer is now `select-text` unless a draw tool is armed.
+
+**Raised, not fixed:** `PresenceProvider` passes `page: 0` while cursors carry the real 1-based page, so `usePresence`'s leader-drawing check can never match and the "Leader is drawing" indicator (015 g4/028) never fires live. It needs a "current page" source; the viewer renders every page at once, so that is a design choice.
 
 ### 3.4 Plan docs have drifted in places
 - **015's `0005_live_topic.sql`** collided with the shipped `0005_storage_artifacts.sql`; resolved to `0006`.

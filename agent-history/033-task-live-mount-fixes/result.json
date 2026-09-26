@@ -1,0 +1,30 @@
+{
+  "task_id": "033-task-live-mount-fixes",
+  "phase": "result",
+  "closed_at": "2026-09-26T12:00:00Z",
+  "final_status": "done",
+  "goals_summary": {
+    "total": 4,
+    "done": 4,
+    "blocked": 0,
+    "detail": "g1 cancellable pdfjs render (stage mounts) pass; g2 selectable text layer pass; g3 unit tests pin both pass; g4 docs + the raised open question pass. Recomputed from task.json goals[] and validate.json goal_checks — all four 'pending' -> 'done', none blocked."
+  },
+  "artifacts": [
+    "frontend-thinkboard-lite/src/shared/lib/pdf.ts — AbortSignal on renderPage/renderTextLayer",
+    "frontend-thinkboard-lite/src/shared/components/canvas/page-stage/use-page-stage.ts — AbortController per paint",
+    "frontend-thinkboard-lite/src/shared/components/canvas/page-stage/page-stage.tsx — select-text on the text layer",
+    "the two page-stage test files",
+    "todo-task-033-live-mount-fixes.md"
+  ],
+  "verify": "npm run verify green: verify:arch 18 pass/0 fail, lint 0 errors, typecheck clean, vitest 363 passed/14 skipped; npm run build succeeded. Live (headless Chrome over the 563xx stack): the Konva stage mounts, a peer cursor arrives in ~70 ms, and select→highlight→note→Supabase works end to end.",
+  "decisions_recap": [
+    "Cancel the old render, keep the newest paint.",
+    "Selection is the default on the text layer; a draw tool turns it off.",
+    "The leader-indicator page source is a design question, raised rather than guessed."
+  ],
+  "follow_up_tasks": [
+    "Answer the 'current page' question and wire it into PresenceProvider so the leader-is-drawing indicator (015 g4/028) can fire.",
+    "032 follow-up: mount rungs 2/3 (rasterize + colour mask + cropped OCR); example_notes.pdf is a text-layer fixture but has no annotations and no highlighter-hue fills, so it exercises none of the rungs by itself.",
+    "Run the remaining browser-only gates: 016 airplane mode, and a genuine Acrobat-annotated PDF for 021."
+  ]
+}

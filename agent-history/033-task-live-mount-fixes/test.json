@@ -1,0 +1,20 @@
+{
+  "task_id": "033-task-live-mount-fixes",
+  "phase": "test",
+  "test_files": [
+    "frontend-thinkboard-lite/src/shared/components/canvas/page-stage/use-page-stage.test.ts",
+    "frontend-thinkboard-lite/src/shared/components/canvas/page-stage/page-stage.test.tsx"
+  ],
+  "commands_run": [
+    {"command": "npx vitest run --project unit src/shared/components/canvas/page-stage", "result": "8 passed (5 hook + 3 component), including the new abort test and the new select-class test"},
+    {"command": "npm run verify (frontend-thinkboard-lite)", "result": "green: verify:arch 18 pass/0 fail, lint 0 errors, typecheck clean, vitest 363 passed / 14 skipped (was 361/14)"},
+    {"command": "npm run build (frontend-thinkboard-lite)", "result": "succeeded; the four API routes remain dynamic"}
+  ],
+  "live_evidence": [
+    {"what": "the Konva stage mounts", "how": "dev log stopped reporting 'Cannot use the same canvas during multiple render() operations'; page 9 probe shows .konvajs-content with 2 layer canvases and no unhandled rejection"},
+    {"what": "peer cursors reach a teammate", "how": "leader cursor dispatched in isolated context 'leader2'; the teammate context's canvas checksum changed 70 ms later (Date.now across tabs)"},
+    {"what": "text highlight + note sync", "how": "a programmatic selection in .textLayer + pointerup wrote highlights row 01a0dd7a-a9ff-77f6-9085-538dc7dde8c5 (slug h-p01-01-qer9m6); a note on it wrote highlight_notes row 01a0dd7b-7eda-7781-b866-49a82f5dad0a — both present in Postgres"}
+  ],
+  "summary": {"total": 363, "passed": 363, "failed": 0, "skipped": 14},
+  "coverage_notes": "The two defects are exactly the class jsdom cannot see: a concurrent pdfjs render, and CSS user-select. The unit tests pin the intent (signal aborted on unmount; select class follows the tool); the browser is the real gate for both, and it now passes."
+}
