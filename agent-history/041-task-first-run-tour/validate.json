@@ -1,0 +1,23 @@
+{
+  "task_id": "041-task-first-run-tour",
+  "phase": "validate",
+  "goal_checks": [
+    {"goal_id": "g1", "status": "pass", "notes": "Seven steps (welcome, document, tools, notes, import, together, export), each naming a real surface; the copy uses the product's own words. Live: the counter read 1 / 7 .. and the titles advanced in order."},
+    {"goal_id": "g2", "status": "pass", "notes": "tourSeen sits on the workspace slice outside `ui`, so redux-persist keeps it (I16 strips `ui` only). Finishing and skipping both dispatch tourCompleted. Live: after finishing, a reload did not reopen the tour (persist key `persist:thinkboard`)."},
+    {"goal_id": "g3", "status": "pass", "notes": "The hole is a clip-path transitioned by CSS; the ring is a Motion spring and the card uses the task 036 `pop` variant; `motion-reduce:transition-none` plus MotionConfig reducedMotion collapse both. Live: the ring's inline geometry matched each target's getBoundingClientRect and the scrim's inline clip-path held the same rectangle."},
+    {"goal_id": "g4", "status": "pass", "notes": "npm run verify green (379/14, arch 18/0, lint 0 errors, typecheck clean). Live: opens on first run, walks, finishes, stays closed after reload."}
+  ],
+  "cross_check_against_plan": [
+    {"doc": "frontend-thinkboard-lite/AGENTS.md", "section": "§4 leaf kinds", "result": "matches — a container leaf under features/workspace/components with its hook, types, barrel and test."},
+    {"doc": "frontend-thinkboard-lite/AGENTS.md", "section": "§5 where state lives", "result": "matches — ids and phase in the slice; the tour's own UI state (step, measurement) is local to the hook; no domain row involved."},
+    {"doc": "todo-task-036-motion.md", "section": "§4", "result": "matches — Motion is used from the seam, and no entrance hides content (the spotlight dims, it never makes the app invisible)."},
+    {"doc": "04-frontend-folder-architecture.md", "section": "§6/§8", "result": "matches — the app route composes it; it reads no store itself (I4); the feature reads the store in its own hook."}
+  ],
+  "signed_off": true,
+  "issues_found": [
+    "I2 rejected the first cut: four useEffects lived in the .tsx. Every hook moved into use-onboarding-tour.ts.",
+    "The first measurement gave up after one retry, so a target that mounted late (the PDF canvas) left the spotlight at 0; it now keeps looking.",
+    "A hidden tab freezes CSS transitions and Motion springs, so animation progress cannot be observed headlessly — the proof reads inline styles instead.",
+    "The composition test needed the tour mocked (it reads the store; that test supplies no Provider)."
+  ]
+}

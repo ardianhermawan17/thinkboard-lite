@@ -1,0 +1,17 @@
+{
+  "task_id": "041-task-first-run-tour",
+  "phase": "test",
+  "test_files": ["src/features/workspace/components/onboarding-tour/onboarding-tour.test.tsx"],
+  "commands_run": [
+    {"command": "npm run verify", "result": "green: arch 18 pass/0 fail (I2 satisfied by moving every hook into the sibling hook), lint 0 errors, typecheck clean, vitest 379 passed / 14 skipped — 5 new tests"},
+    {"command": "browser (dev, workspace)", "result": "the tour opened at 1 / 7; Next walked it to 'Read the document' then 'Mark what matters'; the ring's inline geometry matched the page stage (362x0 @ y137) and the region toolbar (665x37 @ y59); the scrim's inline clip-path held the same rectangle"},
+    {"command": "browser: finish + reload", "result": "'Start reading' closed the tour; the persisted slice is `persist:thinkboard`; after a reload the tour did NOT reopen and the workspace mounted"}
+  ],
+  "live_evidence": [
+    {"what": "first run", "how": "step 1/7 'Welcome to your workspace' with Skip and Next"},
+    {"what": "the spotlight tracks real elements", "how": "ring inline transform/width matched getBoundingClientRect of the stage and the toolbar at each step"},
+    {"what": "once only", "how": "finish -> localStorage persisted flag -> reload -> no dialog"}
+  ],
+  "summary": {"total": 379, "passed": 379, "failed": 0, "skipped": 14},
+  "coverage_notes": "The five tests cover the step machine and the flag (open on first run, walk forward/back, finish, skip, stays closed). The DOM measurement and the animation are the browser's to prove, which is what the live pass did — including the late-mounting canvas that the first implementation failed to wait for."
+}

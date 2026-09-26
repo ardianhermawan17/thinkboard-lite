@@ -1,0 +1,28 @@
+{
+  "task_id": "041-task-first-run-tour",
+  "phase": "analyze",
+  "started_at": "2026-09-27T00:00:00Z",
+  "completed_at": "2026-09-27T00:10:00Z",
+  "sources_read": [
+    {"doc": "src/app/w/[workspaceId]/workspace-document.tsx", "section": "the composition to mount over"},
+    {"doc": "src/features/workspace/stores/workspace-slice.ts + types/redux.ts", "section": "where a persisted flag can live"},
+    {"doc": "src/shared/config/redux/persist.ts", "section": "the persist whitelist and stripUi"},
+    {"doc": "src/shared/lib/motion.ts", "section": "task 036's seam and its transform-only rule"},
+    {"doc": "frontend-thinkboard-lite/AGENTS.md", "section": "§4 the three leaf kinds, §5 where state lives"}
+  ],
+  "scope": "One container leaf plus a persisted flag and stable test ids. Out of scope: per-workspace scoping, a replay control, and any tour copy beyond plain product language.",
+  "acceptance_criteria": [
+    {"goal_id": "g1", "text": "Seven steps, each spotlighting a real element or centred."},
+    {"goal_id": "g2", "text": "tourSeen persists outside `ui` (I16); finishing and skipping both set it."},
+    {"goal_id": "g3", "text": "The hole moves via a CSS-transitioned clip-path; the ring and card move via Motion; reduced motion disables both."},
+    {"goal_id": "g4", "text": "verify green; a live run opens, walks, finishes, and stays closed after a reload."}
+  ],
+  "open_questions": [
+    "Whether the tour should replay on demand (a header control) or stay one-shot; today only signing out resets it."
+  ],
+  "risks": [
+    "A persisted boolean in the workspace slice is reset by signedOut — a returning account sees the tour once per sign-in. Accepted, and recorded.",
+    "The target may not exist yet when a step starts (the PDF canvas mounts late); the measurement retries.",
+    "A hidden tab freezes CSS transitions and Motion springs alike, so neither may be the only thing that makes a step legible."
+  ]
+}

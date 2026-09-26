@@ -338,6 +338,10 @@ Critical path = the demoable slice:  000 → 001 → 004 → 006 → 008 → 009
   link opened offline renders the workspace from Dexie. Two silent traps fixed: `fallbacks` does not precache its entries, and **Serwist never disables navigation
   preload** — a stale registration answered offline navigations with a failed preload response (a blank page). Proven with the production server **killed**: `/w`
   and `/w/<id>` both render. `npm run verify` green (374 / 14).
+- **Also done:** 041 (first-run tour) — the document view now explains itself the first time: a **seven-step guided tour** over the workspace (the document, the tools, the
+  notes, importing your own highlights, the people, the export), with a **spotlight** that moves between real elements and a card per step. Motion springs the ring and
+  pops the card; a CSS-transitioned `clip-path` cuts the hole, which stays **clickable** so the explained control can be tried while it is described. The flag
+  (`workspace.tourSeen`) persists, and **finishing or skipping both close it for good**. `npm run verify` green (379 / 14).
 - **Next:** nothing an agent can start remains. 013/014/022 wait on 012 (human device test, Q7); 019/020 wait on 018 (D-12); 023 waits on 015/016/020/022;
   024 is conditional. The live gates 030 / 015 / 016 / 031 / 017 (and the whole text-highlight path, and all three import rungs) are now proven in a real browser
   (033, 034); the browser-only remainder is a genuine Acrobat-exported annotated PDF. The human unblockers are unchanged: run 012's device test (Q7), answer

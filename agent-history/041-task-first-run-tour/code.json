@@ -1,0 +1,19 @@
+{
+  "task_id": "041-task-first-run-tour",
+  "phase": "code",
+  "completed_at": "2026-09-27T00:45:00Z",
+  "changes": [
+    {"file": "src/features/workspace/components/onboarding-tour/{onboarding-tour.tsx,use-onboarding-tour.ts,types.ts,index.ts,onboarding-tour.test.tsx}", "summary": "the tour: seven steps, a scrim clipped into a spotlight, a Motion spring ring, a popping card, progress dots, Skip/Back/Next, keyboard (Escape/arrows) and focus handling. Every hook is in use-onboarding-tour.ts (I2).", "kind": "feature"},
+    {"file": "src/features/workspace/stores/workspace-slice.ts + types/redux.ts", "summary": "adds tourSeen (persisted, outside `ui` so stripUi keeps it) and a tourCompleted action.", "kind": "feature"},
+    {"file": "src/features/workspace/selectors/workspace-selectors.ts", "summary": "selectTourSeen.", "kind": "feature"},
+    {"file": "src/app/w/[workspaceId]/workspace-document.tsx", "summary": "mounts OnboardingTour in the document view and gives the region toolbar a stable test id.", "kind": "feature"},
+    {"file": "src/features/workspace/components/export-workspace/export-workspace.tsx, src/features/highlight/components/import-source/import-source.tsx", "summary": "stable test ids for the tour's targets.", "kind": "feature"},
+    {"file": "src/app/w/[workspaceId]/workspace-document.test.tsx, src/features/document/components/document-viewer/document-viewer.test.tsx", "summary": "mock the tour in the composition test (no store there); add the new field to a preloaded state.", "kind": "test"}
+  ],
+  "decisions": [
+    "A persisted boolean on the workspace slice, set by finish and by skip.",
+    "The scrim is clipped with an evenodd polygon so the spotlight stays clickable.",
+    "CSS transitions the clip-path; Motion moves the ring and pops the card — two mechanisms, because a hidden tab freezes each.",
+    "Every hook in the sibling use-*.ts (I2), so the .tsx renders only."
+  ]
+}

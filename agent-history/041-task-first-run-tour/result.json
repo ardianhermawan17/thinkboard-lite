@@ -1,0 +1,31 @@
+{
+  "task_id": "041-task-first-run-tour",
+  "phase": "result",
+  "closed_at": "2026-09-27T00:55:00Z",
+  "final_status": "done",
+  "goals_summary": {
+    "total": 4,
+    "done": 4,
+    "blocked": 0,
+    "detail": "g1 the seven-step tour pass; g2 the persisted first-run flag pass; g3 the animated spotlight pass; g4 verify + the live first-run/finish/reload pass. Recomputed from task.json goals[] and validate.json goal_checks — all four 'pending' -> 'done', none blocked."
+  },
+  "artifacts": [
+    "src/features/workspace/components/onboarding-tour/ (the container, its hook, types, barrel and test)",
+    "src/features/workspace/stores/workspace-slice.ts + types/redux.ts + selectors — tourSeen + tourCompleted",
+    "src/app/w/[workspaceId]/workspace-document.tsx — the mount and the region-toolbar test id",
+    "the test ids on import-source and export-workspace",
+    "todo-task-041-first-run-tour.md"
+  ],
+  "verify": "npm run verify green (arch 18/0, lint 0 errors, typecheck clean, 379 passed/14 skipped). Live: the tour opens 1/7 on a first visit, walks with the spotlight tracking the stage and the toolbar, finishes on 'Start reading', and does not reopen after a reload.",
+  "decisions_recap": [
+    "A persisted tourSeen flag, set by both finish and skip.",
+    "A clipped scrim, so the explained control stays usable while the rest is blocked.",
+    "CSS for the hole, Motion for the ring and card — a hidden tab freezes each, so no single mechanism carries the step.",
+    "Every hook in the sibling hook file (I2)."
+  ],
+  "follow_up_tasks": [
+    "A 'show the tour again' control (header/account), so it need not be one-shot for the account.",
+    "Per-workspace scoping if the pilot wants it once per document.",
+    "A designer's pass on the seven step texts."
+  ]
+}
