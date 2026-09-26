@@ -3,17 +3,19 @@
 import { useCallback, useState } from "react"
 import { useArtifactsForSession } from "@feature/entities/queries/use-artifacts-for-session"
 import type { ArtifactRow } from "@feature/entities/types"
-import { loadArtifactBytes, openPdf } from "@shared/lib/pdf"
+import { loadArtifactBytes, openPdf, pageImageData } from "@shared/lib/pdf"
 import { useWorkspaceContext } from "@shared/providers/workspace-provider"
 import { viewportLike } from "../../utils/annotation-quads"
-import { annotationCandidates, type ImportCandidate } from "../../utils/import-ladder"
+import { annotationCandidates, flattenedCandidates, type ImportCandidate } from "../../utils/import-ladder"
 import { textBoxesFromViewport, type PdfTextItemLike } from "../../utils/pdf-text-boxes"
 import type { ImportSourceState } from "./types"
 
 /**
- * 032: rung 1 against the OPEN document. It reads the session's main PDF bytes through the existing seam,
- * opens it, and asks each page for its `/Highlight` annotations + its text items, so the exact-text intersect
- * can run (RULE-19: no OCR, no upload). D-02's separately uploaded note copy is a separate follow-up.
+ * 032's importer, rungs 1 and 2 (spec §5.4). It reads the session's main PDF bytes through the existing seam and,
+ * per page, tries rung 1 first: exact `/Highlight` annotations + exact text, no OCR. A page with no annotations is
+ * a flattened document — the mark is ink, so it rasterizes the page and finds the mark by its colour (rung 2), with
+ * the text layer still supplying the exact text (RULE-19: no OCR for either rung). Rung 3 (a scan, OCR crops) is the
+ * remaining follow-up. D-02's separately uploaded note copy stays its own follow-up.
  */
 export function useImportSource(): ImportSourceState {
   const { profileId, sessionId } = useWorkspaceContext()
@@ -35,11 +37,19 @@ export function useImportSource(): ImportSourceState {
       const found: ImportCandidate[] = []
       for (let pageNumber = 1; pageNumber <= doc.numPages; pageNumber++) {
         const page = await doc.getPage(pageNumber)
-        const annotations = (await page.getAnnotations()) as unknown as Parameters<typeof annotationCandidates>[0]
         const viewport = page.getViewport({ scale: 1 })
         const content = await page.getTextContent()
         const boxes = textBoxesFromViewport(content.items as unknown as PdfTextItemLike[], { transform: viewport.transform })
-        found.push(...annotationCandidates(annotations, viewportLike(viewport), pageNumber, 0, boxes))
+        const annotations = (await page.getAnnotations()) as unknown as Parameters<typeof annotationCandidates>[0]
+        const fromAnnotations = annotationCandidates(annotations, viewportLike(viewport), pageNumber, 0, boxes)
+        // The ladder stops at the first rung that finds marks: annotations are exact, so a page that has them
+        // never pays for a raster.
+        if (fromAnnotations.length > 0) {
+          found.push(...fromAnnotations)
+          continue
+        }
+        const image = await pageImageData(doc, pageNumber)
+        if (image) found.push(...flattenedCandidates(image, pageNumber, 0, boxes))
       }
       setCandidates(found)
       if (found.length === 0) setError("No highlights were found in this document")
