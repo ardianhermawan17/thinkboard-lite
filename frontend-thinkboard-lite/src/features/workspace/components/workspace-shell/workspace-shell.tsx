@@ -17,7 +17,7 @@ import { Textarea } from "@shared/components/ui/textarea"
 import { useWorkspaceShell } from "./use-workspace-shell"
 
 function Body({ workspaceId, children }: { workspaceId?: string; children?: ReactNode }) {
-  const { landing, redirecting, error, session, create, profileId, sessionId } = useWorkspaceShell(workspaceId)
+  const { landing, redirecting, error, session, workspaces, create, open, profileId, sessionId } = useWorkspaceShell(workspaceId)
 
   if (redirecting) return <Skeleton className="h-svh w-full" />
 
@@ -30,12 +30,31 @@ function Body({ workspaceId, children }: { workspaceId?: string; children?: Reac
             className="inline-flex w-max items-center gap-2 rounded-pill border border-border bg-card/70 px-3 py-1 font-mono text-[10px] tracking-[0.2em] text-muted-foreground uppercase"
           >
             <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary" />
-            New workspace
+            ThinkBoard Lite
           </motion.p>
           <motion.div variants={riseChild}>
-            <h1 className="mt-4 text-2xl font-medium tracking-tight">Start a workspace</h1>
-            <p className="mt-1.5 text-sm text-muted-foreground">Name it, give it a title, and say what it is for. Your team gets a new one.</p>
+            <h1 className="mt-4 text-2xl font-medium tracking-tight">{workspaces.length > 0 ? "Your workspaces" : "Start a workspace"}</h1>
+            <p className="mt-1.5 text-sm text-muted-foreground">
+              {workspaces.length > 0 ? "Open one, or start a new one below." : "Name it, give it a title, and say what it is for. Your team gets a new one."}
+            </p>
           </motion.div>
+
+          {workspaces.length > 0 && (
+            <motion.ul variants={riseChild} className="mt-6 flex flex-col gap-1.5">
+              {workspaces.map((w) => (
+                <li key={w.id}>
+                  <button
+                    type="button"
+                    onClick={() => open(w.id)}
+                    className="group/w flex w-full items-center justify-between gap-3 rounded-xl border border-border bg-card/70 px-3.5 py-3 text-left text-sm shadow-soft transition-colors duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] hover:bg-muted"
+                  >
+                    <span className="min-w-0 truncate">{w.title}</span>
+                    <ArrowRight className="size-4 shrink-0 text-muted-foreground transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover/w:translate-x-0.5" aria-hidden />
+                  </button>
+                </li>
+              ))}
+            </motion.ul>
+          )}
           <motion.form
             variants={riseChild}
             className="mt-8 rounded-2xl border border-border bg-card p-5 shadow-soft"
@@ -44,6 +63,7 @@ function Body({ workspaceId, children }: { workspaceId?: string; children?: Reac
               void create(new FormData(e.currentTarget))
             }}
           >
+            {workspaces.length > 0 && <p className="mb-4 font-mono text-[10px] tracking-[0.2em] text-muted-foreground uppercase">New workspace</p>}
             <div className="flex flex-col gap-4">
               <div className="flex flex-col gap-2">
                 <label htmlFor="ws-name" className="text-sm font-medium">

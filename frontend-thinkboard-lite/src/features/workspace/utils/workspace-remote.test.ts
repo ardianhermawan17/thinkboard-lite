@@ -5,7 +5,7 @@ import { realDeps } from "@feature/sync/middleware/engine"
 import { getSupabase } from "@shared/lib/supabase"
 import { afterAll, beforeAll, describe, expect, it } from "vitest"
 import type { MemberMeta } from "../types/meta"
-import { createWorkspace, hasSession, saveTeamPersona, saveUserPersona, signIn, signOut, transferLeadership } from "./workspace-remote"
+import { createWorkspace, hasSession, listWorkspaces, saveTeamPersona, saveUserPersona, signIn, signOut, transferLeadership } from "./workspace-remote"
 
 // The gate test for 008 (g1-g4) and 007 g7: real RLS against the seeded local stack (database-thinkboard-lite: `npm run start`, `npm run db:seed`).
 // It skips itself in `npm run verify` unless the stack's URL and publishable key are in the environment:
@@ -117,5 +117,20 @@ describe.skipIf(!live)("workspace remote, against the seeded stack under real RL
     const second = await drain()
     expect(second.parked).toHaveLength(1)
     expect(second.parked[0].lastError).toMatch(/duplicate|unique/i)
+  })
+
+  it("g5: the landing list is exactly the workspaces this account can open, and RLS scopes it", async () => {
+    await as("leader")
+    const created = await createWorkspace("Landing list", "Landing title", "Landing goal")
+    const mine = await listWorkspaces()
+    expect(mine.map((w) => w.id)).toContain(created.sessionId)
+
+    // a member of the seeded team sees the seeded workspace, never the new team's (that team has only its leader)
+    await as("member-a")
+    const theirs = await listWorkspaces()
+    expect(theirs.map((w) => w.id)).toContain(seededSessionId)
+    expect(theirs.map((w) => w.id)).not.toContain(created.sessionId)
+
+    await as("leader")
   })
 })

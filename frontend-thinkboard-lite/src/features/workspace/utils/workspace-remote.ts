@@ -47,6 +47,19 @@ export async function teamOfSession(sessionId: string): Promise<string> {
   return (row as unknown as { board_columns: { boards: { team_id: string } } }).board_columns.boards.team_id
 }
 
+export type WorkspaceSummary = { id: string; title: string }
+
+/**
+ * The workspaces this account can open. RLS scopes `sessions` to the caller's own teams, so the list is "yours" by
+ * construction — no filter is applied here and none should be. It is a read (never a write path) and needs the
+ * network, which is why the landing screen treats a failure as an empty list rather than an error: creating a new
+ * workspace still works offline.
+ */
+export async function listWorkspaces(): Promise<WorkspaceSummary[]> {
+  const rows = check(await getSupabase().from("sessions").select("id, title"))
+  return (rows ?? []).map((row) => ({ id: row.id as string, title: ((row.title as string | null) ?? "").trim() || "Untitled" }))
+}
+
 /** The leader hands the role to an existing member (D-09). The roster shows it at once; the RPC demotes first, so one leader remains. */
 export async function transferLeadership(teamId: string, toProfileId: string, roster: MemberMeta[]): Promise<void> {
   const next = roster.map((m) => ({ ...m, role: m.profile_id === toProfileId ? "leader" : m.role === "leader" ? "member" : m.role }))
