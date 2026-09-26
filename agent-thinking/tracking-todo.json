@@ -1,6 +1,6 @@
 {
 	"schema_version": "1.0",
-	"updated_at": "2026-09-26T04:50:00Z",
+	"updated_at": "2026-09-26T05:00:00Z",
 	"tracked_todos": [
 		{
 			"id": "000-todo-architecture-contract",
@@ -184,6 +184,14 @@
 			"goal": "Anon cannot call the definer RPCs, and a teammate can read a co-member's name.",
 			"todo_path": "agent-thinking/todo/030-todo-db-housekeeping/contract.json",
 			"agent_history": "agent-history/030-task-db-housekeeping",
+			"status": "done"
+		},
+		{
+			"id": "031-todo-peer-cursors",
+			"name": "Peer cursors",
+			"goal": "A teammate's pointer is drawn on the page as it moves, and this client publishes its own.",
+			"todo_path": "agent-thinking/todo/031-todo-peer-cursors/contract.json",
+			"agent_history": "agent-history/031-task-peer-cursors",
 			"status": "done"
 		}
 	]

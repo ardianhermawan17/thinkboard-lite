@@ -27,4 +27,9 @@ export type PageStageProps = {
   interactive?: boolean
   /** g2 (03 §7): `touch-action: none` only while a draw tool is active, so the page still scrolls/pans otherwise. */
   drawing?: boolean
+  /**
+   * 031: fires on every pointer move with the pointer's pixel offset inside the Stage and the Stage's size.
+   * A plain callback — the leaf imports nothing; the composing app normalizes (RULE-17) and throttles it.
+   */
+  onPointerAt?: (point: { x: number; y: number }, size: { width: number; height: number }) => void
 }

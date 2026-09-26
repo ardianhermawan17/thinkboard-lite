@@ -215,6 +215,7 @@ in `task_sequence` is *not opened*.
 | G | 028 presence rail | [todo-task-028](todo-task-028-presence-rail.md) | frontend | 015 026 | **done** |
 | G | 029 re-import review | [todo-task-029](todo-task-029-reimport-review.md) | frontend | 016 026 | **done** |
 | G | 030 database housekeeping | [todo-task-030](todo-task-030-db-housekeeping.md) | supabase | 001 002 | **done** (live RLS run pending) |
+| G | 031 peer cursors | [todo-task-031](todo-task-031-peer-cursors.md) | frontend | 015 026 028 | **done** |
 
 ```
 Critical path = the demoable slice:  000 → 001 → 004 → 006 → 008 → 009 → 010 → 012
@@ -292,9 +293,12 @@ Critical path = the demoable slice:  000 → 001 → 004 → 006 → 008 → 009
 - **Also done:** 030 (database housekeeping) — `0007` revokes EXECUTE on the definer RPCs from PUBLIC and `anon` (granting `authenticated`), and `0008` lets a
   teammate read a co-member's profile name; `rls.sql` gained the g17/g18 checks. The task's own live RLS run is pending (no local stack here); the repo gate
   stays green. (`06-whole-apps-task.md`'s backlog is now 31 tasks.)
+- **Also done:** 031 (peer cursors) — one `PresenceProvider` owns the live channel; `PresenceLayer` paints peers' cursors through the `peer-cursors` leaf and the
+  page publishes its own pointer, normalized (RULE-17) and throttled ~20 Hz (RULE-20). Closes 015 g2. `npm run verify` green (354 tests), production build ok.
+  (`06-whole-apps-task.md`'s backlog is now 32 tasks.)
 - **Next:** nothing is unblocked by dependencies. 013/014/022 wait on 012 (human device test, Q7); 019/020 wait on 018 (D-12); 023 waits on 015/016/020/022.
-  The next real progress is a human action — run 012's device test, answer D-12, run 015's two-browser test, or run 030's live RLS suite — or continuing the
-  integration: painting peer cursors and mounting 021's import review.
+  The next real progress is a human action — run 012's device test, answer D-12, run 015's/031's two-browser test, or run 030's live RLS suite — or mounting
+  021's import review.
   Housekeeping: both carried items are done (030); the live RLS run for them is pending.
 - **Waiting on a human:**
   - **D-12** — free-tier training terms vs document sensitivity. Blocks 018, and ink transcription in 024. 003's

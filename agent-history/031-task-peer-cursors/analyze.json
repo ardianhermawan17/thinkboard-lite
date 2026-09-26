@@ -1,0 +1,34 @@
+{
+  "task_id": "031-task-peer-cursors",
+  "phase": "analyze",
+  "started_at": "2026-09-26T05:00:00Z",
+  "completed_at": "2026-09-26T05:10:00Z",
+  "sources_read": [
+    {"doc": "README.md", "section": "§5 task map, §7 hard limits"},
+    {"doc": "06-whole-apps-task.md", "section": "PHASE G · 031"},
+    {"doc": "01-thinkboard-lite-spec.md", "section": "§5.2, RULE-17, RULE-20"},
+    {"doc": "todo-task-031-peer-cursors.md", "section": "full file"},
+    {"doc": "frontend-thinkboard-lite/src/shared/components/canvas/peer-cursors/", "section": "the leaf's register/paint contract and the painter"},
+    {"doc": "frontend-thinkboard-lite/src/features/presence/use-presence.ts", "section": "the hook to extend with a cursor store"},
+    {"doc": "frontend-thinkboard-lite/src/shared/utils/geometry.ts", "section": "normalizePoint/denormalizePoint for the wire"},
+    {"doc": "frontend-thinkboard-lite/src/shared/components/canvas/page-stage/page-stage.tsx", "section": "where a pointer callback fits"},
+    {"doc": "frontend-thinkboard-lite/src/features/highlight/components/highlighted-page/highlighted-page.tsx", "section": "the Stage children the layer mounts into"}
+  ],
+  "scope": "A single presence provider/context, a cursor store on usePresence, a PresenceLayer that paints incoming cursors, a page pointer callback that publishes throttled/normalized cursors, and the page-stage/highlighted-page slots they need. Out of scope: a second channel; cursors in React state; the live measurement.",
+  "acceptance_criteria": [
+    {"goal_id": "g1", "text": "One live channel; rail and layer both consume the provider's value (no second usePresence channel)."},
+    {"goal_id": "g2", "text": "An incoming cursor paints through the leaf; unmount clears the paint; React state is untouched by cursors."},
+    {"goal_id": "g3", "text": "A pointer publishes page-relative 0-1 through geometry, at most once per interval and not on a repeat; a missing ids publishes nothing."},
+    {"goal_id": "g4", "text": "Tests for the provider value, the layer paint, and the publish normalisation/throttle."}
+  ],
+  "open_questions": [
+    "Q8 (unanswered: the real tablet mix) — the frame budget stays 015's follow-up; this task's gate is the live two-browser measurement.",
+    "RULE-17 (standing): the wire carries page-relative 0-1, so each client renders with its own displayed size/rotation; pixels never cross.",
+    "RULE-20 (standing): cursors are ref+paint only; the provider uses listeners, not state, to notify the layer."
+  ],
+  "risks": [
+    "Two usePresence callers would open two channels; the provider is the single owner.",
+    "Publishing raw pixels would break a peer at another zoom/rotation; geometry normalises first.",
+    "A provider listener set must be cleared on unmount or a stale paint runs against a destroyed layer."
+  ]
+}

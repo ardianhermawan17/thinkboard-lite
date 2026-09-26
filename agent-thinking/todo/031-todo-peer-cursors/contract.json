@@ -1,0 +1,8 @@
+{
+  "schema_version": "1.0",
+  "id": "031-todo-peer-cursors",
+  "name": "Peer cursors",
+  "goal": "A teammate's pointer is drawn on the page as it moves, and this client publishes its own.",
+  "human_prompt": "okay continue until finish all task",
+  "translated_prompt_agent": "Continue the integration after 030. Task 031 (frontend): one PresenceProvider in features/presence owns the single live channel and exposes peers/leader/a cursor store; PresenceLayer paints incoming cursors through the peer-cursors leaf's ref/painter (never React state), denormalized with the page's displayed size/rotation; the page publishes its own pointer via an optional page-stage callback, normalized through geometry (RULE-17) and throttled ~20 Hz (RULE-20). Mount in the app composition. Write all six phase files, test provider/layer/publish, keep npm run verify green, close validate/result."
+}

@@ -16,7 +16,7 @@ import type { HighlightedPageProps } from "./types"
  * other directly (I3).
  */
 export function HighlightedPage(props: HighlightedPageProps) {
-  const { artifactId, profileId, pageNumber, doc, zoom, rotation, onZoomCommit, tool = null } = props
+  const { artifactId, profileId, pageNumber, doc, zoom, rotation, onZoomCommit, tool = null, overlay, onPointerAt } = props
   const { highlights, textLayer, canvas, color, onTextLayerRendered, onCanvasRendered } = useHighlightedPage(props)
   const size = { w: textLayer?.size.width ?? 0, h: textLayer?.size.height ?? 0 }
 
@@ -30,6 +30,7 @@ export function HighlightedPage(props: HighlightedPageProps) {
       onTextLayerRendered={onTextLayerRendered}
       onCanvasRendered={onCanvasRendered}
       drawing={tool !== null}
+      onPointerAt={onPointerAt}
     >
       <HighlightLayer highlights={highlights} size={size} rotation={rotation} />
       <RegionHighlightCapture artifactId={artifactId} profileId={profileId} page={pageNumber} tool={tool} size={size} rotation={rotation} canvas={canvas} color={color} />
@@ -43,6 +44,7 @@ export function HighlightedPage(props: HighlightedPageProps) {
           rotation={rotation}
         />
       )}
+      {overlay?.({ pageNumber, size, rotation })}
     </PageStage>
   )
 }

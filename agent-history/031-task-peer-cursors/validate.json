@@ -1,0 +1,22 @@
+{
+  "task_id": "031-task-peer-cursors",
+  "phase": "validate",
+  "goal_checks": [
+    {"goal_id": "g1", "status": "pass", "notes": "PresenceProvider owns the one usePresence call and exposes peers, the leader flag, publishCursor and subscribe; the rail reads the contextual value rather than calling usePresence itself. presence-provider.test.tsx proves the single call and the value; the context hook throws outside a provider."},
+    {"goal_id": "g2", "status": "pass", "notes": "PresenceLayer subscribes to the cursor store and paints through the peer-cursors leaf's registered paint (ref only). Cursors are denormalized with the page's displayed size/rotation (RULE-17) and filtered to the visible page; unmount unsubscribes and clears. use-presence-layer.test.ts proves the paint, the page filter and the cleanup; no React state holds a cursor."},
+    {"goal_id": "g3", "status": "pass", "notes": "PageStage forwards the pointer's pixel offset and the Stage size; the app normalizes through normalizePoint with the page's rotation and calls publishCursor, which throttles to ~20 Hz and only on movement (RULE-20). use-presence.test.ts pins the throttle and the wire payload (page-relative 0-1 with the page)."},
+    {"goal_id": "g4", "status": "pass", "notes": "Provider, layer, rail and publish tests exist and pass (26 tests across the touched files), and the existing 015/028 suites still pass with the extended signatures."}
+  ],
+  "cross_check_against_plan": [
+    {"doc": "06-whole-apps-task.md", "section": "PHASE G · 031", "result": "matches — frontend (secondary supabase); the four mini-goals map to g1-g4; it closes 015 g2 and blocks nothing."},
+    {"doc": "01-thinkboard-lite-spec.md", "section": "§5.2, RULE-17, RULE-20", "result": "matches — cursors are ephemeral, ~20 Hz, ref-driven; the wire is page-relative 0-1; one client-sent topic (live:) carries them (WS/user untouched)."},
+    {"doc": "todo-task-015-realtime-presence.md", "section": "§2 g2", "result": "matches — the peer-cursors leaf is now painted and fed; the live frame-budget measurement remains 015's follow-up."}
+  ],
+  "signed_off": true,
+  "issues_found": [
+    "The live two-browser Gate (latency ~100-300 ms) needs the local stack; the publish/paint path is unit-proven.",
+    "Presence tracking uses page 0 because the provider is view-level; per-page presence (which page a peer is on) is a follow-up.",
+    "The layer subscribes and repaints on every incoming cursor; a burst of peers is fine at pilot scale, but a large room would want a single rAF-coalesced repaint (the leaf's batchDraw already coalesces the draw).",
+    "The pointer publish fires on every page-stage pointermove; the throttle caps the sends, but the handler still runs per move (cheap)."
+  ]
+}

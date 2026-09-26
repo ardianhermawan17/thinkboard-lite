@@ -1,0 +1,27 @@
+{
+  "id": "031-task-peer-cursors",
+  "title": "A teammate's pointer is drawn on the page as it moves, and this client publishes its own",
+  "architecture": "frontend",
+  "secondary_architecture": ["supabase"],
+  "created_at": "2026-09-26T05:00:00Z",
+  "status": "done",
+  "depends_on": ["015-task-realtime-presence", "026-task-workspace-context", "028-task-presence-rail"],
+  "plan_refs": [
+    {"doc": "06-whole-apps-task.md", "section": "PHASE G · 031"},
+    {"doc": "01-thinkboard-lite-spec.md", "section": "§5.2, RULE-17, RULE-20"},
+    {"doc": "todo-task-031-peer-cursors.md", "section": "§2, §3"}
+  ],
+  "goals": [
+    {"id": "g1", "description": "one PresenceProvider owns the single live channel and exposes peers/leader/cursor store", "plan_ref": "tasks 031 g1", "status": "done"},
+    {"id": "g2", "description": "PresenceLayer paints incoming cursors through the peer-cursors leaf (ref/painter only)", "plan_ref": "tasks 031 g2; RULE-20", "status": "done"},
+    {"id": "g3", "description": "the page publishes its own pointer, throttled ~20 Hz, only on real movement", "plan_ref": "tasks 031 g3; RULE-17", "status": "done"},
+    {"id": "g4", "description": "provider, layer and publish tests", "plan_ref": "tasks 031 g4", "status": "done"}
+  ],
+  "phases": {
+    "analyze": {"file": "analyze.json", "status": "done"},
+    "code": {"file": "code.json", "status": "done"},
+    "test": {"file": "test.json", "status": "done"},
+    "validate": {"file": "validate.json", "status": "done"},
+    "result": {"file": "result.json", "status": "done"}
+  }
+}

@@ -4,10 +4,11 @@ import { useState } from "react"
 import { DocumentViewer } from "@feature/document/components/document-viewer"
 import { HighlightedPage } from "@feature/highlight/components/highlighted-page"
 import { NotePanel } from "@feature/notes/components/note-panel"
-import { PresenceRail } from "@feature/presence/components/presence-rail"
+import { PresenceLayer, PresenceProvider, PresenceRail, usePresenceContext } from "@feature/presence"
 import type { MarqueeTool } from "@shared/components/canvas/marquee"
 import { Button } from "@shared/components/ui/button"
 import type { UUID } from "@shared/types/domain/common"
+import { normalizePoint } from "@shared/utils/geometry"
 
 const TOOLS: { value: MarqueeTool | null; label: string }[] = [
   { value: null, label: "Select" },
@@ -16,13 +17,22 @@ const TOOLS: { value: MarqueeTool | null; label: string }[] = [
 ]
 
 /**
- * 025: the one place `document` and `highlight` meet. A feature may import only `entities`/`sync` from another
- * feature (I3), so the composition lives at the app route; it runs no store selector or dispatch either
- * (I4: routes compose, never orchestrate) — `DocumentViewer` supplies every page argument through `renderPage`.
- * The only state it holds is the armed region tool.
+ * The one place `document`, `highlight`, `notes` and `presence` meet. A feature may import only
+ * `entities`/`sync` from another feature (I3), so the composition lives at the app route; it runs no store
+ * selector or dispatch either (I4) — `DocumentViewer` supplies every page argument through `renderPage`, and
+ * 026's shared workspace context supplies the ids. `PresenceProvider` owns the single live channel (031).
  */
 export function WorkspaceDocument({ sessionId }: { sessionId: string }) {
+  return (
+    <PresenceProvider>
+      <WorkspaceDocumentBody sessionId={sessionId} />
+    </PresenceProvider>
+  )
+}
+
+function WorkspaceDocumentBody({ sessionId }: { sessionId: string }) {
   const [tool, setTool] = useState<MarqueeTool | null>(null)
+  const { publishCursor } = usePresenceContext()
 
   return (
     <div className="flex h-full min-h-0 flex-col">
@@ -32,7 +42,6 @@ export function WorkspaceDocument({ sessionId }: { sessionId: string }) {
             {option.label}
           </Button>
         ))}
-        {/* 028: who is here (shared workspace context), beside the tools. */}
         <PresenceRail />
       </div>
       <div className="flex min-h-0 flex-1">
@@ -50,6 +59,12 @@ export function WorkspaceDocument({ sessionId }: { sessionId: string }) {
                   rotation={rotation}
                   onZoomCommit={onZoomCommit}
                   tool={tool}
+                  overlay={(ctx) => <PresenceLayer page={ctx.pageNumber} size={ctx.size} rotation={ctx.rotation} />}
+                  onPointerAt={(point, size) => {
+                    // RULE-17: the wire carries page-relative 0-1, so a peer at another zoom/rotation still lands right.
+                    const normalized = normalizePoint(point, { w: size.width, h: size.height }, rotation)
+                    publishCursor(normalized.x, normalized.y, pageNumber)
+                  }}
                 />
               ) : null
             }

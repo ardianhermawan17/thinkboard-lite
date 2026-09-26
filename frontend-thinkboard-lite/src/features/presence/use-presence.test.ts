@@ -44,11 +44,29 @@ describe("usePresence (g1, g2, g4)", () => {
   it("publishes a cursor once and drops an unchanged repeat (RULE-20)", () => {
     const { result } = mount()
     act(() => {
-      result.current.publishCursor(0.1, 0.2)
-      result.current.publishCursor(0.1, 0.2)
+      result.current.publishCursor(0.1, 0.2, 2)
+      result.current.publishCursor(0.1, 0.2, 2)
     })
     expect(mocks.handle.publishCursor).toHaveBeenCalledTimes(1)
     expect(mocks.handle.publishCursor).toHaveBeenCalledWith({ profileId: "p1", page: 2, x: 0.1, y: 0.2, drawing: true })
+  })
+
+  it("notifies a subscriber with the cursor store, replaying the current cursors immediately", () => {
+    const { result } = mount()
+    const listener = vi.fn()
+    let unsubscribe = () => {}
+    act(() => {
+      unsubscribe = result.current.subscribe(listener)
+    })
+    expect(listener).toHaveBeenLastCalledWith([]) // replay on subscribe
+
+    act(() => mocks.hooks!.onCursor({ profileId: "p2", page: 2, x: 0.1, y: 0.2 } as Cursor))
+    expect(listener).toHaveBeenLastCalledWith([{ profileId: "p2", page: 2, x: 0.1, y: 0.2 }])
+
+    act(() => unsubscribe())
+    listener.mockClear()
+    act(() => mocks.hooks!.onCursor({ profileId: "p3", page: 2, x: 0.3, y: 0.4 } as Cursor))
+    expect(listener).not.toHaveBeenCalled()
   })
 
   it("closes the channel on unmount", () => {

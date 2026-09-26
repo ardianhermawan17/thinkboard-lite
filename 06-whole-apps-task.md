@@ -531,6 +531,20 @@ catches every planted violation under its own id and prints all 29 rows. "Green 
 
 **Gate —** the live RLS suite passes with the two new checks.
 
+### `031-task-peer-cursors` · `frontend`
+
+**Main-goal —** A teammate's pointer is drawn on the page as it moves, ref-driven at ~20 Hz, and this client publishes its own pointer the same way.
+
+**Why it exists** — 015 shipped the `peer-cursors` leaf and the throttle but nothing painted or published; 028 mounted the presence rail only.
+
+**Mini-goals**
+- `g1` one `PresenceProvider` in `features/presence` owns the single live channel and exposes peers, the leader flag and a cursor store (rail and layer both consume it — never two channels).
+- `g2` `PresenceLayer` paints incoming cursors through the `peer-cursors` leaf's ref/painter (never React state), denormalized with the page's displayed size/rotation.
+- `g3` the page publishes its own pointer, throttled ~20 Hz and only on real movement.
+- `g4` tests: provider wiring, layer painting, publish normalisation + throttle.
+
+**Gate —** two browsers in one workspace: each sees the other's pointer move; latency ~100-300 ms on the live stack.
+
 ---
 
 ## 2. Dependency graph

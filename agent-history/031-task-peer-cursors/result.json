@@ -1,0 +1,32 @@
+{
+  "task_id": "031-task-peer-cursors",
+  "phase": "result",
+  "closed_at": "2026-09-26T06:00:00Z",
+  "final_status": "done",
+  "goals_summary": {
+    "total": 4,
+    "done": 4,
+    "blocked": 0,
+    "detail": "g1 one presence provider pass; g2 the painting layer pass; g3 the throttled/normalized publish pass; g4 the tests pass. Recomputed from task.json goals[] and validate.json goal_checks — all four 'pending' -> 'done', none blocked."
+  },
+  "artifacts": [
+    "src/features/presence/use-presence.ts — the cursor store + subscribe + page-aware publish",
+    "src/features/presence/components/presence-provider/ (+ test) — the single channel",
+    "src/features/presence/components/presence-layer/ (+ test) — the painter subscriber",
+    "src/shared/components/canvas/page-stage/ — the optional pointer callback",
+    "src/features/highlight/components/highlighted-page/ — the overlay slot + pointer passthrough",
+    "src/app/w/[workspaceId]/workspace-document.tsx — provider + layer + publisher"
+  ],
+  "verify": "npm run verify green: verify:arch 18 pass/0 fail, lint 0 errors (2 pre-existing warnings), typecheck clean, vitest 354 passed/10 skipped (364). npm run build succeeded. No new dependency.",
+  "decisions_recap": [
+    "One provider owns the channel; rail and layer share it.",
+    "Cursors are ref+listener only (RULE-20); the wire is page-relative 0-1 (RULE-17).",
+    "The overlay is a render prop so highlight never imports presence (I3).",
+    "publishCursor takes the page; the throttle is 015's."
+  ],
+  "follow_up_tasks": [
+    "Run the live two-browser Gate (015 g5) and the pilot frame budget (Q8).",
+    "Track the visible page in presence so the rail can show which page a peer is on.",
+    "Coalesce multi-peer repaints into one rAF if a room ever grows beyond pilot scale."
+  ]
+}

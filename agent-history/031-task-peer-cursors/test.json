@@ -1,0 +1,21 @@
+{
+  "task_id": "031-task-peer-cursors",
+  "phase": "test",
+  "test_files": [
+    "src/features/presence/use-presence.test.ts",
+    "src/features/presence/components/presence-provider/presence-provider.test.tsx",
+    "src/features/presence/components/presence-layer/use-presence-layer.test.ts",
+    "src/features/presence/components/presence-rail/use-presence-rail.test.ts",
+    "src/app/w/[workspaceId]/workspace-document.test.tsx"
+  ],
+  "commands_run": [
+    {"command": "npx vitest run --project unit (touched files)", "result": "9 files, 26 tests passed"},
+    {"command": "npm run verify:arch", "result": "18 pass, 0 fail, 10 skipped, 1 void"},
+    {"command": "npm run lint", "result": "0 errors, 2 pre-existing warnings"},
+    {"command": "npm run typecheck", "result": "clean"},
+    {"command": "npm run test", "result": "87 test files passed / 2 skipped (89); 354 tests passed / 10 skipped (364)"},
+    {"command": "npm run build", "result": "production build succeeded"}
+  ],
+  "summary": {"total": 364, "passed": 354, "failed": 0, "skipped": 10},
+  "coverage_notes": "g1 is covered by presence-provider.test.tsx (the provider calls usePresence once and exposes peers/leader/publish/subscribe; the hook throws outside a provider, so a second channel cannot be opened by accident). g2 is covered by use-presence-layer.test.ts: a cursor on this page is denormalized to display pixels and painted, a cursor on another page paints nothing, and unmount unsubscribes and clears the paint; use-presence.test.ts proves the subscribe replay and the store update/clear. g3 is covered by use-presence.test.ts: publishCursor sends once and drops an unchanged repeat, and the subscriber receives the store. verify:arch keeps I3/I4 green. The live two-browser Gate is deferred (015 g5). The 10 skipped are the pre-existing live-stack suites."
+}

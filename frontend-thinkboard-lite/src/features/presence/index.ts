@@ -1,4 +1,6 @@
 export { LeaderDrawing } from "./components/leader-drawing"
+export { PresenceLayer } from "./components/presence-layer"
+export { PresenceProvider, usePresenceContext } from "./components/presence-provider"
 export { PresenceRail } from "./components/presence-rail"
 export { openLiveChannel, presenceToPeers } from "./live-channel"
 export { usePresence } from "./use-presence"

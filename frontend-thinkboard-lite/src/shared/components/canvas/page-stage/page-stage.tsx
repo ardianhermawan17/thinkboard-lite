@@ -9,7 +9,7 @@ import type { PageStageProps } from "./types"
  * z2 Konva Stage host, empty until task 010/011 draw into it, per canvasLeaves[page-stage].hasPainter: false.
  * z3 DOM overlay is added by the container that mounts this leaf (chips, note pins), not here.
  */
-export function PageStage({ doc, pageNumber, zoom, rotation, onZoomCommit, onTextLayerRendered, onCanvasRendered, children, interactive = true, drawing = false }: PageStageProps) {
+export function PageStage({ doc, pageNumber, zoom, rotation, onZoomCommit, onTextLayerRendered, onCanvasRendered, children, interactive = true, drawing = false, onPointerAt }: PageStageProps) {
   const { canvasRef, textLayerRef, gestureRef, pageSize, onPointerDown, onPointerMove, onPointerUp } = usePageStage({
     doc,
     pageNumber,
@@ -30,7 +30,13 @@ export function PageStage({ doc, pageNumber, zoom, rotation, onZoomCommit, onTex
       // note sheet), so a disarmed page keeps native pan/scroll instead of fighting every stroke.
       className={`relative select-none ${interactive ? "" : "pointer-events-none"} ${drawing || !interactive ? "touch-none" : "touch-pan-x touch-pan-y"}`}
       onPointerDown={(e) => onPointerDown(e.pointerId, e.clientX, e.clientY)}
-      onPointerMove={(e) => onPointerMove(e.pointerId, e.clientX, e.clientY)}
+      onPointerMove={(e) => {
+        onPointerMove(e.pointerId, e.clientX, e.clientY)
+        if (onPointerAt && pageSize.width > 0) {
+          const rect = e.currentTarget.getBoundingClientRect()
+          onPointerAt({ x: e.clientX - rect.left, y: e.clientY - rect.top }, { width: pageSize.width, height: pageSize.height })
+        }
+      }}
       onPointerUp={(e) => onPointerUp(e.pointerId)}
       onPointerCancel={(e) => onPointerUp(e.pointerId)}
     >

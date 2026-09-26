@@ -1,4 +1,5 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react"
+import type { ReactNode } from "react"
 import { afterEach, describe, expect, it, vi } from "vitest"
 
 vi.mock("@feature/document/components/document-viewer", () => ({
@@ -11,9 +12,15 @@ vi.mock("@feature/document/components/document-viewer", () => ({
 vi.mock("@feature/highlight/components/highlighted-page", () => ({
   HighlightedPage: (props: { pageNumber: number; tool: unknown }) => <div data-testid="highlighted-page" data-page={props.pageNumber} data-tool={String(props.tool)} />,
 }))
-// 026/028: the note panel and presence rail read the shared workspace context, which this unit test does not provide.
+// 026: the note panel reads the shared workspace context, which this unit test does not provide.
 vi.mock("@feature/notes/components/note-panel", () => ({ NotePanel: () => <div data-testid="note-panel" /> }))
-vi.mock("@feature/presence/components/presence-rail", () => ({ PresenceRail: () => <div data-testid="presence-rail" /> }))
+// 028/031: presence reads the shared context too; mock the whole barrel so the provider adds nothing here.
+vi.mock("@feature/presence", () => ({
+  PresenceProvider: ({ children }: { children: ReactNode }) => <>{children}</>,
+  usePresenceContext: () => ({ peers: [], leaderDrawing: false, leaderId: null, publishCursor: vi.fn(), subscribe: vi.fn(() => () => {}) }),
+  PresenceLayer: () => null,
+  PresenceRail: () => <div data-testid="presence-rail" />,
+}))
 
 import { WorkspaceDocument } from "./workspace-document"
 
