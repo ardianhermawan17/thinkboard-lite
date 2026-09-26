@@ -225,7 +225,7 @@ Critical path = the demoable slice:  000 → 001 → 004 → 006 → 008 → 009
 
 ---
 
-## 6. Where things stand — 2026-09-25
+## 6. Where things stand — 2026-09-27
 
 - **Done:** 000 (architecture contract), 001 (`0004_lite.sql` in `database-thinkboard-lite/`), 002 (the RLS proof:
   56 checks in `database-thinkboard-lite/supabase/tests/`, each policy mutation-tested) and 004 (the scaffold conformed
@@ -338,15 +338,27 @@ Critical path = the demoable slice:  000 → 001 → 004 → 006 → 008 → 009
   link opened offline renders the workspace from Dexie. Two silent traps fixed: `fallbacks` does not precache its entries, and **Serwist never disables navigation
   preload** — a stale registration answered offline navigations with a failed preload response (a blank page). Proven with the production server **killed**: `/w`
   and `/w/<id>` both render. `npm run verify` green (374 / 14).
-- **Also done:** 041 (first-run tour) — the document view now explains itself the first time: a **seven-step guided tour** over the workspace (the document, the tools, the
+- **Also done:** 041 (first-run tour) — the document view now explains itself the first time: a **guided tour** over the workspace (the document, the tools, the
   notes, importing your own highlights, the people, the export), with a **spotlight** that moves between real elements and a card per step. Motion springs the ring and
   pops the card; a CSS-transitioned `clip-path` cuts the hole, which stays **clickable** so the explained control can be tried while it is described. The flag
-  (`workspace.tourSeen`) persists, and **finishing or skipping both close it for good**. `npm run verify` green (379 / 14).
+  (`workspace.tourSeen`) persists, and **finishing or skipping both close it for good**. `npm run verify` green (379 / 14). 043 added an eighth stop and a way to
+  walk it again.
 - **Also done:** 042 (the landing lists your workspaces) — `/w` was a dead end for a returning user on a new device: it redirected to the last workspace (RULE-14) or
   offered **create**, so an existing workspace had to be reached by URL. It now lists the workspaces the account can open — a `select id, title` with **no client
   filter, because RLS already scopes it** — as rows above the create form, with the heading adapting to what is there. Opening one goes to `/w/<id>`; a failed list
   (offline, or before sign-in resolves) degrades silently to the old screen, so creating still works offline. `npm run verify` green (379 / 15 skipped); the live
   suite gained **g5** proving the scoping against the real stack (**7/7**), and the click-through was verified in the browser.
+- **Also done:** 043 (rail folds, four colours, keyboard paging, tour restart) — the reader can shape the room they read in. Each rail folds from a **chevron beside
+  its own title** and leaves a thin vertical handle to pull it back (the header stayed bare; the document area went **414 → 934 px** with both folded). A highlight
+  made while the notes rail is away raises a toast naming it, whose action reopens the rail. A new mark takes any of the **four §5.3 colours** — stored as a **key**
+  (`bbox.color = "rose"`) and resolved from the tokens at render, so a stored row follows the theme; the toolbar shows the four swatches and the canvas paints the
+  hue. **`←` / `→`** turn the page and yield to text fields, tablists, sliders and any open dialog (Radix's sheet is `role="dialog"`, not `aria-modal` — the first
+  guard silently failed). The header can **walk the tour again**, restarting at **1 / 8** (its first cut resumed on the last step). The surfaces 039 left behind —
+  the note sheet and its editor, the writing check, the persona editor, export and re-import — joined the system. The live pass also caught and fixed a
+  **pre-existing document defect**: every page in the window laid out at zero height (pages 1 and 2 painted on top of each other) and the pdf.js text layer had **no
+  stylesheet at all** (`pdfjs-dist` ships it in `web/pdf_viewer.css`), so the selectable text and every highlight rect came from a layer that was not where the page
+  was. Pages are now a centred stack on a sized box, the layer gets the vendor's own rules + `--total-scale-factor`, and a captured rose mark measured **exactly** on
+  the heading it selected. `npm run verify` green (**386 / 15 skipped**).
 - **Next:** nothing an agent can start remains. 013/014/022 wait on 012 (human device test, Q7); 019/020 wait on 018 (D-12); 023 waits on 015/016/020/022;
   024 is conditional. The live gates 030 / 015 / 016 / 031 / 017 (and the whole text-highlight path, and all three import rungs) are now proven in a real browser
   (033, 034); the browser-only remainder is a genuine Acrobat-exported annotated PDF. The human unblockers are unchanged: run 012's device test (Q7), answer

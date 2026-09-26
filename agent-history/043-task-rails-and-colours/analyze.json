@@ -1,0 +1,36 @@
+{
+  "task_id": "043-task-rails-and-colours",
+  "phase": "analyze",
+  "started_at": "2026-09-27T04:20:00Z",
+  "completed_at": "2026-09-27T04:40:00Z",
+  "sources_read": [
+    { "doc": "src/shared/providers/workspace-provider/types.ts", "section": "the 026/033 seam — ids and the mirrored page" },
+    { "doc": "src/app/w/[workspaceId]/workspace-document.tsx", "section": "the only place document/highlight/notes/presence meet (I3/I4)" },
+    { "doc": "src/features/highlight/components/highlighted-page/use-highlighted-page.ts", "section": "010's single-token colour rule" },
+    { "doc": "src/features/highlight/types/bbox.ts", "section": "bbox.color is string|null, resolved at render" },
+    { "doc": "src/features/notes/components/note-sheet|note-editor|writing-check", "section": "the surfaces that never got the 039 pass" },
+    { "doc": "src/features/workspace/components/persona-editor|export-workspace", "section": "same" },
+    { "doc": "src/features/document/components/page-controls/use-page-controls.ts", "section": "where a page change is dispatched" },
+    { "doc": "node_modules/pdfjs-dist/web/pdf_viewer.css", "section": "the .textLayer rules the app never imported" },
+    { "doc": "frontend-thinkboard-lite/AGENTS.md", "section": "§2 placement tree, §5 where state lives" }
+  ],
+  "scope": "Four small reader controls (tour restart, rail folds, keyboard paging, four highlight colours), the surfaces 039 left un-polished, and the document-layout/text-layer defect the live pass turned up. Out of scope: persisting rail visibility or the colour choice, per-row colour editing, spread/continuous layout modes.",
+  "acceptance_criteria": [
+    { "goal_id": "g1", "text": "A header control reopens the tour at 1 / 8; finishing or skipping still records it." },
+    { "goal_id": "g2", "text": "A chevron beside each rail's title folds it; a thin handle with its name brings it back; the page takes the width." },
+    { "goal_id": "g3", "text": "A mark made while the notes rail is folded produces a toast naming where it went, whose action reopens the rail." },
+    { "goal_id": "g4", "text": "Four swatches; a new mark stores the key; the canvas paints the hue; rows without a key read as the default." },
+    { "goal_id": "g5", "text": "Arrows page when the reader is free to page; a field, a tablist, a slider or an open dialog wins." },
+    { "goal_id": "g6", "text": "The note sheet, editor, writing check, persona editor, export and re-import read as one system." },
+    { "goal_id": "g7", "text": "Pages stack on a sized box; the text layer is positioned; a captured highlight lands on the text it selected." }
+  ],
+  "open_questions": [
+    "Whether rail visibility should persist per account (today it resets on reload) — a product call, like 042's ordering question.",
+    "Whether a highlight's colour should be editable after the fact (needs a repository update path)."
+  ],
+  "risks": [
+    "The pdf.js text-layer fix changes captured rects for the better, but any stored row made before it keeps rects computed against the broken layer.",
+    "Folding a rail unmounts the note panel, so its local selection is dropped — acceptable, the rail is a view.",
+    "The keyboard listener is global: the dialog/text-field/tablist guards are what keep it from stealing keys."
+  ]
+}

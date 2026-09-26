@@ -1,0 +1,26 @@
+{
+  "task_id": "043-task-rails-and-colours",
+  "phase": "validate",
+  "goal_checks": [
+    { "goal_id": "g1", "status": "pass", "notes": "tourReset + the header control; the close path rewinds the cursor so a re-open starts at 1 / 8. PROVEN live: reopened at 1/8; the unit test '043: reopens from the first step' guards it." },
+    { "goal_id": "g2", "status": "pass", "notes": "A chevron beside each rail's own title folds it; the rail slides (width + transform, 300 ms) to a 45 px handle that brings it back, and the document takes the width. PROVEN live: notes 288 → 45 px and people 320 → 45 px with per-frame intermediate widths on the way, panel aria-hidden + inert while folded, area 414 → 934 px; unit tests cover both rails." },
+    { "goal_id": "g3", "status": "pass", "notes": "useNotesNudge speaks only while the notes rail is folded, with a 'Show notes' action that reopens it; silent outside a workspace via the tolerant context reader. PROVEN live (toast + action) and by 3 unit tests." },
+    { "goal_id": "g4", "status": "pass", "notes": "Four swatches; both capture paths store the chosen key; the layer resolves each row's key at render. PROVEN live: a rose mark stored bbox.color='rose' and the canvas painted rose at exactly the stored rects. Rows with color null still read as the default." },
+    { "goal_id": "g5", "status": "pass", "notes": "Arrows page when free and yield to inputs, contenteditable, tablists, radiogroups, sliders and any open dialog (role=dialog covers Radix's sheet). PROVEN live (1→2→1, blocked by the sheet and by an input) and by the new unit test." },
+    { "goal_id": "g6", "status": "pass", "notes": "The note sheet (eyebrow + scrolling body), the editor (icons, pen chip; spec'd labels kept), the writing check, the persona editor and the re-import panel all read as one system with 039; Export keeps its exact accessible name so its test and muscle memory survive." },
+    { "goal_id": "g7", "status": "pass", "notes": "Pages stack on a sized box on a muted ground, and the pdf.js text layer gets the vendor's own subset plus --total-scale-factor. PROVEN live: stages 399×0 → 612×792 at distinct y; spans 16 px flowed → 10.13 px positioned; a captured highlight landed on the heading it selected. This was a pre-existing defect (an older tab, loaded before this task, showed the same), not a regression." }
+  ],
+  "cross_check_against_plan": [
+    { "doc": "frontend-thinkboard-lite/AGENTS.md", "section": "§2 placement tree", "result": "matches — the rail handle is a shared template leaf (presentational, index.ts per I1); the colour vocabulary is a feature type; the token resolution is a feature util; the text-layer rules are CSS at the app root." },
+    { "doc": "frontend-thinkboard-lite/AGENTS.md", "section": "§5 where state lives", "result": "matches — the rails live in the shared context (like page, 033), the colour choice is component state like the armed tool, and nothing domain-shaped entered a slice. No persist entry, no outbox op (I11/I12)." },
+    { "doc": "frontend-thinkboard-lite/AGENTS.md", "section": "§4 leaf kinds", "result": "matches — no painter touched; I19 is untouched (the fix is layout CSS, not coordinates); highlight-layer still receives normalized rects and resolves colour at render (010's rule)." },
+    { "doc": "node_modules/pdfjs-dist/web/pdf_viewer.css", "section": ".textLayer", "result": "matches — the quoted subset is the vendor's own, editor-only rules omitted; --total-scale-factor is set at the integration point where the vendor's viewer sets it." }
+  ],
+  "signed_off": true,
+  "issues_found": [
+    "Pre-existing, found on the way: every page in the window laid out at zero height so pages 1 and 2 painted on top of each other, and the pdf.js text layer had no stylesheet (spans flowed as a paragraph). Highlight rects were captured from a layer that was not where the page was. Fixed under g7; an older tab proves it pre-dated this task.",
+    "Radix's sheet content carries role=\"dialog\" but not aria-modal — an aria-modal-only guard would silently fail to protect the page behind it. The keyboard guard keys on the role.",
+    "React's compiler lint rejects setState inside an effect — the tour's rewind moved onto the close event, which is also the more honest place for it.",
+    "The first 'Show the tour again' implementation resumed on the last step (8/8); caught live, fixed, and covered by a unit test."
+  ]
+}

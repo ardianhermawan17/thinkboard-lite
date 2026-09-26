@@ -1,0 +1,36 @@
+{
+  "task_id": "043-task-rails-and-colours",
+  "phase": "code",
+  "completed_at": "2026-09-27T05:50:00Z",
+  "changes": [
+    { "file": "src/shared/providers/workspace-provider/{types.ts,use-workspace-provider.ts,index.ts}", "summary": "043: notesVisible/peopleVisible + setters join the context, beside the mirrored page — the shell owns the people rail and the document view owns the notes rail, and neither may read the other's slice (I3) nor the store from the route (I4). Ephemeral by choice.", "kind": "feature" },
+    { "file": "src/shared/providers/workspace-provider/use-workspace-context-optional.ts", "summary": "The tolerant reader: a leaf that renders outside a workspace (a unit test, a story) gets null instead of a throw, so the notes nudge can stay silent rather than pretend.", "kind": "feature" },
+    { "file": "src/shared/components/template/rail-handle/{rail-handle.tsx,types.ts,index.ts}", "summary": "The folded half of a right-side rail: a thin vertical handle (chevron + the rail's name) that pulls the panel back out. Presentational only — no store, no feature import.", "kind": "feature" },
+    { "file": "src/features/notes/components/note-panel/note-panel.tsx", "summary": "The 'Notes' title row gains the fold chevron at its right (the rail's own header, where the reader is already looking).", "kind": "feature" },
+    { "file": "src/features/workspace/components/people-rail/{people-rail.tsx,use-people-rail.ts,people-rail.test.tsx}", "summary": "The tabs row gains the fold chevron; the rail itself is now a sliding container — width + the panel's transform animate, the handle cross-fades in, and the folded panel is inert + aria-hidden. The test folds and unfolds it through the provider.", "kind": "feature" },
+    { "file": "src/app/w/[workspaceId]/workspace-document.tsx", "summary": "The notes rail folds from the chevron in its own header and slides away to a 'Notes' handle (same width/transform pattern, panel inert when folded); the toolbar gained the four-hue picker and passes colorKey into HighlightedPage; the document area is tagged and the page window is a stack.", "kind": "feature" },
+    { "file": "src/features/workspace/components/app-header/{app-header.tsx,use-app-header.ts}", "summary": "The two rail toggles left the header (they belong to the rails); what remains is a 'Show the tour again' control dispatching tourReset.", "kind": "feature" },
+    { "file": "src/features/workspace/stores/workspace-slice.ts", "summary": "tourReset: the header's way to re-open the tour.", "kind": "feature" },
+    { "file": "src/features/workspace/components/onboarding-tour/use-onboarding-tour.ts", "summary": "An eighth stop ('Make room', on the notes rail header) and a close that rewinds the cursor, so a re-open starts at 1 / 8. The reset runs on the close event, not in an effect (React's compiler lint).", "kind": "feature" },
+    { "file": "src/features/highlight/types/colour.ts", "summary": "The four §5.3 hues as a keyed vocabulary plus a guard; the key is what a row stores.", "kind": "feature" },
+    { "file": "src/features/highlight/utils/highlight-colour.ts", "summary": "Resolves a stored key (or null) to a CSS colour from --highlight-* at render, with light-value fallbacks for SSR/tests; Konva cannot read CSS variables and light/dark differ.", "kind": "feature" },
+    { "file": "src/features/highlight/utils/use-notes-nudge.ts", "summary": "When a mark lands while the notes rail is folded, a toast says where it went and offers 'Show notes'. Silent while the rail is visible, and outside a workspace.", "kind": "feature" },
+    { "file": "src/features/highlight/components/{highlighted-page,text-highlight-capture,region-highlight-capture}", "summary": "colorKey threads from the toolbar to both capture paths; each new row stores the key (null = default); the layer paints every row in the hue it carries.", "kind": "feature" },
+    { "file": "src/features/document/components/page-controls/{page-controls.tsx,use-page-controls.ts}", "summary": "← / → turn the page; the handler yields to inputs, contenteditable, tablists, radiogroups, sliders and any open dialog (Radix's sheet is role=\"dialog\", not aria-modal), and the buttons' titles say the keys.", "kind": "feature" },
+    { "file": "src/features/notes/components/{note-sheet,note-editor,writing-check,reimport-review}", "summary": "039 polish: the sheet gets an eyebrow header and a scrolling body; the editor's spec'd tabs gain icons and a pen chip; the writing check and the re-import disclosure get real surfaces and labels (all copy kept — the field-test protocol depends on it).", "kind": "feature" },
+    { "file": "src/features/workspace/components/{persona-editor,export-workspace}", "summary": "Labelled fields, eyebrow legends, a leader-only hint and save placement; Export gains its icon while keeping its exact accessible name.", "kind": "feature" },
+    { "file": "src/shared/components/canvas/page-stage/page-stage.tsx", "summary": "043 g7: the stage root is sized from the rendered page, so a window of pages stacks instead of every page landing on the same spot.", "kind": "fix" },
+    { "file": "src/features/document/components/document-viewer/document-viewer.tsx", "summary": "043 g7: the page list is a centred stack with air between pages, on a muted ground.", "kind": "fix" },
+    { "file": "src/app/globals.css", "summary": "043 g7: pdfjs-dist's .textLayer subset (positioned spans, --text-scale-factor type, markedContent) — the vendor stylesheet is not imported, and without it every span flowed as a paragraph.", "kind": "fix" },
+    { "file": "src/shared/lib/pdf.ts", "summary": "043 g7: renderTextLayer sets --total-scale-factor (the variable the vendor's viewer sets), without which every span's font-size is invalid at computed-value time.", "kind": "fix" }
+  ],
+  "decisions": [
+    "Fold from the rail's own title, leave a handle behind: the way back sits where the way out was, and the header stays bare.",
+    "The fold slides and stays mounted: width + transform only (frozen-transition safe), the folded panel inert + aria-hidden, the handle cross-fading in its place.",
+    "A row stores a colour key; the token is resolved at render, so stored marks follow the theme and the palette stays a token file.",
+    "The rail flags and the colour choice are ephemeral: no persist entry, no outbox op, nothing domain-shaped in a slice.",
+    "The notes nudge speaks only while the rail is away.",
+    "The keyboard yields to anything that already owns the arrows.",
+    "The pdf.js text-layer rules are quoted with their reason (no vendor CSS import), and the size variable is set at the integration point."
+  ]
+}

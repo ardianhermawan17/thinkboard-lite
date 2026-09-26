@@ -1,0 +1,40 @@
+{
+  "task_id": "043-task-rails-and-colours",
+  "phase": "result",
+  "closed_at": "2026-09-27T06:00:00Z",
+  "final_status": "done",
+  "goals_summary": {
+    "total": 7,
+    "done": 7,
+    "blocked": 0,
+    "detail": "g1 tour re-walk (live 1/8 + unit test); g2 rail folds with handles (live + unit tests); g3 the notes nudge (live + 3 unit tests); g4 four colours stored as keys and painted (live + Dexie row + canvas pixels); g5 keyboard paging with guards (live + unit test); g6 the surfaces 039 left (live screenshots); g7 the page-stack and text-layer fix (live measurements, pre-existing defect). All recomputed from task.json goals[] and validate.json goal_checks."
+  },
+  "artifacts": [
+    "src/shared/providers/workspace-provider/* — notesVisible/peopleVisible on the shared seam + the tolerant reader",
+    "src/shared/components/template/rail-handle/* — the folded half of a rail",
+    "src/features/highlight/types/colour.ts + utils/highlight-colour.ts + utils/use-notes-nudge.ts — the four hues, their resolution, the nudge",
+    "src/features/highlight/components/{highlighted-page,text-highlight-capture,region-highlight-capture} — colorKey threading",
+    "src/app/w/[workspaceId]/workspace-document.tsx — the picker, the folding notes rail, the page stack host",
+    "src/features/workspace/components/{app-header,onboarding-tour,people-rail,persona-editor,export-workspace} — the header, the 8th stop, the fold, the polish",
+    "src/features/document/components/{page-controls,document-viewer} — the arrow keys, the centred stack",
+    "src/shared/components/canvas/page-stage/page-stage.tsx + src/shared/lib/pdf.ts + globals.css — the layout and text-layer fix",
+    "agent-history/043-task-rails-and-colours/{shot-workspace,shot-fullpage,shot-highlight}.jpg",
+    "todo-task-043-rails-and-colours.md"
+  ],
+  "verify": "npm run verify green (arch 18/0, lint 0 errors, typecheck clean, 386 passed / 15 skipped across 94 files). Live pass on every goal in the dev app; two test rows created and removed again (server row deleted, local Dexie cleaned, outbox clear).",
+  "decisions_recap": [
+    "Fold from the rail's own title and leave a handle; the header stays bare.",
+    "The fold slides — width + transform only, so a frozen transition still lands right — and the folded panel is inert.",
+    "A row stores a colour key, resolved at render — theme-aware, palette-in-tokens.",
+    "Rail visibility and the colour choice are ephemeral; nothing enters persist or the outbox.",
+    "The nudge speaks only when the notes rail is away.",
+    "The keyboard yields to fields, tablists, sliders and open dialogs.",
+    "The pdf.js text-layer rules are quoted with their reason; --total-scale-factor is set at the integration point."
+  ],
+  "follow_up_tasks": [
+    "Persist rail visibility per account and remember the last highlight colour (product calls; needs a preference home).",
+    "Let an existing highlight change colour (needs a repository update path + a row affordance).",
+    "The page-turn transient: a window slide can leave the previous page's canvas until the next paint.",
+    "The notes list could show each row's hue as a dot."
+  ]
+}

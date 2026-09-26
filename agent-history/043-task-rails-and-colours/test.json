@@ -1,0 +1,32 @@
+{
+  "task_id": "043-task-rails-and-colours",
+  "phase": "test",
+  "test_files": [
+    "src/features/highlight/utils/use-notes-nudge.test.tsx",
+    "src/features/workspace/components/people-rail/people-rail.test.tsx",
+    "src/features/workspace/components/onboarding-tour/onboarding-tour.test.tsx",
+    "src/features/document/components/page-controls/page-controls.test.tsx",
+    "src/app/w/[workspaceId]/workspace-document.test.tsx"
+  ],
+  "commands_run": [
+    { "command": "npm run verify (arch + lint + typecheck + vitest)", "result": "green: arch 18 pass / 0 fail, lint 0 errors (9 pre-existing warnings), typecheck clean, vitest 386 passed / 15 skipped across 94 files" },
+    { "command": "npx vitest run src/features/workspace/components/onboarding-tour", "result": "6/6 — including the new 'reopens from the first step' case" },
+    { "command": "npx vitest run src/features/document/components/page-controls", "result": "5/5 — including the new arrow-key case (pages, then refuses with a dialog and with a text field)" },
+    { "command": "npx vitest run src/features/highlight/utils/use-notes-nudge.test.tsx", "result": "3/3 — quiet while visible; speaks when folded and its action re-opens; silent outside a workspace" },
+    { "command": "npx vitest run src/features/workspace/components/people-rail", "result": "1/1 — folds to the handle and back" },
+    { "command": "npx vitest run src/app/w/[workspaceId]/workspace-document.test.tsx", "result": "3/3 — the notes rail unmounts with the import panel, the handle appears, and the action brings it back" },
+    { "command": "browser (dev, chrome-devtools, signed in as admin@gmail.com)", "result": "tour 1/8→8/8, 'Make room' ring == notes header rect; chevrons fold/unfold both rails (area 414→934 px); rose highlight captured with bbox.color='rose' and painted 60,88,309×20 CSS px; toast + 'Show notes' action; arrows 1→2→1, blocked by the sheet and by an input" }
+  ],
+  "live_evidence": [
+    { "what": "the tour can be walked again", "how": "the header control reopened it at 1/8 ('Welcome to your workspace') after finishing at 8/8" },
+    { "what": "the 'Make room' stop", "how": "step 7/8 spotlighted [data-testid=notes-rail-header] exactly: ring 415,86,287,41 == the header's own rect" },
+    { "what": "folding a rail", "how": "the notes chevron collapsed [data-testid=notes-rail] from 288 px to a 45 px handle and back; same for 'People' (320 → 45); the document area grew 414 → 934 px with both folded" },
+    { "what": "the fold animates", "how": "frame samples of the width: notes 288 → 142 → 66 → 48 → 45 and back 45 → 220 → 274 → 286; people 320 → 155 → 69 → 48 → 45 and back 45 → 243 → 304 → 318; computed `transition: width 0.3s cubic-bezier(0.22, 1, 0.36, 1)`; the folded panel flips aria-hidden/inert and the handle becomes reachable" },
+    { "what": "the colour is stored and painted", "how": "rose chosen → the new Dexie row carried bbox.color='rose' (rects {x .098, y .111, w .277, h .024}); the highlight layer's rose pixels measured a 60,88,309×20 CSS px box — the stored rects, on the heading line" },
+    { "what": "the full-page notification", "how": "with the rail folded the toast read 'Highlight added to Notes | Pre-Class Assignment — Consumer Beh | Show notes'; the action reopened the rail and the panel listed the new mark" },
+    { "what": "keyboard paging", "how": "ArrowRight/ArrowLeft stepped Page 1 of 2 ↔ 2 of 2; nothing moved while the note sheet was open or when the event came from an input" },
+    { "what": "the page layout defect", "how": "before: two page-stages each 399×0 at the same y, text spans flowed as a paragraph (16 px default), the layer had no --total-scale-factor. After: stages 612×792 at y=143 and y=951, spans 10.13 px with scaleX, and the rose mark landed on its heading" }
+  ],
+  "summary": { "total": 401, "passed": 386, "failed": 0, "skipped": 15 },
+  "coverage_notes": "The 15 skips are the live suites (they need the 563xx stack) plus their kin. The layout/text-layer fix is covered by the unit gate only indirectly (no jsdom CSS layout), so its proof is the live measurements above; the two visual artifacts are attached to the task folder."
+}
