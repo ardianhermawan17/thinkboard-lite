@@ -87,7 +87,7 @@ No task is unblocked. The blockers are:
 Unit tests are strong, but several proofs can only run against the local Supabase stack and were deferred:
 - ~~0006's RLS (a member cannot insert on `ws:`, can send on `live:`)~~ **proven live** — the Lite stack now starts (ports 563xx, see below) and task 030's RLS suite runs **19/19**, seed/storage **6/6**;
 - ~~007/008 live paths~~ **proven live** — `sync-engine.live.test.ts` (4/4: realtime private topic, an offline drain lands once) and `workspace-remote.test.ts` (6/6: sign-in, `create_workspace`, transfer leadership through the outbox, persona-write RLS parking) pass against the stack;
-- 017's 403 path under real RLS,
+- ~~017's 403 path under real RLS~~ **proven live** — `command-endpoints.live.test.ts` (4/4: a member's group run is 403, their individual run and the leader's group run are 202, no bearer is 401, an invalid scope is 400);
 - 015 g5's two-browser latency,
 - 016's airplane-mode round trip,
 - 021/032's real Acrobat-annotated PDF (the parser is tested with faithful objects).

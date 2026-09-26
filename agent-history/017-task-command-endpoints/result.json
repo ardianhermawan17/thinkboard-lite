@@ -34,5 +34,9 @@
     "020 registers the scope_anchor -> analytic -> result stages in pipeline/stages/registry.ts and replaces subscribeRun's single-snapshot SSE with real stage events over a detached context.",
     "Move create-workspace's service into a dedicated package if the Go port grows one; today §4.2 has none.",
     "Consider a client-side command api (RTK Query) that targets these endpoints when 014/020 need it; 018's Q2 default keeps RTK Query to the four commands."
-  ]
+  ],
+  "postscript": {
+    "date": "2026-09-26",
+    "note": "The first follow-up is done. src/server/command-endpoints.live.test.ts now exercises the results route against the seeded stack under the caller's own JWT: a member's group run is 403, their individual run and the leader's group run are 202, no bearer is 401, and an invalid scope is 400 before any service call. 4/4 pass with the stack up; the file self-skips otherwise, so the repo gate is unchanged (360 passed/14 skipped)."
+  }
 }
