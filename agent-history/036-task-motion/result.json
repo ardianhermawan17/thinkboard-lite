@@ -1,0 +1,29 @@
+{
+  "task_id": "036-task-motion",
+  "phase": "result",
+  "closed_at": "2026-09-26T14:50:00Z",
+  "final_status": "done",
+  "goals_summary": {
+    "total": 4,
+    "done": 4,
+    "blocked": 0,
+    "detail": "g1 the seam + MotionConfig pass; g2 the five surfaces pass; g3 the gate stays green pass; g4 the docs (with the never-hide constraint) pass. Recomputed from task.json goals[] and validate.json goal_checks — all four 'pending' -> 'done', none blocked."
+  },
+  "artifacts": [
+    "src/shared/lib/motion.ts — the seam and the four variants",
+    "src/shared/providers/index.tsx — MotionConfig reducedMotion",
+    "the five animated surfaces",
+    "vitest.setup.ts — the matchMedia stand-in",
+    "todo-task-036-motion.md"
+  ],
+  "verify": "npm run verify green: arch 18/0, lint 0 errors, typecheck clean, vitest 374 passed/14 skipped (unchanged totals). Live: motion applied, and in a hidden tab every shell child stayed visible (opacity 1) with the entrance offset held.",
+  "decisions_recap": [
+    "One seam for the motion library, like pdf.ts / supabase.ts / opfs.ts.",
+    "Transform-only entrances, so motion can never hide a background tab.",
+    "DOM-only: the Konva canvases keep their painters."
+  ],
+  "follow_up_tasks": [
+    "Optional: route transitions if the app grows a second long-lived route.",
+    "Optional: a scroll-revealed section if a content-heavy page appears (the current surfaces are single-viewport)."
+  ]
+}

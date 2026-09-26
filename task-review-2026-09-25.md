@@ -118,6 +118,8 @@ The pass **found and fixed two defects that the unit suite structurally cannot s
 - **Transfer leadership** (Make leader) moved the role — verified in `team_members`; the RLS-enforced RPC then correctly denied the former leader's storage write (this is what a stray click had caused earlier).
 - **Sign out** deleted the profile's Dexie database and emptied its OPFS directory (016 g6), returning to sign-in.
 
+**Motion (2026-09-26, task 036).** App-level animation arrived behind one seam (`shared/lib/motion.ts`) with `MotionConfig reducedMotion="user"`: a staggered workspace open, the Members/Notes lists and import rows in order, the offline banner, and the ephemeral "Leader is drawing" chip. It also produced a real design constraint worth keeping: **every entrance is transform-only**, because an `opacity: 0` start hides an app opened in a background tab — `requestAnimationFrame` is paused there, which this environment reproduced live (the shell held `opacity: 0` until the variant was changed to a translate; it then read `opacity: 1` while still holding the 8 px offset). The Konva canvases are untouched: Motion is a DOM animator, not a canvas one.
+
 ### 3.4 Plan docs have drifted in places
 - **015's `0005_live_topic.sql`** collided with the shipped `0005_storage_artifacts.sql`; resolved to `0006`.
 - **012 g7** asks for a "named Playwright story test" while the repo has one Storybook story and no `play()`

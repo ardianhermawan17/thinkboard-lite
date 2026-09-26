@@ -1,0 +1,16 @@
+{
+  "task_id": "036-task-motion",
+  "phase": "test",
+  "test_files": ["vitest.setup.ts"],
+  "commands_run": [
+    {"command": "npm run verify", "result": "green: verify:arch 18 pass/0 fail, lint 0 errors (10 pre-existing warnings), typecheck clean, vitest 374 passed / 14 skipped — the same totals as before, so no existing test broke"},
+    {"command": "npm run build (not run in this pass)", "result": "the earlier task 035 build was green; this change adds one dependency and client-only components"}
+  ],
+  "live_evidence": [
+    {"what": "motion is applied", "how": "the workspace showed 6 motion-styled nodes and the shell children carried the entrance's start transform"},
+    {"what": "content is never hidden", "how": "after a reload in a HIDDEN tab (document.visibilityState === 'hidden', so rAF is paused) every shell child reported opacity 1 and transform translateY(8px) — visible with the entrance offset held. Before the change the same probe reported opacity 0."},
+    {"what": "no new console noise", "how": "only the pre-existing Next dev 'script tag' warning"}
+  ],
+  "summary": {"total": 374, "passed": 374, "failed": 0, "skipped": 14},
+  "coverage_notes": "No test asserts motion (animations are visual), and none broke: motion renders plain DOM in jsdom. The matchMedia stub is the one harness addition. The hidden-tab probe is the real gate for the no-opacity decision."
+}

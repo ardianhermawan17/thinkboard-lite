@@ -1,0 +1,30 @@
+{
+  "task_id": "036-task-motion",
+  "phase": "analyze",
+  "started_at": "2026-09-26T14:00:00Z",
+  "completed_at": "2026-09-26T14:10:00Z",
+  "sources_read": [
+    {"doc": "frontend-thinkboard-lite/package.json", "section": "no motion/framer-motion; tw-animate-css already present"},
+    {"doc": "src/app/globals.css", "section": "@import tw-animate-css"},
+    {"doc": "src/shared/components/ui/{sheet,dialog,tooltip}.tsx", "section": "the primitives already animate on data-state"},
+    {"doc": "src/shared/providers/index.tsx", "section": "the one provider tree"},
+    {"doc": "src/features/workspace/components/workspace-shell/workspace-shell.tsx", "section": "the workspace paint"},
+    {"doc": "src/features/{workspace/members,notes/note-panel,highlight/import-review,presence/leader-drawing,sync/offline-banner}", "section": "the surfaces worth animating"},
+    {"doc": "vitest.setup.ts / vitest.config.mts", "section": "jsdom + the canvas stub; no matchMedia"}
+  ],
+  "scope": "Add motion behind one shared seam and animate five surfaces, transform-only. Out of scope: route transitions, scroll reveals, layout animation, and anything on a Konva canvas.",
+  "acceptance_criteria": [
+    {"goal_id": "g1", "text": "Components import the seam, not motion/react; reduced motion is honoured centrally."},
+    {"goal_id": "g2", "text": "The five surfaces animate; each is visible at every moment (no opacity-from-0)."},
+    {"goal_id": "g3", "text": "verify green with no test change beyond the matchMedia stub."},
+    {"goal_id": "g4", "text": "The never-hide constraint is written down with the observation that proved it."}
+  ],
+  "open_questions": [
+    "Whether to add page (route) transitions later is a product call; the workspace is a single long-lived route, so an entrance is the meaningful moment today."
+  ],
+  "risks": [
+    "jsdom has no matchMedia: Motion asks for prefers-reduced-motion, so the setup file now provides the smallest stand-in.",
+    "Opacity-from-0 would hide a background tab (rAF paused); the variants are transform-only for exactly that reason.",
+    "Motion must not touch the canvases; it is DOM-only and the Konva leaves are unchanged."
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "id": "036-task-motion",
+  "title": "One calm, orchestrated entrance that can never hide the app",
+  "architecture": "frontend",
+  "secondary_architecture": [],
+  "created_at": "2026-09-26T14:00:00Z",
+  "status": "done",
+  "depends_on": ["005-task-design-system"],
+  "plan_refs": [
+    {"doc": "06-whole-apps-task.md", "section": "PHASE G — polish"},
+    {"doc": "03-frontend-architecture.md", "section": "§5.3 providers, §6.1 canvas is not DOM"},
+    {"doc": "todo-task-036-motion.md", "section": "§2, §3, §4"}
+  ],
+  "goals": [
+    {"id": "g1", "description": "motion behind one seam + MotionConfig reducedMotion=user", "plan_ref": "036 §2 g1", "status": "done"},
+    {"id": "g2", "description": "the workspace open, the Members/Notes lists, the import rows, the offline banner and the leader chip", "plan_ref": "036 §2 g2", "status": "done"},
+    {"id": "g3", "description": "the full gate stays green", "plan_ref": "036 §2 g3", "status": "done"},
+    {"id": "g4", "description": "docs, including the never-hide-a-tab constraint", "plan_ref": "036 §2 g4, §4", "status": "done"}
+  ],
+  "phases": {
+    "analyze": {"file": "analyze.json", "status": "done"},
+    "code": {"file": "code.json", "status": "done"},
+    "test": {"file": "test.json", "status": "done"},
+    "validate": {"file": "validate.json", "status": "done"},
+    "result": {"file": "result.json", "status": "done"}
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "task_id": "036-task-motion",
+  "phase": "code",
+  "completed_at": "2026-09-26T14:35:00Z",
+  "changes": [
+    {"file": "package.json", "summary": "adds motion@^13 (React 19 compatible); 4 packages, 0 vulnerabilities.", "kind": "dependency"},
+    {"file": "src/shared/lib/motion.ts", "summary": "the one seam: re-exports the primitives and owns rise / stagger / riseChild / pop, all transform-only.", "kind": "feature"},
+    {"file": "src/shared/providers/index.tsx", "summary": "mounts MotionConfig reducedMotion=\"user\" once, inside the existing tree.", "kind": "feature"},
+    {"file": "vitest.setup.ts", "summary": "adds the smallest matchMedia stand-in jsdom lacks (Motion and next-themes both need it).", "kind": "test"},
+    {"file": "src/features/workspace/components/workspace-shell/workspace-shell.tsx", "summary": "the workspace open: a staggered rise of the header and the document/rail row.", "kind": "feature"},
+    {"file": "src/features/workspace/components/members/members.tsx", "summary": "the roster rows rise in order.", "kind": "feature"},
+    {"file": "src/features/notes/components/note-panel/note-panel.tsx", "summary": "the highlight list rises in order.", "kind": "feature"},
+    {"file": "src/features/highlight/components/import-review/import-review.tsx", "summary": "the review card and each candidate row rise in order.", "kind": "feature"},
+    {"file": "src/features/sync/components/offline-banner/offline-banner.tsx", "summary": "the banner slides in.", "kind": "feature"},
+    {"file": "src/features/presence/components/leader-drawing/leader-drawing.tsx", "summary": "the ephemeral chip pops in and out through AnimatePresence (scale-only).", "kind": "feature"}
+  ],
+  "decisions": [
+    "One seam (shared/lib/motion) so the provider config, variants and reduced-motion stay in one place — the pdf.ts/supabase.ts/opfs.ts pattern.",
+    "Transform-only entrances: an entrance must never be able to hide the app when rAF is paused (a background tab).",
+    "Motion is DOM-only; the Konva canvases keep their painters."
+  ]
+}

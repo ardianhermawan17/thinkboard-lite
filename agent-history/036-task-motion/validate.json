@@ -1,0 +1,21 @@
+{
+  "task_id": "036-task-motion",
+  "phase": "validate",
+  "goal_checks": [
+    {"goal_id": "g1", "status": "pass", "notes": "shared/lib/motion.ts is the only module importing motion/react; MotionConfig reducedMotion=\"user\" is mounted once in shared/providers/index.tsx. Verified by grep: no component imports motion/react directly."},
+    {"goal_id": "g2", "status": "pass", "notes": "WorkspaceShell staggers the header and the document/rail row; Members and the NotePanel list their rows in order; ImportReview rises its card and rows; the OfflineBanner rises; the LeaderDrawing chip pops via AnimatePresence. All transform/scale only."},
+    {"goal_id": "g3", "status": "pass", "notes": "npm run verify green at the same 374/14 as before the change; the only test-file edit is the matchMedia stub."},
+    {"goal_id": "g4", "status": "pass", "notes": "todo-task-036 §4 records the never-hide constraint and the hidden-tab observation; README §6 records the task."}
+  ],
+  "cross_check_against_plan": [
+    {"doc": "03-frontend-architecture.md", "section": "§5.3", "result": "matches — MotionConfig joins the one provider tree; no new provider layer elsewhere."},
+    {"doc": "04-frontend-folder-architecture.md", "section": "§8/§9", "result": "matches — a third-party wrapper lives in shared/lib; components import the seam; no cross-context import added."},
+    {"doc": "03-frontend-architecture.md", "section": "§6.1/§6.2", "result": "matches — the canvas leaves are untouched; Motion never drives a Konva layer."}
+  ],
+  "signed_off": true,
+  "issues_found": [
+    "The first pass used opacity-from-0 entrances. In a background tab rAF is paused, so the app stayed invisible — observed live (opacity 0 after >1s). Changed every variant to transform-only; the same probe then reported opacity 1.",
+    "jsdom has no matchMedia, which Motion (reduced motion) and next-themes both query; the setup file now provides a stand-in.",
+    "The environment cannot screenshot (it needs a visible desktop), so the animation's settled state was checked by reading computed styles rather than by a picture."
+  ]
+}

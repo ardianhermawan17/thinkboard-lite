@@ -312,6 +312,10 @@ Critical path = the demoable slice:  000 → 001 → 004 → 006 → 008 → 009
 - **Also done:** 035 (page navigation and rotate) — a live-pass finding: nothing dispatched `pageChanged`/`rotated`, so a multi-page document was stuck on
   pages 1–2 with no way to advance or turn. Adds a `Page N of M` indicator with Prev/Next and a quarter-turn Rotate; the Rotate control also forced a real
   fix — `renderPage`/`renderTextLayer` ignored rotation, so the page itself would not have turned. `npm run verify` green (374 / 14 skipped).
+- **Also done:** 036 (motion) — `motion` behind one seam (`shared/lib/motion.ts`) with `MotionConfig reducedMotion="user"`: a calm, staggered workspace open
+  plus the Members/Notes lists, the import-review rows, the offline banner and the "Leader is drawing" chip. Every entrance is **transform-only**: an
+  opacity-from-0 entrance leaves a workspace opened in a background tab invisible, because `requestAnimationFrame` is paused there — reproduced live.
+  `npm run verify` green (374 / 14 skipped, same totals).
 - **Next:** nothing an agent can start remains. 013/014/022 wait on 012 (human device test, Q7); 019/020 wait on 018 (D-12); 023 waits on 015/016/020/022;
   024 is conditional. The live gates 030 / 015 / 016 / 031 / 017 (and the whole text-highlight path, and all three import rungs) are now proven in a real browser
   (033, 034); the browser-only remainder is a genuine Acrobat-exported annotated PDF. The human unblockers are unchanged: run 012's device test (Q7), answer
