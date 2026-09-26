@@ -1,6 +1,7 @@
 import type { PDFDocumentProxy } from "pdfjs-dist"
 import { getOrFetch, requestPersistence, type ArtifactBytes } from "@shared/lib/opfs"
 import { getSupabase } from "@shared/lib/supabase"
+import type { Rotation } from "@shared/utils/geometry"
 
 const BUCKET = "artifacts"
 
@@ -47,9 +48,9 @@ export async function openPdf(bytes: Uint8Array): Promise<PdfDocument> {
  * `signal` cancels an in-flight render: pdfjs refuses two renders on one canvas ("Cannot use the same canvas
  * during multiple render() operations"), so a page/zoom change — or React's dev double-effect — must cancel the
  * previous paint instead of colliding with it. A cancelled render rejects; the caller ignores it when aborted. */
-export async function renderPage(doc: PdfDocument, pageNumber: number, canvas: HTMLCanvasElement, scale: number, signal?: AbortSignal) {
+export async function renderPage(doc: PdfDocument, pageNumber: number, canvas: HTMLCanvasElement, scale: number, rotation: Rotation = 0, signal?: AbortSignal) {
   const page = await doc.getPage(pageNumber)
-  const viewport = page.getViewport({ scale })
+  const viewport = page.getViewport({ scale, rotation })
   canvas.width = viewport.width
   canvas.height = viewport.height
   const context = canvas.getContext("2d")
@@ -68,10 +69,10 @@ export async function renderPage(doc: PdfDocument, pageNumber: number, canvas: H
 
 /** z1: PDF.js's own text layer — real, selectable spans, positioned by pdfjs itself (03 §6.1: highlights come from here, never z2).
  * Cancels with the same `signal` as z0, so a replaced page never leaves a half-built text layer behind. */
-export async function renderTextLayer(doc: PdfDocument, pageNumber: number, container: HTMLDivElement, scale: number, signal?: AbortSignal) {
+export async function renderTextLayer(doc: PdfDocument, pageNumber: number, container: HTMLDivElement, scale: number, rotation: Rotation = 0, signal?: AbortSignal) {
   const lib = await loadPdfjs()
   const page = await doc.getPage(pageNumber)
-  const viewport = page.getViewport({ scale })
+  const viewport = page.getViewport({ scale, rotation })
   container.style.width = `${viewport.width}px`
   container.style.height = `${viewport.height}px`
   const layer = new lib.TextLayer({ textContentSource: page.streamTextContent(), container, viewport })
@@ -97,7 +98,7 @@ export async function renderTextLayer(doc: PdfDocument, pageNumber: number, cont
 export async function pageImageData(doc: PdfDocument, pageNumber: number, scale = 1): Promise<{ canvas: HTMLCanvasElement; data: Uint8ClampedArray; width: number; height: number } | null> {
   if (typeof document === "undefined") return null
   const canvas = document.createElement("canvas")
-  await renderPage(doc, pageNumber, canvas, scale)
+  await renderPage(doc, pageNumber, canvas, scale, 0)
   const context = canvas.getContext("2d", { willReadFrequently: true })
   if (!context) return null
   const image = context.getImageData(0, 0, canvas.width, canvas.height)

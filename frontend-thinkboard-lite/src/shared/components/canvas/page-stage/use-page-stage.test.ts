@@ -40,13 +40,25 @@ describe("usePageStage (g3, g4)", () => {
     await act(async () => {
       rerender({ pageNumber: 2 })
     })
-    const signal = renderPage.mock.calls.at(-1)?.[4] as AbortSignal | undefined
+    const signal = renderPage.mock.calls.at(-1)?.[5] as AbortSignal | undefined
     expect(signal).toBeInstanceOf(AbortSignal)
     expect(signal?.aborted).toBe(false)
     act(() => {
       unmount()
     })
     expect(signal?.aborted).toBe(true)
+  })
+
+  it("re-renders the page at the new rotation, so Rotate turns the page itself", async () => {
+    const { result, rerender } = renderHook(
+      (props: { rotation: 0 | 90 }) => usePageStage({ doc, pageNumber: 1, zoom: 1, rotation: props.rotation }),
+      { initialProps: { rotation: 0 } }
+    )
+    withCanvasRefs(result)
+    await act(async () => {
+      rerender({ rotation: 90 })
+    })
+    expect(renderPage.mock.calls.at(-1)?.[4]).toBe(90)
   })
 
   it("a pinch gesture applies a live transform and commits zoom once, on the last pointer up", () => {

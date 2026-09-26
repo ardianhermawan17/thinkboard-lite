@@ -29,13 +29,13 @@ export function usePageStage({ doc, pageNumber, zoom, rotation, onZoomCommit, on
       const textLayer = textLayerRef.current
       if (!canvas || !textLayer) return
       try {
-        const size = await renderPage(doc, pageNumber, canvas, zoom, controller.signal)
+        const size = await renderPage(doc, pageNumber, canvas, zoom, rotation, controller.signal)
         if (controller.signal.aborted) return
         setPageSize(size)
         // 011: the same rendered canvas is the pixel source a region's OCR crop is taken from.
         onCanvasRendered?.(canvas, size)
         textLayer.replaceChildren()
-        await renderTextLayer(doc, pageNumber, textLayer, zoom, controller.signal)
+        await renderTextLayer(doc, pageNumber, textLayer, zoom, rotation, controller.signal)
         if (controller.signal.aborted) return
         onTextLayerRendered?.(textLayer, size)
       } catch (e) {

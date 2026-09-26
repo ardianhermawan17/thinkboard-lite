@@ -49,5 +49,7 @@ describe("DocumentViewer (g2 windowing, container)", () => {
     const stages = screen.getAllByTestId("page-stage-stub")
     expect(stages.length).toBeLessThanOrEqual(3)
     expect(stages.map((s) => s.dataset.page)).toEqual(["14", "15", "16"])
+    // 035: the controls follow the same slice, so the cursor is visible and steppable.
+    expect(screen.getByTestId("page-indicator").textContent).toBe("Page 15 of 30")
   })
 })
