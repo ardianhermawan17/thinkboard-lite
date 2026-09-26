@@ -101,8 +101,8 @@ and runs the live suites" step would convert these into confidence rather than o
 - `02-database-architecture.md` §10 DB-Q9 and 015 g6 now agree only because the migration was renamed.
 
 ### 3.5 Housekeeping still outstanding
-- ~~Revoke `anon` EXECUTE on the definer RPCs (`0003_grant_schema.sql` still uses `anon`/`service_role` names).~~ **Done** — task 030 (`0007_revoke_anon_execute.sql`); the live RLS run is pending.
-- ~~Let teammates read their team's profile names.~~ **Done** — task 030 (`0008_team_profile_names.sql`); the live RLS run is pending.
+- ~~Revoke `anon` EXECUTE on the definer RPCs (`0003_grant_schema.sql` still uses `anon`/`service_role` names).~~ **Done and proven live** — task 030 (`0007_revoke_anon_execute.sql`); RLS suite 19/19.
+- ~~Let teammates read their team's profile names.~~ **Done and proven live** — task 030 (`0008_team_profile_names.sql`); RLS suite 19/19.
 - `003`'s provider rows are placeholders; keep them out of any "provider is configured" assumption.
 - The Obsidian vault (`thinkboard-lite-architecture/`) and the `graphify-out/` trees are untracked; decide whether
   they should be versioned.

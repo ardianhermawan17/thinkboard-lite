@@ -19,8 +19,9 @@ test("every check passes and the suite exits 0", () => {
   assert.equal(run.status, 0, run.stderr)
 })
 
-// g13 is the re-apply below; g1..g16 otherwise each need at least one passing check
-for (let n = 1; n <= 16; n++) {
+// g13 is the re-apply below; g1..g18 otherwise each need at least one passing check
+// (g17/g18 are task 030: anon EXECUTE revoked, teammate profile-name reads)
+for (let n = 1; n <= 18; n++) {
   if (n === 13) continue
   test(`g${n} has passing checks`, () => assert.ok(lines.some((l) => new RegExp(`^ok\\s+g${n}\\b`).test(l)), `no "ok g${n}" line`))
 }

@@ -9,7 +9,7 @@ import { createWorkspace, hasSession, saveTeamPersona, saveUserPersona, signIn, 
 
 // The gate test for 008 (g1-g4) and 007 g7: real RLS against the seeded local stack (database-thinkboard-lite: `npm run start`, `npm run db:seed`).
 // It skips itself in `npm run verify` unless the stack's URL and publishable key are in the environment:
-//   NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:55321 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=<PUBLISHABLE_KEY from `supabase status`> npm test
+//   NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:56321 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=<PUBLISHABLE_KEY from `supabase status`> npm test
 const live = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY)
 const PASSWORD = "password" // the local seed's shared dev password (seed.sql)
 

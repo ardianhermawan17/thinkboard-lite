@@ -51,6 +51,10 @@ create function tb_test.msgs(tbl text, id uuid) returns text[] language sql stab
 create function tb_test.can_read(topic text) returns bigint language plpgsql as $$
 begin perform set_config('realtime.topic', topic, true); return (select count(*) from realtime.messages where realtime.messages.topic = $1); end $$;
 
+-- g17 runs the harness itself as anon, so anon needs USAGE on this schema and EXECUTE on the helpers.
+grant usage on schema tb_test to anon;
+grant execute on all functions in schema tb_test to anon;
+
 -- ═══ g1 · fixture: leader L, members A and B, outsider X ═══
 insert into auth.users (id, email, raw_user_meta_data, aud, role) values
   ('11111111-1111-1111-1111-111111111111', 'l@t.test', '{}', 'authenticated', 'authenticated'),

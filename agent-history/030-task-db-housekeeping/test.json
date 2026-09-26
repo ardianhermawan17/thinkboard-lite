@@ -1,11 +1,17 @@
 {
   "task_id": "030-task-db-housekeeping",
   "phase": "test",
-  "test_files": ["database-thinkboard-lite/supabase/tests/rls.sql"],
-  "commands_run": [
-    {"command": "npm run verify (frontend-thinkboard-lite)", "result": "18 pass/0 fail arch, lint clean, typecheck clean, vitest 350 passed/10 skipped (360) — the migrations do not touch the frontend, so the repo gate is unchanged"},
-    {"command": "database-thinkboard-lite npm test (live RLS suite)", "result": "NOT RUN in this environment (needs Docker + the local stack). The suite gained the g17/g18 checks; running it is the task's gate and the recorded follow-up."}
+  "test_files": [
+    "database-thinkboard-lite/supabase/tests/rls.sql",
+    "database-thinkboard-lite/supabase/tests/rls.test.mjs"
   ],
-  "summary": {"total": 360, "passed": 350, "failed": 0, "skipped": 10},
-  "coverage_notes": "The task's own tests are the six live RLS checks added to supabase/tests/rls.sql: g17 anon-cannot-create_workspace, g17 authenticated-can-create_workspace, g18 teammate-reads-co-member, g18 B-cannot-read-outsider, g18 outsider-cannot-read-member. They run under `npm test` in database-thinkboard-lite against the local stack; this environment has no stack, so they are recorded as pending a live run rather than passing. The frontend gate (`npm run verify`) is unchanged (350 pass/10 skip) because the change is database-only. The 10 skipped are the pre-existing live-stack suites."
+  "commands_run": [
+    {"command": "npm run start (database-thinkboard-lite)", "result": "the Lite stack came up; its ports moved 553xx -> 563xx because Windows reserves 55262-55361 on this machine (config.toml + the two READMEs updated)"},
+    {"command": "npm run db:seed", "result": "migrations 0001-0008 applied cleanly (0006_live_topic, 0007_revoke_anon_execute, 0008_team_profile_names included); seed + placeholder PDF uploaded"},
+    {"command": "npm test (live RLS suite)", "result": "19/19 pass, including g17 (anon denied on create_workspace; authenticated allowed) and g18 (a teammate reads a co-member's profile; an outsider does not)"},
+    {"command": "npm run test:seed", "result": "6/6 pass (seed shape, three sign-ins, placeholder providers D-12-pending, storage read/write policy, db:seed twice is idempotent)"},
+    {"command": "npm run verify (frontend-thinkboard-lite)", "result": "unchanged and green: 360 passed / 10 skipped"}
+  ],
+  "summary": {"total": 19, "passed": 19, "failed": 0, "skipped": 0},
+  "coverage_notes": "The task's own gate is the live RLS suite, and it now ran on the local stack: 19/19, with g17 and g18 promoted to first-class assertions in rls.test.mjs. g17 proves 0007 (no anon EXECUTE on create_workspace; authenticated keeps it and every policy helper stays callable). g18 proves 0008 (a teammate reads a co-member's profile; an outsider cannot). The seed/storage suite (6/6) confirms the migrations did not disturb 0002/0003/0005. The frontend gate is unchanged. One test-scaffolding fix was needed: the harness schema tb_test had to grant USAGE/EXECUTE to anon so the g17 checks can call the harness while running as anon."
 }

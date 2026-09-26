@@ -6,7 +6,8 @@ Later a Go backend will be a **sibling** folder (`backend-thinkboard-lite/`), no
 the schema, migrations, seed and tests, and nothing else.
 
 ```
-supabase/config.toml        ports 553xx, so it can run beside the Full project's stack (543xx)
+supabase/config.toml        ports 563xx (moved from 553xx: Windows reserves 55262-55361 on the owner's box),
+                            so it runs beside the Full project's stack (543xx)
 supabase/migrations/        0001-0003 from the Full project, unchanged; 0004_lite.sql is the Lite delta;
                             0005_storage_artifacts.sql is the `artifacts` bucket + its policy (task 003, DB-Q11)
 supabase/tests/             rls.sql + rls.test.mjs — the access-model proof (task 002)

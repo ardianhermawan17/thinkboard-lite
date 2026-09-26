@@ -2,20 +2,20 @@
   "task_id": "030-task-db-housekeeping",
   "phase": "validate",
   "goal_checks": [
-    {"goal_id": "g1", "status": "pass", "notes": "0007_revoke_anon_execute.sql revokes EXECUTE on all public-schema functions from PUBLIC and anon, grants it to authenticated, and sets the same default for future functions. The front door is closed for an unauthenticated caller while the policy helpers stay callable by authenticated (proven by g17 in the live suite)."},
-    {"goal_id": "g2", "status": "pass", "notes": "0008_team_profile_names.sql adds a permissive SELECT policy on profiles using a self-join on team_members: a member reads anyone who shares a team; outsiders and other teams stay invisible. The existing own-profile policy is untouched (permissive policies OR)."},
-    {"goal_id": "g3", "status": "pass", "notes": "rls.sql gained a tb_test.anon() helper and the g17/g18 checks in the harness's style; they are part of the live RLS suite. The suite needs the local stack, so its run is the task's recorded follow-up."},
-    {"goal_id": "g4", "status": "pass", "notes": "README §6's housekeeping list and the task review's §3.5 are updated to mark the two items done, and this task is recorded on the progress board."}
+    {"goal_id": "g1", "status": "pass", "notes": "0007_revoke_anon_execute.sql revokes EXECUTE on all public-schema functions from PUBLIC and anon, grants it to authenticated, and sets the same default for later functions. PROVEN live: g17 in the RLS suite shows anon denied on create_workspace and authenticated allowed, and every policy helper still resolves."},
+    {"goal_id": "g2", "status": "pass", "notes": "0008_team_profile_names.sql adds a permissive SELECT policy on profiles for co-members (a shared-team join); the own-profile policy is untouched. PROVEN live: g18 shows a teammate reading a co-member's profile and an outsider denied."},
+    {"goal_id": "g3", "status": "pass", "notes": "rls.sql gained a tb_test.anon() helper and the g17/g18 checks; rls.test.mjs asserts them individually now. The suite ran 19/19 on the local stack."},
+    {"goal_id": "g4", "status": "pass", "notes": "README §6's housekeeping list and the task review's §3.5 mark the two items done; this task is on the board."}
   ],
   "cross_check_against_plan": [
-    {"doc": "06-whole-apps-task.md", "section": "PHASE G · 030", "result": "matches — supabase; the four mini-goals map to g1-g4; it closes two carried housekeeping items and blocks nothing."},
-    {"doc": "02-database-architecture.md", "section": "§8.1", "result": "matches — additive grants and one policy; no table, column, function body or RLS enablement changes, so the schema's source of truth does not move."},
-    {"doc": "task-review-2026-09-25.md", "section": "§3.5", "result": "matches — both listed items are implemented; the review text is updated to mark them done."}
+    {"doc": "06-whole-apps-task.md", "section": "PHASE G · 030", "result": "matches — supabase; g1-g4 all pass, now with a live run."},
+    {"doc": "02-database-architecture.md", "section": "§8.1", "result": "matches — additive grants and one policy; no table, column, function body or RLS enablement changed, so the schema's source of truth does not move."},
+    {"doc": "task-review-2026-09-25.md", "section": "§3.5", "result": "matches — both listed items are implemented and now proven live."}
   ],
   "signed_off": true,
   "issues_found": [
-    "The live RLS run is deferred: it needs Docker and the local stack. The checks are written but unexecuted here; this is recorded, not claimed as passing.",
-    "Default privileges cover future functions; a later migration that creates a function and grants it to anon explicitly would still need review.",
+    "The Lite stack's documented 553xx ports collide with Windows' reserved range 55262-55361 on this machine; the stack was moved to 563xx (config.toml + README §6 + database README + the two live-test comments). This is an environment-driven deviation, recorded.",
+    "The g17 checks needed the tb_test harness schema to grant USAGE/EXECUTE to anon; that is test scaffolding, not a product change.",
     "The profiles policy increases read visibility within a team only; if the product ever wants names hidden between members, this is the policy to revisit."
   ]
 }

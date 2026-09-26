@@ -214,7 +214,7 @@ in `task_sequence` is *not opened*.
 | G | 027 export the workspace bundle | [todo-task-027](todo-task-027-export-bundle.md) | frontend | 016 026 | **done** |
 | G | 028 presence rail | [todo-task-028](todo-task-028-presence-rail.md) | frontend | 015 026 | **done** |
 | G | 029 re-import review | [todo-task-029](todo-task-029-reimport-review.md) | frontend | 016 026 | **done** |
-| G | 030 database housekeeping | [todo-task-030](todo-task-030-db-housekeeping.md) | supabase | 001 002 | **done** (live RLS run pending) |
+| G | 030 database housekeeping | [todo-task-030](todo-task-030-db-housekeeping.md) | supabase | 001 002 | **done** (live RLS 19/19) |
 | G | 031 peer cursors | [todo-task-031](todo-task-031-peer-cursors.md) | frontend | 015 026 028 | **done** |
 | G | 032 import existing highlights | [todo-task-032](todo-task-032-import-existing.md) | frontend | 021 | **done** (D-02 upload follow-up) |
 
@@ -292,8 +292,8 @@ Critical path = the demoable slice:  000 → 001 → 004 → 006 → 008 → 009
   counts, and apply the matched updates without duplicates. `npm run verify` green (350 tests), production build ok; no new dependency.
   (`06-whole-apps-task.md`'s backlog is now 30 tasks.)
 - **Also done:** 030 (database housekeeping) — `0007` revokes EXECUTE on the definer RPCs from PUBLIC and `anon` (granting `authenticated`), and `0008` lets a
-  teammate read a co-member's profile name; `rls.sql` gained the g17/g18 checks. The task's own live RLS run is pending (no local stack here); the repo gate
-  stays green. (`06-whole-apps-task.md`'s backlog is now 31 tasks.)
+  teammate read a co-member's profile name. **Proven live:** the Lite stack was moved to ports 563xx (Windows reserves the documented 553xx range on this
+  machine) and the RLS suite ran **19/19** (g17/g18 asserted) with the seed/storage suite **6/6**. (`06-whole-apps-task.md`'s backlog is now 31+ tasks.)
 - **Also done:** 031 (peer cursors) — one `PresenceProvider` owns the live channel; `PresenceLayer` paints peers' cursors through the `peer-cursors` leaf and the
   page publishes its own pointer, normalized (RULE-17) and throttled ~20 Hz (RULE-20). Closes 015 g2. `npm run verify` green (354 tests), production build ok.
   (`06-whole-apps-task.md`'s backlog is now 32 tasks.)
@@ -303,7 +303,7 @@ Critical path = the demoable slice:  000 → 001 → 004 → 006 → 008 → 009
 - **Next:** nothing an agent can start remains. 013/014/022 wait on 012 (human device test, Q7); 019/020 wait on 018 (D-12); 023 waits on 015/016/020/022;
   024 is conditional. The unblockers are all human/hardware: run 012's device test (Q7), answer D-12, run the live gates (030 RLS, 015/031 two-browser, 016
   airplane, 021/032 annotated-PDF), and decide D-02's upload flow.
-  Housekeeping: both carried items are done (030); the live RLS run for them is pending.
+  Housekeeping: both carried items are done and proven live (030; RLS 19/19, seed 6/6, on the 563xx stack).
 - **Waiting on a human:**
   - **D-12** — free-tier training terms vs document sensitivity. Blocks 018, and ink transcription in 024. 003's
     placeholder provider rows stand in until it is answered.
@@ -311,7 +311,7 @@ Critical path = the demoable slice:  000 → 001 → 004 → 006 → 008 → 009
   - **Q8, Q9** — the real tablet mix; whether users have styluses.
   - **Raised in plan docs:** the workspace-create path before 017 exists (008); Vault access under the user's
     JWT (018); adding members to a team needs its own definer RPC, like `create_workspace` (008).
-- **Local stacks:** the Lite stack runs on ports 553xx (`database-thinkboard-lite/supabase/config.toml`), beside the
+- **Local stacks:** the Lite stack runs on ports 563xx (`database-thinkboard-lite/supabase/config.toml`; moved from 553xx because Windows reserves 55262-55361 on the owner's machine), beside the
   Full project's stack on 543xx.
 - `agent-history/_example/` is a filled-in reference task from the Full era, kept outside the numbered space.
 
