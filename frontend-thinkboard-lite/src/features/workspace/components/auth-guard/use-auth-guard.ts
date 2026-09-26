@@ -16,6 +16,9 @@ export function useAuthGuard() {
   const error = useAppSelector(selectError)
   const [checked, setChecked] = useState(false)
   const [hasToken, setHasToken] = useState(false)
+  // The sign-in screen's own state lives here, not in the .tsx (I2: a .tsx with a sibling use-*.ts keeps no hooks).
+  const [submitting, setSubmitting] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
   useEffect(() => {
     hasSession()
@@ -29,14 +32,24 @@ export function useAuthGuard() {
   if (phase === "ready" && profileId) openDb(profileId)
 
   async function signInWith(form: FormData) {
+    setSubmitting(true)
     try {
       const id = await signIn(String(form.get("email")), String(form.get("password")))
       dispatch(signedIn({ profileId: id }))
       setHasToken(true)
     } catch (e) {
       dispatch(failed(e instanceof Error ? e.message : "Sign in failed"))
+    } finally {
+      setSubmitting(false)
     }
   }
 
-  return { phase, error, signInWith }
+  return {
+    phase,
+    error,
+    submitting,
+    showPassword,
+    togglePassword: () => setShowPassword((shown) => !shown),
+    signInWith,
+  }
 }
